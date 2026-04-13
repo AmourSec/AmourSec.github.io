@@ -194,7 +194,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2026-04-13 10:30:00 / Modified: 10:08:56" itemprop="dateCreated datePublished" datetime="2026-04-13T10:30:00+08:00">2026-04-13</time>
+      <time title="Created: 2026-04-13 10:30:00 / Modified: 10:12:55" itemprop="dateCreated datePublished" datetime="2026-04-13T10:30:00+08:00">2026-04-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -234,11 +234,11 @@
 <li>这个仓库将用于托管博客的静态文件</li>
 </ol>
 <h2 id="配置-SSH-密钥"><a href="#配置-SSH-密钥" class="headerlink" title="配置 SSH 密钥"></a>配置 SSH 密钥</h2><p>为了安全部署，建议生成专用的 SSH 密钥：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成 SSH 密钥（替换为你的邮箱）</span></span><br><span class="line">ssh-keygen -t ed25519 -C <span class="string">&quot;your-email@example.com&quot;</span> -f ~/.ssh/id_ed25519_github_blog</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看公钥内容</span></span><br><span class="line"><span class="built_in">cat</span> ~/.ssh/id_ed25519_github_blog.pub</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成 SSH 密钥（替换为你的邮箱）</span></span><br><span class="line">ssh-keygen -t rsa -b 4096 -C <span class="string">&quot;your-email@example.com&quot;</span> -f ~/.ssh/github_blog</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看公钥内容</span></span><br><span class="line"><span class="built_in">cat</span> ~/.ssh/github_blog.pub</span><br></pre></td></tr></table></figure>
 
 <p>将生成的公钥添加到 GitHub 仓库的 <strong>Settings → Deploy keys</strong> 中。</p>
 <p>配置 SSH 使用指定密钥，编辑 <code>~/.ssh/config</code>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Host github.com-blog</span><br><span class="line">  HostName github.com</span><br><span class="line">  User git</span><br><span class="line">  IdentityFile ~/.ssh/id_ed25519_github_blog</span><br><span class="line">  IdentitiesOnly yes</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Host github.com-blog</span><br><span class="line">  HostName github.com</span><br><span class="line">  User git</span><br><span class="line">  IdentityFile ~/.ssh/github_blog</span><br><span class="line">  IdentitiesOnly yes</span><br></pre></td></tr></table></figure>
 
 <p>测试连接：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -T git@github.com-blog</span><br></pre></td></tr></table></figure>
