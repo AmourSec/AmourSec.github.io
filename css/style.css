@@ -4540,6 +4540,7 @@ pre .javascript .function {
 .search-wrap {
   position: relative;
   min-width: 56px;
+  flex-shrink: 0;
 }
 .search-wrap.in .search-input {
   width: 320px;

@@ -93,7 +93,9 @@
         if (e) e.preventDefault();
     }
 
-    searchIco.addEventListener(even, function () {
+    searchIco.addEventListener(even, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         searchWrap.classList.toggle('in');
         keyInput.value = '';
         searchResult.innerHTML = '';
@@ -101,13 +103,16 @@
         searchWrap.classList.contains('in') ? keyInput.focus() : keyInput.blur();
     });
 
-    back.addEventListener(even, function () {
+    back.addEventListener(even, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         searchWrap.classList.remove('in');
         Control.hide();
     });
 
     document.addEventListener(even, function (e) {
-        if (e.target.id !== 'key' && even === 'click') {
+        if (!searchWrap.contains(e.target) && !searchPanel.contains(e.target)) {
+            searchWrap.classList.remove('in');
             Control.hide();
         }
     });
