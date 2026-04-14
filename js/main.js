@@ -253,7 +253,9 @@
         search: function () {
             var searchWrap = $('#search-wrap');
 
-            function toggleSearch() {
+            function toggleSearch(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 searchWrap.classList.toggle('in');
             }
 
