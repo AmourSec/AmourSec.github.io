@@ -543,10 +543,6 @@
         Blog.reward()
     }
 
-    if (w.BLOG.SEARCH) {
-        Blog.search()
-    }
-
     Blog.noop = noop;
     Blog.even = even;
     Blog.$ = $;
