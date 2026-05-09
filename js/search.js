@@ -12,6 +12,7 @@
     var searchTpl = $('#search-tpl').innerHTML;
     var JSON_DATA = (G.BLOG.ROOT + '/content.json').replace(/\/{2}/g, '/');
     var searchData;
+    var searchTimer;
 
     if (!searchIco || !searchWrap || !keyInput) return;
 
@@ -42,6 +43,35 @@
         });
     }
 
+    function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, function (str) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[str];
+        });
+    }
+
+    function normalize(value) {
+        return String(value || '').toLowerCase();
+    }
+
+    function hasKeyword(post, keys) {
+        var tags = post.tags || [];
+        var haystack = [
+            post.title,
+            post.text,
+            tags.map(function (tag) { return tag.name; }).join(' ')
+        ].map(normalize).join(' ');
+
+        return keys.some(function (key) {
+            return haystack.indexOf(key) > -1;
+        });
+    }
+
     var Control = {
         show: function () {
             if (window.innerWidth < 760) document.documentElement.classList.add('lock-size');
@@ -57,12 +87,13 @@
         var html = '';
         if (data.length) {
             html = data.map(function (post) {
+                var tags = post.tags || [];
                 return tpl(searchTpl, {
-                    title: post.title,
-                    path: (G.BLOG.ROOT + '/' + post.path).replace(/\/{2,}/g, '/'),
+                    title: escapeHtml(post.title),
+                    path: escapeHtml((G.BLOG.ROOT + '/' + post.path).replace(/\/{2,}/g, '/')),
                     date: new Date(post.date).toLocaleDateString(),
-                    tags: post.tags.map(function (tag) {
-                        return '<span>#' + tag.name + '</span>';
+                    tags: tags.map(function (tag) {
+                        return '<span>#' + escapeHtml(tag.name) + '</span>';
                     }).join('')
                 });
             }).join('');
@@ -80,12 +111,10 @@
             return;
         }
 
-        var regExp = new RegExp(key.replace(/[ ]/g, '|'), 'gmi');
+        var keys = key.toLowerCase().split(/\s+/).filter(Boolean);
         loadData(function (data) {
             var result = data.filter(function (post) {
-                return regExp.test(post.title) || post.tags.some(function (tag) {
-                    return regExp.test(tag.name);
-                }) || regExp.test(post.text);
+                return hasKeyword(post, keys);
             });
             render(result);
             Control.show();
@@ -117,6 +146,11 @@
         }
     });
 
-    keyInput.addEventListener('keyup', doSearch);
+    keyInput.addEventListener('keyup', function (e) {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(function () {
+            doSearch(e);
+        }, 120);
+    });
 
 }).call(this);

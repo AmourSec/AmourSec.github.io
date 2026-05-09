@@ -18,18 +18,12 @@
         isWX = /micromessenger/i.test(navigator.userAgent),
         noop = function () { },
         offset = function (el) {
-            var x = el.offsetLeft,
-                y = el.offsetTop;
-
-            if (el.offsetParent) {
-                var pOfs = arguments.callee(el.offsetParent);
-                x += pOfs.x;
-                y += pOfs.y;
-            }
+            var rect = el.getBoundingClientRect();
+            var top = rootScollTop();
 
             return {
-                x: x,
-                y: y
+                x: rect.left + (w.pageXOffset || d.documentElement.scrollLeft || d.body.scrollLeft || 0),
+                y: rect.top + top
             };
         },
         rootScollTop = function() {
@@ -38,18 +32,24 @@
 
     var Blog = {
         goTop: function (end) {
-            var top = rootScollTop();
-            var interval = arguments.length > 2 ? arguments[1] : Math.abs(top - end) / scrollSpeed;
+            var self = this;
+            var interval = Math.abs(rootScollTop() - end) / scrollSpeed;
 
-            if (top && top > end) {
-                w.scrollTo(0, Math.max(top - interval, 0));
-                animate(arguments.callee.bind(this, end, interval));
-            } else if (end && top < end) {
-                w.scrollTo(0, Math.min(top + interval, end));
-                animate(arguments.callee.bind(this, end, interval));
-            } else {
-                this.toc.actived(end);
+            function step() {
+                var top = rootScollTop();
+
+                if (top && top > end) {
+                    w.scrollTo(0, Math.max(top - interval, 0));
+                    animate(step);
+                } else if (end && top < end) {
+                    w.scrollTo(0, Math.min(top + interval, end));
+                    animate(step);
+                } else {
+                    self.toc.actived(end);
+                }
             }
+
+            step();
         },
         toggleGotop: function (top) {
             if (top > w.innerHeight / 2) {
@@ -133,7 +133,7 @@
 
             // Make every child shrink initially
             var tocChilds = toc.querySelectorAll('.post-toc-child');
-            for (i = 0, len = tocChilds.length; i < len; i++) {
+            for (var i = 0, len = tocChilds.length; i < len; i++) {
                 tocChilds[i].classList.add('post-toc-shrink');
             }
             var firstChild = firstLink ? firstLink.nextElementSibling : null;
@@ -154,7 +154,7 @@
                 currEle.classList.add('active');
 
                 var siblingChilds = currEle.parentElement.querySelectorAll('.post-toc-child');
-                for (j = 0, len1 = siblingChilds.length; j < len1; j++) {
+                for (var j = 0, len1 = siblingChilds.length; j < len1; j++) {
                     siblingChilds[j].classList.remove('post-toc-expand');
                     siblingChilds[j].classList.add('post-toc-shrink');
                 }
@@ -170,7 +170,7 @@
                     top >= bannerH - headerH ? toc.classList.add('fixed') : toc.classList.remove('fixed');
                 },
                 actived: function (top) {
-                    for (i = 0, len = titles.length; i < len; i++) {
+                    for (var i = 0, len = titles.length; i < len; i++) {
                         if (top > offset(titles[i]).y - headerH - 5) {
                             var prevListEle = toc.querySelector('li.active');
                             var currLink = findTocLink(titles[i].id);
@@ -529,12 +529,20 @@
         e.preventDefault();
     }, false);
 
-    d.addEventListener('scroll', function () {
+    var scrollPending = false;
+    function updateOnScroll() {
+        scrollPending = false;
         var top = rootScollTop();
         Blog.toggleGotop(top);
         Blog.fixedHeader(top);
         Blog.toc.fixed(top);
         Blog.toc.actived(top);
+    }
+
+    d.addEventListener('scroll', function () {
+        if (scrollPending) return;
+        scrollPending = true;
+        animate(updateOnScroll);
     }, false);
 
     if (w.BLOG.SHARE) {
@@ -559,7 +567,5 @@
         Waves.init();
         Waves.attach('.global-share li', ['waves-block']);
         Waves.attach('.article-tag-list-link, #page-nav a, #page-nav span', ['waves-button']);
-    } else {
-        console.error('Waves loading failed.')
     }
 })(window, document);
