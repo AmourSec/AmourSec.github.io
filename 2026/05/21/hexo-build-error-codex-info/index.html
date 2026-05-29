@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Hexo 博客构建失败时，如何向 Codex 提供有效信息 | 樂書</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Hexo 构建失败,Hexo deploy,Codex 排查,GitHub Pages,问题排查,Codex,Hexo">
+    <meta name="description" content="Hexo 博客构建或部署失败时，如何整理环境、命令、错误日志和复现步骤，让 Codex 更快定位问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo 博客构建失败时，如何向 Codex 提供有效信息">
+<meta property="og:url" content="https://amoursec.github.io/2026/05/21/hexo-build-error-codex-info/index.html">
+<meta property="og:site_name" content="樂書">
+<meta property="og:description" content="Hexo 博客构建或部署失败时，如何整理环境、命令、错误日志和复现步骤，让 Codex 更快定位问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-21T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-28T03:26:44.462Z">
+<meta property="article:author" content="yueshu">
+<meta property="article:tag" content="Codex">
+<meta property="article:tag" content="GitHub Pages">
+<meta property="article:tag" content="Hexo">
+<meta property="article:tag" content="问题排查">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="樂書" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/images/avatar.jpg">
+    <link rel="stylesheet" href="/css/style.css?v=undefined">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/images/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/images/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">yueshu</h5>
+          <a href="mailto:wangzijun96@gmail.com" title="wangzijun96@gmail.com" class="mail">wangzijun96@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                首页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/resource-navigator"  >
+                <i class="icon icon-lg icon-compass"></i>
+                资源
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/support"  >
+                <i class="icon icon-lg icon-coffee"></i>
+                支持
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about"  >
+                <i class="icon icon-lg icon-user"></i>
+                关于
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/AmourSec" target="_blank" rel="noopener noreferrer" >
+                <i class="icon icon-lg icon-github"></i>
+                GitHub
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Hexo 博客构建失败时，如何向 Codex 提供有效信息</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Hexo 博客构建失败时，如何向 Codex 提供有效信息</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2026-05-21T07:00:00.000Z" itemprop="datePublished" class="page-time">
+  2026-05-21
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%99%E7%A8%8B/">教程</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#%E6%9C%80%E5%B8%B8%E8%A7%81%E7%9A%84%E4%BD%8E%E6%95%88%E6%8F%90%E9%97%AE"><span class="post-toc-number">1.</span> <span class="post-toc-text">最常见的低效提问</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#%E6%9B%B4%E6%9C%89%E6%95%88%E7%9A%84%E6%8F%90%E9%97%AE%E6%A0%BC%E5%BC%8F"><span class="post-toc-number">2.</span> <span class="post-toc-text">更有效的提问格式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#%E4%B8%80%E4%B8%AA%E5%85%B7%E4%BD%93%E4%BE%8B%E5%AD%90%EF%BC%9A%E5%8F%AA%E8%B4%B4%E6%9C%80%E5%90%8E%E4%B8%80%E8%A1%8C-vs-%E8%B4%B4%E5%AE%8C%E6%95%B4%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="post-toc-number">3.</span> <span class="post-toc-text">一个具体例子：只贴最后一行 vs 贴完整上下文</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Hexo-%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%97%B6%E6%9C%80%E8%AF%A5%E6%8F%90%E4%BE%9B%E7%9A%84%E6%96%87%E4%BB%B6"><span class="post-toc-number">4.</span> <span class="post-toc-text">Hexo 问题排查时最该提供的文件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#%E5%BB%BA%E8%AE%AE%E7%9B%B4%E6%8E%A5%E5%A4%8D%E5%88%B6%E7%9A%84-Codex-%E6%8F%90%E7%A4%BA%E8%AF%8D"><span class="post-toc-number">5.</span> <span class="post-toc-text">建议直接复制的 Codex 提示词</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E4%B8%8D%E9%80%82%E5%90%88%E8%AE%A9-Codex-%E7%9B%B4%E6%8E%A5%E4%BF%AE"><span class="post-toc-number">6.</span> <span class="post-toc-text">什么情况下不适合让 Codex 直接修</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#%E8%BF%99%E5%92%8C%E5%8D%9A%E5%AE%A2%E5%8F%98%E7%8E%B0%E5%AE%9E%E9%AA%8C%E6%9C%89%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB"><span class="post-toc-number">7.</span> <span class="post-toc-text">这和博客变现实验有什么关系</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-hexo-build-error-codex-info"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Hexo 博客构建失败时，如何向 Codex 提供有效信息</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2026-05-21 15:00:00" datetime="2026-05-21T07:00:00.000Z"  itemprop="datePublished">2026-05-21</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E6%95%99%E7%A8%8B/">教程</a></li></ul>
+
+
+
+            
+
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <p>Hexo 博客构建失败时，很多人第一反应是把最后一行报错丢给 AI，然后问一句“怎么修”。这通常不够。</p>
+<p>对 Codex 来说，真正有用的信息不是“报错了”，而是：</p>
+<ul>
+<li>你想完成什么。</li>
+<li>你执行了什么命令。</li>
+<li>完整错误日志是什么。</li>
+<li>最近改过哪些文件。</li>
+<li>这个问题能不能稳定复现。</li>
+<li>仓库结构和关键配置是什么样。</li>
+</ul>
+<p>信息越完整，Codex 越容易直接定位到 <code>_config.yml</code>、主题配置、依赖版本、文章 Front Matter、资源路径或部署配置的问题。</p>
+<p>如果你不想从零整理，可以先复制这个页面里的格式，也可以直接使用 <a href="/templates/">Codex 辅助问题排查模板包</a>。</p>
+<h2 id="最常见的低效提问"><a href="#最常见的低效提问" class="headerlink" title="最常见的低效提问"></a>最常见的低效提问</h2><p>下面这些提问并不是不能问，但信息密度太低：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我的 Hexo deploy 失败了，帮我看看。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">报错了：</span><br><span class="line">FATAL Something&#x27;s wrong.</span><br><span class="line">怎么办？</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我改了主题之后网站打不开了，你修一下。</span><br></pre></td></tr></table></figure>
+
+<p>这些描述的问题是：没有命令、没有完整日志、没有上下文、没有最近变更，也没有说明“打不开”是本地打不开、线上打不开、页面空白、样式丢失，还是 GitHub Pages 没更新。</p>
+<p>Codex 只能先反问，或者猜。</p>
+<h2 id="更有效的提问格式"><a href="#更有效的提问格式" class="headerlink" title="更有效的提问格式"></a>更有效的提问格式</h2><p>可以改成这样：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">目标：</span><br><span class="line">我想把 Hexo 博客生成到 public/，然后部署到 GitHub Pages。</span><br><span class="line"></span><br><span class="line">当前现象：</span><br><span class="line">运行 npm run build 失败，public/ 没有生成完整页面。</span><br><span class="line"></span><br><span class="line">执行命令：</span><br><span class="line">npm run build</span><br><span class="line"></span><br><span class="line">完整错误日志：</span><br><span class="line">粘贴从命令开始到结束的完整输出。</span><br><span class="line"></span><br><span class="line">最近变更：</span><br><span class="line">1. 修改了 _config.indigo.yml 的菜单。</span><br><span class="line">2. 新增了 source/support/index.md。</span><br><span class="line">3. 把 reward 图片路径改成 /images/wechatpay.png。</span><br><span class="line"></span><br><span class="line">相关文件：</span><br><span class="line">- _config.yml</span><br><span class="line">- _config.indigo.yml</span><br><span class="line">- source/support/index.md</span><br><span class="line">- themes/indigo/_config.yml</span><br><span class="line"></span><br><span class="line">限制：</span><br><span class="line">不要部署到远程仓库，只在本地构建验证。</span><br></pre></td></tr></table></figure>
+
+<p>这类信息足够 Codex 做第一轮判断：是配置语法、Markdown 渲染、路径引用、主题合并、依赖版本，还是生成缓存问题。</p>
+<h2 id="一个具体例子：只贴最后一行-vs-贴完整上下文"><a href="#一个具体例子：只贴最后一行-vs-贴完整上下文" class="headerlink" title="一个具体例子：只贴最后一行 vs 贴完整上下文"></a>一个具体例子：只贴最后一行 vs 贴完整上下文</h2><p>低效版本：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error: listen EPERM: operation not permitted 0.0.0.0:4000</span><br><span class="line">怎么解决？</span><br></pre></td></tr></table></figure>
+
+<p>更好的版本：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">目标：</span><br><span class="line">启动 Hexo 本地预览服务器。</span><br><span class="line"></span><br><span class="line">命令：</span><br><span class="line">npm run server -- --port 4000</span><br><span class="line"></span><br><span class="line">完整输出：</span><br><span class="line">&gt; hexo-site@0.0.0 server</span><br><span class="line">&gt; hexo server --port 4000</span><br><span class="line"></span><br><span class="line">INFO  Validating config</span><br><span class="line">FATAL Something&#x27;s wrong.</span><br><span class="line">Error: listen EPERM: operation not permitted 0.0.0.0:4000</span><br><span class="line"></span><br><span class="line">环境：</span><br><span class="line">在 Codex 沙箱里运行，当前目录是 Hexo 博客根目录。</span><br><span class="line"></span><br><span class="line">我希望：</span><br><span class="line">如果是沙箱权限问题，请说明；如果需要换端口或申请权限，请给出最小操作。</span><br></pre></td></tr></table></figure>
+
+<p>这样 Codex 就不会只盯着 <code>4000</code> 端口猜测，而会把运行环境、权限、监听地址和本地预览需求一起考虑。</p>
+<h2 id="Hexo-问题排查时最该提供的文件"><a href="#Hexo-问题排查时最该提供的文件" class="headerlink" title="Hexo 问题排查时最该提供的文件"></a>Hexo 问题排查时最该提供的文件</h2><p>如果你愿意让 Codex 读仓库，优先给这些文件：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>文件</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>站点配置</td>
+<td><code>_config.yml</code></td>
+<td>URL、主题、插件、部署、生成规则</td>
+</tr>
+<tr>
+<td>主题配置</td>
+<td><code>_config.indigo.yml</code> 或主题 <code>_config.yml</code></td>
+<td>菜单、头像、打赏、评论、统计</td>
+</tr>
+<tr>
+<td>文章内容</td>
+<td><code>source/_posts/*.md</code></td>
+<td>Front Matter、Markdown、链接、图片</td>
+</tr>
+<tr>
+<td>页面内容</td>
+<td><code>source/**/index.md</code></td>
+<td>页面 layout、type、description</td>
+</tr>
+<tr>
+<td>依赖信息</td>
+<td><code>package.json</code>、<code>package-lock.json</code></td>
+<td>Hexo、插件、渲染器版本</td>
+</tr>
+<tr>
+<td>生成结果</td>
+<td><code>public/**/*.html</code></td>
+<td>检查渲染后的页面是否符合预期</td>
+</tr>
+</tbody></table>
+<p>如果问题和部署有关，还要提供 GitHub Pages 分支、部署命令和远程仓库配置。但不要把私钥、Token、Cookie 或账号密码发出来。</p>
+<h2 id="建议直接复制的-Codex-提示词"><a href="#建议直接复制的-Codex-提示词" class="headerlink" title="建议直接复制的 Codex 提示词"></a>建议直接复制的 Codex 提示词</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">你是一个谨慎的 Hexo 博客排查助手。</span><br><span class="line"></span><br><span class="line">请先阅读我提供的命令输出、配置文件和最近变更，然后按这个顺序处理：</span><br><span class="line"></span><br><span class="line">1. 复述你理解的问题。</span><br><span class="line">2. 判断它更像是配置问题、依赖问题、主题问题、Markdown 内容问题、资源路径问题，还是部署问题。</span><br><span class="line">3. 列出最可能的 3 个原因，并说明为什么。</span><br><span class="line">4. 只做最小必要修改，不做无关重构。</span><br><span class="line">5. 修改前说明会动哪些文件。</span><br><span class="line">6. 修改后运行 npm run build 验证。</span><br><span class="line">7. 输出改动摘要、验证结果和残留风险。</span><br><span class="line"></span><br><span class="line">限制：</span><br><span class="line">- 不要部署到远程仓库。</span><br><span class="line">- 不要删除我没有要求删除的内容。</span><br><span class="line">- 不要处理密钥、Token 或隐私数据。</span><br></pre></td></tr></table></figure>
+
+<p>如果你要发给别人协助排查，可以把上面的提示词和 <a href="/templates/">问题收集清单</a> 一起发。</p>
+<h2 id="什么情况下不适合让-Codex-直接修"><a href="#什么情况下不适合让-Codex-直接修" class="headerlink" title="什么情况下不适合让 Codex 直接修"></a>什么情况下不适合让 Codex 直接修</h2><p>有些问题不应该直接交给 Codex 自动处理：</p>
+<ul>
+<li>你无法提供完整仓库或复现步骤。</li>
+<li>错误涉及生产环境、线上付款、用户数据或隐私数据。</li>
+<li>你不清楚改动后应该怎么验收。</li>
+<li>你希望对方承担正式交付责任或安全责任。</li>
+</ul>
+<p>这时更适合先整理问题，而不是马上动代码。</p>
+<h2 id="这和博客变现实验有什么关系"><a href="#这和博客变现实验有什么关系" class="headerlink" title="这和博客变现实验有什么关系"></a>这和博客变现实验有什么关系</h2><p>这个博客正在做一个很小的实验：不用夸大能力，不承诺正式咨询，只公开一些可以复用的排查模板和文章。如果这些内容帮你节省了时间，可以看 <a href="/support/">支持与合作</a>；如果你想看这个实验怎么推进，可以看 <a href="/experiments/">变现实验</a>。</p>
+<p>真正可持续的路径不是“AI 自动接单”，而是先把问题解释清楚，把模板做扎实，让读者能判断它是否真的有用。</p>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2026-05-28T03:26:44.462Z" itemprop="dateUpdated">2026-05-28 11:26:44</time>
+</span><br>
+
+
+        
+        <p>如果这篇文章帮你节省了时间，欢迎到 <a href="/support/">支持与合作</a> 页面请我喝杯咖啡；如果你有小范围问题，也可以发邮件说明，我会判断是否适合用 Codex 辅助处理。</p>
+        
+    </div>
+    
+    <footer>
+        <a href="https://AmourSec.github.io">
+            <img src="/images/avatar.jpg" alt="yueshu">
+            yueshu
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Codex/" rel="tag">Codex</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hexo/" rel="tag">Hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/" rel="tag">问题排查</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" rel="noopener noreferrer" href="https://service.weibo.com/share/share.php?url=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F&title=%E3%80%8AHexo%20%E5%8D%9A%E5%AE%A2%E6%9E%84%E5%BB%BA%E5%A4%B1%E8%B4%A5%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E5%90%91%20Codex%20%E6%8F%90%E4%BE%9B%E6%9C%89%E6%95%88%E4%BF%A1%E6%81%AF%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&pic=https%3A%2F%2FAmourSec.github.io%2Fimages%2Favatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" rel="noopener noreferrer" href="https://connect.qq.com/widget/shareqq/index.html?url=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F&title=%E3%80%8AHexo%20%E5%8D%9A%E5%AE%A2%E6%9E%84%E5%BB%BA%E5%A4%B1%E8%B4%A5%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E5%90%91%20Codex%20%E6%8F%90%E4%BE%9B%E6%9C%89%E6%95%88%E4%BF%A1%E6%81%AF%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&source=%E6%A8%82%E6%9B%B8%E6%98%AF%20yueshu%20%E7%9A%84%E6%8A%80%E6%9C%AF%E5%8D%9A%E5%AE%A2%EF%BC%8C%E8%AE%B0%E5%BD%95%20AI%20Agent%E3%80%81%E7%BC%96%E7%A8%8B%E3%80%81%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E4%B8%8E%20Hexo%2FGitHub%20Pages%20%E5%AE%9E%E8%B7%B5%E3%80%82" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" rel="noopener noreferrer" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" rel="noopener noreferrer" href="https://twitter.com/intent/tweet?text=%E3%80%8AHexo%20%E5%8D%9A%E5%AE%A2%E6%9E%84%E5%BB%BA%E5%A4%B1%E8%B4%A5%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E5%90%91%20Codex%20%E6%8F%90%E4%BE%9B%E6%9C%89%E6%95%88%E4%BF%A1%E6%81%AF%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&url=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F&via=https%3A%2F%2FAmourSec.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" rel="noopener noreferrer" href="https://plus.google.com/share?url=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between flex-row-reverse">
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2026/05/21/codex-agent-make-money-research/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">让 Codex 自己赚钱：真实案例、可复制路径和我给这个博客做的第一步</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="comments" id="comments">
+    <script src="https://utteranc.es/client.js"
+        repo="AmourSec/AmourSec.github.io"
+        issue-term="title"
+        label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        如果内容帮到你，欢迎请我喝杯咖啡
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/images/wechatpay.png" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/images/wechatpay.png" data-alipay="/images/alipay.png">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" rel="noopener noreferrer" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>yueshu &copy; 2026</span>
+            <span>
+                
+                Power by <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank" rel="noopener noreferrer">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" rel="noopener noreferrer" href="https://service.weibo.com/share/share.php?url=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F&title=%E3%80%8AHexo%20%E5%8D%9A%E5%AE%A2%E6%9E%84%E5%BB%BA%E5%A4%B1%E8%B4%A5%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E5%90%91%20Codex%20%E6%8F%90%E4%BE%9B%E6%9C%89%E6%95%88%E4%BF%A1%E6%81%AF%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&pic=https%3A%2F%2FAmourSec.github.io%2Fimages%2Favatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" rel="noopener noreferrer" href="https://connect.qq.com/widget/shareqq/index.html?url=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F&title=%E3%80%8AHexo%20%E5%8D%9A%E5%AE%A2%E6%9E%84%E5%BB%BA%E5%A4%B1%E8%B4%A5%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E5%90%91%20Codex%20%E6%8F%90%E4%BE%9B%E6%9C%89%E6%95%88%E4%BF%A1%E6%81%AF%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&source=%E6%A8%82%E6%9B%B8%E6%98%AF%20yueshu%20%E7%9A%84%E6%8A%80%E6%9C%AF%E5%8D%9A%E5%AE%A2%EF%BC%8C%E8%AE%B0%E5%BD%95%20AI%20Agent%E3%80%81%E7%BC%96%E7%A8%8B%E3%80%81%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E4%B8%8E%20Hexo%2FGitHub%20Pages%20%E5%AE%9E%E8%B7%B5%E3%80%82" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" rel="noopener noreferrer" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" rel="noopener noreferrer" href="https://twitter.com/intent/tweet?text=%E3%80%8AHexo%20%E5%8D%9A%E5%AE%A2%E6%9E%84%E5%BB%BA%E5%A4%B1%E8%B4%A5%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E5%90%91%20Codex%20%E6%8F%90%E4%BE%9B%E6%9C%89%E6%95%88%E4%BF%A1%E6%81%AF%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&url=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F&via=https%3A%2F%2FAmourSec.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" rel="noopener noreferrer" href="https://plus.google.com/share?url=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?data=https%3A%2F%2Famoursec.github.io%2F2026%2F05%2F21%2Fhexo-build-error-codex-info%2F" alt="微信分享二维码">
+</div>
+
+
+
+
+    
+
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true, SEARCH: true };
+
+
+</script>
+
+<script src="/js/main.js?v=undefined" defer></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.js?v=undefined" defer></script>
+
+
+
+
+
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

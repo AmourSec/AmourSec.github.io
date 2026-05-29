@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>技术问题收集清单模板：字段为什么这样设计 | 樂書</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="技术问题收集清单,Codex 排查模板,AI 排查问题模板,支持请求,intake 模板">
+    <meta name="description" content="一个解释技术问题 intake 模板字段设计的指南，说明目标、环境、命令、错误、复现步骤、已尝试动作和敏感信息移除为什么必要。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="技术问题收集清单模板：字段为什么这样设计">
+<meta property="og:url" content="https://amoursec.github.io/technical-intake-template-fields/index.html">
+<meta property="og:site_name" content="樂書">
+<meta property="og:description" content="一个解释技术问题 intake 模板字段设计的指南，说明目标、环境、命令、错误、复现步骤、已尝试动作和敏感信息移除为什么必要。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-25T05:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-25T05:02:30.050Z">
+<meta property="article:author" content="yueshu">
+<meta property="article:tag" content="AI Agent,Codex,Skills,网络安全,Hexo,GitHub Pages,个人博客,Codex 辅助">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="樂書" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/images/avatar.jpg">
+    <link rel="stylesheet" href="/css/style.css?v=undefined">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/images/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/images/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">yueshu</h5>
+          <a href="mailto:wangzijun96@gmail.com" title="wangzijun96@gmail.com" class="mail">wangzijun96@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                首页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/resource-navigator"  >
+                <i class="icon icon-lg icon-compass"></i>
+                资源
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/support"  >
+                <i class="icon icon-lg icon-coffee"></i>
+                支持
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about"  >
+                <i class="icon icon-lg icon-user"></i>
+                关于
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/AmourSec" target="_blank" rel="noopener noreferrer" >
+                <i class="icon icon-lg icon-github"></i>
+                GitHub
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">技术问题收集清单模板：字段为什么这样设计</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header page-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">技术问题收集清单模板：字段为什么这样设计</h1>
+        <h5 class="subtitle">
+            
+                一个解释技术问题 intake 模板字段设计的指南，说明目标、环境、命令、错误、复现步骤、已尝试动作和敏感信息移除为什么必要。
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    <article class="page-article fade" itemprop="blogPage">
+        <div class="post-content page-content" id="page-content" itemprop="pageContent">
+            <p>很多排查请求不是问题太难，而是输入太模糊。</p>
+<p>“帮我看看报错”这句话很自然，但对 Codex 或任何协助者来说，它缺少目标、环境、命令、上下文和验收方式。结果通常是先来回追问，或者根据错误片段走错方向。</p>
+<p>一份好的技术问题 intake 模板，不是为了让提问者多填表，而是为了把最容易缺失、最影响判断的信息提前放到同一处。</p>
+<h2 id="模糊请求为什么浪费时间"><a href="#模糊请求为什么浪费时间" class="headerlink" title="模糊请求为什么浪费时间"></a>模糊请求为什么浪费时间</h2><p>模糊请求会带来三个问题。</p>
+<p>第一，无法判断目标。构建失败、部署失败、页面空白、样式错乱，背后想达成的目标可能完全不同。</p>
+<p>第二，无法复现。没有环境、命令和最近改动，Codex 只能猜测是依赖、配置、路径、权限、内容格式还是部署平台问题。</p>
+<p>第三，容易越界。如果没有限制条件和敏感信息声明，协助者可能会要求不该提供的日志、私钥、token、客户数据或生产凭据。</p>
+<h2 id="推荐字段"><a href="#推荐字段" class="headerlink" title="推荐字段"></a>推荐字段</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>为什么重要</th>
+<th>简短示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>goal</code></td>
+<td>定义最终要达成什么，避免只围绕报错本身打转</td>
+<td>让 Hexo 本地执行 <code>npm run build</code> 成功</td>
+</tr>
+<tr>
+<td><code>environment</code></td>
+<td>版本、系统和工具链会直接影响错误判断</td>
+<td>macOS, Node 20, npm, Hexo 8</td>
+</tr>
+<tr>
+<td><code>repository_or_page_link</code></td>
+<td>帮助聚焦阅读范围；没有公开链接时也要说明</td>
+<td>公开仓库链接 &#x2F; 页面链接 &#x2F; 暂无公开链接</td>
+</tr>
+<tr>
+<td><code>command_run</code></td>
+<td>没有命令就无法判断执行路径和入口</td>
+<td><code>npm run build</code></td>
+</tr>
+<tr>
+<td><code>expected_result</code></td>
+<td>区分真正错误、配置差异和误解</td>
+<td>应生成 <code>public/</code> 目录</td>
+</tr>
+<tr>
+<td><code>actual_result</code></td>
+<td>描述实际发生了什么，提供判断入口</td>
+<td>构建中断，提示 YAMLException</td>
+</tr>
+<tr>
+<td><code>error_excerpt</code></td>
+<td>关键错误片段比完整噪音更有用，也更容易脱敏</td>
+<td><code>YAMLException: duplicated mapping key</code></td>
+</tr>
+<tr>
+<td><code>reproduction_steps</code></td>
+<td>判断问题是否稳定复现，以及从哪里开始复现</td>
+<td>clone 后 install，再运行 build</td>
+</tr>
+<tr>
+<td><code>already_tried</code></td>
+<td>避免重复建议，也能暴露错误方向</td>
+<td>已试过 <code>hexo clean</code> 和删除 <code>public/</code></td>
+</tr>
+<tr>
+<td><code>recent_changes</code></td>
+<td>很多问题来自最近新增文章、依赖或配置</td>
+<td>昨天新增了一个页面和一篇文章</td>
+</tr>
+<tr>
+<td><code>sensitive_information_removed</code></td>
+<td>强制先脱敏，避免把不该发的内容贴出来</td>
+<td>已移除 token、邮箱、本地用户名</td>
+</tr>
+<tr>
+<td><code>success_criteria</code></td>
+<td>让协助结果可验收，而不是无限排查</td>
+<td>构建成功，且文章页能打开</td>
+</tr>
+</tbody></table>
+<p>这组字段可以覆盖大多数小范围技术问题：Hexo 构建、静态站点配置、Node 脚本、Markdown 页面、主题配置和轻量工具原型。</p>
+<h2 id="可复制-Markdown-Intake-模板"><a href="#可复制-Markdown-Intake-模板" class="headerlink" title="可复制 Markdown Intake 模板"></a>可复制 Markdown Intake 模板</h2><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">## 主题</span></span><br><span class="line"></span><br><span class="line">[一句话说明问题，例如：Hexo build 失败，提示 Front Matter 解析错误]</span><br><span class="line"></span><br><span class="line"><span class="section">## Goal</span></span><br><span class="line"></span><br><span class="line">[最终想达成什么？]</span><br><span class="line"></span><br><span class="line"><span class="section">## Environment</span></span><br><span class="line"></span><br><span class="line"><span class="bullet">-</span> OS:</span><br><span class="line"><span class="bullet">-</span> Runtime version:</span><br><span class="line"><span class="bullet">-</span> Package manager:</span><br><span class="line"><span class="bullet">-</span> Framework / tool:</span><br><span class="line"><span class="bullet">-</span> Deployment target, if relevant:</span><br><span class="line"></span><br><span class="line"><span class="section">## Repository Or Page Link</span></span><br><span class="line"></span><br><span class="line">[公开仓库、页面、文档或相关文件路径。如果没有公开链接，写“暂无公开链接”。]</span><br><span class="line"></span><br><span class="line"><span class="section">## Command Run</span></span><br><span class="line"></span><br><span class="line"><span class="code">```text</span></span><br><span class="line"><span class="code">[粘贴你实际执行的命令]</span></span><br><span class="line"><span class="code">```</span></span><br><span class="line"></span><br><span class="line"><span class="section">## Expected Result</span></span><br><span class="line"></span><br><span class="line">[本来应该发生什么？]</span><br><span class="line"></span><br><span class="line"><span class="section">## Actual Result</span></span><br><span class="line"></span><br><span class="line">[实际发生了什么？]</span><br><span class="line"></span><br><span class="line"><span class="section">## Error Excerpt</span></span><br><span class="line"></span><br><span class="line"><span class="code">```text</span></span><br><span class="line"><span class="code">[只贴关键错误片段。先移除 token、邮箱、私有路径、客户信息和内部域名。]</span></span><br><span class="line"><span class="code">```</span></span><br><span class="line"></span><br><span class="line"><span class="section">## Reproduction Steps</span></span><br><span class="line"></span><br><span class="line"><span class="bullet">1.</span> [从什么状态开始？]</span><br><span class="line"><span class="bullet">2.</span> [执行什么？]</span><br><span class="line"><span class="bullet">3.</span> [观察到什么？]</span><br><span class="line"></span><br><span class="line"><span class="section">## Already Tried</span></span><br><span class="line"></span><br><span class="line"><span class="bullet">1.</span> [已经尝试过的动作]</span><br><span class="line"><span class="bullet">2.</span> [已经排除或怀疑的原因]</span><br><span class="line"></span><br><span class="line"><span class="section">## Recent Changes</span></span><br><span class="line"></span><br><span class="line">[最近新增、删除、升级或修改了什么？]</span><br><span class="line"></span><br><span class="line"><span class="section">## Sensitive Information Removed</span></span><br><span class="line"></span><br><span class="line">[确认已移除哪些内容：token、cookie、私钥、客户数据、订单、内部路径、生产凭据等。]</span><br><span class="line"></span><br><span class="line"><span class="section">## Success Criteria</span></span><br><span class="line"></span><br><span class="line">[什么结果算这次排查完成？例如：本地 build 成功；某页面可打开；只需要定位原因。]</span><br><span class="line"></span><br><span class="line"><span class="section">## Boundaries</span></span><br><span class="line"></span><br><span class="line">[不能做什么？例如：不要部署、不要升级大版本、不要改主题、不要访问第三方后台。]</span><br></pre></td></tr></table></figure>
+
+<h2 id="和现有工具怎么配合"><a href="#和现有工具怎么配合" class="headerlink" title="和现有工具怎么配合"></a>和现有工具怎么配合</h2><p>如果你只是想整理一份可复制文本，可以直接用 <a href="/support-request-formatter/">支持请求格式化器</a>。它在浏览器本地运行，不发送、不保存。</p>
+<p>如果你要发给站长或自己留作记录，可以从 <a href="/support-intake/">支持请求 Intake 模板</a> 复制完整中文模板。</p>
+<p>如果你想把这类字段变成长期可复用的工作流，可以看 <a href="/codex-workflow-template-pack/">Codex Workflow Template Pack</a> 和 <a href="/templates/">Codex 辅助问题排查模板包</a>。</p>
+<p>如果你要直接交给 Codex 排查，可以先看 <a href="/codex-debugging-request-guide/">如何把排查请求写成 Codex 能执行的任务</a>，里面有更完整的处理流程提示词。</p>
+<h2 id="不要放进模板的内容"><a href="#不要放进模板的内容" class="headerlink" title="不要放进模板的内容"></a>不要放进模板的内容</h2><p>技术 intake 的目标是帮助判断问题，不是收集越多信息越好。下面这些内容不要直接贴：</p>
+<ul>
+<li>API token、cookie、SSH key、私钥、密码、session。</li>
+<li>生产数据库地址、生产凭据、后台登录信息。</li>
+<li>客户资料、订单、手机号、身份证件、支付信息。</li>
+<li>公司内部完整日志、内部域名、私有路径和未脱敏截图。</li>
+<li>医疗、法律、财务、身份、合同或其他受监管数据。</li>
+<li>任何你没有权利分享的第三方代码、资料或文件。</li>
+</ul>
+<p>如果问题离不开这些信息，应该先停止公开求助，改用合适的内部流程或专业渠道。</p>
+<h2 id="什么时候不用填这么多"><a href="#什么时候不用填这么多" class="headerlink" title="什么时候不用填这么多"></a>什么时候不用填这么多</h2><p>如果只是问一个概念问题，或者请 Codex 解释一段公开代码，可以简化。</p>
+<p>但一旦你希望别人复现、修改、排查、判断原因或给出可执行步骤，就应该至少提供目标、环境、命令、预期结果、实际结果和已移除敏感信息。</p>
+<h2 id="相关页面"><a href="#相关页面" class="headerlink" title="相关页面"></a>相关页面</h2><ul>
+<li><a href="/templates/">Codex 辅助问题排查模板包</a></li>
+<li><a href="/support-request-formatter/">支持请求格式化器</a></li>
+<li><a href="/support-intake/">支持请求 Intake 模板</a></li>
+<li><a href="/codex-debugging-request-guide/">如何把排查请求写成 Codex 能执行的任务</a></li>
+<li><a href="/codex-workflow-template-pack/">Codex Workflow Template Pack</a></li>
+<li><a href="/content-opportunity-backlog/">内容机会 Backlog</a></li>
+<li><a href="/experiments/">变现实验</a></li>
+</ul>
+
+        </div>
+
+        
+
+        
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="comments" id="comments">
+    <script src="https://utteranc.es/client.js"
+        repo="AmourSec/AmourSec.github.io"
+        issue-term="title"
+        label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+
+
+
+
+    </article>
+    
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" rel="noopener noreferrer" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>yueshu &copy; 2026</span>
+            <span>
+                
+                Power by <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank" rel="noopener noreferrer">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" rel="noopener noreferrer" href="https://service.weibo.com/share/share.php?url=https%3A%2F%2Famoursec.github.io%2Ftechnical-intake-template-fields%2F&title=%E3%80%8A%E6%8A%80%E6%9C%AF%E9%97%AE%E9%A2%98%E6%94%B6%E9%9B%86%E6%B8%85%E5%8D%95%E6%A8%A1%E6%9D%BF%EF%BC%9A%E5%AD%97%E6%AE%B5%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&pic=https%3A%2F%2FAmourSec.github.io%2Fimages%2Favatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" rel="noopener noreferrer" href="https://connect.qq.com/widget/shareqq/index.html?url=https%3A%2F%2Famoursec.github.io%2Ftechnical-intake-template-fields%2F&title=%E3%80%8A%E6%8A%80%E6%9C%AF%E9%97%AE%E9%A2%98%E6%94%B6%E9%9B%86%E6%B8%85%E5%8D%95%E6%A8%A1%E6%9D%BF%EF%BC%9A%E5%AD%97%E6%AE%B5%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&source=%E6%A8%82%E6%9B%B8%E6%98%AF%20yueshu%20%E7%9A%84%E6%8A%80%E6%9C%AF%E5%8D%9A%E5%AE%A2%EF%BC%8C%E8%AE%B0%E5%BD%95%20AI%20Agent%E3%80%81%E7%BC%96%E7%A8%8B%E3%80%81%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E4%B8%8E%20Hexo%2FGitHub%20Pages%20%E5%AE%9E%E8%B7%B5%E3%80%82" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" rel="noopener noreferrer" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Famoursec.github.io%2Ftechnical-intake-template-fields%2F" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" rel="noopener noreferrer" href="https://twitter.com/intent/tweet?text=%E3%80%8A%E6%8A%80%E6%9C%AF%E9%97%AE%E9%A2%98%E6%94%B6%E9%9B%86%E6%B8%85%E5%8D%95%E6%A8%A1%E6%9D%BF%EF%BC%9A%E5%AD%97%E6%AE%B5%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&url=https%3A%2F%2Famoursec.github.io%2Ftechnical-intake-template-fields%2F&via=https%3A%2F%2FAmourSec.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" rel="noopener noreferrer" href="https://plus.google.com/share?url=https%3A%2F%2Famoursec.github.io%2Ftechnical-intake-template-fields%2F" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?data=https%3A%2F%2Famoursec.github.io%2Ftechnical-intake-template-fields%2F" alt="微信分享二维码">
+</div>
+
+
+
+
+    
+
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: false, SEARCH: true };
+
+
+</script>
+
+<script src="/js/main.js?v=undefined" defer></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.js?v=undefined" defer></script>
+
+
+
+
+
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

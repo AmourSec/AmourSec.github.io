@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>支持请求格式化器 | 樂書</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="支持请求格式化器,Codex intake,问题整理,静态工具,Hexo">
+    <meta name="description" content="一个纯前端支持请求格式化器，把目标、环境、尝试步骤、报错和边界整理成可复制的 intake 文本，不发送、不保存、不联网。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="支持请求格式化器">
+<meta property="og:url" content="https://amoursec.github.io/support-request-formatter/index.html">
+<meta property="og:site_name" content="樂書">
+<meta property="og:description" content="一个纯前端支持请求格式化器，把目标、环境、尝试步骤、报错和边界整理成可复制的 intake 文本，不发送、不保存、不联网。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-21T08:38:00.000Z">
+<meta property="article:modified_time" content="2026-05-21T07:44:43.891Z">
+<meta property="article:author" content="yueshu">
+<meta property="article:tag" content="AI Agent,Codex,Skills,网络安全,Hexo,GitHub Pages,个人博客,Codex 辅助">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="樂書" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/images/avatar.jpg">
+    <link rel="stylesheet" href="/css/style.css?v=undefined">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/images/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/images/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">yueshu</h5>
+          <a href="mailto:wangzijun96@gmail.com" title="wangzijun96@gmail.com" class="mail">wangzijun96@gmail.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                首页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                归档
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                分类
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                标签
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/resource-navigator"  >
+                <i class="icon icon-lg icon-compass"></i>
+                资源
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect active">
+              <a href="/support"  >
+                <i class="icon icon-lg icon-coffee"></i>
+                支持
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about"  >
+                <i class="icon icon-lg icon-user"></i>
+                关于
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/AmourSec" target="_blank" rel="noopener noreferrer" >
+                <i class="icon icon-lg icon-github"></i>
+                GitHub
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">支持请求格式化器</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header page-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">支持请求格式化器</h1>
+        <h5 class="subtitle">
+            
+                一个纯前端支持请求格式化器，把目标、环境、尝试步骤、报错和边界整理成可复制的 intake 文本，不发送、不保存、不联网。
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    <article class="page-article fade" itemprop="blogPage">
+        <div class="post-content page-content" id="page-content" itemprop="pageContent">
+            <p>这个小工具把零散的问题描述整理成一份可复制的 <a href="/support-intake/">支持请求 Intake</a> 文本。</p>
+<p>它只在浏览器本地运行，不发送邮件，不保存内容，不创建账号，不联系任何人。请不要输入密码、Token、Cookie、客户资料、订单、公司内部资料或其他敏感信息。</p>
+<div class="tool-panel" style="border:1px solid #ddd;padding:16px;margin:16px 0;">
+  <p style="margin-top:0;"><strong>本地处理说明：</strong>下面的内容只用于生成文本。页面没有提交按钮，也没有后端。</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;">
+    <label>
+      <strong>主题</strong>
+      <input id="supportTopic" type="text" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="例如：Hexo build 失败">
+    </label>
+    <label>
+      <strong>相关链接</strong>
+      <input id="supportLinks" type="text" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="公开链接；没有就写暂无公开链接">
+    </label>
+  </div>
+
+  <label style="display:block;margin-top:12px;">
+    <strong>目标</strong>
+    <textarea id="supportGoal" rows="3" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="你最终想完成什么？"></textarea>
+  </label>
+
+  <label style="display:block;margin-top:12px;">
+    <strong>上下文</strong>
+    <textarea id="supportContext" rows="4" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="项目、文章、页面、工具或任务背景。不要贴隐私或密钥。"></textarea>
+  </label>
+
+  <label style="display:block;margin-top:12px;">
+    <strong>环境</strong>
+    <textarea id="supportEnvironment" rows="4" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="操作系统、Node/Python 版本、包管理器、框架或工具、部署平台等。"></textarea>
+  </label>
+
+  <label style="display:block;margin-top:12px;">
+    <strong>我已经尝试过</strong>
+    <textarea id="supportTried" rows="4" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="列出 1-3 个已经尝试过的步骤。"></textarea>
+  </label>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px;">
+    <label>
+      <strong>预期结果</strong>
+      <textarea id="supportExpected" rows="4" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="本来应该发生什么？"></textarea>
+    </label>
+    <label>
+      <strong>实际结果</strong>
+      <textarea id="supportActual" rows="4" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="实际发生了什么？如果有报错，只贴关键片段并先脱敏。"></textarea>
+    </label>
+  </div>
+
+  <label style="display:block;margin-top:12px;">
+    <strong>限制条件</strong>
+    <textarea id="supportConstraints" rows="3" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="不能改哪些文件？不能升级哪些依赖？是否只能用静态页面？"></textarea>
+  </label>
+
+  <label style="display:block;margin-top:12px;">
+    <strong>已移除的敏感信息</strong>
+    <textarea id="supportRemovedSensitive" rows="3" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="例如：token、邮箱、订单号、客户名、内部域名、私有路径。"></textarea>
+  </label>
+
+  <label style="display:block;margin-top:12px;">
+    <strong>希望得到的输出</strong>
+    <textarea id="supportDesiredOutput" rows="3" style="width:100%;box-sizing:border-box;margin-top:6px;" placeholder="例如：排查步骤 / 修改建议 / 文章结构 / CSV 清理规则 / 给 Codex 的提示词"></textarea>
+  </label>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+    <button id="supportFormatBtn" type="button">生成 intake 文本</button>
+    <button id="supportCopyBtn" type="button">复制结果</button>
+    <button id="supportClearBtn" type="button">清空</button>
+  </div>
+
+  <p id="supportFormatterStatus" style="margin:10px 0 0;color:#666;">填写后点击“生成 intake 文本”。</p>
+
+  <h2 style="margin-top:20px;">生成结果</h2>
+  <pre id="supportFormatterOutput" style="white-space:pre-wrap;border:1px solid #ddd;padding:12px;min-height:220px;background:#fafafa;">生成的 intake 文本会显示在这里。</pre>
+</div>
+
+<h2 id="边界提醒"><a href="#边界提醒" class="headerlink" title="边界提醒"></a>边界提醒</h2><ul>
+<li>不要输入密钥、Token、Cookie、客户资料、订单、公司内部资料、身份证件、支付信息或受监管数据。</li>
+<li>不适合生产事故、紧急恢复、正式咨询、安全审计、法律、税务、财务或医疗问题。</li>
+<li>生成文本只是帮助你整理请求，不保证回复，不保证付费合作，不代表已经接受委托。</li>
+<li>如果要联系，仍需你自己复制文本，并通过 <a href="/support/">支持与合作</a> 页面说明。</li>
+</ul>
+<h2 id="相关页面"><a href="#相关页面" class="headerlink" title="相关页面"></a>相关页面</h2><ul>
+<li><a href="/support-intake/">支持请求 Intake 模板</a></li>
+<li><a href="/support/">支持与合作</a></li>
+<li><a href="/codex-workflow-template-pack/">Codex Workflow Template Pack</a></li>
+<li><a href="/experiments/">变现实验</a></li>
+</ul>
+<script>
+(function () {
+  function getValue(id) {
+    var node = document.getElementById(id);
+    return node ? String(node.value || '').trim() : '';
+  }
+
+  function normalizeLines(value) {
+    return String(value || '').replace(/\r\n/g, '\n').trim();
+  }
+
+  function fallback(value, placeholder) {
+    return normalizeLines(value) || placeholder;
+  }
+
+  function formatTried(value) {
+    var text = normalizeLines(value);
+    if (!text) return '1. [请补充已经尝试过的步骤]';
+
+    var lines = text.split('\n').map(function (line) { return line.trim(); }).filter(Boolean);
+    return lines.map(function (line, index) {
+      if (/^\d+[.)、]\s*/.test(line)) return line.replace(/^(\d+)[.)、]\s*/, (index + 1) + '. ');
+      return (index + 1) + '. ' + line.replace(/^[-*]\s*/, '');
+    }).join('\n');
+  }
+
+  function buildIntake() {
+    return [
+      '主题：',
+      fallback(getValue('supportTopic'), '[一句话说明问题]'),
+      '',
+      '目标：',
+      fallback(getValue('supportGoal'), '[你最终想完成什么？]'),
+      '',
+      '上下文：',
+      fallback(getValue('supportContext'), '[项目、文章、页面、工具或任务背景。不要贴隐私或密钥。]'),
+      '',
+      '相关链接：',
+      fallback(getValue('supportLinks'), '暂无公开链接'),
+      '',
+      '环境：',
+      fallback(getValue('supportEnvironment'), '- 操作系统：\n- Node / Python / 其他运行时版本：\n- 包管理器：\n- 框架或工具：\n- 部署平台：'),
+      '',
+      '我已经尝试过：',
+      formatTried(getValue('supportTried')),
+      '',
+      '预期结果：',
+      fallback(getValue('supportExpected'), '[本来应该发生什么？]'),
+      '',
+      '实际结果：',
+      fallback(getValue('supportActual'), '[实际发生了什么？如果有报错，只贴关键片段并先脱敏。]'),
+      '',
+      '限制条件：',
+      fallback(getValue('supportConstraints'), '[不能改哪些文件？不能升级哪些依赖？是否只能用静态页面？]'),
+      '',
+      '已移除的敏感信息：',
+      fallback(getValue('supportRemovedSensitive'), '[例如：token、邮箱、订单号、客户名、内部域名、私有路径。]'),
+      '',
+      '希望得到的输出：',
+      fallback(getValue('supportDesiredOutput'), '[例如：排查步骤 / 修改建议 / 文章结构 / CSV 清理规则 / 给 Codex 的提示词]'),
+      '',
+      '边界确认：',
+      '我理解这不是正式咨询、外包、安全审计或结果保证；是否回复、是否继续协助、是否产生付费安排，都需要进一步确认。'
+    ].join('\n');
+  }
+
+  function setStatus(message) {
+    var status = document.getElementById('supportFormatterStatus');
+    if (status) status.textContent = message;
+  }
+
+  function initFormatter() {
+    var output = document.getElementById('supportFormatterOutput');
+    var formatBtn = document.getElementById('supportFormatBtn');
+    var copyBtn = document.getElementById('supportCopyBtn');
+    var clearBtn = document.getElementById('supportClearBtn');
+    var fields = [
+      'supportTopic',
+      'supportLinks',
+      'supportGoal',
+      'supportContext',
+      'supportEnvironment',
+      'supportTried',
+      'supportExpected',
+      'supportActual',
+      'supportConstraints',
+      'supportRemovedSensitive',
+      'supportDesiredOutput'
+    ];
+
+    if (!output || !formatBtn || !copyBtn || !clearBtn) return;
+
+    formatBtn.addEventListener('click', function () {
+      output.textContent = buildIntake();
+      setStatus('已生成。请自行检查是否含有敏感信息，再决定是否复制。');
+    });
+
+    copyBtn.addEventListener('click', function () {
+      var text = output.textContent || '';
+      if (!text || text === '生成的 intake 文本会显示在这里。') {
+        output.textContent = buildIntake();
+        text = output.textContent;
+      }
+
+      if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        setStatus('当前浏览器不支持自动复制，请手动选中结果复制。');
+        return;
+      }
+
+      navigator.clipboard.writeText(text).then(function () {
+        setStatus('已复制到剪贴板。发送前请再次确认没有敏感信息。');
+      }).catch(function () {
+        setStatus('复制失败，请手动选中结果复制。');
+      });
+    });
+
+    clearBtn.addEventListener('click', function () {
+      fields.forEach(function (id) {
+        var node = document.getElementById(id);
+        if (node) node.value = '';
+      });
+      output.textContent = '生成的 intake 文本会显示在这里。';
+      setStatus('已清空。本页面不会保存你输入的内容。');
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFormatter);
+  } else {
+    initFormatter();
+  }
+}());
+</script>
+
+        </div>
+
+        
+
+        
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="comments" id="comments">
+    <script src="https://utteranc.es/client.js"
+        repo="AmourSec/AmourSec.github.io"
+        issue-term="title"
+        label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+
+
+
+
+    </article>
+    
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" rel="noopener noreferrer" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>yueshu &copy; 2026</span>
+            <span>
+                
+                Power by <a href="https://hexo.io/" target="_blank" rel="noopener noreferrer">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank" rel="noopener noreferrer">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" rel="noopener noreferrer" href="https://service.weibo.com/share/share.php?url=https%3A%2F%2Famoursec.github.io%2Fsupport-request-formatter%2F&title=%E3%80%8A%E6%94%AF%E6%8C%81%E8%AF%B7%E6%B1%82%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%99%A8%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&pic=https%3A%2F%2FAmourSec.github.io%2Fimages%2Favatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" rel="noopener noreferrer" href="https://connect.qq.com/widget/shareqq/index.html?url=https%3A%2F%2Famoursec.github.io%2Fsupport-request-formatter%2F&title=%E3%80%8A%E6%94%AF%E6%8C%81%E8%AF%B7%E6%B1%82%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%99%A8%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&source=%E6%A8%82%E6%9B%B8%E6%98%AF%20yueshu%20%E7%9A%84%E6%8A%80%E6%9C%AF%E5%8D%9A%E5%AE%A2%EF%BC%8C%E8%AE%B0%E5%BD%95%20AI%20Agent%E3%80%81%E7%BC%96%E7%A8%8B%E3%80%81%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E4%B8%8E%20Hexo%2FGitHub%20Pages%20%E5%AE%9E%E8%B7%B5%E3%80%82" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" rel="noopener noreferrer" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Famoursec.github.io%2Fsupport-request-formatter%2F" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" rel="noopener noreferrer" href="https://twitter.com/intent/tweet?text=%E3%80%8A%E6%94%AF%E6%8C%81%E8%AF%B7%E6%B1%82%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%99%A8%E3%80%8B%20%E2%80%94%20%E6%A8%82%E6%9B%B8&url=https%3A%2F%2Famoursec.github.io%2Fsupport-request-formatter%2F&via=https%3A%2F%2FAmourSec.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" rel="noopener noreferrer" href="https://plus.google.com/share?url=https%3A%2F%2Famoursec.github.io%2Fsupport-request-formatter%2F" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?data=https%3A%2F%2Famoursec.github.io%2Fsupport-request-formatter%2F" alt="微信分享二维码">
+</div>
+
+
+
+
+    
+
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: false, SEARCH: true };
+
+
+</script>
+
+<script src="/js/main.js?v=undefined" defer></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.js?v=undefined" defer></script>
+
+
+
+
+
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '死鬼去哪里了！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '(つェ⊂)咦!又好了!';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>
