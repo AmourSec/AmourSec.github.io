@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://amoursec.github.io/about/index.html</loc>
+    
+    <lastmod>2026-06-16</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://amoursec.github.io/support/index.html</loc>
     
     <lastmod>2026-06-16</lastmod>
@@ -48,15 +57,6 @@
   
   <url>
     <loc>https://amoursec.github.io/content-opportunity-backlog/index.html</loc>
-    
-    <lastmod>2026-05-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/about/index.html</loc>
     
     <lastmod>2026-05-29</lastmod>
     
