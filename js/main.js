@@ -261,18 +261,6 @@
 
             $('#search').addEventListener(even, toggleSearch);
         },
-        reward: function () {
-            var modal = new this.modal('#reward');
-            $('#rewardBtn').addEventListener(even, modal.toggle);
-
-            var $rewardToggle = $('#rewardToggle');
-            var $rewardCode = $('#rewardCode');
-            if ($rewardToggle) {
-                $rewardToggle.addEventListener('change', function () {
-                    $rewardCode.src = this.checked ? this.dataset.alipay : this.dataset.wechat
-                })
-            }
-        },
         waterfall: function () {
 
             if (w.innerWidth < 760) return;
@@ -547,10 +535,6 @@
 
     if (w.BLOG.SHARE) {
         Blog.share()
-    }
-
-    if (w.BLOG.REWARD) {
-        Blog.reward()
     }
 
     Blog.noop = noop;
