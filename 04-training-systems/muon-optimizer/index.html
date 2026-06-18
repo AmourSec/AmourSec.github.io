@@ -1,0 +1,3519 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/04-training-systems/muon-optimizer/" rel="canonical"/>
+<link href="../post-training-workloads-sft-dpo-rlhf-grpo/" rel="prev"/>
+<link href="../evaluation-validation-checkpoint-selection/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>Muon 优化器 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#muon">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              Muon 优化器
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muon-step">
+<span class="md-ellipsis">
+      Muon 在训练 step 里的位置
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#optimizer-step">
+<span class="md-ellipsis">
+      先从普通 optimizer step 说起
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muon_1">
+<span class="md-ellipsis">
+      Muon 的核心流程
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pytorch-muon">
+<span class="md-ellipsis">
+      PyTorch Muon 暴露了哪些系统旋钮
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      正交化到底改变了什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      为什么是矩阵参数
+    </span>
+</a>
+<nav aria-label="为什么是矩阵参数" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#qkv">
+<span class="md-ellipsis">
+      QKV 合并矩阵要特别小心
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adamw">
+<span class="md-ellipsis">
+      和 AdamW 的系统差异
+    </span>
+</a>
+<nav aria-label="和 AdamW 的系统差异" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      状态数量不同
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      更新粒度不同
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      更新尺度不同
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#newton-schulz">
+<span class="md-ellipsis">
+      Newton-Schulz 迭代是什么
+    </span>
+</a>
+<nav aria-label="Newton-Schulz 迭代是什么" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#newton-schulz_1">
+<span class="md-ellipsis">
+      Newton-Schulz 的成本
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#svd">
+<span class="md-ellipsis">
+      为什么不是直接 SVD
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#newton-schulz-shape">
+<span class="md-ellipsis">
+      Newton-Schulz 的 shape 成本模型
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ns_steps">
+<span class="md-ellipsis">
+      ns_steps 如何选择
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      一个极简训练循环
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      参数分组怎么做
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      参数分组的自动化校验
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#weight-decay">
+<span class="md-ellipsis">
+      Weight Decay 和更新尺度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scheduler">
+<span class="md-ellipsis">
+      学习率和 Scheduler 语义
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#weight-rms-update-rms">
+<span class="md-ellipsis">
+      Weight RMS 与 Update RMS 监控
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      混合精度与数值稳定性
+    </span>
+</a>
+<nav aria-label="混合精度与数值稳定性" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fp8">
+<span class="md-ellipsis">
+      FP8 训练中要更谨慎
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zerofsdp">
+<span class="md-ellipsis">
+      和 ZeRO/FSDP 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#full-matrix-muon-shard-local-muon">
+<span class="md-ellipsis">
+      Full-matrix Muon 与 Shard-local Muon
+    </span>
+</a>
+<nav aria-label="Full-matrix Muon 与 Shard-local Muon" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zero-fsdp">
+<span class="md-ellipsis">
+      ZeRO / FSDP 的状态切分细节
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor-parallel">
+<span class="md-ellipsis">
+      和 Tensor Parallel 的关系
+    </span>
+</a>
+<nav aria-label="和 Tensor Parallel 的关系" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#column-parallel-row-parallel">
+<span class="md-ellipsis">
+      Column Parallel 与 Row Parallel 的差异
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pipeline-parallel">
+<span class="md-ellipsis">
+      和 Pipeline Parallel 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe">
+<span class="md-ellipsis">
+      和 MoE 训练的关系
+    </span>
+</a>
+<nav aria-label="和 MoE 训练的关系" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#expert-muon">
+<span class="md-ellipsis">
+      Expert 负载不均会影响 Muon 状态
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muon_2">
+<span class="md-ellipsis">
+      Muon 适合哪些训练阶段
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint">
+<span class="md-ellipsis">
+      Checkpoint 与恢复
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 应该怎么做
+    </span>
+</a>
+<nav aria-label="Benchmark 应该怎么做" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      关键指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      需要固定的变量
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      推荐实验路线
+    </span>
+</a>
+<nav aria-label="推荐实验路线" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      阶段一：单机小模型语义验证
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#token-sample-efficiency">
+<span class="md-ellipsis">
+      阶段二：同等 token 的 sample efficiency
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#wall-clock">
+<span class="md-ellipsis">
+      阶段三：同等 wall-clock 的系统效率
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      阶段四：分布式扩展
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      运行时告警
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      性能剖析重点
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cuda-graph">
+<span class="md-ellipsis">
+      和编译、CUDA Graph 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      使用成熟实现
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      减少小矩阵碎片
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      控制临时显存
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      和分布式通信重叠
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      保守选择参数范围
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muon-adamw">
+<span class="md-ellipsis">
+      误区一：Muon 就是 AdamW 的直接替代
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pndim-2-muon">
+<span class="md-ellipsis">
+      误区二：只要 p.ndim == 2 就全部用 Muon
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muon-state">
+<span class="md-ellipsis">
+      误区三：Muon state 少，所以一定更快
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#shard-muon-full-matrix-muon">
+<span class="md-ellipsis">
+      误区四：在 shard 上做 Muon 等价于 full matrix Muon
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step-loss-muon">
+<span class="md-ellipsis">
+      误区五：只看 step loss 就能判断 Muon 是否更好
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_24">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_25">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_26">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muon-step">
+<span class="md-ellipsis">
+      Muon 在训练 step 里的位置
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#optimizer-step">
+<span class="md-ellipsis">
+      先从普通 optimizer step 说起
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muon_1">
+<span class="md-ellipsis">
+      Muon 的核心流程
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pytorch-muon">
+<span class="md-ellipsis">
+      PyTorch Muon 暴露了哪些系统旋钮
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      正交化到底改变了什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      为什么是矩阵参数
+    </span>
+</a>
+<nav aria-label="为什么是矩阵参数" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#qkv">
+<span class="md-ellipsis">
+      QKV 合并矩阵要特别小心
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adamw">
+<span class="md-ellipsis">
+      和 AdamW 的系统差异
+    </span>
+</a>
+<nav aria-label="和 AdamW 的系统差异" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      状态数量不同
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      更新粒度不同
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      更新尺度不同
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#newton-schulz">
+<span class="md-ellipsis">
+      Newton-Schulz 迭代是什么
+    </span>
+</a>
+<nav aria-label="Newton-Schulz 迭代是什么" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#newton-schulz_1">
+<span class="md-ellipsis">
+      Newton-Schulz 的成本
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#svd">
+<span class="md-ellipsis">
+      为什么不是直接 SVD
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#newton-schulz-shape">
+<span class="md-ellipsis">
+      Newton-Schulz 的 shape 成本模型
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ns_steps">
+<span class="md-ellipsis">
+      ns_steps 如何选择
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      一个极简训练循环
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      参数分组怎么做
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      参数分组的自动化校验
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#weight-decay">
+<span class="md-ellipsis">
+      Weight Decay 和更新尺度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scheduler">
+<span class="md-ellipsis">
+      学习率和 Scheduler 语义
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#weight-rms-update-rms">
+<span class="md-ellipsis">
+      Weight RMS 与 Update RMS 监控
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      混合精度与数值稳定性
+    </span>
+</a>
+<nav aria-label="混合精度与数值稳定性" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fp8">
+<span class="md-ellipsis">
+      FP8 训练中要更谨慎
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zerofsdp">
+<span class="md-ellipsis">
+      和 ZeRO/FSDP 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#full-matrix-muon-shard-local-muon">
+<span class="md-ellipsis">
+      Full-matrix Muon 与 Shard-local Muon
+    </span>
+</a>
+<nav aria-label="Full-matrix Muon 与 Shard-local Muon" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#zero-fsdp">
+<span class="md-ellipsis">
+      ZeRO / FSDP 的状态切分细节
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor-parallel">
+<span class="md-ellipsis">
+      和 Tensor Parallel 的关系
+    </span>
+</a>
+<nav aria-label="和 Tensor Parallel 的关系" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#column-parallel-row-parallel">
+<span class="md-ellipsis">
+      Column Parallel 与 Row Parallel 的差异
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pipeline-parallel">
+<span class="md-ellipsis">
+      和 Pipeline Parallel 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe">
+<span class="md-ellipsis">
+      和 MoE 训练的关系
+    </span>
+</a>
+<nav aria-label="和 MoE 训练的关系" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#expert-muon">
+<span class="md-ellipsis">
+      Expert 负载不均会影响 Muon 状态
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muon_2">
+<span class="md-ellipsis">
+      Muon 适合哪些训练阶段
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint">
+<span class="md-ellipsis">
+      Checkpoint 与恢复
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 应该怎么做
+    </span>
+</a>
+<nav aria-label="Benchmark 应该怎么做" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      关键指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      需要固定的变量
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      推荐实验路线
+    </span>
+</a>
+<nav aria-label="推荐实验路线" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      阶段一：单机小模型语义验证
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#token-sample-efficiency">
+<span class="md-ellipsis">
+      阶段二：同等 token 的 sample efficiency
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#wall-clock">
+<span class="md-ellipsis">
+      阶段三：同等 wall-clock 的系统效率
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      阶段四：分布式扩展
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      运行时告警
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      性能剖析重点
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cuda-graph">
+<span class="md-ellipsis">
+      和编译、CUDA Graph 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      使用成熟实现
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      减少小矩阵碎片
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      控制临时显存
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      和分布式通信重叠
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      保守选择参数范围
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muon-adamw">
+<span class="md-ellipsis">
+      误区一：Muon 就是 AdamW 的直接替代
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pndim-2-muon">
+<span class="md-ellipsis">
+      误区二：只要 p.ndim == 2 就全部用 Muon
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#muon-state">
+<span class="md-ellipsis">
+      误区三：Muon state 少，所以一定更快
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#shard-muon-full-matrix-muon">
+<span class="md-ellipsis">
+      误区四：在 shard 上做 Muon 等价于 full matrix Muon
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step-loss-muon">
+<span class="md-ellipsis">
+      误区五：只看 step loss 就能判断 Muon 是否更好
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_24">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_25">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_26">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="muon">Muon 优化器<a class="headerlink" href="#muon" title="Permanent link">¶</a></h1>
+<p>Muon 是一种面向矩阵参数的优化器。它的核心不是给所有参数都换一个 optimizer，而是对神经网络 hidden layers 里的二维权重矩阵，用“动量 + 矩阵正交化”的方式产生更新方向。</p>
+<p>如果只从训练系统角度记一句话：</p>
+<blockquote>
+<p>Muon 把 optimizer step 从逐元素更新，变成了矩阵级更新；它可能减少 optimizer state 并改善训练效率，但会引入 Newton-Schulz 矩阵乘、参数分组、分布式 gather、更新尺度和 checkpoint 语义问题。</p>
+</blockquote>
+<p>这篇不深入证明 Muon 的优化理论。重点回答：</p>
+<ul>
+<li>Muon 和 SGD Momentum、AdamW 的差别是什么。</li>
+<li>为什么它只适合部分矩阵参数。</li>
+<li>Newton-Schulz 正交化在系统里带来什么成本。</li>
+<li>Muon 和 ZeRO、FSDP、TP、MoE 训练如何互相影响。</li>
+<li>评估 Muon 时不能只看 loss，还要看 wall-clock time、step time 和稳定性。</li>
+</ul>
+<h2 id="muon-step">Muon 在训练 step 里的位置<a class="headerlink" href="#muon-step" title="Permanent link">¶</a></h2>
+<p>普通训练 step 的主链路是：</p>
+<div class="highlight"><pre><span></span><code>data -&gt; forward -&gt; loss -&gt; backward -&gt; gradient sync -&gt; optimizer step -&gt; zero_grad
+</code></pre></div>
+<p>Muon 改变的是最后的 optimizer step。forward、loss、backward 的大部分结构不因为 Muon 改变；真正变化发生在“梯度已经算出来之后，如何把梯度变成参数更新”。</p>
+<div class="mermaid">flowchart TB
+    A["Forward / Loss"] --&gt; B["Backward<br/>得到 gradients"]
+    B --&gt; C["梯度同步<br/>DDP/FSDP/ZeRO/TP"]
+    C --&gt; D{"参数类型"}
+    D --&gt; E["2D hidden weights<br/>Muon"]
+    D --&gt; F["embedding/norm/bias/lm_head<br/>AdamW 或其他 optimizer"]
+    E --&gt; G["momentum buffer"]
+    G --&gt; H["Newton-Schulz 正交化"]
+    H --&gt; I["shape-aware LR adjustment"]
+    I --&gt; J["更新矩阵参数"]
+    F --&gt; K["AdamW m/v 更新"]
+    K --&gt; L["更新其他参数"]
+</div>
+<p>这张图说明了两个系统事实：</p>
+<ol>
+<li>Muon 通常不是替换整个 optimizer，而是和 AdamW 组成混合 optimizer。</li>
+<li>Muon optimizer step 里会出现矩阵乘、临时 buffer 和可能的 full-matrix gather，因此它应该被当成一个独立的训练子系统分析。</li>
+</ol>
+<p>如果日志只记录“optimizer=muon”，信息是不够的。至少要记录：</p>
+<div class="highlight"><pre><span></span><code>muon_param_count
+muon_param_elements
+adamw_param_count
+adamw_param_elements
+ns_steps
+adjust_lr_fn
+weight_decay
+momentum
+nesterov
+distributed_matrix_semantics
+</code></pre></div>
+<p>这样才能在 loss、显存或速度异常时定位问题。</p>
+<h2 id="optimizer-step">先从普通 optimizer step 说起<a class="headerlink" href="#optimizer-step" title="Permanent link">¶</a></h2>
+<p>训练时，backward 得到每个参数的 gradient。Optimizer 用这些 gradient 更新权重。</p>
+<p>最简单的 SGD 可以理解成：</p>
+<div class="highlight"><pre><span></span><code>new_weight = old_weight - lr * gradient
+</code></pre></div>
+<p>SGD Momentum 会额外维护一个动量：</p>
+<div class="highlight"><pre><span></span><code>momentum = beta * old_momentum + gradient
+new_weight = old_weight - lr * momentum
+</code></pre></div>
+<p>AdamW 会维护一阶矩和二阶矩：</p>
+<div class="highlight"><pre><span></span><code>m = beta1 * old_m + (1 - beta1) * gradient
+v = beta2 * old_v + (1 - beta2) * gradient^2
+update = m / sqrt(v + eps)
+new_weight = weight_decay_then(old_weight) - lr * update
+</code></pre></div>
+<p>从系统角度看，AdamW 的特点是：</p>
+<ul>
+<li>对每个参数元素维护 <code>m</code> 和 <code>v</code>。</li>
+<li>混合精度训练里还可能维护 FP32 master weight。</li>
+<li>更新主要是逐元素操作，适合 foreach/fused optimizer。</li>
+<li>optimizer state 显存很高，但更新逻辑对参数形状不敏感。</li>
+</ul>
+<p>Muon 的不同点在于：它不只是逐元素缩放 gradient，而是把二维权重矩阵的动量看成一个矩阵，再对这个矩阵做近似正交化。</p>
+<h2 id="muon_1">Muon 的核心流程<a class="headerlink" href="#muon_1" title="Permanent link">¶</a></h2>
+<p>一个简化的 Muon step 可以理解成：</p>
+<div class="highlight"><pre><span></span><code>gradient matrix G
+-&gt; momentum matrix B
+-&gt; Newton-Schulz approximate orthogonalization
+-&gt; orthogonalized update O
+-&gt; update weight matrix W
+</code></pre></div>
+<p>用图表示：</p>
+<div class="mermaid">flowchart TD
+    A["2D weight matrix W"] --&gt; B["backward 得到 gradient G"]
+    B --&gt; C["更新 momentum matrix B"]
+    C --&gt; D["Newton-Schulz 迭代<br/>近似正交化 B"]
+    D --&gt; E["得到 orthogonalized update O"]
+    E --&gt; F["按 learning rate 和 weight decay 更新 W"]
+</div>
+<p>这里的“正交化”可以先用直觉理解：</p>
+<ul>
+<li>普通动量矩阵可能被少数方向主导，更新看起来像“主要沿几个方向动”。</li>
+<li>正交化会把矩阵更新方向变得更均衡，避免所有神经元或通道过度挤在少数方向上更新。</li>
+<li>Muon 实际使用 Newton-Schulz 迭代近似这个过程，而不是每一步都做昂贵的精确 SVD。</li>
+</ul>
+<p>Keller Jordan 的原始介绍把 Muon 定义为 MomentUm Orthogonalized by Newton-Schulz。PyTorch 2.12 的 <code>torch.optim.Muon</code> 也把 Newton-Schulz steps、momentum、Nesterov、weight decay、update scale adjustment 暴露为 optimizer 参数。</p>
+<h2 id="pytorch-muon">PyTorch Muon 暴露了哪些系统旋钮<a class="headerlink" href="#pytorch-muon" title="Permanent link">¶</a></h2>
+<p>PyTorch 2.12 的 <code>torch.optim.Muon</code> 已经把 Muon 的关键设计点放到 optimizer 参数里。重要参数可以按系统含义理解：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>直觉</th>
+<th>系统影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lr</code></td>
+<td>Muon 参数组学习率</td>
+<td>不能盲目照搬 AdamW，除非 update scale 策略支持这种比较。</td>
+</tr>
+<tr>
+<td><code>weight_decay</code></td>
+<td>decoupled weight decay</td>
+<td>大规模训练中约束权重 RMS 和稳定性。</td>
+</tr>
+<tr>
+<td><code>momentum</code></td>
+<td>momentum buffer 系数</td>
+<td>长期 optimizer state；影响更新平滑程度。</td>
+</tr>
+<tr>
+<td><code>nesterov</code></td>
+<td>是否使用 Nesterov-style momentum</td>
+<td>改变正交化前的动量矩阵。</td>
+</tr>
+<tr>
+<td><code>ns_coefficients</code></td>
+<td>Newton-Schulz 多项式系数</td>
+<td>影响少量迭代后接近正交化方向的速度和数值行为。</td>
+</tr>
+<tr>
+<td><code>eps</code></td>
+<td>数值稳定项</td>
+<td>防止归一化时除以过小范数。</td>
+</tr>
+<tr>
+<td><code>ns_steps</code></td>
+<td>Newton-Schulz 迭代次数</td>
+<td>直接影响 optimizer step 的矩阵乘次数。</td>
+</tr>
+<tr>
+<td><code>adjust_lr_fn</code></td>
+<td>按矩阵 shape 调整学习率</td>
+<td>让不同形状矩阵的正交化更新 RMS 更一致。</td>
+</tr>
+</tbody>
+</table>
+<p>其中最容易被忽略的是 <code>adjust_lr_fn</code>。Muon 的正交化更新不是 AdamW 的逐元素归一化，矩阵长宽不同会让更新 RMS 不一致。PyTorch 文档给出两个方向：</p>
+<ul>
+<li><code>original</code>：接近 Keller 原始实现的尺度策略。</li>
+<li><code>match_rms_adamw</code>：参考 Moonshot 实现，目标是让 Muon 的更新尺度更接近 AdamW 的 RMS 行为。</li>
+</ul>
+<p>工程上，<code>adjust_lr_fn</code> 应该被当作实验配置的一部分。两个实验即使都叫 Muon，<code>adjust_lr_fn</code> 不同，学习率语义也可能不同。</p>
+<h2 id="_1">正交化到底改变了什么<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>Muon 的关键不是“动量”本身，而是对动量矩阵做正交化。一个矩阵更新可以用奇异值分解理解：</p>
+<div class="highlight"><pre><span></span><code>B = U S V^T
+</code></pre></div>
+<p>普通动量更新会保留奇异值 <code>S</code> 的大小差异。若少数奇异值很大，更新会被少数方向主导。</p>
+<p>正交化近似做的是：</p>
+<div class="highlight"><pre><span></span><code>O ~= U V^T
+</code></pre></div>
+<p>直觉上，它把“哪些方向要动”保留下来，但把不同方向的尺度拉得更均衡。Keller 的原始说明把这解释为把 SGD-momentum 的矩阵更新替换为最近的半正交矩阵；后续理论工作也在解释少量 Newton-Schulz step 为什么能接近这个极分解方向。</p>
+<p>对训练系统来说，这个理论直觉转化成几个工程问题：</p>
+<ul>
+<li>update RMS 需要按矩阵形状校准。</li>
+<li>weight RMS 和 update RMS 要长期监控。</li>
+<li>学习率可能和 AdamW 不同。</li>
+<li>TP/FSDP 切分改变矩阵形状时，更新语义可能改变。</li>
+<li>小矩阵和大矩阵的 optimizer time 不同。</li>
+</ul>
+<p>所以 Muon 不是“换一行 optimizer”。它把优化器从 element-wise update 推向 matrix-aware update。</p>
+<h2 id="_2">为什么是矩阵参数<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>Muon 关心的是二维权重矩阵，例如 Transformer 里的很多线性层：</p>
+<ul>
+<li>attention 的 <code>q_proj</code>、<code>k_proj</code>、<code>v_proj</code>、<code>o_proj</code>。</li>
+<li>MLP 的 up projection、gate projection、down projection。</li>
+<li>MoE expert 里的 FFN 矩阵。</li>
+</ul>
+<p>这些参数天然是矩阵。矩阵有行、列和方向结构，正交化才有明确含义。</p>
+<p>不适合直接交给 Muon 的参数通常包括：</p>
+<ul>
+<li>bias。</li>
+<li>LayerNorm / RMSNorm 权重。</li>
+<li>embedding。</li>
+<li>LM head / output projection，具体是否纳入要看实现和实验设计。</li>
+<li>标量、向量或非典型 shape 参数。</li>
+</ul>
+<p>这也是为什么实践中常见做法不是“全模型 Muon”，而是：</p>
+<div class="highlight"><pre><span></span><code>2D hidden layer weights -&gt; Muon
+other params             -&gt; AdamW
+</code></pre></div>
+<p>PyTorch 文档示例也是按 <code>p.ndim == 2</code> 和 <code>p.ndim != 2</code> 把参数分到 Muon 与 AdamW 两组。</p>
+<h3 id="qkv">QKV 合并矩阵要特别小心<a class="headerlink" href="#qkv" title="Permanent link">¶</a></h3>
+<p>很多 Transformer 实现会把 Q、K、V 合成一个大线性层：</p>
+<div class="highlight"><pre><span></span><code>qkv_proj: hidden -&gt; 3 * hidden
+</code></pre></div>
+<p>也有实现把它们拆成：</p>
+<div class="highlight"><pre><span></span><code>q_proj
+k_proj
+v_proj
+</code></pre></div>
+<p>Muon 对完整矩阵做正交化，所以“合在一起”和“拆开处理”不是完全等价的。Keller 的经验说明里也提到，Transformer 里分别对 Q、K、V 参数应用 Muon 可能比把 QKV 当成一个拼接矩阵更好。</p>
+<p>系统含义是：</p>
+<ul>
+<li>参数名和模块结构会影响 Muon 分组。</li>
+<li>同一模型的 fused QKV 和 split QKV 实现，Muon 结果可能不同。</li>
+<li>TP 切分 QKV 后，本地 shard 的矩阵形状又会改变。</li>
+<li>checkpoint 从 fused 迁移到 split 时，optimizer state 不能简单复用。</li>
+</ul>
+<p>如果要比较 Muon 实验，应把 QKV 结构写进 run manifest：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">attention_projection</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">qkv_layout</span><span class="p">:</span><span class="w"> </span><span class="s">"split"</span><span class="w">  </span><span class="c1"># split / fused</span>
+<span class="w">  </span><span class="nt">muon_applied_separately_to_qkv</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">tensor_parallel_sharding</span><span class="p">:</span><span class="w"> </span><span class="s">"column"</span>
+</code></pre></div>
+<p>这不是小细节。对矩阵级 optimizer 来说，矩阵边界就是优化语义的一部分。</p>
+<h2 id="adamw">和 AdamW 的系统差异<a class="headerlink" href="#adamw" title="Permanent link">¶</a></h2>
+<p>AdamW 对每个元素保存两个状态：</p>
+<div class="highlight"><pre><span></span><code>parameter p
+gradient g
+first moment m
+second moment v
+optional master weight
+</code></pre></div>
+<p>Muon 更像：</p>
+<div class="highlight"><pre><span></span><code>matrix parameter W
+gradient matrix G
+momentum matrix B
+optional master weight
+temporary matrices for Newton-Schulz
+</code></pre></div>
+<p>重要差异有三类。</p>
+<h3 id="_3">状态数量不同<a class="headerlink" href="#_3" title="Permanent link">¶</a></h3>
+<p>AdamW 通常有 <code>m</code> 和 <code>v</code> 两个长期状态。Muon 至少需要 momentum buffer，但不一定需要 AdamW 那样的二阶矩状态。</p>
+<p>所以在某些实现里，Muon 的长期 optimizer state 可能比 AdamW 少。Moonshot 的 Muon scaling 报告也强调，Distributed Muon 使用一个 momentum buffer，而 AdamW 有两个 momentum buffers。</p>
+<p>但这不等于 Muon 一定更省显存。原因是：</p>
+<ul>
+<li>可能仍有 FP32 master weight。</li>
+<li>Newton-Schulz 会产生临时矩阵。</li>
+<li>foreach/fused 实现可能有临时 buffer。</li>
+<li>分布式 gather 可能在 optimizer step 中短暂形成 full matrix。</li>
+</ul>
+<p>评估显存时要看 peak memory，而不是只看长期 optimizer state。</p>
+<h3 id="_4">更新粒度不同<a class="headerlink" href="#_4" title="Permanent link">¶</a></h3>
+<p>AdamW 是逐元素更新：</p>
+<div class="highlight"><pre><span></span><code>update[i, j] depends mostly on g[i, j], m[i, j], v[i, j]
+</code></pre></div>
+<p>Muon 是矩阵级更新：</p>
+<div class="highlight"><pre><span></span><code>update matrix O depends on the whole momentum matrix B
+</code></pre></div>
+<p>这意味着 Muon 对参数矩阵完整形状更敏感。如果一个矩阵被分布式切碎，只在本地 shard 上做 Muon，结果未必等价于在完整矩阵上做 Muon。</p>
+<h3 id="_5">更新尺度不同<a class="headerlink" href="#_5" title="Permanent link">¶</a></h3>
+<p>正交化会改变更新矩阵的谱结构，也会让不同 shape 的矩阵更新 RMS 不一致。Muon scaling 工作提出要用 weight decay 和 per-parameter update scale adjustment 来让 Muon 更稳定地扩展到大模型训练。</p>
+<p>工程含义是：</p>
+<ul>
+<li>Muon 的 <code>lr</code> 不能简单照搬所有 AdamW 配置。</li>
+<li>如果实现提供 <code>adjust_lr_fn</code>，要明确选择哪种尺度策略。</li>
+<li>不同矩阵 shape、GQA/MLA 切法、MoE expert shape 都可能影响更新尺度。</li>
+</ul>
+<h2 id="newton-schulz">Newton-Schulz 迭代是什么<a class="headerlink" href="#newton-schulz" title="Permanent link">¶</a></h2>
+<p>严格说，正交化可以通过 SVD 得到。如果动量矩阵 <code>B</code> 的 SVD 是：</p>
+<div class="highlight"><pre><span></span><code>B = U S V^T
+</code></pre></div>
+<p>正交化更新方向可以近似看成：</p>
+<div class="highlight"><pre><span></span><code>O = U V^T
+</code></pre></div>
+<p>但每个 optimizer step 对大量权重矩阵做 SVD 太贵。Muon 使用 Newton-Schulz 迭代，用少量矩阵乘近似这个正交化方向。</p>
+<p>这就是系统上最重要的点：</p>
+<blockquote>
+<p>Muon 把一部分 optimizer step 变成了小到中等规模的矩阵乘。</p>
+</blockquote>
+<p>这和 AdamW 的逐元素更新完全不同。</p>
+<h3 id="newton-schulz_1">Newton-Schulz 的成本<a class="headerlink" href="#newton-schulz_1" title="Permanent link">¶</a></h3>
+<p>一次 Newton-Schulz 迭代大致包含：</p>
+<ul>
+<li>矩阵乘 <code>X @ X.T</code>。</li>
+<li>多项式组合。</li>
+<li>再乘回 <code>X</code>。</li>
+</ul>
+<p>如果做 5 次迭代，就会增加多轮矩阵乘。矩阵很大时，这些计算不可忽略；矩阵很小时，kernel launch 和调度开销可能更明显。</p>
+<p>所以 Muon 的性能不只取决于 FLOPs，还取决于：</p>
+<ul>
+<li>每个矩阵 shape。</li>
+<li>参数矩阵数量。</li>
+<li>是否有 fused / batched 实现。</li>
+<li>临时矩阵 dtype。</li>
+<li>optimizer step 是否能与通信或其他计算重叠。</li>
+<li>small GEMM 是否能吃满 GPU。</li>
+</ul>
+<h3 id="svd">为什么不是直接 SVD<a class="headerlink" href="#svd" title="Permanent link">¶</a></h3>
+<p>SVD 更精确，但系统成本通常太高：</p>
+<ul>
+<li>延迟更高。</li>
+<li>实现复杂。</li>
+<li>对大量不同 shape 的小矩阵不友好。</li>
+<li>分布式训练中更难组合。</li>
+</ul>
+<p>Newton-Schulz 的意义是用固定次数的矩阵乘换取足够好的近似。2026 年 ICLR 接收的 Muon with Newton-Schulz 收敛分析，也正是在解释“少量 Newton-Schulz step 为什么在理论上接近精确极分解方向”。</p>
+<h2 id="newton-schulz-shape">Newton-Schulz 的 shape 成本模型<a class="headerlink" href="#newton-schulz-shape" title="Permanent link">¶</a></h2>
+<p>Muon 的额外成本主要来自 Newton-Schulz。对一个 <code>n x m</code> 矩阵，如果假设 <code>m &lt;= n</code>，每一步大致会做：</p>
+<div class="highlight"><pre><span></span><code>X @ X.T
+(X @ X.T) @ X
+</code></pre></div>
+<p>实际实现会用多项式组合减少一些开销，但核心仍然是矩阵乘。Keller 的运行时分析给出的直觉是：语言模型训练中，如果每个 step 的 token batch <code>B</code> 足够大，Muon 的额外 FLOPs 相对 forward/backward 可能很小；但这不代表所有场景都小。</p>
+<p>Muon overhead 更容易变大的场景：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>micro-batch 很小</td>
+<td>forward/backward 计算量小，optimizer 矩阵乘占比上升。</td>
+</tr>
+<tr>
+<td>矩阵很多且偏小</td>
+<td>small GEMM 和 kernel launch overhead 明显。</td>
+</tr>
+<tr>
+<td><code>ns_steps</code> 增大</td>
+<td>每多一次 Newton-Schulz 都会增加矩阵乘。</td>
+</tr>
+<tr>
+<td>分布式 full-matrix gather</td>
+<td>通信和临时显存进入 optimizer step。</td>
+</tr>
+<tr>
+<td>矩阵 shape 很不规则</td>
+<td>batched/grouped GEMM 更难高效。</td>
+</tr>
+</tbody>
+</table>
+<p>因此 Muon benchmark 不能只报告总 step time，最好拆出：</p>
+<div class="highlight"><pre><span></span><code>optimizer_total_time
+muon_ns_matmul_time
+muon_gather_time
+adamw_time
+optimizer_temp_memory
+</code></pre></div>
+<p>如果 Muon 的 sample efficiency 提升明显，optimizer step 稍慢可能仍然划算；如果 sample efficiency 没提升，额外 optimizer time 就是纯成本。</p>
+<h2 id="ns_steps"><code>ns_steps</code> 如何选择<a class="headerlink" href="#ns_steps" title="Permanent link">¶</a></h2>
+<p><code>ns_steps</code> 是最直接的性能/近似精度旋钮。默认常见值是 5。</p>
+<p>可以把它理解为：</p>
+<div class="highlight"><pre><span></span><code>更多 ns_steps -&gt; 更接近理想正交化 -&gt; optimizer step 更慢
+更少 ns_steps -&gt; 近似更粗 -&gt; optimizer step 更快
+</code></pre></div>
+<p>但是它不一定线性影响最终训练质量。实际应该做小规模 ablation：</p>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>观察</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ns_steps=3</code></td>
+<td>是否明显更快，loss 是否变差。</td>
+</tr>
+<tr>
+<td><code>ns_steps=5</code></td>
+<td>默认或常用基线。</td>
+</tr>
+<tr>
+<td><code>ns_steps=7</code></td>
+<td>是否有质量收益，是否值得额外 step time。</td>
+</tr>
+</tbody>
+</table>
+<p>还要同时记录：</p>
+<ul>
+<li><code>ns_coefficients</code>。</li>
+<li>temporary dtype。</li>
+<li>matrix shape 分布。</li>
+<li>step time breakdown。</li>
+<li>NaN/Inf 次数。</li>
+<li>weight/update RMS。</li>
+</ul>
+<p>不要只把 <code>ns_steps</code> 当成算法超参。它也是优化器算子成本配置。</p>
+<h2 id="_6">一个极简训练循环<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>Muon 与 AdamW 混用时，训练循环通常会出现两组 optimizer：</p>
+<div class="highlight"><pre><span></span><code><span class="n">muon_params</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">adamw_params</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="s2">"embed"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">and</span> <span class="s2">"lm_head"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">muon_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">adamw_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="n">optim_muon</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Muon</span><span class="p">(</span><span class="n">muon_params</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="n">muon_lr</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">muon_wd</span><span class="p">)</span>
+<span class="n">optim_adamw</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="n">adamw_params</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="n">adamw_lr</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">adamw_wd</span><span class="p">)</span>
+
+<span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="n">optim_muon</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="n">optim_adamw</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="n">optim_muon</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">optim_adamw</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>实际系统还要加上：</p>
+<ul>
+<li>gradient accumulation。</li>
+<li>gradient clipping。</li>
+<li>mixed precision / GradScaler。</li>
+<li>distributed gradient sync。</li>
+<li>scheduler。</li>
+<li>checkpoint。</li>
+<li>parameter group 日志。</li>
+</ul>
+<p>关键不是这段代码，而是参数分组必须可解释、可复现、可 checkpoint。</p>
+<h2 id="_7">参数分组怎么做<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<p>Muon 的参数分组比 AdamW 更重要。因为一旦分错，优化语义就变了。</p>
+<p>一个保守策略是：</p>
+<table>
+<thead>
+<tr>
+<th>参数类型</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transformer hidden linear weights</td>
+<td>优先考虑 Muon</td>
+</tr>
+<tr>
+<td>Attention Q/K/V/O projection</td>
+<td>可考虑 Muon</td>
+</tr>
+<tr>
+<td>MLP / FFN projection</td>
+<td>可考虑 Muon</td>
+</tr>
+<tr>
+<td>MoE expert FFN weights</td>
+<td>可考虑 Muon，但要关注 expert 分布式切分</td>
+</tr>
+<tr>
+<td>embedding</td>
+<td>通常 AdamW</td>
+</tr>
+<tr>
+<td>LM head</td>
+<td>通常 AdamW 或单独实验</td>
+</tr>
+<tr>
+<td>bias</td>
+<td>AdamW 或不 decay</td>
+</tr>
+<tr>
+<td>RMSNorm / LayerNorm</td>
+<td>AdamW 或不 decay</td>
+</tr>
+<tr>
+<td>rope / scalar 参数</td>
+<td>不交给 Muon</td>
+</tr>
+</tbody>
+</table>
+<p>参数分组最好不要只靠 <code>ndim == 2</code>，因为 embedding 和 LM head 也可能是二维矩阵。</p>
+<p>更稳妥的方式是按模块名、模块类型和参数名共同判断：</p>
+<div class="highlight"><pre><span></span><code>include:
+  transformer.blocks.*.attn.*_proj.weight
+  transformer.blocks.*.mlp.*_proj.weight
+  transformer.blocks.*.experts.*.weight
+
+exclude:
+  *.embed*
+  *.lm_head*
+  *.norm*
+  *.bias
+</code></pre></div>
+<p>每次实验都应把最终参数分组打印出来：</p>
+<div class="highlight"><pre><span></span><code>Muon params:
+  count
+  total elements
+  dtype
+  top modules
+
+AdamW params:
+  count
+  total elements
+  dtype
+  excluded reasons
+</code></pre></div>
+<p>否则 loss 出问题时很难判断是 optimizer 本身、参数分组，还是学习率配置的问题。</p>
+<h2 id="_8">参数分组的自动化校验<a class="headerlink" href="#_8" title="Permanent link">¶</a></h2>
+<p>Muon 引入后，参数分组必须有自动校验。建议训练启动时输出并保存一份 parameter group manifest：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">parameter_groups</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">muon</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">total_params</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">123456789</span>
+<span class="w">    </span><span class="nt">total_tensors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180</span>
+<span class="w">    </span><span class="nt">include_patterns</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"blocks.*.attn.q_proj.weight"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"blocks.*.mlp.up_proj.weight"</span>
+<span class="w">    </span><span class="nt">exclude_patterns</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"embed"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"lm_head"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"norm"</span>
+<span class="w">  </span><span class="nt">adamw</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">total_params</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9876543</span>
+<span class="w">    </span><span class="nt">reasons</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">embedding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="nt">norm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">96</span>
+<span class="w">      </span><span class="nt">bias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">96</span>
+</code></pre></div>
+<p>启动时可以加几条硬性检查：</p>
+<ul>
+<li><code>Muon params</code> 里不能出现 <code>embed</code>、<code>lm_head</code>、<code>norm</code>、<code>bias</code>。</li>
+<li>所有 trainable parameter 必须且只能属于一个 optimizer group。</li>
+<li>Muon 参数必须是二维矩阵。</li>
+<li>每类参数数量和上一次 baseline 的 manifest 差异过大时报警。</li>
+<li>恢复 checkpoint 时，param group manifest 必须匹配或显式迁移。</li>
+</ul>
+<p>这类检查很朴素，但能避免很多“跑了几天才发现 LM head 被 Muon 训练了”的问题。</p>
+<h2 id="weight-decay">Weight Decay 和更新尺度<a class="headerlink" href="#weight-decay" title="Permanent link">¶</a></h2>
+<p>早期 Muon 实现并不一定使用 decoupled weight decay。但大规模 LLM 训练报告指出，weight decay 对 Muon 扩展到大模型很重要。</p>
+<p>直觉是：</p>
+<ul>
+<li>正交化更新可能让某些权重范数长期增长。</li>
+<li>大模型长时间训练时，权重 RMS 或层输出 RMS 失控会影响 BF16 数值范围和稳定性。</li>
+<li>Decoupled weight decay 给权重规模一个持续约束。</li>
+</ul>
+<p>更新尺度同样关键。正交化后的矩阵更新不是 AdamW 那种逐元素归一化，它的 RMS 会受矩阵 shape 影响。</p>
+<p>工程上要记录：</p>
+<ul>
+<li>Muon learning rate。</li>
+<li>AdamW learning rate。</li>
+<li>Muon weight decay。</li>
+<li>AdamW weight decay。</li>
+<li><code>adjust_lr_fn</code> 或等价 scaling 规则。</li>
+<li>Newton-Schulz steps。</li>
+<li>momentum / nesterov。</li>
+<li>哪些参数使用 Muon。</li>
+</ul>
+<p>如果只记录“用了 Muon”，实验不可复现。</p>
+<h2 id="scheduler">学习率和 Scheduler 语义<a class="headerlink" href="#scheduler" title="Permanent link">¶</a></h2>
+<p>Muon + AdamW 混用时，学习率配置有三层含义：</p>
+<div class="highlight"><pre><span></span><code>Muon base lr
+AdamW base lr
+per-parameter update scale adjustment
+</code></pre></div>
+<p>不能默认两组 optimizer 一定共享同一个 lr。常见策略有三种：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>做法</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>共享 scheduler，不同 base lr</td>
+<td>Muon 和 AdamW 用同一个 warmup/cosine 形状，但 base lr 不同</td>
+<td>简单，但需要调两个 base lr。</td>
+</tr>
+<tr>
+<td>完全独立 scheduler</td>
+<td>Muon/AdamW 各自 warmup、decay</td>
+<td>灵活，但实验空间变大。</td>
+</tr>
+<tr>
+<td>共享 base lr，依赖 <code>adjust_lr_fn</code></td>
+<td>让 Muon update scale 尽量匹配 AdamW</td>
+<td>依赖实现语义，换实现可能不可比。</td>
+</tr>
+</tbody>
+</table>
+<p>从系统记录角度，至少要保存：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">scheduler</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">global_step_semantics</span><span class="p">:</span><span class="w"> </span><span class="s">"optimizer_step"</span>
+<span class="w">  </span><span class="nt">warmup_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
+<span class="w">  </span><span class="nt">decay</span><span class="p">:</span><span class="w"> </span><span class="s">"cosine"</span>
+<span class="w">  </span><span class="nt">muon_lr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.02</span>
+<span class="w">  </span><span class="nt">adamw_lr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.003</span>
+<span class="w">  </span><span class="nt">adjust_lr_fn</span><span class="p">:</span><span class="w"> </span><span class="s">"match_rms_adamw"</span>
+</code></pre></div>
+<p>还要确认 gradient accumulation 下 scheduler step 的语义：</p>
+<div class="highlight"><pre><span></span><code>micro-step != optimizer-step
+</code></pre></div>
+<p>Muon 的 optimizer step 比 AdamW 更重，如果因为 AMP overflow 或稳定性 guardrail 跳过某次 optimizer step，Muon 和 AdamW 的 scheduler、momentum、global step 必须保持一致。</p>
+<h2 id="weight-rms-update-rms">Weight RMS 与 Update RMS 监控<a class="headerlink" href="#weight-rms-update-rms" title="Permanent link">¶</a></h2>
+<p>Muon 是否稳定，不能只看 loss。建议每隔固定 step 采样一批参数，记录：</p>
+<div class="highlight"><pre><span></span><code>weight_rms
+grad_rms
+momentum_rms
+muon_update_rms
+update_to_weight_ratio
+</code></pre></div>
+<p>按模块类型聚合：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>重点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>attention q/k/v/o</td>
+<td>看 QKV 更新尺度是否异常。</td>
+</tr>
+<tr>
+<td>MLP gate/up/down</td>
+<td>参数量大，影响整体 optimizer 成本。</td>
+</tr>
+<tr>
+<td>MoE experts</td>
+<td>hot/cold expert 是否出现不同 RMS。</td>
+</tr>
+<tr>
+<td>AdamW group</td>
+<td>embedding/norm/lm_head 是否稳定。</td>
+</tr>
+</tbody>
+</table>
+<p>如果出现 loss spike，可以回看：</p>
+<ul>
+<li>是所有 Muon 参数 update 变大，还是某一类矩阵异常。</li>
+<li>是 weight RMS 持续增长，还是某个 step 突然跳变。</li>
+<li>是 Muon group 异常，还是 AdamW group 异常。</li>
+<li>是否与 scheduler warmup、ns_steps、dtype、checkpoint resume 有关。</li>
+</ul>
+<p>大模型训练中，这类 RMS 指标比单个 global grad norm 更容易定位 Muon 问题。</p>
+<h2 id="_9">混合精度与数值稳定性<a class="headerlink" href="#_9" title="Permanent link">¶</a></h2>
+<p>Muon 常见实现会在 Newton-Schulz 中使用 BF16，以降低成本。但这并不表示所有状态都可以随便低精度。</p>
+<p>需要区分：</p>
+<ul>
+<li>模型权重 dtype。</li>
+<li>gradient dtype。</li>
+<li>momentum buffer dtype。</li>
+<li>Newton-Schulz temporary dtype。</li>
+<li>master weight dtype。</li>
+<li>reduce-scatter / all-gather dtype。</li>
+</ul>
+<p>几个常见风险：</p>
+<ul>
+<li>BF16 下矩阵范数过大或过小，正交化输入尺度不稳定。</li>
+<li>临时矩阵乘产生 NaN/Inf。</li>
+<li>update scale 对某些矩阵过大，训练早期 loss spike。</li>
+<li>混合 Muon + AdamW 时，两组参数的 LR scheduler 语义不一致。</li>
+<li>checkpoint 恢复后 optimizer state dtype 或 param group 顺序错位。</li>
+</ul>
+<p>监控项至少包括：</p>
+<ul>
+<li>loss / grad norm。</li>
+<li>weight RMS。</li>
+<li>update RMS。</li>
+<li>Muon update norm。</li>
+<li>Newton-Schulz 输出是否出现 NaN/Inf。</li>
+<li>各 parameter group 的 learning rate。</li>
+</ul>
+<h3 id="fp8">FP8 训练中要更谨慎<a class="headerlink" href="#fp8" title="Permanent link">¶</a></h3>
+<p>如果训练系统已经使用 FP8 activation 或 FP8 weight/gradient 路径，Muon 还会增加一层数值复杂度。</p>
+<p>需要明确：</p>
+<ul>
+<li>Newton-Schulz temporary 是否仍用 BF16/FP32，而不是 FP8。</li>
+<li>momentum buffer 用什么 dtype。</li>
+<li>FP8 amax/scale 更新是否受 Muon update RMS 影响。</li>
+<li>Muon 参数和 AdamW 参数是否使用相同 mixed precision policy。</li>
+<li>checkpoint 是否保存 FP8 scale state 和 Muon momentum state。</li>
+</ul>
+<p>Muon 本身不是 FP8 技术。它可以和 FP8 训练组合，但不要把两种不稳定来源同时打开后再调试。更稳妥的路线是：</p>
+<div class="highlight"><pre><span></span><code>AdamW BF16 baseline
+-&gt; Muon BF16 baseline
+-&gt; AdamW FP8 baseline
+-&gt; Muon + FP8
+</code></pre></div>
+<p>每一步都记录 loss spike、NaN/Inf、weight RMS、update RMS 和 step time。</p>
+<h2 id="zerofsdp">和 ZeRO/FSDP 的关系<a class="headerlink" href="#zerofsdp" title="Permanent link">¶</a></h2>
+<p>AdamW 的更新是逐元素的，所以 ZeRO-1 / FSDP shard optimizer state 很自然：每个 rank 只更新自己负责的一段参数和状态。</p>
+<p>Muon 麻烦在于：正交化需要看到完整矩阵，至少需要看到一个语义完整的矩阵块。</p>
+<p>如果一个矩阵 <code>W</code> 被 DP 维度切成 shard：</p>
+<div class="highlight"><pre><span></span><code>rank 0: W_part_0
+rank 1: W_part_1
+rank 2: W_part_2
+rank 3: W_part_3
+</code></pre></div>
+<p>对每个 shard 单独做 Newton-Schulz，和对完整 <code>W</code> 做 Newton-Schulz 再切回 shard，结果通常不同。</p>
+<p>所以分布式 Muon 需要明确选择：</p>
+<ol>
+<li>gather full gradient / momentum matrix，再计算 Muon update。</li>
+<li>只对本地 shard 做近似 Muon，接受语义变化。</li>
+<li>按参数切分方式设计矩阵块，使每个块仍然有合理语义。</li>
+</ol>
+<p>Moonshot 的 Distributed Muon 方案采用类似 ZeRO-1 的状态切分，同时增加 DP gather 来恢复 full gradient matrix，再做 Newton-Schulz update，然后只保留本 rank 负责的分片。</p>
+<p>这带来一个典型流程：</p>
+<div class="mermaid">flowchart TD
+    A["各 rank 本地 gradient shard"] --&gt; B["DP reduce-scatter<br/>得到正确梯度分片"]
+    B --&gt; C["更新本地 momentum shard"]
+    C --&gt; D["DP gather<br/>恢复完整矩阵"]
+    D --&gt; E["Newton-Schulz<br/>计算完整 Muon update"]
+    E --&gt; F["切回本 rank 分片"]
+    F --&gt; G["更新本地参数和状态"]
+    G --&gt; H["必要时 all-gather 参数"]
+</div>
+<p>系统代价包括：</p>
+<ul>
+<li>额外 gather。</li>
+<li>full matrix 临时显存。</li>
+<li>Newton-Schulz 计算。</li>
+<li>update 分片丢弃带来的中间结果浪费。</li>
+<li>与已有 FSDP/ZeRO 状态机的集成复杂度。</li>
+</ul>
+<h2 id="full-matrix-muon-shard-local-muon">Full-matrix Muon 与 Shard-local Muon<a class="headerlink" href="#full-matrix-muon-shard-local-muon" title="Permanent link">¶</a></h2>
+<p>分布式 Muon 需要先决定语义，而不是先写代码。</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>语义</th>
+<th>系统代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full-matrix Muon</td>
+<td>先恢复完整矩阵，再做正交化</td>
+<td>通信和临时显存高，但更接近单卡语义。</td>
+</tr>
+<tr>
+<td>Shard-local Muon</td>
+<td>每个 shard 独立做正交化</td>
+<td>简单、便宜，但 TP/FSDP world size 会影响优化行为。</td>
+</tr>
+<tr>
+<td>Block-wise Muon</td>
+<td>按有意义的矩阵块做正交化</td>
+<td>折中，但需要设计块边界和记录规则。</td>
+</tr>
+</tbody>
+</table>
+<p>推荐在实验名和 manifest 中明确写：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">muon_distributed_semantics</span><span class="p">:</span><span class="w"> </span><span class="s">"full_matrix"</span><span class="w">  </span><span class="c1"># full_matrix / shard_local / blockwise</span>
+<span class="nt">matrix_boundary_rule</span><span class="p">:</span><span class="w"> </span><span class="s">"split_qkv_and_ffn_projection"</span>
+<span class="nt">dp_gather_for_muon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">tp_local_muon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<p>否则未来对比两个 Muon 实验时，很可能一个是 full-matrix，一个是 shard-local，结果却被误认为是学习率或数据差异。</p>
+<h3 id="zero-fsdp">ZeRO / FSDP 的状态切分细节<a class="headerlink" href="#zero-fsdp" title="Permanent link">¶</a></h3>
+<p>在 ZeRO/FSDP 场景里，Muon 状态至少涉及三类对象：</p>
+<div class="highlight"><pre><span></span><code>parameter shard
+gradient shard
+momentum shard
+</code></pre></div>
+<p>如果要做 full-matrix Muon，还会有：</p>
+<div class="highlight"><pre><span></span><code>full momentum / gradient temporary
+full orthogonalized update temporary
+</code></pre></div>
+<p>因此 memory accounting 要分成：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>长期存在</th>
+<th>峰值存在</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>parameter shard</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>momentum shard</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>full matrix temporary</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>Newton-Schulz temporary</td>
+<td>否</td>
+<td>是</td>
+</tr>
+<tr>
+<td>update shard</td>
+<td>可能</td>
+<td>是</td>
+</tr>
+</tbody>
+</table>
+<p>很多 OOM 不会出现在 forward/backward，而会出现在 optimizer step。排查时要单独记录 optimizer-step peak memory。</p>
+<h2 id="tensor-parallel">和 Tensor Parallel 的关系<a class="headerlink" href="#tensor-parallel" title="Permanent link">¶</a></h2>
+<p>Tensor Parallel 会把一个线性层的矩阵按行或列切开。例如 column parallel linear：</p>
+<div class="highlight"><pre><span></span><code>W = [W0, W1, W2, W3]
+</code></pre></div>
+<p>每个 rank 只持有一部分输出列。此时 Muon 有几种可能：</p>
+<ul>
+<li>在每个 TP shard 上单独做 Muon。</li>
+<li>gather TP shard 后对完整矩阵做 Muon。</li>
+<li>把 TP shard 视为独立矩阵，承认语义和 full matrix Muon 不同。</li>
+</ul>
+<p>没有免费的选择。</p>
+<p>如果 gather：</p>
+<ul>
+<li>语义更接近完整矩阵。</li>
+<li>通信和临时显存增加。</li>
+<li>optimizer step 更复杂。</li>
+</ul>
+<p>如果 shard-local：</p>
+<ul>
+<li>实现简单。</li>
+<li>通信少。</li>
+<li>更新方向依赖切分方式，TP size 改变可能导致优化行为改变。</li>
+</ul>
+<p>所以使用 Muon 做 TP 训练时，benchmark 必须固定 TP size 和切分策略。不能假设 <code>TP=1</code> 的调参结果直接搬到 <code>TP=8</code>。</p>
+<h3 id="column-parallel-row-parallel">Column Parallel 与 Row Parallel 的差异<a class="headerlink" href="#column-parallel-row-parallel" title="Permanent link">¶</a></h3>
+<p>Transformer 里的 TP 常见两类线性层：</p>
+<div class="highlight"><pre><span></span><code>Column Parallel: W 按输出维切分
+Row Parallel:    W 按输入维切分
+</code></pre></div>
+<p>对 AdamW 来说，两者主要影响通信位置；对 Muon 来说，两者还影响矩阵正交化看到的形状。</p>
+<p>Shard-local Muon 下：</p>
+<ul>
+<li>Column parallel rank 看到的是 <code>out_shard x in</code>。</li>
+<li>Row parallel rank 看到的是 <code>out x in_shard</code>。</li>
+<li>TP size 改变时，本地矩阵长宽比改变。</li>
+<li><code>adjust_lr_fn</code> 对长宽比敏感，更新尺度可能变化。</li>
+</ul>
+<p>Full-matrix Muon 下：</p>
+<ul>
+<li>需要额外 gather。</li>
+<li>可能破坏 TP optimizer step 的简单性。</li>
+<li>需要把 full update 切回 TP shard。</li>
+</ul>
+<p>所以 TP + Muon 实验要固定并记录：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">tensor_parallel</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">  </span><span class="nt">column_parallel_muon</span><span class="p">:</span><span class="w"> </span><span class="s">"shard_local"</span>
+<span class="w">  </span><span class="nt">row_parallel_muon</span><span class="p">:</span><span class="w"> </span><span class="s">"shard_local"</span>
+<span class="w">  </span><span class="nt">qkv_layout</span><span class="p">:</span><span class="w"> </span><span class="s">"split"</span>
+<span class="w">  </span><span class="nt">adjust_lr_fn</span><span class="p">:</span><span class="w"> </span><span class="s">"match_rms_adamw"</span>
+</code></pre></div>
+<p>如果未来换 TP size 或换 fused QKV 实现，应重新验证 Muon 学习率和稳定性。</p>
+<h2 id="pipeline-parallel">和 Pipeline Parallel 的关系<a class="headerlink" href="#pipeline-parallel" title="Permanent link">¶</a></h2>
+<p>Pipeline Parallel 对 Muon 的影响相对间接。</p>
+<p>主要问题是：</p>
+<ul>
+<li>不同 stage 的参数 shape 不同，Muon optimizer time 可能不均衡。</li>
+<li>某些 stage 有 embedding / lm_head，Muon 参数比例较低。</li>
+<li>optimizer step 通常发生在一次 global batch 完成后，可能造成 stage 间等待。</li>
+<li>如果 optimizer step 很重，pipeline bubble 之外还会出现 optimizer tail。</li>
+</ul>
+<p>排查方式：</p>
+<ul>
+<li>分 stage 统计 optimizer step time。</li>
+<li>分 stage 统计 Muon 参数量。</li>
+<li>看 optimizer step 是否成为 iteration 末尾的 exposed time。</li>
+<li>对 embedding-heavy stage 单独处理 AdamW 参数和 checkpoint。</li>
+</ul>
+<h2 id="moe">和 MoE 训练的关系<a class="headerlink" href="#moe" title="Permanent link">¶</a></h2>
+<p>MoE 模型里，专家 FFN 是大量二维矩阵，理论上很适合 Muon。但 MoE 训练本身已经有 Expert Parallel、AllToAll、load balance、token dispatch/combine 等复杂性，Muon 会叠加新的系统问题。</p>
+<p>需要重点关注：</p>
+<ul>
+<li>expert weight 是否按 EP 切分。</li>
+<li>每个 rank 持有哪些 expert。</li>
+<li>expert matrix 是否完整在单卡上。</li>
+<li>Muon momentum state 是否随 expert 放置。</li>
+<li>expert 迁移、checkpoint、resume 是否保持 optimizer state 对齐。</li>
+<li>大 EP / 小 EP 改变后，Muon 的参数分组和更新语义是否变化。</li>
+</ul>
+<p>如果每个 expert 的矩阵完整放在某个 rank 上，Muon 实现会简单很多。如果 expert 矩阵还被 TP 或 FSDP 切开，就要处理 full matrix 语义。</p>
+<p>MoE 场景还要监控：</p>
+<ul>
+<li>router 是否稳定。</li>
+<li>expert load balance loss。</li>
+<li>不同 expert 的 weight RMS / update RMS。</li>
+<li>hot expert 和 cold expert 的 optimizer state 是否有异常。</li>
+</ul>
+<h3 id="expert-muon">Expert 负载不均会影响 Muon 状态<a class="headerlink" href="#expert-muon" title="Permanent link">¶</a></h3>
+<p>MoE 里不同 expert 被选中的频率可能不同。hot expert 经常收到梯度，cold expert 很少更新。Muon momentum 是长期状态，这会让 expert 之间出现不同的 update 历史。</p>
+<p>需要关注：</p>
+<ul>
+<li>每个 expert 的 token count。</li>
+<li>每个 expert 的 grad RMS。</li>
+<li>每个 expert 的 momentum RMS。</li>
+<li>每个 expert 的 update-to-weight ratio。</li>
+<li>load balance loss 与 Muon update 是否同时异常。</li>
+</ul>
+<p>如果 cold expert 长时间没有有效梯度，momentum buffer 的行为要明确：</p>
+<ul>
+<li>没有梯度时是否跳过 step？</li>
+<li>momentum 是否 decay？</li>
+<li>expert 被重新激活时 update 是否突变？</li>
+</ul>
+<p>这类问题在 dense 模型里不明显，但在 MoE 中会成为 optimizer state lifecycle 问题。</p>
+<h2 id="muon_2">Muon 适合哪些训练阶段<a class="headerlink" href="#muon_2" title="Permanent link">¶</a></h2>
+<p>Muon 最值得关注的场景通常是大规模预训练或继续预训练，因为这些场景：</p>
+<ul>
+<li>hidden layer 2D 参数占比高。</li>
+<li>optimizer state 成本大。</li>
+<li>tokens to target loss 很重要。</li>
+<li>长时间训练能摊薄调参成本。</li>
+</ul>
+<p>不一定优先使用 Muon 的场景：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>很小的 LoRA 微调</td>
+<td>trainable adapter 很少，Muon 的矩阵级优势有限。</td>
+</tr>
+<tr>
+<td>只训练 embedding/head 的任务</td>
+<td>这些参数通常不适合直接交给 Muon。</td>
+</tr>
+<tr>
+<td>短周期 SFT 实验</td>
+<td>调参和稳定性验证成本可能超过收益。</td>
+</tr>
+<tr>
+<td>已经被数据/rollout/verifier 限制的后训练</td>
+<td>optimizer 不是主要瓶颈。</td>
+</tr>
+<tr>
+<td>高风险生产训练首轮</td>
+<td>Muon 引入新的分布式和 checkpoint 变量。</td>
+</tr>
+</tbody>
+</table>
+<p>可以把 Muon 的引入顺序设计成：</p>
+<div class="highlight"><pre><span></span><code>小模型 dense pretraining ablation
+-&gt; 中等模型继续预训练
+-&gt; 大模型 pretraining
+-&gt; MoE / TP / FSDP 组合
+-&gt; 后训练特定场景
+</code></pre></div>
+<p>这样每一步都能定位问题，而不是一开始就在最复杂系统里叠加所有变量。</p>
+<h2 id="checkpoint">Checkpoint 与恢复<a class="headerlink" href="#checkpoint" title="Permanent link">¶</a></h2>
+<p>Muon checkpoint 不能只保存模型权重。</p>
+<p>至少要保存：</p>
+<ul>
+<li>Muon optimizer param groups。</li>
+<li>momentum buffers。</li>
+<li>AdamW param groups。</li>
+<li>AdamW <code>m/v</code> states。</li>
+<li>master weights，如果有。</li>
+<li>scheduler state。</li>
+<li>gradient scaler state，如果用 FP16 AMP。</li>
+<li>global step / consumed tokens。</li>
+<li>参数分组规则版本。</li>
+</ul>
+<p>对于 Muon 特别要注意：</p>
+<ul>
+<li>参数顺序变了，momentum buffer 会错位。</li>
+<li>模块重命名后，state dict 可能加载到错误参数。</li>
+<li>Muon 与 AdamW 参数组划分改变，会导致老 checkpoint 难以恢复。</li>
+<li>TP/FSDP/ZeRO world size 改变时，sharded optimizer state 需要 reshard。</li>
+<li><code>adjust_lr_fn</code>、<code>ns_steps</code>、momentum 等配置应写进 checkpoint metadata。</li>
+</ul>
+<p>推荐在 checkpoint metadata 中记录：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">optimizer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">muon</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">param_rule_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="w">    </span><span class="nt">ns_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">    </span><span class="nt">momentum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.95</span>
+<span class="w">    </span><span class="nt">nesterov</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">adjust_lr_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">match_rms_adamw</span>
+<span class="w">    </span><span class="nt">weight_decay</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
+<span class="w">  </span><span class="nt">adamw</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">used_for</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">embedding</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lm_head</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">norm</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bias</span>
+</code></pre></div>
+<p>这能避免半年后只剩一个 checkpoint，却不知道哪些参数当时到底用了哪个 optimizer。</p>
+<h2 id="benchmark">Benchmark 应该怎么做<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>Muon 的 benchmark 不能只比较“相同步数下 loss 更低”。训练系统关心的是更快、更省、更稳定。</p>
+<p>至少做四组对比：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AdamW baseline</td>
+<td>有强基线，避免把弱 AdamW 调参当成 Muon 优势</td>
+</tr>
+<tr>
+<td>Muon sample efficiency</td>
+<td>看相同 token / step 下 loss</td>
+</tr>
+<tr>
+<td>Muon wall-clock efficiency</td>
+<td>看达到目标 loss 的真实时间</td>
+</tr>
+<tr>
+<td>Muon system overhead</td>
+<td>看 optimizer step time、显存、通信和稳定性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">关键指标<a class="headerlink" href="#_10" title="Permanent link">¶</a></h3>
+<p>训练指标：</p>
+<ul>
+<li>training loss。</li>
+<li>validation loss。</li>
+<li>downstream eval，如果有。</li>
+<li>tokens to target loss。</li>
+<li>steps to target loss。</li>
+</ul>
+<p>系统指标：</p>
+<ul>
+<li>step time。</li>
+<li>optimizer step time。</li>
+<li>forward time。</li>
+<li>backward time。</li>
+<li>communication time。</li>
+<li>peak memory。</li>
+<li>tokens/s。</li>
+<li>MFU。</li>
+<li>checkpoint size。</li>
+<li>checkpoint save/load time。</li>
+</ul>
+<p>稳定性指标：</p>
+<ul>
+<li>NaN/Inf 次数。</li>
+<li>loss spike。</li>
+<li>grad norm。</li>
+<li>weight RMS。</li>
+<li>update RMS。</li>
+<li>resume 后 loss 是否连续。</li>
+</ul>
+<h3 id="_11">需要固定的变量<a class="headerlink" href="#_11" title="Permanent link">¶</a></h3>
+<p>如果比较 AdamW 和 Muon，必须固定：</p>
+<ul>
+<li>模型结构。</li>
+<li>dataset 和 tokenization。</li>
+<li>sequence length。</li>
+<li>global batch tokens。</li>
+<li>warmup steps。</li>
+<li>scheduler。</li>
+<li>precision。</li>
+<li>parallelism layout。</li>
+<li>hardware。</li>
+<li>profiler 采样窗口。</li>
+<li>checkpoint/resume 策略。</li>
+</ul>
+<p>否则很容易比较到别的变量。</p>
+<h2 id="_12">推荐实验路线<a class="headerlink" href="#_12" title="Permanent link">¶</a></h2>
+<p>Muon 的实验不要直接从最大模型开始。推荐分阶段推进。</p>
+<h3 id="_13">阶段一：单机小模型语义验证<a class="headerlink" href="#_13" title="Permanent link">¶</a></h3>
+<p>目标是证明实现没错。</p>
+<p>检查：</p>
+<ul>
+<li>Muon/AdamW 参数分组符合预期。</li>
+<li>loss 能正常下降。</li>
+<li>checkpoint/resume 后 loss 连续。</li>
+<li><code>ns_steps</code>、<code>adjust_lr_fn</code>、weight decay 能被记录。</li>
+<li>没有 NaN/Inf。</li>
+</ul>
+<p>这阶段不要追求最终质量，只验证训练语义。</p>
+<h3 id="token-sample-efficiency">阶段二：同等 token 的 sample efficiency<a class="headerlink" href="#token-sample-efficiency" title="Permanent link">¶</a></h3>
+<p>目标是比较相同 token 数下，Muon 是否更快降低 loss。</p>
+<p>固定：</p>
+<ul>
+<li>dataset。</li>
+<li>tokenization。</li>
+<li>batch tokens。</li>
+<li>scheduler。</li>
+<li>precision。</li>
+<li>eval cadence。</li>
+</ul>
+<p>报告：</p>
+<div class="highlight"><pre><span></span><code>loss at same tokens
+eval at same tokens
+tokens to target loss
+</code></pre></div>
+<p>如果同等 token 没有优势，继续扩大规模前要谨慎。</p>
+<h3 id="wall-clock">阶段三：同等 wall-clock 的系统效率<a class="headerlink" href="#wall-clock" title="Permanent link">¶</a></h3>
+<p>目标是比较真实时间成本。</p>
+<p>报告：</p>
+<div class="highlight"><pre><span></span><code>wall-clock to target loss
+tokens/s
+step time
+optimizer step time
+peak memory
+checkpoint time
+</code></pre></div>
+<p>Muon 可能用更少 token 达到目标，但每 step 更慢；也可能 optimizer step 变慢，但总体 wall-clock 仍更短。必须用 wall-clock 结论判断系统价值。</p>
+<h3 id="_14">阶段四：分布式扩展<a class="headerlink" href="#_14" title="Permanent link">¶</a></h3>
+<p>目标是验证 Muon 与 DP/FSDP/ZeRO/TP/PP/EP 组合是否稳定。</p>
+<p>固定并记录：</p>
+<ul>
+<li>DP/TP/PP/EP size。</li>
+<li>full-matrix 或 shard-local Muon。</li>
+<li>gather 通信量。</li>
+<li>optimizer-step peak memory。</li>
+<li>world size 变化后的 checkpoint 恢复。</li>
+</ul>
+<p>如果 <code>TP=1</code> 调通，不代表 <code>TP=8</code> 行为一致；如果单机调通，也不代表 ZeRO/FSDP 没有 optimizer step 峰值问题。</p>
+<h2 id="_15">运行时告警<a class="headerlink" href="#_15" title="Permanent link">¶</a></h2>
+<p>训练平台可以给 Muon 增加专门告警：</p>
+<table>
+<thead>
+<tr>
+<th>告警</th>
+<th>可能原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Muon group 出现 embedding/lm_head/norm</td>
+<td>参数分组规则过宽。</td>
+</tr>
+<tr>
+<td>optimizer step time 突然上升</td>
+<td>full-matrix gather、small GEMM、临时 buffer 或通信尾巴。</td>
+</tr>
+<tr>
+<td>update-to-weight ratio 激增</td>
+<td>learning rate、adjust_lr_fn、weight decay 或 NS 输出异常。</td>
+</tr>
+<tr>
+<td>Muon update NaN/Inf</td>
+<td>NS temporary 数值异常或输入范数异常。</td>
+</tr>
+<tr>
+<td>resume 后 loss 跳变</td>
+<td>momentum buffer、param group 顺序或 scheduler state 错。</td>
+</tr>
+<tr>
+<td>TP size 改变后 loss 曲线不同</td>
+<td>shard-local Muon 语义改变。</td>
+</tr>
+<tr>
+<td>MoE hot expert RMS 异常</td>
+<td>expert load imbalance 影响 optimizer state。</td>
+</tr>
+</tbody>
+</table>
+<p>这些告警最好按 parameter group 和模块类型聚合，不要只给一个全局数字。</p>
+<h2 id="_16">性能剖析重点<a class="headerlink" href="#_16" title="Permanent link">¶</a></h2>
+<p>Profiler 里要单独看 Muon optimizer step。</p>
+<p>重点问题：</p>
+<ol>
+<li>Newton-Schulz 的 GEMM 是否占明显时间。</li>
+<li>small GEMM 是否过碎。</li>
+<li>是否有大量 tensor reshape / transpose / clone。</li>
+<li>gather full matrix 是否造成通信尾巴。</li>
+<li>temporary buffer 是否造成 peak memory。</li>
+<li>Muon step 是否可以和参数 all-gather 或其他通信重叠。</li>
+<li>checkpoint 保存 optimizer state 是否明显变大或变慢。</li>
+</ol>
+<p>如果看到 optimizer step time 上升，不一定表示 Muon 不值得。还要看：</p>
+<ul>
+<li>是否更少 token 达到目标 loss。</li>
+<li>是否总体 wall-clock 更短。</li>
+<li>是否降低长期 optimizer state 显存。</li>
+<li>是否允许更大 batch 或更长 context。</li>
+</ul>
+<p>系统评估要以“达到目标质量的总成本”为准。</p>
+<h2 id="cuda-graph">和编译、CUDA Graph 的关系<a class="headerlink" href="#cuda-graph" title="Permanent link">¶</a></h2>
+<p>Muon 的 optimizer step 包含动态参数列表、矩阵乘、可能的 gather 和临时 buffer。它和 <code>torch.compile</code>、CUDA Graph、fused optimizer 的关系要单独验证。</p>
+<p>常见风险：</p>
+<ul>
+<li>参数 shape 多样，难以形成稳定 graph。</li>
+<li><code>ns_steps</code> 固定但参数列表很长，capture 成本高。</li>
+<li>分布式 gather 或异步通信不容易 graph capture。</li>
+<li>临时 buffer 分配导致 allocator 峰值。</li>
+<li>Python 层循环遍历大量矩阵，kernel launch 过碎。</li>
+</ul>
+<p>优化方向：</p>
+<ul>
+<li>按 shape 对矩阵分组。</li>
+<li>使用 batched/grouped GEMM。</li>
+<li>复用 temporary buffer。</li>
+<li>把过小矩阵回退到 AdamW。</li>
+<li>对 optimizer step 加 NVTX range，独立看 trace。</li>
+</ul>
+<p>不要假设 AdamW fused optimizer 的经验可以直接迁移到 Muon。Muon 的核心计算已经从逐元素 kernel 变成矩阵乘和分布式矩阵语义。</p>
+<h2 id="_17">常见优化方向<a class="headerlink" href="#_17" title="Permanent link">¶</a></h2>
+<h3 id="_18">使用成熟实现<a class="headerlink" href="#_18" title="Permanent link">¶</a></h3>
+<p>优先使用框架或经过验证的实现。Muon 涉及参数分组、Newton-Schulz、dtype、weight decay、update scale、checkpoint 和分布式切分，手写很容易漏细节。</p>
+<p>成熟实现也要锁定版本。Muon 仍是快速演进中的 optimizer，不同实现对：</p>
+<ul>
+<li><code>adjust_lr_fn</code></li>
+<li><code>ns_coefficients</code></li>
+<li>weight decay</li>
+<li>QKV 分组</li>
+<li>distributed gather</li>
+<li>momentum dtype</li>
+</ul>
+<p>可能有细微差异。实验报告里要写清楚实现来源和 commit/version。</p>
+<h3 id="_19">减少小矩阵碎片<a class="headerlink" href="#_19" title="Permanent link">¶</a></h3>
+<p>大量小矩阵逐个做 Newton-Schulz 会产生明显 launch overhead。可以考虑：</p>
+<ul>
+<li>batched GEMM。</li>
+<li>grouped kernel。</li>
+<li>fused optimizer step。</li>
+<li>对过小矩阵回退 AdamW。</li>
+</ul>
+<h3 id="_20">控制临时显存<a class="headerlink" href="#_20" title="Permanent link">¶</a></h3>
+<p>Newton-Schulz 临时矩阵可能造成峰值显存上升。优化方向包括：</p>
+<ul>
+<li>BF16 temporary。</li>
+<li>in-place buffer reuse。</li>
+<li>按参数分组分批执行。</li>
+<li>避免在同一时间保留 full update 和 full gradient。</li>
+</ul>
+<h3 id="_21">和分布式通信重叠<a class="headerlink" href="#_21" title="Permanent link">¶</a></h3>
+<p>Distributed Muon 可能需要 gather。可以探索：</p>
+<ul>
+<li>gather 和局部 momentum update 重叠。</li>
+<li>optimizer reduce-scatter 和 parameter all-gather 重叠。</li>
+<li>按 layer 顺序流水执行 optimizer step。</li>
+<li>把 Muon step 放进更大的训练 runtime 调度里。</li>
+</ul>
+<h3 id="_22">保守选择参数范围<a class="headerlink" href="#_22" title="Permanent link">¶</a></h3>
+<p>初次引入 Muon 时，不建议一次性覆盖所有二维参数。更稳妥路线：</p>
+<ol>
+<li>只覆盖 Transformer hidden linear weights。</li>
+<li>embedding、norm、bias、lm_head 保持 AdamW。</li>
+<li>记录每类参数的 loss、update RMS、weight RMS。</li>
+<li>稳定后再探索更多参数。</li>
+</ol>
+<h2 id="_23">常见误区<a class="headerlink" href="#_23" title="Permanent link">¶</a></h2>
+<h3 id="muon-adamw">误区一：Muon 就是 AdamW 的直接替代<a class="headerlink" href="#muon-adamw" title="Permanent link">¶</a></h3>
+<p>不完全是。Muon 主要面向二维 hidden layer 参数，实践中经常和 AdamW 混用。</p>
+<h3 id="pndim-2-muon">误区二：只要 <code>p.ndim == 2</code> 就全部用 Muon<a class="headerlink" href="#pndim-2-muon" title="Permanent link">¶</a></h3>
+<p>不稳妥。Embedding 和 LM head 也可能是二维矩阵，但它们的训练语义和 hidden layer weight 不同。</p>
+<h3 id="muon-state">误区三：Muon state 少，所以一定更快<a class="headerlink" href="#muon-state" title="Permanent link">¶</a></h3>
+<p>不一定。Muon 可能减少长期状态，但 Newton-Schulz、临时矩阵、gather 和 small GEMM 都会增加 optimizer step 成本。</p>
+<h3 id="shard-muon-full-matrix-muon">误区四：在 shard 上做 Muon 等价于 full matrix Muon<a class="headerlink" href="#shard-muon-full-matrix-muon" title="Permanent link">¶</a></h3>
+<p>通常不等价。Muon 是矩阵级操作，切分方式会影响更新方向。</p>
+<h3 id="step-loss-muon">误区五：只看 step loss 就能判断 Muon 是否更好<a class="headerlink" href="#step-loss-muon" title="Permanent link">¶</a></h3>
+<p>不够。要看 tokens to target loss、wall-clock to target loss、系统开销和稳定性。</p>
+<h2 id="_24">设计检查清单<a class="headerlink" href="#_24" title="Permanent link">¶</a></h2>
+<p>引入 Muon 前，可以逐项确认：</p>
+<ul>
+<li>哪些参数使用 Muon？</li>
+<li>哪些参数继续使用 AdamW？</li>
+<li>参数分组是否按名字和模块类型记录？</li>
+<li>Muon LR、AdamW LR 是否分别记录？</li>
+<li>weight decay 是否启用？</li>
+<li><code>adjust_lr_fn</code> 或更新尺度策略是什么？</li>
+<li>Newton-Schulz steps 是多少？</li>
+<li>momentum / nesterov 配置是什么？</li>
+<li>Muon momentum dtype 是什么？</li>
+<li>Newton-Schulz temporary dtype 是什么？</li>
+<li>是否有 FP32 master weight？</li>
+<li>FSDP/ZeRO/TP 下是否需要 full matrix gather？</li>
+<li>world size 改变后 checkpoint 能否恢复？</li>
+<li>profiler 是否单独统计 optimizer step？</li>
+<li>benchmark 是否比较 wall-clock to target loss？</li>
+</ul>
+<h2 id="_25">小结<a class="headerlink" href="#_25" title="Permanent link">¶</a></h2>
+<p>Muon 的价值不只是“换一个优化器”。它代表一种训练系统趋势：optimizer 不再只是逐元素更新参数，而是利用矩阵结构改变更新方向。</p>
+<p>对训练系统来说，Muon 的关键点是：</p>
+<ul>
+<li>它主要适合 hidden layer 的二维矩阵参数。</li>
+<li>它通过 momentum matrix 的 Newton-Schulz 正交化产生更新方向。</li>
+<li>它可能减少 AdamW 二阶矩状态，但会增加矩阵乘、临时 buffer 和分布式 gather。</li>
+<li>它和 ZeRO/FSDP/TP 的组合必须明确 full matrix 语义。</li>
+<li>它的 benchmark 必须同时看收敛、wall-clock、显存、通信和稳定性。</li>
+</ul>
+<p>如果只把 Muon 当成一行 optimizer 替换，很容易踩坑。把它当成“矩阵级 optimizer subsystem”来设计，才更接近大模型训练系统里的真实问题。</p>
+<h2 id="_26">参考资料<a class="headerlink" href="#_26" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://kellerjordan.github.io/posts/muon/">Muon: An optimizer for hidden layers in neural networks</a></li>
+<li><a href="https://docs.pytorch.org/docs/2.12/generated/torch.optim.Muon.html">PyTorch: torch.optim.Muon</a></li>
+<li><a href="https://arxiv.org/abs/2502.16982">Muon is Scalable for LLM Training</a></li>
+<li><a href="https://arxiv.org/abs/2601.19156">Convergence of Muon with Newton-Schulz</a></li>
+<li><a href="https://arxiv.org/abs/2604.01472">The Newton-Muon Optimizer</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

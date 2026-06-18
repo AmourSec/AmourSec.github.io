@@ -1,0 +1,2497 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/99-templates/knowledge-note/" rel="canonical"/>
+<link href="../../11-knowledge-index/" rel="prev"/>
+<link href="../adr/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>知识点模板：从概念解释到 AI 可读卡片 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#ai">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              知识点模板：从概念解释到 AI 可读卡片
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      使用方式
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      最小可复制模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      完整推荐模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      字段说明
+    </span>
+</a>
+<nav aria-label="字段说明" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#domain">
+<span class="md-ellipsis">
+      domain
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#doc_type">
+<span class="md-ellipsis">
+      doc_type
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#status">
+<span class="md-ellipsis">
+      status
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload">
+<span class="md-ellipsis">
+      workload
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#system_layer">
+<span class="md-ellipsis">
+      system_layer
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metrics">
+<span class="md-ellipsis">
+      metrics
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sources">
+<span class="md-ellipsis">
+      sources
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      写作规则
+    </span>
+</a>
+<nav aria-label="写作规则" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      先问题，后机制
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      每个结论都要有边界
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      区分原理和工程实现
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      区分性能和正确性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      不把单点实验写成普遍结论
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      误区一：只有概念，没有系统对象
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      误区二：只有收益，没有代价
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai_1">
+<span class="md-ellipsis">
+      误区三：只适合人读，不适合 AI 检索
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      误区四：没有相关章节
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      误区五：把模板示例当真实证据
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      模板质量门禁
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      使用方式
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      最小可复制模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      完整推荐模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      字段说明
+    </span>
+</a>
+<nav aria-label="字段说明" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#domain">
+<span class="md-ellipsis">
+      domain
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#doc_type">
+<span class="md-ellipsis">
+      doc_type
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#status">
+<span class="md-ellipsis">
+      status
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload">
+<span class="md-ellipsis">
+      workload
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#system_layer">
+<span class="md-ellipsis">
+      system_layer
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metrics">
+<span class="md-ellipsis">
+      metrics
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sources">
+<span class="md-ellipsis">
+      sources
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      写作规则
+    </span>
+</a>
+<nav aria-label="写作规则" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      先问题，后机制
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      每个结论都要有边界
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      区分原理和工程实现
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      区分性能和正确性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      不把单点实验写成普遍结论
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      误区一：只有概念，没有系统对象
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      误区二：只有收益，没有代价
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai_1">
+<span class="md-ellipsis">
+      误区三：只适合人读，不适合 AI 检索
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      误区四：没有相关章节
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      误区五：把模板示例当真实证据
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      模板质量门禁
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="ai">知识点模板：从概念解释到 AI 可读卡片<a class="headerlink" href="#ai" title="Permanent link">¶</a></h1>
+<p>这个模板用于撰写 AI Infra 知识库中的普通知识点文章。</p>
+<p>普通知识点不是 benchmark report、ADR、failure case 或 runbook。</p>
+<p>它通常用于解释：</p>
+<ul>
+<li>一个概念；</li>
+<li>一个机制；</li>
+<li>一个系统组件；</li>
+<li>一个优化方向；</li>
+<li>一个工具能力；</li>
+<li>一个常见瓶颈；</li>
+<li>一个实验前需要理解的背景知识。</li>
+</ul>
+<p>例如：</p>
+<ul>
+<li>KV Cache；</li>
+<li>Prefill 与 Decode；</li>
+<li>Tensor Parallel；</li>
+<li>Activation Checkpointing；</li>
+<li>RDMA 网络与 NCCL 拓扑；</li>
+<li>TorchInductor 编译流程；</li>
+<li>AI 加速器 Roofline 模型。</li>
+</ul>
+<p>高质量知识点文章的目标不是“把资料整理一遍”。</p>
+<p>它应该让读者和 AI 都能回答：</p>
+<blockquote>
+<p>这个知识点解决什么问题？在哪个系统层？适用于什么 workload？核心机制是什么？带来什么收益和代价？有哪些证据？什么时候不能直接套用？</p>
+</blockquote>
+<h2 id="_1">使用方式<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>新增知识点时，建议按下面流程：</p>
+<ol>
+<li>先确定 <code>doc_type</code>。</li>
+<li>如果是普通概念或机制说明，使用本模板。</li>
+<li>如果是 benchmark，用基准实验报告模板。</li>
+<li>如果是技术选择，用 ADR 模板。</li>
+<li>如果是故障样本，用 failure case 结构。</li>
+<li>如果是现场操作，用 runbook 结构。</li>
+</ol>
+<p>本模板适合：</p>
+<ul>
+<li>概念讲解；</li>
+<li>机制说明；</li>
+<li>系统设计说明；</li>
+<li>工程经验沉淀；</li>
+<li>论文机制转写；</li>
+<li>工具能力说明。</li>
+</ul>
+<p>本模板不适合：</p>
+<ul>
+<li>记录一次具体实验；</li>
+<li>记录一次技术决策；</li>
+<li>记录一次事故；</li>
+<li>写操作手册；</li>
+<li>写纯参考表。</li>
+</ul>
+<h2 id="_2">最小可复制模板<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>下面是最小版本。</p>
+<p>适合快速创建新文章。</p>
+<div class="highlight"><pre><span></span><code>---
+title: ""
+domain: ""
+doc_type: concept
+status: draft
+owner: maintainers
+license: CC-BY-4.0
+updated: 2026-06-12
+workload: []
+system_layer: []
+hardware: []
+software: []
+metrics: []
+<span class="gu">sources: []</span>
+<span class="gu">---</span>
+
+<span class="gh"># 标题</span>
+
+<span class="gu">## 摘要</span>
+
+用 3 到 5 句话说明：
+
+<span class="k">-</span><span class="w"> </span>这个知识点解决什么问题；
+<span class="k">-</span><span class="w"> </span>属于哪个系统层级；
+<span class="k">-</span><span class="w"> </span>适用于什么 workload；
+<span class="k">-</span><span class="w"> </span>核心机制是什么；
+<span class="k">-</span><span class="w"> </span>读完后读者应该能做什么。
+
+<span class="gu">## 背景</span>
+
+说明这个问题为什么存在。
+
+<span class="k">-</span><span class="w"> </span>它出现在训练、推理、kernel、编译器、硬件、集群还是 benchmark 中？
+<span class="k">-</span><span class="w"> </span>如果不了解它，会导致什么误判？
+<span class="k">-</span><span class="w"> </span>它和上游 workload、下游系统有什么关系？
+
+<span class="gu">## 核心问题</span>
+
+用一句话写清楚本文回答的问题。
+
+<span class="k">&gt; </span><span class="ge">在什么场景下，如何理解或解决什么系统问题？</span>
+
+<span class="gu">## 基本概念</span>
+
+解释必要术语。
+
+| 术语 | 含义 |
+| --- | --- |
+|  |  |
+
+<span class="gu">## 工作流程</span>
+
+用步骤解释机制如何工作。
+
+1.
+2.
+3.
+
+<span class="gu">## 系统视角</span>
+
+说明它影响哪些系统对象。
+
+| 对象 | 影响 |
+| --- | --- |
+| workload |  |
+| runtime |  |
+| memory |  |
+| communication |  |
+| benchmark |  |
+
+<span class="gu">## 成本模型</span>
+
+说明它减少什么成本，增加什么成本。
+
+| 成本项 | 变化 |
+| --- | --- |
+| 计算 |  |
+| 显存 |  |
+| HBM 带宽 |  |
+| 网络通信 |  |
+| 调度复杂度 |  |
+| 工程维护 |  |
+
+<span class="gu">## 指标</span>
+
+说明应该用哪些指标观察它。
+
+<span class="k">-</span><span class="w"> </span>primary metrics:
+<span class="k">-</span><span class="w"> </span>guardrail metrics:
+<span class="k">-</span><span class="w"> </span>debugging metrics:
+
+<span class="gu">## 适用范围</span>
+
+适用于：
+
+-
+
+不适用于或需要谨慎：
+
+-
+
+<span class="gu">## 常见优化方向</span>
+
+-
+
+<span class="gu">## 常见误区</span>
+
+<span class="gu">### 误区一：</span>
+
+解释为什么是误区。
+
+<span class="gu">## 检查清单</span>
+
+<span class="k">- [ ]</span> 是否说明 workload？
+<span class="k">- [ ]</span> 是否说明 system layer？
+<span class="k">- [ ]</span> 是否说明核心机制？
+<span class="k">- [ ]</span> 是否说明收益和代价？
+<span class="k">- [ ]</span> 是否说明适用范围？
+<span class="k">- [ ]</span> 是否链接相关章节？
+
+<span class="gu">## 小结</span>
+
+用 3 到 5 条总结核心结论。
+
+<span class="gu">## 参考资料</span>
+
+-
+</code></pre></div>
+<h2 id="_3">完整推荐模板<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>下面是完整版本。</p>
+<p>适合写重要知识点、系统机制或后续可能被 AI 检索引用的文章。</p>
+<div class="highlight"><pre><span></span><code>---
+title: ""
+domain: ""
+doc_type: concept
+status: draft
+owner: maintainers
+license: CC-BY-4.0
+updated: 2026-06-12
+
+workload:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>""
+system_layer:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>""
+hardware:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>""
+software:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>""
+metrics:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>""
+sources:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>type: ""
+    title: ""
+    url: ""
+related:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>""
+<span class="gu">evidence_level: E1</span>
+<span class="gu">---</span>
+
+<span class="gh"># 标题</span>
+
+<span class="gu">## 摘要</span>
+
+用 3 到 5 句话说明这篇文章。
+
+建议结构：
+
+<span class="k">1.</span> 这个知识点解决什么问题。
+<span class="k">2.</span> 它属于哪个系统层。
+<span class="k">3.</span> 它的核心机制是什么。
+<span class="k">4.</span> 它对延迟、吞吐、显存、通信、成本或可靠性有什么影响。
+<span class="k">5.</span> 本文不覆盖什么。
+
+<span class="gu">## 一张总图</span>
+
+如果机制跨越多个对象，建议给 Mermaid 图。
+
+<span class="sb">```mermaid</span>
+<span class="s">flowchart TD</span>
+<span class="s">    A["Input"] --&gt; B["Mechanism"]</span>
+<span class="s">    B --&gt; C["System Effect"]</span>
+<span class="s">    C --&gt; D["Metrics"]</span>
+<span class="sb">```</span>
+
+图要表达数据流、控制流或系统依赖。
+
+不要为了装饰画图。
+
+<span class="gu">## 背景</span>
+
+说明问题从哪里来。
+
+建议回答：
+
+<span class="k">-</span><span class="w"> </span>这个问题在哪类 AI workload 中出现？
+<span class="k">-</span><span class="w"> </span>为什么传统理解不够？
+<span class="k">-</span><span class="w"> </span>它和前置章节有什么关系？
+<span class="k">-</span><span class="w"> </span>它通常在什么规模、shape、硬件或流量下变重要？
+
+<span class="gu">## 核心问题</span>
+
+用一句话明确本文的问题。
+
+例：
+
+<span class="k">&gt; </span><span class="ge">在 LLM serving 中，KV Cache 如何把历史 token 的 attention 计算变成显存管理问题，并影响并发、长上下文和调度？</span>
+
+<span class="gu">## 基本概念</span>
+
+解释术语。
+
+| 术语 | 含义 | 为什么重要 |
+| --- | --- | --- |
+|  |  |  |
+
+规则：
+
+<span class="k">-</span><span class="w"> </span>不要堆术语；
+<span class="k">-</span><span class="w"> </span>每个术语都要说明和系统问题的关系；
+<span class="k">-</span><span class="w"> </span>已在其他章节解释过的术语要链接过去。
+
+<span class="gu">## 工作流程</span>
+
+按步骤解释机制。
+
+示例结构：
+
+<span class="k">1.</span> 输入是什么。
+<span class="k">2.</span> 系统创建或读取哪些状态。
+<span class="k">3.</span> 关键计算在哪里发生。
+<span class="k">4.</span> 中间状态如何保存、传输或释放。
+<span class="k">5.</span> 输出是什么。
+<span class="k">6.</span> 哪些步骤在关键路径上。
+
+如果是训练机制，可按：
+
+<span class="sb">```text</span>
+data -&gt; forward -&gt; loss -&gt; backward -&gt; communication -&gt; optimizer -&gt; checkpoint
+<span class="sb">```</span>
+
+如果是推理机制，可按：
+
+<span class="sb">```text</span>
+request -&gt; tokenize -&gt; prefill -&gt; schedule -&gt; decode -&gt; stream -&gt; release
+<span class="sb">```</span>
+
+如果是 kernel 机制，可按：
+
+<span class="sb">```text</span>
+global memory -&gt; tile -&gt; shared/register -&gt; compute -&gt; reduce -&gt; write back
+<span class="sb">```</span>
+
+<span class="gu">## 系统对象</span>
+
+列出该机制操作的对象。
+
+| 对象 | 例子 | 系统影响 |
+| --- | --- | --- |
+| request | prompt、output stream | 影响 latency 和 queueing |
+| token | input/output token | 影响计算量和 KV Cache |
+| tensor | Q/K/V、activation、gradient | 影响显存和 bandwidth |
+| cache | prefix、KV、artifact | 影响命中率和一致性 |
+| rank | DP/TP/PP/EP rank | 影响通信和故障域 |
+| node | GPU node、NIC、NVMe | 影响拓扑和调度 |
+
+不必每篇都填满。
+
+只保留相关对象。
+
+<span class="gu">## 成本模型</span>
+
+AI Infra 文章必须讲收益和代价。
+
+| 成本项 | 可能问题 | 本文结论 |
+| --- | --- | --- |
+| Compute | FLOPs、kernel launch、Tensor Core 利用率 |  |
+| Memory Capacity | 参数、activation、KV、optimizer state |  |
+| Memory Bandwidth | HBM read/write、cache locality |  |
+| Communication | AllReduce、AllGather、AllToAll、P2P |  |
+| Scheduling | queue、priority、batching、placement |  |
+| Reliability | failure domain、recovery、retry |  |
+| Engineering | 实现复杂度、debug 成本、升级成本 |  |
+
+建议写清：
+
+<span class="k">-</span><span class="w"> </span>减少了什么；
+<span class="k">-</span><span class="w"> </span>增加了什么；
+<span class="k">-</span><span class="w"> </span>哪个成本从瓶颈变成非瓶颈；
+<span class="k">-</span><span class="w"> </span>哪个新成本可能成为下一个瓶颈。
+
+<span class="gu">## 指标体系</span>
+
+说明如何观察该机制。
+
+<span class="gu">### Primary Metrics</span>
+
+直接衡量目标。
+
+-
+
+<span class="gu">### Guardrail Metrics</span>
+
+防止优化伤害其他目标。
+
+-
+
+<span class="gu">### Debugging Metrics</span>
+
+用于定位问题。
+
+-
+
+例：
+
+<span class="sb">```yaml</span>
+<span class="nt">metrics</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">primary</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"goodput_at_slo"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"ttft_p99"</span>
+<span class="w">  </span><span class="nt">guardrail</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"error_rate"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"cost_per_output_token"</span>
+<span class="w">  </span><span class="nt">debugging</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"queue_wait_ms"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"kv_cache_occupancy"</span>
+<span class="sb">```</span>
+
+<span class="gu">## 适用范围</span>
+
+写清楚适用条件。
+
+适用于：
+
+<span class="k">-</span><span class="w"> </span>workload:
+<span class="k">-</span><span class="w"> </span>model:
+<span class="k">-</span><span class="w"> </span>shape:
+<span class="k">-</span><span class="w"> </span>hardware:
+<span class="k">-</span><span class="w"> </span>software:
+<span class="k">-</span><span class="w"> </span>scale:
+
+不适用于或需要谨慎：
+
+-
+
+如果结论只来自论文或小实验，要说明证据等级。
+
+<span class="gu">## 与相关技术的关系</span>
+
+| 相关技术 | 关系 |
+| --- | --- |
+|  | 上游概念 / 替代方案 / 组合使用 / 互相约束 |
+
+示例：
+
+| 相关技术 | 关系 |
+| --- | --- |
+| KV Cache | PagedAttention 管理的核心状态 |
+| Prefix Cache | 可以减少重复 Prefill，但和 KV 管理策略相互影响 |
+| Batching | 决定请求如何共享 GPU 时间片 |
+| Capacity Modeling | 用于评估显存和并发边界 |
+
+<span class="gu">## 常见优化方向</span>
+
+每个优化方向都要写：
+
+<span class="k">-</span><span class="w"> </span>优化什么；
+<span class="k">-</span><span class="w"> </span>代价是什么；
+<span class="k">-</span><span class="w"> </span>怎么验证。
+
+<span class="sb">```text</span>
+方向：
+收益：
+代价：
+验证：
+风险：
+<span class="sb">```</span>
+
+<span class="gu">## 常见故障或反模式</span>
+
+写常见误判和失败模式。
+
+<span class="gu">### 反模式一：</span>
+
+说明：
+
+<span class="k">-</span><span class="w"> </span>现象；
+<span class="k">-</span><span class="w"> </span>为什么会发生；
+<span class="k">-</span><span class="w"> </span>如何检测；
+<span class="k">-</span><span class="w"> </span>如何修复或规避。
+
+<span class="gu">## Benchmark 方法</span>
+
+如果该知识点会影响性能，应说明如何 benchmark。
+
+最小字段：
+
+<span class="sb">```yaml</span>
+<span class="nt">benchmark</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">question</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">workload</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">baseline</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">variants</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">primary</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">guardrail</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">sweep</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">raw_data</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">run_manifest</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="sb">```</span>
+
+不要只写“测一下性能”。
+
+要写清：
+
+<span class="k">-</span><span class="w"> </span>测什么问题；
+<span class="k">-</span><span class="w"> </span>和谁比；
+<span class="k">-</span><span class="w"> </span>变哪个变量；
+<span class="k">-</span><span class="w"> </span>如何判断有效；
+<span class="k">-</span><span class="w"> </span>如何避免 toy benchmark 误导。
+
+<span class="gu">## 证据与来源</span>
+
+把证据分层。
+
+| 证据 | 当前状态 |
+| --- | --- |
+| 论文 |  |
+| 官方文档 |  |
+| 源码 |  |
+| 本地 benchmark |  |
+| profiler |  |
+| 线上数据 |  |
+| failure case |  |
+| ADR |  |
+
+说明：
+
+<span class="k">-</span><span class="w"> </span>哪些结论有证据；
+<span class="k">-</span><span class="w"> </span>哪些只是推论；
+<span class="k">-</span><span class="w"> </span>哪些需要后续验证；
+<span class="k">-</span><span class="w"> </span>哪些来源可能过期。
+
+<span class="gu">## AI-readable Card</span>
+
+重要知识点建议包含结构化卡片。
+
+<span class="sb">```yaml</span>
+<span class="nt">knowledge_card</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">doc_type</span><span class="p">:</span><span class="w"> </span><span class="s">"concept"</span>
+<span class="w">  </span><span class="nt">problem</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">applies_to</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">workload</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">system_layer</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">hardware</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">software</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">mechanism</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">    </span><span class="nt">key_objects</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">critical_path</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">affects</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metrics</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">cost</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">reduces</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">      </span><span class="nt">increases</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">evidence</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="s">"E1"</span>
+<span class="w">    </span><span class="nt">sources</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">caveats</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">related_docs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">recommended_next_reads</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="sb">```</span>
+
+AI 检索时，这个 card 应该能快速回答：
+
+<span class="k">-</span><span class="w"> </span>这篇文章讲什么；
+<span class="k">-</span><span class="w"> </span>适用在哪里；
+<span class="k">-</span><span class="w"> </span>影响什么指标；
+<span class="k">-</span><span class="w"> </span>有什么证据；
+<span class="k">-</span><span class="w"> </span>有什么边界。
+
+<span class="gu">## 检查清单</span>
+
+<span class="gu">### 内容</span>
+
+<span class="k">- [ ]</span> 是否说明核心问题？
+<span class="k">- [ ]</span> 是否解释为什么重要？
+<span class="k">- [ ]</span> 是否讲清基本概念？
+<span class="k">- [ ]</span> 是否讲清工作流程？
+<span class="k">- [ ]</span> 是否讲清系统对象？
+<span class="k">- [ ]</span> 是否讲清成本模型？
+<span class="k">- [ ]</span> 是否讲清指标？
+
+<span class="gu">### 边界</span>
+
+<span class="k">- [ ]</span> 是否写明适用 workload？
+<span class="k">- [ ]</span> 是否写明硬件或软件前提？
+<span class="k">- [ ]</span> 是否写明不适用场景？
+<span class="k">- [ ]</span> 是否区分事实、推论和假设？
+
+<span class="gu">### 证据</span>
+
+<span class="k">- [ ]</span> 是否有来源？
+<span class="k">- [ ]</span> 是否有 evidence level？
+<span class="k">- [ ]</span> 如果有 benchmark，是否有 workload、baseline、metrics、raw data、manifest？
+<span class="k">- [ ]</span> 是否避免把博客观点写成验证结论？
+
+<span class="gu">### AI 可读</span>
+
+<span class="k">- [ ]</span> front matter 是否完整？
+<span class="k">- [ ]</span> doc_type 是否正确？
+<span class="k">- [ ]</span> 是否有 related docs？
+<span class="k">- [ ]</span> 是否有 AI-readable card？
+<span class="k">- [ ]</span> 标题和 heading 是否稳定？
+
+<span class="gu">### 维护</span>
+
+<span class="k">- [ ]</span> 是否更新 <span class="sb">`updated`</span>？
+<span class="k">- [ ]</span> 是否加入 <span class="sb">`mkdocs.yml`</span>？
+<span class="k">- [ ]</span> 是否更新章节入口？
+<span class="k">- [ ]</span> 是否需要更新知识地图？
+<span class="k">- [ ]</span> 是否更新 <span class="sb">`scripts/generate_llms_files.py`</span>？
+<span class="k">- [ ]</span> 是否运行生成和构建命令？
+
+<span class="gu">## 小结</span>
+
+用 3 到 5 条总结：
+
+<span class="k">-</span><span class="w"> </span>核心机制；
+<span class="k">-</span><span class="w"> </span>系统影响；
+<span class="k">-</span><span class="w"> </span>适用边界；
+<span class="k">-</span><span class="w"> </span>证据强度；
+<span class="k">-</span><span class="w"> </span>下一步阅读。
+
+<span class="gu">## 参考资料</span>
+
+-
+</code></pre></div>
+<h2 id="_4">字段说明<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<h3 id="domain">domain<a class="headerlink" href="#domain" title="Permanent link">¶</a></h3>
+<p>表示所属章节或技术域。</p>
+<p>建议使用固定枚举：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">domain</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ai-workloads</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inference-systems</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">training-systems</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kernels-compilers</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">accelerators-architecture</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-infra</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">benchmark-capacity</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reliability-observability</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">papers-cases</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">knowledge-index</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">template</span>
+</code></pre></div>
+<h3 id="doc_type">doc_type<a class="headerlink" href="#doc_type" title="Permanent link">¶</a></h3>
+<p>普通知识点通常使用：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">doc_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">concept</span>
+</code></pre></div>
+<p>其他可选值：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">doc_type</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">primer</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">concept</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system-guide</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">benchmark-guide</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tool-case</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">paper-note</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">experiment-report</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">adr</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">failure-case</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runbook</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">template</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">index</span>
+</code></pre></div>
+<p>如果发现一篇文章同时像 ADR、benchmark report 和 failure case，通常说明应该拆成多篇。</p>
+<h3 id="status">status<a class="headerlink" href="#status" title="Permanent link">¶</a></h3>
+<p>建议状态：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>draft</td>
+<td>初稿，逻辑和证据可能未完成</td>
+</tr>
+<tr>
+<td>reviewed</td>
+<td>人工读过，结构和结论基本可靠</td>
+</tr>
+<tr>
+<td>verified</td>
+<td>有实验、构建、来源或使用验证</td>
+</tr>
+<tr>
+<td>stale</td>
+<td>可能过期，需要复核</td>
+</tr>
+<tr>
+<td>deprecated</td>
+<td>不再推荐</td>
+</tr>
+<tr>
+<td>superseded</td>
+<td>被新文档替代</td>
+</tr>
+</tbody>
+</table>
+<h3 id="workload">workload<a class="headerlink" href="#workload" title="Permanent link">¶</a></h3>
+<p>写清楚适用 workload。</p>
+<p>示例：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">workload</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm-serving</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">long-context</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rag</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pretraining</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">post-training</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">moe</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kernel-benchmark</span>
+</code></pre></div>
+<h3 id="system_layer">system_layer<a class="headerlink" href="#system_layer" title="Permanent link">¶</a></h3>
+<p>写清系统层。</p>
+<p>示例：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">system_layer</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runtime</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">scheduler</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memory</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kernel</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">communication</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">storage</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">benchmark</span>
+</code></pre></div>
+<h3 id="metrics">metrics<a class="headerlink" href="#metrics" title="Permanent link">¶</a></h3>
+<p>写和结论相关的指标。</p>
+<p>示例：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ttft</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tpot</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">goodput_at_slo</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tokens_per_second</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">step_time</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mfu</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpu_memory_peak</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cost_per_token</span>
+</code></pre></div>
+<h3 id="sources">sources<a class="headerlink" href="#sources" title="Permanent link">¶</a></h3>
+<p>来源要尽量结构化。</p>
+<div class="highlight"><pre><span></span><code><span class="nt">sources</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">paper</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">official-doc</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">benchmark</span>
+<span class="w">    </span><span class="nt">run_id</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">    </span><span class="nt">report</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">source-code</span>
+<span class="w">    </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">    </span><span class="nt">commit</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+</code></pre></div>
+<h2 id="_5">写作规则<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<h3 id="_6">先问题，后机制<a class="headerlink" href="#_6" title="Permanent link">¶</a></h3>
+<p>不要一上来堆实现细节。</p>
+<p>先说明：</p>
+<ul>
+<li>为什么这个知识点存在；</li>
+<li>它解决什么系统问题；</li>
+<li>哪类读者需要它。</li>
+</ul>
+<h3 id="_7">每个结论都要有边界<a class="headerlink" href="#_7" title="Permanent link">¶</a></h3>
+<p>不好：</p>
+<div class="highlight"><pre><span></span><code>这个优化能提高吞吐。
+</code></pre></div>
+<p>好：</p>
+<div class="highlight"><pre><span></span><code>在长上下文 LLM serving 中，如果 KV Cache 显存压力限制并发，这个优化可能提高 goodput at SLO；但在短上下文、低并发或显存充足场景下收益可能不明显。
+</code></pre></div>
+<h3 id="_8">区分原理和工程实现<a class="headerlink" href="#_8" title="Permanent link">¶</a></h3>
+<p>原理解释：</p>
+<div class="highlight"><pre><span></span><code>为什么这个机制成立。
+</code></pre></div>
+<p>工程实现：</p>
+<div class="highlight"><pre><span></span><code>系统里哪些对象、状态和接口实现这个机制。
+</code></pre></div>
+<p>两者都需要，但不要混在一起。</p>
+<h3 id="_9">区分性能和正确性<a class="headerlink" href="#_9" title="Permanent link">¶</a></h3>
+<p>性能优化必须说明：</p>
+<ul>
+<li>是否改变数学语义；</li>
+<li>是否影响数值；</li>
+<li>是否影响模型质量；</li>
+<li>是否影响稳定性；</li>
+<li>是否需要 guardrail metric。</li>
+</ul>
+<h3 id="_10">不把单点实验写成普遍结论<a class="headerlink" href="#_10" title="Permanent link">¶</a></h3>
+<p>如果只有一个实验点，应写：</p>
+<div class="highlight"><pre><span></span><code>在该配置下观察到...
+</code></pre></div>
+<p>不要写：</p>
+<div class="highlight"><pre><span></span><code>该方法总是...
+</code></pre></div>
+<h2 id="_11">常见误区<a class="headerlink" href="#_11" title="Permanent link">¶</a></h2>
+<h3 id="_12">误区一：只有概念，没有系统对象<a class="headerlink" href="#_12" title="Permanent link">¶</a></h3>
+<p>AI Infra 不是纯术语表。</p>
+<p>要写清楚对象：</p>
+<ul>
+<li>token；</li>
+<li>tensor；</li>
+<li>cache；</li>
+<li>rank；</li>
+<li>request；</li>
+<li>node；</li>
+<li>queue；</li>
+<li>checkpoint；</li>
+<li>trace。</li>
+</ul>
+<h3 id="_13">误区二：只有收益，没有代价<a class="headerlink" href="#_13" title="Permanent link">¶</a></h3>
+<p>任何优化都应该问：</p>
+<ul>
+<li>增加什么复杂度；</li>
+<li>转移到哪个瓶颈；</li>
+<li>对 debug 有什么影响；</li>
+<li>对可靠性有什么影响；</li>
+<li>如何回滚。</li>
+</ul>
+<h3 id="ai_1">误区三：只适合人读，不适合 AI 检索<a class="headerlink" href="#ai_1" title="Permanent link">¶</a></h3>
+<p>如果没有 metadata、标题、相关链接和结构化 card，AI 很难正确复用。</p>
+<h3 id="_14">误区四：没有相关章节<a class="headerlink" href="#_14" title="Permanent link">¶</a></h3>
+<p>知识点应放进知识图谱。</p>
+<p>至少链接：</p>
+<ul>
+<li>上游基础概念；</li>
+<li>下游应用章节；</li>
+<li>benchmark 章节；</li>
+<li>failure case 或 ADR。</li>
+</ul>
+<h3 id="_15">误区五：把模板示例当真实证据<a class="headerlink" href="#_15" title="Permanent link">¶</a></h3>
+<p>模板中的数字和字段只是示例。</p>
+<p>写真实文章时，必须替换为真实数据或删除。</p>
+<h2 id="_16">模板质量门禁<a class="headerlink" href="#_16" title="Permanent link">¶</a></h2>
+<p>使用本模板写完一篇知识点后，至少检查：</p>
+<ul>
+<li><code>title</code> 和 H1 是否一致；</li>
+<li><code>updated</code> 是否为当前日期；</li>
+<li><code>domain</code> 是否是固定枚举；</li>
+<li><code>doc_type</code> 是否正确；</li>
+<li>是否说明 workload；</li>
+<li>是否说明 system layer；</li>
+<li>是否有成本模型；</li>
+<li>是否有适用范围；</li>
+<li>是否有相关链接；</li>
+<li>是否有参考资料；</li>
+<li>是否需要加入 <code>scripts/generate_llms_files.py</code>；</li>
+<li>是否运行 <code>python3 scripts/generate_llms_files.py</code>；</li>
+<li>是否运行 <code>.venv/bin/mkdocs build --strict</code>；</li>
+<li>是否运行 <code>git diff --check</code>。</li>
+</ul>
+<h2 id="_17">参考资料<a class="headerlink" href="#_17" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://diataxis.fr/">Diataxis documentation framework</a></li>
+<li><a href="https://developers.google.com/style">Google developer documentation style guide</a></li>
+<li><a href="https://www.go-fair.org/fair-principles/">FAIR Principles</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+</body>
+</html>

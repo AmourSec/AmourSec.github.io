@@ -1,0 +1,3407 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/08-benchmark-capacity/benchmark-data-governance-run-records/" rel="canonical"/>
+<link href="../cost-model-unit-economics/" rel="prev"/>
+<link href="../../09-reliability-observability/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#benchmark-run-manifestraw-data">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark-data-contract">
+<span class="md-ellipsis">
+      Benchmark Data Contract
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 数据模型
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_1">
+<span class="md-ellipsis">
+      Benchmark 数据为什么容易丢
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-manifest">
+<span class="md-ellipsis">
+      Run Manifest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-id">
+<span class="md-ellipsis">
+      Run ID 设计
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      原始数据必须保留
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#schema">
+<span class="md-ellipsis">
+      聚合数据也要有 Schema
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#schema-versioning">
+<span class="md-ellipsis">
+      Schema Versioning
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      环境元数据
+    </span>
+</a>
+<nav aria-label="环境元数据" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      代码与容器
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      模型与数据
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      硬件与系统
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      运行状态
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#artifact">
+<span class="md-ellipsis">
+      Artifact 管理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lineage">
+<span class="md-ellipsis">
+      Lineage：结果从哪里来
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      时间戳和时钟
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      隐私与脱敏
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      数据格式
+    </span>
+</a>
+<nav aria-label="数据格式" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest-config">
+<span class="md-ellipsis">
+      Manifest / Config
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#raw-metrics">
+<span class="md-ellipsis">
+      Raw Metrics
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#time-series">
+<span class="md-ellipsis">
+      Time Series
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#trace-profiler">
+<span class="md-ellipsis">
+      Trace / Profiler
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dashboard">
+<span class="md-ellipsis">
+      Dashboard 与报告不是一回事
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retention">
+<span class="md-ellipsis">
+      Retention 策略
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      版本与基线管理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark-registry">
+<span class="md-ellipsis">
+      Benchmark Registry
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-quality-gates">
+<span class="md-ellipsis">
+      Data Quality Gates
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai">
+<span class="md-ellipsis">
+      AI 可读性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ci">
+<span class="md-ellipsis">
+      与 CI / 回归检测集成
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      报告模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      推荐落地路线
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      误区一：报告里有图就够了
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      误区二：只保存聚合结果
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      误区三：环境信息可以手动回忆
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run">
+<span class="md-ellipsis">
+      误区四：所有 run 都长期保存完整数据
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_2">
+<span class="md-ellipsis">
+      误区五：Benchmark 数据只给人看
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run_1">
+<span class="md-ellipsis">
+      误区六：只有通过的 run 才保存
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#baseline">
+<span class="md-ellipsis">
+      误区七：baseline 自动等于最新结果
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark-data-contract">
+<span class="md-ellipsis">
+      Benchmark Data Contract
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 数据模型
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_1">
+<span class="md-ellipsis">
+      Benchmark 数据为什么容易丢
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-manifest">
+<span class="md-ellipsis">
+      Run Manifest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-id">
+<span class="md-ellipsis">
+      Run ID 设计
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      原始数据必须保留
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#schema">
+<span class="md-ellipsis">
+      聚合数据也要有 Schema
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#schema-versioning">
+<span class="md-ellipsis">
+      Schema Versioning
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      环境元数据
+    </span>
+</a>
+<nav aria-label="环境元数据" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      代码与容器
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      模型与数据
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      硬件与系统
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      运行状态
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#artifact">
+<span class="md-ellipsis">
+      Artifact 管理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lineage">
+<span class="md-ellipsis">
+      Lineage：结果从哪里来
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      时间戳和时钟
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      隐私与脱敏
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      数据格式
+    </span>
+</a>
+<nav aria-label="数据格式" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest-config">
+<span class="md-ellipsis">
+      Manifest / Config
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#raw-metrics">
+<span class="md-ellipsis">
+      Raw Metrics
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#time-series">
+<span class="md-ellipsis">
+      Time Series
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#trace-profiler">
+<span class="md-ellipsis">
+      Trace / Profiler
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dashboard">
+<span class="md-ellipsis">
+      Dashboard 与报告不是一回事
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retention">
+<span class="md-ellipsis">
+      Retention 策略
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      版本与基线管理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark-registry">
+<span class="md-ellipsis">
+      Benchmark Registry
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-quality-gates">
+<span class="md-ellipsis">
+      Data Quality Gates
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai">
+<span class="md-ellipsis">
+      AI 可读性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ci">
+<span class="md-ellipsis">
+      与 CI / 回归检测集成
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      报告模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      推荐落地路线
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      误区一：报告里有图就够了
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      误区二：只保存聚合结果
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      误区三：环境信息可以手动回忆
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run">
+<span class="md-ellipsis">
+      误区四：所有 run 都长期保存完整数据
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_2">
+<span class="md-ellipsis">
+      误区五：Benchmark 数据只给人看
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run_1">
+<span class="md-ellipsis">
+      误区六：只有通过的 run 才保存
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#baseline">
+<span class="md-ellipsis">
+      误区七：baseline 自动等于最新结果
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="benchmark-run-manifestraw-data">Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告<a class="headerlink" href="#benchmark-run-manifestraw-data" title="Permanent link">¶</a></h1>
+<p>很多 benchmark 做完以后，只剩下几张截图、一个表格和一句结论：</p>
+<div class="highlight"><pre><span></span><code>新版本快了 18%。
+</code></pre></div>
+<p>几周后再看，常常已经回答不了这些问题：</p>
+<ul>
+<li>当时跑的是哪个 commit？</li>
+<li>模型权重和 tokenizer 是哪个版本？</li>
+<li>输入长度分布是什么？</li>
+<li>是否包含 warmup？</li>
+<li>原始请求级数据还在吗？</li>
+<li>client 有没有打满？</li>
+<li>p99 是按请求算，还是按 token 算？</li>
+<li>当时 GPU clocks、power、temperature 是否稳定？</li>
+<li>失败、超时、取消请求有没有计入？</li>
+<li>这个图来自哪次运行？</li>
+<li>报告里的数字能不能重新生成？</li>
+</ul>
+<p>如果这些问题回答不了，benchmark 就很难成为工程证据。</p>
+<p>本篇重点回答：</p>
+<blockquote>
+<p>如何治理 benchmark 数据，如何记录 run manifest、原始数据、环境元数据、artifact、trace、profiler、报告和 dashboard，让一次 benchmark 可以被复现、审查、比较、回归检测和 AI 检索？</p>
+</blockquote>
+<h2 id="_1">一张总图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TB
+    Plan["Run Plan<br/>question / workload / metrics / threshold"]
+    Manifest["Run Manifest<br/>code / model / data / env / config"]
+    Execute["Execution<br/>benchmark client / server / telemetry"]
+    Raw["Raw Data<br/>per-request / per-step / system metrics"]
+    Artifacts["Artifacts<br/>logs / traces / profiler / configs / plots"]
+    Normalize["Normalize<br/>schema / units / timestamps / IDs"]
+    Analyze["Analysis<br/>stats / distributions / regressions"]
+    Report["Report<br/>decision / caveats / links"]
+    Store["Registry<br/>query / compare / lineage / retention"]
+    Guard["Regression Guard<br/>CI / nightly / release gate"]
+
+    Plan --&gt; Manifest
+    Manifest --&gt; Execute
+    Execute --&gt; Raw
+    Execute --&gt; Artifacts
+    Raw --&gt; Normalize
+    Artifacts --&gt; Normalize
+    Normalize --&gt; Analyze
+    Analyze --&gt; Report
+    Report --&gt; Store
+    Store --&gt; Guard
+    Guard --&gt; Plan
+</div>
+<p>这张图强调一个原则：</p>
+<div class="highlight"><pre><span></span><code>benchmark 结果不是一个数字，而是一组可追溯的数据资产
+</code></pre></div>
+<p>数据治理做得好，benchmark 才能用于容量模型、A/B、回归检测、成本分析和知识库沉淀。</p>
+<h2 id="benchmark-data-contract">Benchmark Data Contract<a class="headerlink" href="#benchmark-data-contract" title="Permanent link">¶</a></h2>
+<p>在写具体工具之前，先定义一个更重要的东西：benchmark data contract。</p>
+<p>Data contract 不是某个数据库表，也不是某个 dashboard，而是一组约定：</p>
+<div class="highlight"><pre><span></span><code>一次 benchmark 运行完成后，必须留下哪些证据；
+这些证据用什么字段描述；
+字段单位和口径是什么；
+哪些字段可以为空；
+哪些 artifact 必须可追溯；
+数据保存多久；
+谁可以读取；
+AI 助手能用什么索引理解它。
+</code></pre></div>
+<p>如果没有 data contract，benchmark 数据会慢慢变成“每个人按自己习惯保存一份文件”。短期看灵活，长期看不可比较、不可复现、不可自动化。</p>
+<p>一个最小可用的 contract 可以包含：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>run manifest</td>
+<td>描述这次实验是谁、何时、为何、用什么版本跑的</td>
+</tr>
+<tr>
+<td>workload spec</td>
+<td>描述请求、step、trace、数据集和负载形态</td>
+</tr>
+<tr>
+<td>metric schema</td>
+<td>定义每个指标的单位、统计对象和计算口径</td>
+</tr>
+<tr>
+<td>raw data schema</td>
+<td>定义请求级、step 级、系统级原始记录</td>
+</tr>
+<tr>
+<td>artifact index</td>
+<td>记录日志、trace、profiler、图表、报告的位置和 digest</td>
+</tr>
+<tr>
+<td>lineage</td>
+<td>记录从输入 artifact 到 summary/report 的生成链路</td>
+</tr>
+<tr>
+<td>quality gate</td>
+<td>定义缺失、重复、异常值、时钟漂移等校验规则</td>
+</tr>
+<tr>
+<td>retention</td>
+<td>定义不同数据保留多久、何时归档、何时删除</td>
+</tr>
+<tr>
+<td>access policy</td>
+<td>定义敏感样本、prompt、日志、trace 的访问范围</td>
+</tr>
+<tr>
+<td>AI index</td>
+<td>给 AI 检索用的摘要、标签、结论、caveats 和证据链接</td>
+</tr>
+</tbody>
+</table>
+<p>这个 contract 应该版本化，例如：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">schema_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">benchmark-run.v1</span>
+<span class="nt">compatibility</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">backwards_readable_from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">benchmark-run.v1</span>
+<span class="w">  </span><span class="nt">breaking_change</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<p>后续字段变更时，不要悄悄改含义。比如 <code>latency_ms</code> 原来是 E2E latency，后来改成 TTFT，就应该新增字段或升级 schema，而不是复用旧字段名。</p>
+<h2 id="benchmark">Benchmark 数据模型<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>Benchmark 数据治理可以先抽象成几个核心实体。</p>
+<div class="highlight"><pre><span></span><code>Benchmark Suite
+  -&gt; Benchmark Case
+    -&gt; Run
+      -&gt; Trial / Repeat
+        -&gt; Sample / Event
+      -&gt; Artifact
+      -&gt; Summary
+      -&gt; Report
+      -&gt; Baseline Decision
+</code></pre></div>
+<p>这些实体分别回答不同问题。</p>
+<table>
+<thead>
+<tr>
+<th>实体</th>
+<th>回答的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>benchmark suite</td>
+<td>这是一组什么测试，例如 release regression suite</td>
+</tr>
+<tr>
+<td>benchmark case</td>
+<td>具体测哪个模型、负载、硬件、指标组合</td>
+</tr>
+<tr>
+<td>run</td>
+<td>某一次实际运行</td>
+</tr>
+<tr>
+<td>trial / repeat</td>
+<td>同一配置下的重复实验</td>
+</tr>
+<tr>
+<td>sample / event</td>
+<td>单个请求、单个 step、单个 telemetry 点</td>
+</tr>
+<tr>
+<td>artifact</td>
+<td>这次运行产生的文件和证据</td>
+</tr>
+<tr>
+<td>summary</td>
+<td>从 raw data 聚合出的稳定指标</td>
+</tr>
+<tr>
+<td>report</td>
+<td>面向决策的解释和结论</td>
+</tr>
+<tr>
+<td>baseline decision</td>
+<td>这次结果是否成为或替换基线</td>
+</tr>
+</tbody>
+</table>
+<p>这层模型的意义是避免把所有东西都叫“测试结果”。例如：</p>
+<ul>
+<li>一次 run 不等于一个 benchmark case。</li>
+<li>一个 summary 不等于 raw data。</li>
+<li>一个 dashboard 不等于 report。</li>
+<li>一个 baseline 不等于最近一次成功 run。</li>
+</ul>
+<p>当实体边界清楚以后，后续做 registry、查询、回归检测、AI 摘要都会更容易。</p>
+<h2 id="benchmark_1">Benchmark 数据为什么容易丢<a class="headerlink" href="#benchmark_1" title="Permanent link">¶</a></h2>
+<p>AI benchmark 数据有几个特点：</p>
+<ul>
+<li>运行环境复杂。</li>
+<li>指标多。</li>
+<li>版本多。</li>
+<li>原始数据量大。</li>
+<li>部分数据敏感。</li>
+<li>结果依赖硬件状态。</li>
+<li>报告经常只保留聚合数字。</li>
+</ul>
+<p>常见丢失方式：</p>
+<ul>
+<li>原始 CSV 留在某台机器本地。</li>
+<li>profiler trace 太大，被手动删除。</li>
+<li>dashboard 只显示最近 7 天。</li>
+<li>报告复制了图，但没有原始数据链接。</li>
+<li>artifact 没有和 commit/model/workload 绑定。</li>
+<li>脚本参数没有保存。</li>
+<li>数据集或 prompt set 更新后没有 digest。</li>
+<li>同名 benchmark 覆盖旧结果。</li>
+</ul>
+<p>这些问题会让团队无法回答：</p>
+<div class="highlight"><pre><span></span><code>这次提升是真的，还是 workload 或环境变了？
+</code></pre></div>
+<h2 id="run-manifest">Run Manifest<a class="headerlink" href="#run-manifest" title="Permanent link">¶</a></h2>
+<p>Run manifest 是一次 benchmark 的身份证。</p>
+<p>它应该足够完整，让别人知道这次运行到底是什么。</p>
+<p>建议至少包含：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">run_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2026-06-12T10-30-00Z_llama70b_vllm_h100_traceA</span>
+<span class="nt">question</span><span class="p">:</span><span class="w"> </span><span class="s">"vLLM</span><span class="nv"> </span><span class="s">config</span><span class="nv"> </span><span class="s">B</span><span class="nv"> </span><span class="s">是否提高</span><span class="nv"> </span><span class="s">SLA</span><span class="nv"> </span><span class="s">下</span><span class="nv"> </span><span class="s">goodput"</span>
+<span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="s">"team-or-person"</span>
+<span class="nt">created_at</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-06-12T10:30:00Z"</span>
+
+<span class="nt">code</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">commit</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">branch</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">dirty</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">revision</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">weights_digest</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">tokenizer_digest</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">chat_template_digest</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+
+<span class="nt">workload</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">workload_id</span><span class="p">:</span><span class="w"> </span><span class="s">"trace-prod-2026w22-sampled"</span>
+<span class="w">  </span><span class="nt">input_token_distribution</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">output_token_distribution</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">arrival_process</span><span class="p">:</span><span class="w"> </span><span class="s">"open-loop"</span>
+<span class="w">  </span><span class="nt">qps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+<span class="w">  </span><span class="nt">duration_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1800</span>
+
+<span class="nt">environment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">hardware</span><span class="p">:</span><span class="w"> </span><span class="s">"8xH100-80GB"</span>
+<span class="w">  </span><span class="nt">node_ids</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"..."</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">cuda</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">framework</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">engine</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">image_digest</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+
+<span class="nt">run</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">warmup_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+<span class="w">  </span><span class="nt">measurement_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1200</span>
+<span class="w">  </span><span class="nt">random_seed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">42</span>
+<span class="w">  </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">config_file</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+
+<span class="nt">artifacts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">raw_metrics</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">logs</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">profiler_trace</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">report</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+</code></pre></div>
+<p>Manifest 不是为了形式化，而是为了防止关键上下文丢失。</p>
+<p>如果一次 benchmark 没有 manifest，后续 A/B、回归和容量模型都只能靠记忆。</p>
+<p>更准确地说，manifest 应该是“实验快照”，不是事后补写的说明。</p>
+<p>它最好满足几个要求：</p>
+<ul>
+<li>在运行开始前生成初始版本。</li>
+<li>运行结束后补充结果 artifact 和状态。</li>
+<li>每个字段都有 schema 和单位。</li>
+<li>自动采集优先，手工填写只用于 question、decision、caveats 这类解释性字段。</li>
+<li>与 raw data、summary、report 使用同一个 run id。</li>
+<li>保存 code、container、model、workload、config 的 digest。</li>
+<li>记录 benchmark tool 本身的版本。</li>
+<li>记录生成报告所用脚本的版本。</li>
+</ul>
+<p>一个更工程化的 manifest 还应该记录 telemetry 来源：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">telemetry</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">request_log</span><span class="p">:</span><span class="w"> </span><span class="s">"client-jsonl-v2"</span>
+<span class="w">  </span><span class="nt">server_log</span><span class="p">:</span><span class="w"> </span><span class="s">"engine-log-v1"</span>
+<span class="w">  </span><span class="nt">gpu_metrics</span><span class="p">:</span><span class="w"> </span><span class="s">"dcgm-exporter"</span>
+<span class="w">  </span><span class="nt">trace</span><span class="p">:</span><span class="w"> </span><span class="s">"opentelemetry-otlp"</span>
+<span class="w">  </span><span class="nt">profiler</span><span class="p">:</span><span class="w"> </span><span class="s">"nsys"</span>
+<span class="w">  </span><span class="nt">time_sync</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">"ntp"</span>
+<span class="w">    </span><span class="nt">max_observed_skew_ms</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.5</span>
+</code></pre></div>
+<p>这样后续看到异常时，才知道数据来自哪里、口径是否可靠。</p>
+<p>Manifest 还要记录 run 的生命周期状态：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">"completed"</span>
+<span class="w">  </span><span class="nt">started_at</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-06-12T10:30:00Z"</span>
+<span class="w">  </span><span class="nt">ended_at</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-06-12T11:05:00Z"</span>
+<span class="w">  </span><span class="nt">failure_reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">excluded_from_baseline</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<p>失败 run 也应该保存 manifest。很多系统性问题只会出现在失败 run 里，如果失败 run 被丢掉，团队会丢失最有价值的诊断材料。</p>
+<h2 id="run-id">Run ID 设计<a class="headerlink" href="#run-id" title="Permanent link">¶</a></h2>
+<p>Run ID 要稳定、唯一、可读。</p>
+<p>可以包含：</p>
+<ul>
+<li>时间。</li>
+<li>workload。</li>
+<li>model。</li>
+<li>engine。</li>
+<li>hardware。</li>
+<li>运行目的。</li>
+</ul>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>20260612-103000_infer-llama70b_vllm-h100_traceA_configB
+</code></pre></div>
+<p>也可以用 UUID，但建议同时保留可读 name。</p>
+<p>不要只用：</p>
+<div class="highlight"><pre><span></span><code>test1
+new
+final
+run_latest
+</code></pre></div>
+<p>这类名字很快会失去意义。</p>
+<p>Run ID 只负责唯一和可读，不应该承载所有查询条件。查询条件应该进入 manifest 和 registry。</p>
+<p>例如不要把所有参数都塞进 run id：</p>
+<div class="highlight"><pre><span></span><code>20260612_vllm_h100_qps120_prefillchunk512_prefixcacheon_ep8_tp4_long...
+</code></pre></div>
+<p>这种名字看起来信息多，实际很难维护。更好的做法是：</p>
+<ul>
+<li>run id 简洁稳定。</li>
+<li>manifest 保存完整配置。</li>
+<li>registry 提供字段化检索。</li>
+<li>report 用自然语言解释重点差异。</li>
+</ul>
+<h2 id="_2">原始数据必须保留<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>Benchmark 报告里的聚合数字不够。</p>
+<p>至少要保留原始数据。</p>
+<p>推理原始数据可以包括：</p>
+<div class="highlight"><pre><span></span><code>request_id
+planned_send_time
+actual_send_time
+server_receive_time
+scheduled_time
+first_token_time
+last_token_time
+finish_time
+input_tokens
+output_tokens
+status
+error_type
+timeout
+cancelled
+model
+replica
+tenant
+cache_hit
+batch_id
+</code></pre></div>
+<p>训练原始数据可以包括：</p>
+<div class="highlight"><pre><span></span><code>step
+timestamp
+step_time
+data_time
+forward_time
+backward_time
+optimizer_time
+communication_time
+checkpoint_time
+tokens
+loss
+learning_rate
+grad_norm
+memory_peak
+rank
+node
+</code></pre></div>
+<p>系统原始数据可以包括：</p>
+<div class="highlight"><pre><span></span><code>timestamp
+gpu_utilization
+sm_active
+hbm_bandwidth
+gpu_memory
+power
+temperature
+clocks
+network_tx_rx
+storage_io
+cpu
+queue_length
+active_requests
+</code></pre></div>
+<p>原始数据的价值是：</p>
+<ul>
+<li>重新计算 p95/p99。</li>
+<li>改变统计窗口。</li>
+<li>分桶分析。</li>
+<li>找异常点。</li>
+<li>对比多个版本。</li>
+<li>训练新的预测模型。</li>
+<li>被 AI 检索和解释。</li>
+</ul>
+<p>只保留最终均值，会失去这些能力。</p>
+<p>原始数据还要区分层级。</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>例子</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>event-level</td>
+<td>单个请求、单个 token、单个 step、单条错误</td>
+<td>分布分析、异常定位、尾延迟分析</td>
+</tr>
+<tr>
+<td>window-level</td>
+<td>每 1 秒 GPU 利用率、队列长度、吞吐</td>
+<td>和负载峰谷、资源瓶颈对齐</td>
+</tr>
+<tr>
+<td>artifact-level</td>
+<td>profiler trace、日志文件、配置文件</td>
+<td>深入定位和复现</td>
+</tr>
+<tr>
+<td>run-level</td>
+<td>summary、report、decision</td>
+<td>横向比较和长期检索</td>
+</tr>
+</tbody>
+</table>
+<p>不要把这些层级混在一个表里。请求级数据适合分析 latency distribution；系统级 time series 适合解释瓶颈；run-level summary 适合看趋势。它们互相关联，但不是同一种数据。</p>
+<p>推荐为原始记录保留稳定关联字段：</p>
+<div class="highlight"><pre><span></span><code>run_id
+trial_id
+request_id / step_id
+trace_id
+span_id
+node_id
+replica_id
+rank_id
+timestamp_utc
+monotonic_time_ns
+</code></pre></div>
+<p>这些字段看起来麻烦，但在排查问题时非常关键。比如 p99 TTFT 升高时，只有能从 <code>request_id</code> 追到 <code>replica_id</code>、<code>node_id</code>、<code>trace_id</code> 和当时 GPU metrics，才可能判断是调度、网络、KV cache、CPU、GPU 还是下游依赖导致。</p>
+<h2 id="schema">聚合数据也要有 Schema<a class="headerlink" href="#schema" title="Permanent link">¶</a></h2>
+<p>聚合结果也需要标准 schema。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">summary</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">latency</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ttft_ms</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">p50</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+<span class="w">      </span><span class="nt">p95</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">320</span>
+<span class="w">      </span><span class="nt">p99</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">480</span>
+<span class="w">    </span><span class="nt">tpot_ms</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">p50</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">18</span>
+<span class="w">      </span><span class="nt">p95</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">      </span><span class="nt">p99</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45</span>
+<span class="w">  </span><span class="nt">throughput</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requests_per_second</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">118.4</span>
+<span class="w">    </span><span class="nt">output_tokens_per_second</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">18200</span>
+<span class="w">    </span><span class="nt">goodput_requests_per_second_at_sla</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">110.2</span>
+<span class="w">  </span><span class="nt">errors</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">timeout_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.001</span>
+<span class="w">    </span><span class="nt">error_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0005</span>
+<span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">avg_gpu_power_w</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">610</span>
+<span class="w">    </span><span class="nt">peak_memory_gb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">72</span>
+</code></pre></div>
+<p>要统一：</p>
+<ul>
+<li>单位。</li>
+<li>分位数口径。</li>
+<li>成功/失败口径。</li>
+<li>时间窗口。</li>
+<li>token 口径。</li>
+<li>统计对象。</li>
+</ul>
+<p>例如 <code>p99 latency</code> 必须说明：</p>
+<ul>
+<li>是 TTFT、TPOT 还是 E2E。</li>
+<li>按请求、按 token 还是按 batch。</li>
+<li>是否包含失败请求。</li>
+<li>是否包含 queueing。</li>
+</ul>
+<p>Schema 不统一，跨团队比较会很痛苦。</p>
+<h2 id="schema-versioning">Schema Versioning<a class="headerlink" href="#schema-versioning" title="Permanent link">¶</a></h2>
+<p>Benchmark 数据会长期积累，schema 一定会变化。</p>
+<p>常见变化包括：</p>
+<ul>
+<li>新增指标。</li>
+<li>重命名字段。</li>
+<li>修正单位。</li>
+<li>改变统计口径。</li>
+<li>增加硬件字段。</li>
+<li>增加 trace/profiler 类型。</li>
+<li>将单机字段扩展成多机字段。</li>
+</ul>
+<p>因此每份 manifest、raw data、summary 都应该带 schema version：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">schema</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"benchmark-summary"</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.3.0"</span>
+<span class="w">  </span><span class="nt">metric_units</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ttft_p99</span><span class="p">:</span><span class="w"> </span><span class="s">"ms"</span>
+<span class="w">    </span><span class="nt">output_tokens_per_second</span><span class="p">:</span><span class="w"> </span><span class="s">"tokens/s"</span>
+<span class="w">    </span><span class="nt">energy_per_token</span><span class="p">:</span><span class="w"> </span><span class="s">"joule/token"</span>
+</code></pre></div>
+<p>Schema 版本治理要遵守几个规则：</p>
+<ul>
+<li>新增可选字段通常是兼容变更。</li>
+<li>改字段含义是破坏性变更。</li>
+<li>改单位必须升级版本。</li>
+<li>删除字段要有迁移期。</li>
+<li>枚举值要集中定义。</li>
+<li>nullable 字段要说明为什么可能为空。</li>
+<li>derived metric 要记录计算公式和输入字段。</li>
+</ul>
+<p>例如 <code>goodput</code> 一定要绑定 SLA 口径：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">goodput</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">110.2</span>
+<span class="w">  </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="s">"requests/s"</span>
+<span class="w">  </span><span class="nt">sla</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ttft_p99_ms</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+<span class="w">    </span><span class="nt">tpot_p99_ms</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
+<span class="w">  </span><span class="nt">denominator</span><span class="p">:</span><span class="w"> </span><span class="s">"successful_requests_within_measurement_window"</span>
+</code></pre></div>
+<p>否则两个团队都说 goodput，可能根本不是同一个指标。</p>
+<p>对于长期知识库，schema version 还有一个作用：AI 助手读取旧 benchmark 时，可以知道字段含义是否仍然适用，而不是把不同年代、不同口径的数据强行比较。</p>
+<h2 id="_3">环境元数据<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>AI benchmark 对环境非常敏感。</p>
+<p>必须记录：</p>
+<h3 id="_4">代码与容器<a class="headerlink" href="#_4" title="Permanent link">¶</a></h3>
+<ul>
+<li>repo。</li>
+<li>commit。</li>
+<li>branch。</li>
+<li>dirty diff。</li>
+<li>build id。</li>
+<li>container image digest。</li>
+<li>Python package lock。</li>
+<li>system package versions。</li>
+<li>compiler flags。</li>
+</ul>
+<p>只记录 image tag 不够，因为 tag 可能被覆盖。</p>
+<h3 id="_5">模型与数据<a class="headerlink" href="#_5" title="Permanent link">¶</a></h3>
+<ul>
+<li>model name。</li>
+<li>weights digest。</li>
+<li>tokenizer digest。</li>
+<li>chat template。</li>
+<li>prompt set digest。</li>
+<li>dataset digest。</li>
+<li>trace id。</li>
+<li>sampling config。</li>
+</ul>
+<p>模型名字相同，不代表权重、tokenizer 和 template 相同。</p>
+<h3 id="_6">硬件与系统<a class="headerlink" href="#_6" title="Permanent link">¶</a></h3>
+<ul>
+<li>GPU 型号。</li>
+<li>GPU 数量。</li>
+<li>HBM 容量。</li>
+<li>CPU 型号。</li>
+<li>host memory。</li>
+<li>NIC。</li>
+<li>local storage。</li>
+<li>topology。</li>
+<li>node id。</li>
+<li>rack id。</li>
+<li>driver。</li>
+<li>CUDA/ROCm。</li>
+<li>NCCL/RCCL。</li>
+<li>power limit。</li>
+<li>clocks。</li>
+</ul>
+<p>如果不记录 node id，就很难定位“某批节点慢”的问题。</p>
+<h3 id="_7">运行状态<a class="headerlink" href="#_7" title="Permanent link">¶</a></h3>
+<ul>
+<li>warmup 时间。</li>
+<li>measurement window。</li>
+<li>cache 状态。</li>
+<li>concurrent jobs。</li>
+<li>power/thermal state。</li>
+<li>queue state。</li>
+<li>autoscaling state。</li>
+</ul>
+<p>Benchmark 不是只依赖静态版本，也依赖运行时状态。</p>
+<p>环境元数据尽量不要靠人工填写。</p>
+<p>比较可靠的做法是：</p>
+<ul>
+<li>benchmark launcher 自动记录 git commit 和 dirty diff。</li>
+<li>build pipeline 自动记录 image digest。</li>
+<li>model loader 自动记录权重、tokenizer、chat template digest。</li>
+<li>workload loader 自动记录 trace/dataset/prompt set digest。</li>
+<li>节点 agent 自动记录 driver、CUDA/ROCm、NCCL/RCCL、firmware、topology。</li>
+<li>telemetry agent 自动记录 power limit、clocks、temperature、concurrent jobs。</li>
+</ul>
+<p>人工输入最适合记录“为什么跑这次 benchmark”和“结果支持什么决策”。版本、环境、硬件、命令和文件 hash 应尽量自动采集。</p>
+<h2 id="artifact">Artifact 管理<a class="headerlink" href="#artifact" title="Permanent link">¶</a></h2>
+<p>一次 benchmark 可能产生很多 artifact：</p>
+<ul>
+<li>raw metrics。</li>
+<li>aggregated metrics。</li>
+<li>logs。</li>
+<li>config。</li>
+<li>manifest。</li>
+<li>profiler traces。</li>
+<li>screenshots。</li>
+<li>plots。</li>
+<li>dashboards。</li>
+<li>generated reports。</li>
+<li>model output samples。</li>
+<li>failure samples。</li>
+</ul>
+<p>Artifact 管理要解决：</p>
+<ul>
+<li>存在哪里。</li>
+<li>怎么命名。</li>
+<li>怎么关联 run。</li>
+<li>怎么防止覆盖。</li>
+<li>怎么设置 retention。</li>
+<li>谁能访问。</li>
+<li>是否包含敏感数据。</li>
+</ul>
+<p>常见做法：</p>
+<div class="highlight"><pre><span></span><code>artifacts/
+  runs/
+    &lt;run_id&gt;/
+      manifest.yaml
+      config.yaml
+      raw_requests.parquet
+      raw_system_metrics.parquet
+      summary.json
+      report.md
+      profiler/
+      logs/
+      plots/
+</code></pre></div>
+<p>如果 artifact 很大，可以放对象存储，Git 里只保存 metadata、digest 和链接。</p>
+<p>DVC、MLflow、Weights &amp; Biases 等工具都围绕 experiment tracking、artifact 和版本管理提供了成熟思路。内部平台即使不直接使用这些工具，也应该借鉴它们的核心抽象：run、metric、parameter、artifact、lineage。</p>
+<p>Artifact 的关键不是“有文件”，而是“文件能被验证”。</p>
+<p>建议为每个 artifact 记录：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">artifacts</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"raw_requests"</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">"parquet"</span>
+<span class="w">    </span><span class="nt">uri</span><span class="p">:</span><span class="w"> </span><span class="s">"s3://benchmark/runs/&lt;run_id&gt;/raw_requests.parquet"</span>
+<span class="w">    </span><span class="nt">sha256</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="s">"raw-request.v2"</span>
+<span class="w">    </span><span class="nt">size_bytes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">123456789</span>
+<span class="w">    </span><span class="nt">created_by</span><span class="p">:</span><span class="w"> </span><span class="s">"benchmark-client@1.8.0"</span>
+<span class="w">    </span><span class="nt">sensitive</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"profiler_trace"</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">"nsys"</span>
+<span class="w">    </span><span class="nt">uri</span><span class="p">:</span><span class="w"> </span><span class="s">"s3://benchmark/runs/&lt;run_id&gt;/profiler/trace.nsys-rep"</span>
+<span class="w">    </span><span class="nt">sha256</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">    </span><span class="nt">retention_class</span><span class="p">:</span><span class="w"> </span><span class="s">"short"</span>
+<span class="w">    </span><span class="nt">sensitive</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<p>如果 artifact 没有 digest，就很难证明报告生成时用的文件和后来看到的文件是同一个。对于关键 run，artifact 应尽量不可变；如果确实要修正，只能生成新版本，并记录为什么修正。</p>
+<h2 id="lineage">Lineage：结果从哪里来<a class="headerlink" href="#lineage" title="Permanent link">¶</a></h2>
+<p>Lineage 记录结果由哪些输入产生。</p>
+<p>一个 benchmark result 应该能追溯到：</p>
+<div class="highlight"><pre><span></span><code>code commit
+  + container image
+  + model artifact
+  + workload artifact
+  + config
+  + hardware environment
+  + command
+  -&gt; raw data
+  -&gt; summary
+  -&gt; report
+</code></pre></div>
+<p>如果报告里的图不能追溯到 raw data 和 run manifest，就不能算完整证据。</p>
+<p>Lineage 对这些场景很重要：</p>
+<ul>
+<li>A/B 对比。</li>
+<li>回归检测。</li>
+<li>审计。</li>
+<li>复现论文或性能报告。</li>
+<li>事故复盘。</li>
+<li>AI 助手查询历史实验。</li>
+</ul>
+<p>Lineage 可以分成两层。</p>
+<p>第一层是输入 lineage：</p>
+<div class="highlight"><pre><span></span><code>source code digest
+container image digest
+model digest
+tokenizer digest
+workload digest
+config digest
+hardware inventory snapshot
+runtime telemetry source
+</code></pre></div>
+<p>第二层是派生 lineage：</p>
+<div class="highlight"><pre><span></span><code>raw data
+  -&gt; normalized data
+  -&gt; summary metrics
+  -&gt; plots
+  -&gt; report
+  -&gt; baseline decision
+</code></pre></div>
+<p>每一步都应该记录生成脚本、参数和输出 digest。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">lineage</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">normalize</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">input</span><span class="p">:</span><span class="w"> </span><span class="s">"raw_requests.parquet@sha256:..."</span>
+<span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="s">"scripts/normalize_requests.py@commit:..."</span>
+<span class="w">    </span><span class="nt">output</span><span class="p">:</span><span class="w"> </span><span class="s">"normalized_requests.parquet@sha256:..."</span>
+<span class="w">  </span><span class="nt">summarize</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">input</span><span class="p">:</span><span class="w"> </span><span class="s">"normalized_requests.parquet@sha256:..."</span>
+<span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="s">"scripts/summarize_inference.py@commit:..."</span>
+<span class="w">    </span><span class="nt">output</span><span class="p">:</span><span class="w"> </span><span class="s">"summary.json@sha256:..."</span>
+<span class="w">  </span><span class="nt">report</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">input</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"summary.json@sha256:..."</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"plots/latency.png@sha256:..."</span>
+<span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="s">"scripts/render_report.py@commit:..."</span>
+<span class="w">    </span><span class="nt">output</span><span class="p">:</span><span class="w"> </span><span class="s">"report.md@sha256:..."</span>
+</code></pre></div>
+<p>这样做的好处是：即使后来 summary 计算逻辑变了，也能知道旧报告当时是怎么生成的。</p>
+<p>在更严格的场景里，还可以借鉴软件供应链里的 provenance 思路，把“谁在什么环境里用什么输入生成了什么输出”记录成机器可验证的声明。</p>
+<h2 id="_8">时间戳和时钟<a class="headerlink" href="#_8" title="Permanent link">¶</a></h2>
+<p>Benchmark 数据经常来自多个系统：</p>
+<ul>
+<li>client。</li>
+<li>server。</li>
+<li>GPU telemetry。</li>
+<li>load balancer。</li>
+<li>profiler。</li>
+<li>log system。</li>
+<li>tracing system。</li>
+</ul>
+<p>这些系统时钟可能不同。</p>
+<p>建议：</p>
+<ul>
+<li>所有记录使用 UTC 时间戳。</li>
+<li>保留 monotonic time 用于单进程内延迟。</li>
+<li>记录 clock skew。</li>
+<li>client 和 server 尽量同步。</li>
+<li>原始数据保留 planned send time 和 actual send time。</li>
+<li>对 telemetry 做窗口对齐。</li>
+</ul>
+<p>否则会出现：</p>
+<ul>
+<li>TTFT 负数。</li>
+<li>queueing time 不可信。</li>
+<li>system metrics 对不上请求峰值。</li>
+<li>profiler trace 与日志无法关联。</li>
+</ul>
+<p>多系统对齐时，至少保留两类时间：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>wall-clock UTC</td>
+<td>跨系统、跨节点对齐</td>
+</tr>
+<tr>
+<td>monotonic time</td>
+<td>单进程内计算耗时</td>
+</tr>
+</tbody>
+</table>
+<p>延迟计算优先使用同一进程内的 monotonic time；跨系统排障再使用 UTC 时间戳和 trace id 对齐。</p>
+<p>同时保留关联 ID：</p>
+<div class="highlight"><pre><span></span><code>run_id
+request_id
+trace_id
+span_id
+node_id
+replica_id
+rank_id
+batch_id
+</code></pre></div>
+<p>对于分布式推理，<code>request_id</code> 可能跨越 router、prefill worker、decode worker、KV cache manager、scheduler、network transport 等多个组件。没有统一 ID，日志、trace、metric 和 profiler 就很难拼起来。</p>
+<h2 id="_9">隐私与脱敏<a class="headerlink" href="#_9" title="Permanent link">¶</a></h2>
+<p>Benchmark 数据可能包含敏感信息：</p>
+<ul>
+<li>用户 prompt。</li>
+<li>输出内容。</li>
+<li>tenant id。</li>
+<li>request id。</li>
+<li>RAG 文档。</li>
+<li>tool 调用参数。</li>
+<li>错误日志。</li>
+<li>stack trace。</li>
+<li>文件路径。</li>
+</ul>
+<p>治理原则：</p>
+<ul>
+<li>默认不保存原始敏感文本。</li>
+<li>保存 token length、hash、类型、统计特征。</li>
+<li>如果必须保存样本，做访问控制和 retention。</li>
+<li>对 tenant/user 做 pseudonymization。</li>
+<li>对外分享报告时只给聚合数据。</li>
+<li>raw trace 和 profiler artifact 做权限隔离。</li>
+</ul>
+<p>不能为了 benchmark 复现性牺牲数据安全。</p>
+<p>但也不能只保留过度脱敏后的均值，否则无法分析问题。需要在安全和可诊断性之间设计分层数据。</p>
+<h2 id="_10">数据格式<a class="headerlink" href="#_10" title="Permanent link">¶</a></h2>
+<p>建议区分几类格式。</p>
+<h3 id="manifest-config">Manifest / Config<a class="headerlink" href="#manifest-config" title="Permanent link">¶</a></h3>
+<p>适合：</p>
+<ul>
+<li>YAML。</li>
+<li>JSON。</li>
+<li>TOML。</li>
+</ul>
+<p>要求：</p>
+<ul>
+<li>可读。</li>
+<li>可 diff。</li>
+<li>可 schema validate。</li>
+</ul>
+<h3 id="raw-metrics">Raw Metrics<a class="headerlink" href="#raw-metrics" title="Permanent link">¶</a></h3>
+<p>适合：</p>
+<ul>
+<li>Parquet。</li>
+<li>CSV。</li>
+<li>JSONL。</li>
+</ul>
+<p>如果数据量大，Parquet 更适合。</p>
+<h3 id="time-series">Time Series<a class="headerlink" href="#time-series" title="Permanent link">¶</a></h3>
+<p>适合：</p>
+<ul>
+<li>Prometheus remote write。</li>
+<li>OpenTelemetry metrics。</li>
+<li>TSDB。</li>
+<li>Parquet time series export。</li>
+</ul>
+<h3 id="trace-profiler">Trace / Profiler<a class="headerlink" href="#trace-profiler" title="Permanent link">¶</a></h3>
+<p>适合保留原工具格式：</p>
+<ul>
+<li>Nsight trace。</li>
+<li>Chrome trace。</li>
+<li>PyTorch profiler trace。</li>
+<li>OTLP trace。</li>
+</ul>
+<p>同时保存索引 metadata，便于搜索。</p>
+<h2 id="dashboard">Dashboard 与报告不是一回事<a class="headerlink" href="#dashboard" title="Permanent link">¶</a></h2>
+<p>Dashboard 适合持续观察：</p>
+<ul>
+<li>趋势。</li>
+<li>回归。</li>
+<li>多版本对比。</li>
+<li>资源使用。</li>
+<li>SLA。</li>
+</ul>
+<p>报告适合决策：</p>
+<ul>
+<li>问题是什么。</li>
+<li>怎么测。</li>
+<li>结论是什么。</li>
+<li>caveats 是什么。</li>
+<li>是否上线或回滚。</li>
+</ul>
+<p>常见问题是只有 dashboard，没有报告。</p>
+<p>Dashboard 告诉你数字变化，报告解释为什么这个数字可以支持某个决策。</p>
+<p>一份报告至少应该链接：</p>
+<ul>
+<li>run manifest。</li>
+<li>raw data。</li>
+<li>dashboard。</li>
+<li>profiler trace。</li>
+<li>logs。</li>
+<li>code diff。</li>
+<li>final decision。</li>
+</ul>
+<h2 id="retention">Retention 策略<a class="headerlink" href="#retention" title="Permanent link">¶</a></h2>
+<p>Benchmark 数据不能无限保留所有细节。</p>
+<p>可以分层：</p>
+<table>
+<thead>
+<tr>
+<th>数据</th>
+<th>建议保留</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>summary metrics</td>
+<td>长期</td>
+</tr>
+<tr>
+<td>run manifest</td>
+<td>长期</td>
+</tr>
+<tr>
+<td>report</td>
+<td>长期</td>
+</tr>
+<tr>
+<td>raw per-request/step data</td>
+<td>中期</td>
+</tr>
+<tr>
+<td>profiler trace</td>
+<td>短到中期，关键 run 长期</td>
+</tr>
+<tr>
+<td>full logs</td>
+<td>短期</td>
+</tr>
+<tr>
+<td>sensitive samples</td>
+<td>最短必要时间</td>
+</tr>
+</tbody>
+</table>
+<p>关键 release、论文、采购评估、事故复盘相关 benchmark 应长期保留。</p>
+<p>普通开发调试 run 可以较短保留。</p>
+<p>Retention 策略要写进平台规则，不能靠个人手动删除。</p>
+<p>更实际的做法是分 hot、warm、cold 三层：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>保存内容</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hot</td>
+<td>最近 raw data、dashboard、日志、trace 索引</td>
+<td>日常排障和趋势观察</td>
+</tr>
+<tr>
+<td>warm</td>
+<td>summary、manifest、关键 raw data、关键 profiler</td>
+<td>月度分析、回归复查</td>
+</tr>
+<tr>
+<td>cold</td>
+<td>release/report/baseline 相关证据包</td>
+<td>长期审计、论文/采购/事故复盘</td>
+</tr>
+</tbody>
+</table>
+<p>并不是所有 run 都值得长期保存完整 profiler。一个可执行策略是：</p>
+<ul>
+<li>所有 run 长期保存 manifest、summary、report、quality result。</li>
+<li>所有进入 baseline 或 release 决策的 run 保存完整证据包。</li>
+<li>失败但具有诊断价值的 run 保存有限时间。</li>
+<li>普通开发调试 run 到期后只保留摘要。</li>
+<li>敏感样本单独设置更短 retention 和更严格权限。</li>
+</ul>
+<p>Retention 也要记录在 registry 中：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">retention</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">"release-evidence"</span>
+<span class="w">  </span><span class="nt">raw_data_until</span><span class="p">:</span><span class="w"> </span><span class="s">"2027-06-12"</span>
+<span class="w">  </span><span class="nt">profiler_until</span><span class="p">:</span><span class="w"> </span><span class="s">"2027-06-12"</span>
+<span class="w">  </span><span class="nt">logs_until</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-09-12"</span>
+<span class="w">  </span><span class="nt">sensitive_samples_until</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-06-19"</span>
+<span class="w">  </span><span class="nt">legal_hold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<p>到期删除也应该保留 tombstone metadata，说明哪些 artifact 被删除、何时删除、根据什么规则删除。否则多年后看到一个 report 链接失效，会不知道是事故、迁移还是正常 retention。</p>
+<h2 id="_11">版本与基线管理<a class="headerlink" href="#_11" title="Permanent link">¶</a></h2>
+<p>Benchmark 数据治理必须管理 baseline。</p>
+<p>Baseline 可能是：</p>
+<ul>
+<li>release 版本。</li>
+<li>main branch 最近稳定结果。</li>
+<li>某硬件的 golden run。</li>
+<li>某 workload 的标准结果。</li>
+<li>某论文复现结果。</li>
+</ul>
+<p>需要记录：</p>
+<ul>
+<li>baseline run id。</li>
+<li>baseline 创建原因。</li>
+<li>baseline 适用硬件。</li>
+<li>baseline 适用 workload。</li>
+<li>baseline 是否被替换。</li>
+<li>替换审批记录。</li>
+</ul>
+<p>不要让一次坏结果自动成为新 baseline。</p>
+<p>回归检测依赖 baseline 可信。</p>
+<p>Baseline registry 可以记录：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">baseline_id</span><span class="p">:</span><span class="w"> </span><span class="s">"h100-llama70b-traceA-2026w22"</span>
+<span class="nt">benchmark_case</span><span class="p">:</span><span class="w"> </span><span class="s">"llama70b_traceA_sla500"</span>
+<span class="nt">run_id</span><span class="p">:</span><span class="w"> </span><span class="s">"20260612-103000_infer-llama70b_vllm-h100_traceA_configB"</span>
+<span class="nt">created_at</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-06-12T12:00:00Z"</span>
+<span class="nt">created_by</span><span class="p">:</span><span class="w"> </span><span class="s">"perf-review"</span>
+<span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="s">"release</span><span class="nv"> </span><span class="s">2026.06</span><span class="nv"> </span><span class="s">accepted</span><span class="nv"> </span><span class="s">result"</span>
+<span class="nt">metric_contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">primary</span><span class="p">:</span><span class="w"> </span><span class="s">"goodput_requests_per_second_at_sla"</span>
+<span class="w">  </span><span class="nt">guardrails</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"p99_ttft_ms"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"p99_tpot_ms"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"error_rate"</span>
+<span class="nt">applicability</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">"llama-70b"</span>
+<span class="w">  </span><span class="nt">engine</span><span class="p">:</span><span class="w"> </span><span class="s">"vllm"</span>
+<span class="w">  </span><span class="nt">hardware_pool</span><span class="p">:</span><span class="w"> </span><span class="s">"h100-80gb"</span>
+<span class="w">  </span><span class="nt">workload_id</span><span class="p">:</span><span class="w"> </span><span class="s">"traceA@sha256:..."</span>
+<span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="s">"active"</span>
+<span class="nt">replaced_by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</code></pre></div>
+<p>更新 baseline 要比新增普通 run 更严格。</p>
+<p>建议至少满足：</p>
+<ul>
+<li>data quality gate 通过。</li>
+<li>report 写明为什么替换。</li>
+<li>与旧 baseline 有可解释差异。</li>
+<li>关键 artifact 保留周期更长。</li>
+<li>有 reviewer 或自动策略记录。</li>
+</ul>
+<p>Baseline 不只是“上一次结果”，而是回归检测和工程判断的参照物。</p>
+<h2 id="benchmark-registry">Benchmark Registry<a class="headerlink" href="#benchmark-registry" title="Permanent link">¶</a></h2>
+<p>当 run 多了以后，需要 registry。</p>
+<p>Registry 至少支持按这些字段查询：</p>
+<ul>
+<li>model。</li>
+<li>workload。</li>
+<li>engine。</li>
+<li>hardware。</li>
+<li>commit。</li>
+<li>run date。</li>
+<li>owner。</li>
+<li>metric。</li>
+<li>pass/fail。</li>
+<li>release。</li>
+<li>baseline。</li>
+</ul>
+<p>典型问题：</p>
+<div class="highlight"><pre><span></span><code>H100 上 Llama 70B 最近 30 天 p99 TTFT 趋势如何？
+哪个 commit 让 output tokens/s 下降？
+某个 power cap 下 energy/token 最低的 run 是哪个？
+同一 trace 在 vLLM 和 TensorRT-LLM 上差异多少？
+某次采购测试的原始数据在哪？
+</code></pre></div>
+<p>如果这些问题只能靠问人，说明数据治理还不够。</p>
+<p>Registry 可以从一个简单表开始，但字段要稳定。</p>
+<p>一个 run registry 记录可以长这样：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">run_id</span><span class="p">:</span><span class="w"> </span><span class="s">"20260612-103000_infer-llama70b_vllm-h100_traceA_configB"</span>
+<span class="nt">benchmark_case</span><span class="p">:</span><span class="w"> </span><span class="s">"llama70b_traceA_sla500"</span>
+<span class="nt">suite</span><span class="p">:</span><span class="w"> </span><span class="s">"nightly-inference-regression"</span>
+<span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="s">"completed"</span>
+<span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="s">"perf"</span>
+<span class="nt">created_at</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-06-12T10:30:00Z"</span>
+<span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">"llama-70b"</span>
+<span class="nt">engine</span><span class="p">:</span><span class="w"> </span><span class="s">"vllm"</span>
+<span class="nt">hardware_pool</span><span class="p">:</span><span class="w"> </span><span class="s">"h100-80gb"</span>
+<span class="nt">workload_id</span><span class="p">:</span><span class="w"> </span><span class="s">"traceA@sha256:..."</span>
+<span class="nt">primary_metric</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"goodput_requests_per_second_at_sla"</span>
+<span class="w">  </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">110.2</span>
+<span class="w">  </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="s">"requests/s"</span>
+<span class="nt">baseline</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">baseline_id</span><span class="p">:</span><span class="w"> </span><span class="s">"h100-llama70b-traceA-2026w22"</span>
+<span class="w">  </span><span class="nt">result</span><span class="p">:</span><span class="w"> </span><span class="s">"pass"</span>
+<span class="nt">links</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">manifest</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">report</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">raw_data</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">dashboard</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">profiler</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="nt">tags</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"prefix-cache"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"chunked-prefill"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"release-gate"</span>
+</code></pre></div>
+<p>Registry 不一定一开始就做成复杂系统。早期可以是 Git 里的 YAML/JSON 索引、对象存储 metadata、DuckDB/SQLite 表，或者 experiment tracking 系统。关键是字段稳定、链接完整、能被脚本和 AI 读取。</p>
+<h2 id="data-quality-gates">Data Quality Gates<a class="headerlink" href="#data-quality-gates" title="Permanent link">¶</a></h2>
+<p>有数据不等于数据可信。</p>
+<p>Benchmark 运行结束后，应该先过 data quality gates，再进入 registry 或 report。</p>
+<p>常见校验包括：</p>
+<table>
+<thead>
+<tr>
+<th>校验</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>manifest completeness</td>
+<td>必填字段不能缺</td>
+</tr>
+<tr>
+<td>artifact existence</td>
+<td>manifest 里的链接必须存在</td>
+</tr>
+<tr>
+<td>digest validation</td>
+<td>artifact 内容没有被替换</td>
+</tr>
+<tr>
+<td>schema validation</td>
+<td>字段、类型、单位符合版本</td>
+</tr>
+<tr>
+<td>row count check</td>
+<td>请求数、step 数、telemetry 点数符合预期</td>
+</tr>
+<tr>
+<td>uniqueness check</td>
+<td>request_id、step_id 不应异常重复</td>
+</tr>
+<tr>
+<td>time order check</td>
+<td>时间戳不能倒序或出现明显负延迟</td>
+</tr>
+<tr>
+<td>clock skew check</td>
+<td>client/server/node 时间偏差在可接受范围内</td>
+</tr>
+<tr>
+<td>warmup exclusion check</td>
+<td>warmup 数据没有混入 measurement window</td>
+</tr>
+<tr>
+<td>failure accounting</td>
+<td>timeout/error/cancelled 有明确计入口径</td>
+</tr>
+<tr>
+<td>load generator saturation</td>
+<td>client 没有先成为瓶颈</td>
+</tr>
+<tr>
+<td>telemetry coverage</td>
+<td>GPU、CPU、网络、存储指标覆盖完整</td>
+</tr>
+<tr>
+<td>unit/range check</td>
+<td>单位和合理范围没有明显错误</td>
+</tr>
+</tbody>
+</table>
+<p>质量门禁的结果也要保存：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">quality</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="s">"passed"</span>
+<span class="w">  </span><span class="nt">checks</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">manifest_completeness</span><span class="p">:</span><span class="w"> </span><span class="s">"passed"</span>
+<span class="w">    </span><span class="nt">artifact_digest</span><span class="p">:</span><span class="w"> </span><span class="s">"passed"</span>
+<span class="w">    </span><span class="nt">clock_skew_ms</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="s">"passed"</span>
+<span class="w">      </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.5</span>
+<span class="w">    </span><span class="nt">telemetry_coverage</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="s">"warning"</span>
+<span class="w">      </span><span class="nt">missing_windows</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+</code></pre></div>
+<p>如果一个 run 有 warning，不一定不能使用，但 report 里必须写明 caveat。如果 quality gate failed，就不应该自动进入 baseline。</p>
+<h2 id="ai">AI 可读性<a class="headerlink" href="#ai" title="Permanent link">¶</a></h2>
+<p>这个知识库本身就是给人和 AI 查阅的。Benchmark 数据也应该考虑 AI 可读。</p>
+<p>建议：</p>
+<ul>
+<li>report 使用 Markdown。</li>
+<li>manifest 使用结构化 YAML/JSON。</li>
+<li>summary 使用稳定字段名。</li>
+<li>raw data 有 schema 文档。</li>
+<li>artifact 有明确链接。</li>
+<li>run 之间有 lineage。</li>
+<li>caveats 写成明确文本。</li>
+</ul>
+<p>AI 助手检索 benchmark 时，最需要的是：</p>
+<ul>
+<li>结论。</li>
+<li>适用范围。</li>
+<li>原始证据位置。</li>
+<li>指标口径。</li>
+<li>对比对象。</li>
+<li>caveats。</li>
+</ul>
+<p>如果只有图片和 dashboard，AI 很难正确理解。</p>
+<p>推荐为关键 run 生成一个 AI-readable run card。</p>
+<p>它不替代 manifest 和 raw data，而是给人和 AI 快速理解：</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># Run Card: 20260612-103000_infer-llama70b_vllm-h100_traceA_configB</span>
+
+<span class="gu">## Question</span>
+vLLM config B 是否在 SLA 约束下提高 Llama 70B traceA 的 goodput？
+
+<span class="gu">## Short Answer</span>
+config B 将 goodput 从 96.4 requests/s 提高到 110.2 requests/s，
+主要收益来自 prefix cache 命中率提高和 decode batch 更稳定。
+
+<span class="gu">## Scope</span>
+<span class="k">-</span><span class="w"> </span>Model: Llama 70B
+<span class="k">-</span><span class="w"> </span>Hardware: 8xH100-80GB
+<span class="k">-</span><span class="w"> </span>Engine: vLLM
+<span class="k">-</span><span class="w"> </span>Workload: traceA sampled from 2026w22
+<span class="k">-</span><span class="w"> </span>SLA: p99 TTFT &lt;= 500 ms, p99 TPOT &lt;= 50 ms
+
+<span class="gu">## Evidence</span>
+<span class="k">-</span><span class="w"> </span>Manifest: ...
+<span class="k">-</span><span class="w"> </span>Summary: ...
+<span class="k">-</span><span class="w"> </span>Raw requests: ...
+<span class="k">-</span><span class="w"> </span>System metrics: ...
+<span class="k">-</span><span class="w"> </span>Profiler: ...
+<span class="k">-</span><span class="w"> </span>Dashboard: ...
+
+<span class="gu">## Caveats</span>
+<span class="k">-</span><span class="w"> </span>只覆盖 traceA，不代表长上下文 RAG 负载。
+<span class="k">-</span><span class="w"> </span>client 和 server 在同一机房，不覆盖跨地域网络。
+<span class="k">-</span><span class="w"> </span>本次未测试 cold cache。
+
+<span class="gu">## Tags</span>
+inference, benchmark, vllm, h100, prefix-cache, goodput, sla
+</code></pre></div>
+<p>这类 run card 的价值很大：</p>
+<ul>
+<li>新人能快速理解这次实验。</li>
+<li>AI 能检索、总结和对比历史 run。</li>
+<li>决策者能看到结论和 caveats。</li>
+<li>工程师能顺着链接进入原始证据。</li>
+</ul>
+<p>AI 可读不是写一段漂亮总结，而是把“结论、适用范围、证据、限制、链接”固定下来。</p>
+<h2 id="ci">与 CI / 回归检测集成<a class="headerlink" href="#ci" title="Permanent link">¶</a></h2>
+<p>回归检测应该自动写入 benchmark registry。</p>
+<p>每次运行记录：</p>
+<ul>
+<li>commit。</li>
+<li>benchmark suite。</li>
+<li>result。</li>
+<li>threshold。</li>
+<li>baseline。</li>
+<li>pass/fail。</li>
+<li>raw data。</li>
+<li>failure reason。</li>
+</ul>
+<p>如果失败，应该保留足够定位证据：</p>
+<ul>
+<li>logs。</li>
+<li>system metrics。</li>
+<li>profiler sample。</li>
+<li>environment diff。</li>
+</ul>
+<p>CI 不应该只显示：</p>
+<div class="highlight"><pre><span></span><code>performance check failed
+</code></pre></div>
+<p>而应该告诉维护者：</p>
+<div class="highlight"><pre><span></span><code>which metric
+which workload
+which baseline
+how much regression
+where raw data is
+</code></pre></div>
+<p>回归检测的数据记录应该区分三类运行：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PR smoke benchmark</td>
+<td>快、样本少、发现明显退化</td>
+</tr>
+<tr>
+<td>nightly benchmark</td>
+<td>覆盖更多 workload，观察趋势</td>
+</tr>
+<tr>
+<td>release benchmark</td>
+<td>最严格，保留完整 artifact，可能更新 baseline</td>
+</tr>
+</tbody>
+</table>
+<p>三类运行不要混用同一个阈值。</p>
+<p>PR benchmark 更适合发现大幅退化，例如 <code>&gt;10%</code>。Nightly benchmark 更适合看稳定趋势。Release benchmark 才适合做正式结论和 baseline 更新。</p>
+<p>对于 CI 里的 flaky performance result，要记录 rerun policy：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">rerun_policy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">max_attempts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">aggregation</span><span class="p">:</span><span class="w"> </span><span class="s">"median_of_valid_runs"</span>
+<span class="w">  </span><span class="nt">exclude_if</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"quality_gate_failed"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"client_saturated"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"thermal_throttling_detected"</span>
+</code></pre></div>
+<p>否则团队会在“到底是代码退化还是机器抖动”上反复争论。</p>
+<h2 id="_12">报告模板<a class="headerlink" href="#_12" title="Permanent link">¶</a></h2>
+<p>Benchmark 报告可以按下面模板。</p>
+<div class="highlight"><pre><span></span><code>Title:
+  concise statement
+
+Question:
+  what decision this benchmark supports
+
+Run:
+  run_id
+  owner
+  time
+  links to manifest/raw/artifacts
+
+System:
+  code / model / workload / hardware / environment
+
+Method:
+  warmup
+  measurement window
+  repeats
+  load generation
+  cache state
+
+Results:
+  primary metrics
+  guardrail metrics
+  explanatory metrics
+  distributions
+
+Evidence:
+  raw data
+  dashboard
+  profiler
+  logs
+
+Decision:
+  ship / reject / investigate / canary / update baseline
+
+Caveats:
+  what this result does not prove
+
+Follow-up:
+  regression guard
+  owner
+  next run
+</code></pre></div>
+<p>报告里的图表最好从 raw data 自动生成，不要手工复制数字。</p>
+<p>如果报告需要人工写结论，也应该让人工只写：</p>
+<ul>
+<li>为什么测。</li>
+<li>如何解释结果。</li>
+<li>是否接受。</li>
+<li>caveats。</li>
+<li>后续行动。</li>
+</ul>
+<p>指标表、图表、artifact 链接、manifest 链接应由脚本生成。这样口径变更时，可以重新生成报告并保留旧版本。</p>
+<h2 id="_13">推荐落地路线<a class="headerlink" href="#_13" title="Permanent link">¶</a></h2>
+<p>Benchmark 数据治理不需要一开始就做成完整平台。</p>
+<p>可以按四步推进。</p>
+<p>第一步，统一 run 目录和 manifest：</p>
+<div class="highlight"><pre><span></span><code>runs/&lt;run_id&gt;/
+  manifest.yaml
+  summary.json
+  report.md
+  raw/
+  logs/
+  profiler/
+</code></pre></div>
+<p>只要每次 run 都按这个结构保存，就已经解决了很多“文件在哪”的问题。</p>
+<p>第二步，统一 schema 和质量校验：</p>
+<ul>
+<li>manifest schema。</li>
+<li>summary schema。</li>
+<li>raw request/step schema。</li>
+<li>artifact index schema。</li>
+<li>basic quality gate。</li>
+</ul>
+<p>此时 benchmark 已经能被脚本稳定读取。</p>
+<p>第三步，建立 registry：</p>
+<ul>
+<li>支持按 model、workload、hardware、engine、commit 查询。</li>
+<li>支持 baseline 绑定。</li>
+<li>支持 report/raw/artifact 链接。</li>
+<li>支持 pass/fail 和 caveat 检索。</li>
+</ul>
+<p>此时 benchmark 可以服务回归检测和历史趋势。</p>
+<p>第四步，建设 AI-readable 层：</p>
+<ul>
+<li>为关键 run 生成 run card。</li>
+<li>为 benchmark case 生成知识卡片。</li>
+<li>把 caveats、decision、metric contract 结构化。</li>
+<li>让 AI 能根据问题找到对应 run、对比对象和原始证据。</li>
+</ul>
+<p>不要先追求“酷炫 dashboard”。先把 manifest、raw data、summary、artifact、report、registry 这条链打通。dashboard 是展示层，数据治理是证据层。</p>
+<h2 id="_14">常见误区<a class="headerlink" href="#_14" title="Permanent link">¶</a></h2>
+<h3 id="_15">误区一：报告里有图就够了<a class="headerlink" href="#_15" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p>图必须能追溯到 raw data、manifest 和生成脚本。</p>
+<h3 id="_16">误区二：只保存聚合结果<a class="headerlink" href="#_16" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p>聚合结果无法重新分桶、重新计算 p99、排查异常或修正统计口径。</p>
+<h3 id="_17">误区三：环境信息可以手动回忆<a class="headerlink" href="#_17" title="Permanent link">¶</a></h3>
+<p>不可靠。</p>
+<p>环境信息必须自动采集。</p>
+<h3 id="run">误区四：所有 run 都长期保存完整数据<a class="headerlink" href="#run" title="Permanent link">¶</a></h3>
+<p>成本太高。</p>
+<p>应该分层 retention：summary 长期，raw 中期，trace 选择性长期。</p>
+<h3 id="benchmark_2">误区五：Benchmark 数据只给人看<a class="headerlink" href="#benchmark_2" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p>AI 助手要能检索、比较、总结和解释 benchmark，数据就必须结构化、可链接、可追溯。</p>
+<h3 id="run_1">误区六：只有通过的 run 才保存<a class="headerlink" href="#run_1" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p>失败 run、超时 run、质量校验 warning run 往往最能暴露系统边界。它们可以不进入 baseline，但应该按策略保存诊断证据。</p>
+<h3 id="baseline">误区七：baseline 自动等于最新结果<a class="headerlink" href="#baseline" title="Permanent link">¶</a></h3>
+<p>危险。</p>
+<p>Baseline 是带解释和审批的参照物，不是时间上最新的一次 run。自动把最新结果设为 baseline，会掩盖真实性能退化。</p>
+<h2 id="_18">检查清单<a class="headerlink" href="#_18" title="Permanent link">¶</a></h2>
+<p>运行前：</p>
+<ul>
+<li>是否有 run id？</li>
+<li>是否有 workload spec？</li>
+<li>是否有 manifest schema？</li>
+<li>是否有 schema version？</li>
+<li>是否记录 code/model/data digest？</li>
+<li>是否定义 raw data 存储位置？</li>
+<li>是否定义 primary metric、guardrail metric 和阈值？</li>
+<li>是否定义 retention class？</li>
+</ul>
+<p>运行中：</p>
+<ul>
+<li>是否采集请求/step 原始数据？</li>
+<li>是否采集系统 metrics？</li>
+<li>是否保存日志和 profiler？</li>
+<li>是否记录 warmup 和 measurement window？</li>
+<li>是否记录失败、超时、取消？</li>
+<li>是否记录 trace_id/span_id/request_id 等关联字段？</li>
+<li>是否监控 client 是否饱和？</li>
+<li>是否记录 power、temperature、clock 等运行状态？</li>
+</ul>
+<p>运行后：</p>
+<ul>
+<li>是否生成 summary？</li>
+<li>是否生成 report？</li>
+<li>是否链接 raw data 和 artifacts？</li>
+<li>是否写 caveats？</li>
+<li>是否登记到 registry？</li>
+<li>是否设置 retention？</li>
+<li>是否通过 data quality gates？</li>
+<li>是否保存 artifact digest？</li>
+<li>是否保存 lineage？</li>
+<li>是否生成 AI-readable run card？</li>
+</ul>
+<p>用于回归检测：</p>
+<ul>
+<li>是否绑定 baseline？</li>
+<li>是否保存 threshold 和 pass/fail？</li>
+<li>是否保存失败定位证据？</li>
+<li>是否能从 commit 反查 run？</li>
+<li>是否记录 rerun policy？</li>
+<li>是否区分 PR、nightly、release benchmark？</li>
+<li>是否防止失败 run 自动更新 baseline？</li>
+</ul>
+<h2 id="_19">小结<a class="headerlink" href="#_19" title="Permanent link">¶</a></h2>
+<p>Benchmark 数据治理的核心是让性能结论可以被追溯。</p>
+<p>一句话：</p>
+<div class="highlight"><pre><span></span><code>没有 manifest、raw data、artifact 和 lineage 的 benchmark，
+只能算一次观察，不能算工程证据。
+</code></pre></div>
+<p>当团队把每次 benchmark 都沉淀成结构化数据资产后，很多能力才会自然出现：</p>
+<ul>
+<li>历史趋势。</li>
+<li>A/B 对比。</li>
+<li>自动回归检测。</li>
+<li>容量模型校准。</li>
+<li>成本模型校准。</li>
+<li>事故复盘。</li>
+<li>知识库沉淀。</li>
+<li>AI 助手检索和分析。</li>
+</ul>
+<p>这也是第 8 章所有内容最终要落地的地方：指标、负载、profiler、容量、能效、成本和回归检测，都需要可靠的数据治理作为底座。</p>
+<h2 id="_20">参考资料<a class="headerlink" href="#_20" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://mlflow.org/docs/latest/tracking/">MLflow Tracking</a></li>
+<li><a href="https://dvc.org/doc/start/data-management/data-versioning">DVC: Data Versioning</a></li>
+<li><a href="https://docs.wandb.ai/guides/artifacts">Weights &amp; Biases Artifacts</a></li>
+<li><a href="https://opentelemetry.io/docs/concepts/signals/">OpenTelemetry Signals</a></li>
+<li><a href="https://opentelemetry.io/docs/specs/otel/">OpenTelemetry Specification</a></li>
+<li><a href="https://parquet.apache.org/docs/">Apache Parquet Documentation</a></li>
+<li><a href="https://json-schema.org/">JSON Schema</a></li>
+<li><a href="https://openlineage.io/docs/">OpenLineage Documentation</a></li>
+<li><a href="https://slsa.dev/spec/v1.0/provenance">SLSA Provenance</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

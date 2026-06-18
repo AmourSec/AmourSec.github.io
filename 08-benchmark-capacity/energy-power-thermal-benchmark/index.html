@@ -1,0 +1,3970 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/08-benchmark-capacity/energy-power-thermal-benchmark/" rel="canonical"/>
+<link href="../queueing-model-tail-latency/" rel="prev"/>
+<link href="../benchmark-workload-design-trace-replay/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>能效、功耗与热限制：Power、Energy per Token 与持续吞吐 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#powerenergy-per-token">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-benchmark-contract">
+<span class="md-ellipsis">
+      Energy Benchmark Contract
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      基本指标
+    </span>
+</a>
+<nav aria-label="基本指标" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power">
+<span class="md-ellipsis">
+      Power
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy">
+<span class="md-ellipsis">
+      Energy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-per-token">
+<span class="md-ellipsis">
+      Energy per Token
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tokens-per-joule">
+<span class="md-ellipsis">
+      Tokens per Joule
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-to-target">
+<span class="md-ellipsis">
+      Energy to Target
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sustained-performance">
+<span class="md-ellipsis">
+      Sustained Performance
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      测量边界
+    </span>
+</a>
+<nav aria-label="测量边界" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-only">
+<span class="md-ellipsis">
+      GPU-only
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#node-level">
+<span class="md-ellipsis">
+      Node-level
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rack-facility-level">
+<span class="md-ellipsis">
+      Rack / Facility-level
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#idle-baseline">
+<span class="md-ellipsis">
+      Idle Baseline
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      采样与时间对齐
+    </span>
+</a>
+<nav aria-label="采样与时间对齐" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      能量积分的注意事项
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      需要采集的指标
+    </span>
+</a>
+<nav aria-label="需要采集的指标" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      性能指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      功耗指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      频率指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      温度指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      健康与错误指标
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      工具链
+    </span>
+</a>
+<nav aria-label="工具链" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nvidia-smi">
+<span class="md-ellipsis">
+      nvidia-smi
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nvml">
+<span class="md-ellipsis">
+      NVML
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dcgm-dcgm-exporter">
+<span class="md-ellipsis">
+      DCGM / DCGM Exporter
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pdu">
+<span class="md-ellipsis">
+      外部功率计 / PDU
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 流程
+    </span>
+</a>
+<nav aria-label="Benchmark 流程" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1">
+<span class="md-ellipsis">
+      1. 固定环境
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-idle-baseline">
+<span class="md-ellipsis">
+      2. 记录 idle baseline
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-warmup">
+<span class="md-ellipsis">
+      3. Warmup 到热稳态
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31">
+<span class="md-ellipsis">
+      3.1 热稳态判定
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-workload">
+<span class="md-ellipsis">
+      4. 固定 workload 分布
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-steady-state">
+<span class="md-ellipsis">
+      5. 采集 steady-state 窗口
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6">
+<span class="md-ellipsis">
+      6. 重复与对比
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power-cap-sweep">
+<span class="md-ellipsis">
+      Power Cap Sweep
+    </span>
+</a>
+<nav aria-label="Power Cap Sweep" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      曲线怎么看
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pareto-frontier">
+<span class="md-ellipsis">
+      Pareto Frontier
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sweep">
+<span class="md-ellipsis">
+      分阶段 Sweep
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      训练场景
+    </span>
+</a>
+<nav aria-label="训练场景" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step-energy">
+<span class="md-ellipsis">
+      Step Energy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-to-target_1">
+<span class="md-ellipsis">
+      Energy to Target
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mfu">
+<span class="md-ellipsis">
+      MFU 与能效
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power-cap">
+<span class="md-ellipsis">
+      Power Cap 对训练的影响
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpointeval">
+<span class="md-ellipsis">
+      Checkpoint、Eval 与重启能耗
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      推理场景
+    </span>
+</a>
+<nav aria-label="推理场景" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prefill-decode">
+<span class="md-ellipsis">
+      Prefill 与 Decode 分开看
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cache-hit-cache-miss">
+<span class="md-ellipsis">
+      Cache Hit 与 Cache Miss
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#batching">
+<span class="md-ellipsis">
+      Batching 与能效
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quantization">
+<span class="md-ellipsis">
+      Quantization 与能效
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#speculative-decoding">
+<span class="md-ellipsis">
+      Speculative Decoding 与能效
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      常见诊断模式
+    </span>
+</a>
+<nav aria-label="常见诊断模式" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      高功耗、高吞吐
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      高功耗、低吞吐
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      低功耗、低吞吐
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      温度升高后性能下降
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p99">
+<span class="md-ellipsis">
+      平均能效好，但 p99 差
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      容量规划中的功耗
+    </span>
+</a>
+<nav aria-label="容量规划中的功耗" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#headroom">
+<span class="md-ellipsis">
+      Headroom 不是浪费
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      推理容量中的能效指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      训练容量中的能效指标
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power-aware-scheduling">
+<span class="md-ellipsis">
+      Power-aware Scheduling
+    </span>
+</a>
+<nav aria-label="Power-aware Scheduling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power-aware">
+<span class="md-ellipsis">
+      Power-aware 不等于只看功耗
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_24">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_25">
+<span class="md-ellipsis">
+      误区一：功耗越低越好
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-power">
+<span class="md-ellipsis">
+      误区二：GPU power 就代表系统能耗
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_1">
+<span class="md-ellipsis">
+      误区三：短 benchmark 的能效可以代表长期运行
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power_1">
+<span class="md-ellipsis">
+      误区四：平均 power 足够
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energytoken">
+<span class="md-ellipsis">
+      误区五：只要 energy/token 降低就一定更好
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_26">
+<span class="md-ellipsis">
+      报告模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_27">
+<span class="md-ellipsis">
+      检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_28">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_29">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-benchmark-contract">
+<span class="md-ellipsis">
+      Energy Benchmark Contract
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      基本指标
+    </span>
+</a>
+<nav aria-label="基本指标" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power">
+<span class="md-ellipsis">
+      Power
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy">
+<span class="md-ellipsis">
+      Energy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-per-token">
+<span class="md-ellipsis">
+      Energy per Token
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tokens-per-joule">
+<span class="md-ellipsis">
+      Tokens per Joule
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-to-target">
+<span class="md-ellipsis">
+      Energy to Target
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sustained-performance">
+<span class="md-ellipsis">
+      Sustained Performance
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      测量边界
+    </span>
+</a>
+<nav aria-label="测量边界" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-only">
+<span class="md-ellipsis">
+      GPU-only
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#node-level">
+<span class="md-ellipsis">
+      Node-level
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rack-facility-level">
+<span class="md-ellipsis">
+      Rack / Facility-level
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#idle-baseline">
+<span class="md-ellipsis">
+      Idle Baseline
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      采样与时间对齐
+    </span>
+</a>
+<nav aria-label="采样与时间对齐" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      能量积分的注意事项
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      需要采集的指标
+    </span>
+</a>
+<nav aria-label="需要采集的指标" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      性能指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      功耗指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      频率指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      温度指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      健康与错误指标
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      工具链
+    </span>
+</a>
+<nav aria-label="工具链" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nvidia-smi">
+<span class="md-ellipsis">
+      nvidia-smi
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nvml">
+<span class="md-ellipsis">
+      NVML
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dcgm-dcgm-exporter">
+<span class="md-ellipsis">
+      DCGM / DCGM Exporter
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pdu">
+<span class="md-ellipsis">
+      外部功率计 / PDU
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 流程
+    </span>
+</a>
+<nav aria-label="Benchmark 流程" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1">
+<span class="md-ellipsis">
+      1. 固定环境
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-idle-baseline">
+<span class="md-ellipsis">
+      2. 记录 idle baseline
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-warmup">
+<span class="md-ellipsis">
+      3. Warmup 到热稳态
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#31">
+<span class="md-ellipsis">
+      3.1 热稳态判定
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-workload">
+<span class="md-ellipsis">
+      4. 固定 workload 分布
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-steady-state">
+<span class="md-ellipsis">
+      5. 采集 steady-state 窗口
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6">
+<span class="md-ellipsis">
+      6. 重复与对比
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power-cap-sweep">
+<span class="md-ellipsis">
+      Power Cap Sweep
+    </span>
+</a>
+<nav aria-label="Power Cap Sweep" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      曲线怎么看
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pareto-frontier">
+<span class="md-ellipsis">
+      Pareto Frontier
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sweep">
+<span class="md-ellipsis">
+      分阶段 Sweep
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      训练场景
+    </span>
+</a>
+<nav aria-label="训练场景" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step-energy">
+<span class="md-ellipsis">
+      Step Energy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energy-to-target_1">
+<span class="md-ellipsis">
+      Energy to Target
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mfu">
+<span class="md-ellipsis">
+      MFU 与能效
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power-cap">
+<span class="md-ellipsis">
+      Power Cap 对训练的影响
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpointeval">
+<span class="md-ellipsis">
+      Checkpoint、Eval 与重启能耗
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      推理场景
+    </span>
+</a>
+<nav aria-label="推理场景" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prefill-decode">
+<span class="md-ellipsis">
+      Prefill 与 Decode 分开看
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cache-hit-cache-miss">
+<span class="md-ellipsis">
+      Cache Hit 与 Cache Miss
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#batching">
+<span class="md-ellipsis">
+      Batching 与能效
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quantization">
+<span class="md-ellipsis">
+      Quantization 与能效
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#speculative-decoding">
+<span class="md-ellipsis">
+      Speculative Decoding 与能效
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      常见诊断模式
+    </span>
+</a>
+<nav aria-label="常见诊断模式" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      高功耗、高吞吐
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      高功耗、低吞吐
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      低功耗、低吞吐
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      温度升高后性能下降
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p99">
+<span class="md-ellipsis">
+      平均能效好，但 p99 差
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      容量规划中的功耗
+    </span>
+</a>
+<nav aria-label="容量规划中的功耗" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#headroom">
+<span class="md-ellipsis">
+      Headroom 不是浪费
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      推理容量中的能效指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      训练容量中的能效指标
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power-aware-scheduling">
+<span class="md-ellipsis">
+      Power-aware Scheduling
+    </span>
+</a>
+<nav aria-label="Power-aware Scheduling" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power-aware">
+<span class="md-ellipsis">
+      Power-aware 不等于只看功耗
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_24">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_25">
+<span class="md-ellipsis">
+      误区一：功耗越低越好
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-power">
+<span class="md-ellipsis">
+      误区二：GPU power 就代表系统能耗
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_1">
+<span class="md-ellipsis">
+      误区三：短 benchmark 的能效可以代表长期运行
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#power_1">
+<span class="md-ellipsis">
+      误区四：平均 power 足够
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#energytoken">
+<span class="md-ellipsis">
+      误区五：只要 energy/token 降低就一定更好
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_26">
+<span class="md-ellipsis">
+      报告模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_27">
+<span class="md-ellipsis">
+      检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_28">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_29">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="powerenergy-per-token">能效、功耗与热限制：Power、Energy per Token 与持续吞吐<a class="headerlink" href="#powerenergy-per-token" title="Permanent link">¶</a></h1>
+<p>AI 系统的性能结论如果只写“tokens/s 提升了多少”，是不完整的。</p>
+<p>还要问：</p>
+<ul>
+<li>这个 tokens/s 是短时峰值，还是热稳态后的持续吞吐？</li>
+<li>功耗是多少？</li>
+<li>每个 token 消耗多少能量？</li>
+<li>p99 延迟有没有被功耗策略或频率波动影响？</li>
+<li>降低 power cap 后，性能损失和能效收益分别是多少？</li>
+<li>训练 step time 变快了，但总能耗是否降低？</li>
+<li>GPU 功耗降低了，整机功耗是否也降低？</li>
+<li>某个节点更慢，是软件问题，还是热限制、功耗限制、频率策略或硬件健康问题？</li>
+</ul>
+<p>第 6 章的 <a href="../../06-accelerators-architecture/power-thermal-reliability/">功耗、散热、频率与可靠性</a> 从硬件架构和系统设计角度解释了 power、thermal、clock、throttling 和 RAS。本篇站在 benchmark 与容量建模角度，重点回答：</p>
+<blockquote>
+<p>如何把功耗、能效、温度、频率、throttle reason 和持续吞吐纳入 AI benchmark，避免只追求短时峰值，而忽略长期运行成本、热稳定性和尾延迟？</p>
+</blockquote>
+<p>先给出一个判断原则：</p>
+<div class="highlight"><pre><span></span><code>能效 benchmark 不是单独追求低功耗，
+而是在明确 workload、SLA、质量和测量边界后，
+比较每单位有效产出需要多少能量。
+</code></pre></div>
+<p>如果一个配置 <code>power</code> 更低，但 <code>tokens/s</code> 下降更多、p99 延迟超标、训练收敛变差，或者热稳态下频率持续下降，它就不是更好的能效配置。</p>
+<h2 id="energy-benchmark-contract">Energy Benchmark Contract<a class="headerlink" href="#energy-benchmark-contract" title="Permanent link">¶</a></h2>
+<p>能效测试最怕“数字是真的，但问题没定义清楚”。因此每次测试前先写一个 Energy Benchmark Contract。</p>
+<div class="highlight"><pre><span></span><code><span class="nt">workload</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inference | training</span>
+<span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">precision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">input_distribution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">output_distribution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">arrival_process_or_step_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">objective</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">primary_metric</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">joules/token | tokens/joule | energy_to_target</span>
+<span class="w">  </span><span class="nt">guardrail_metrics</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">p99_latency</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">quality</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">error_rate</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">thermal_stability</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">sla</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">measurement_boundary</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpu_only | node_level | rack_level | facility_level</span>
+<span class="w">  </span><span class="nt">idle_baseline</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">included | subtracted</span>
+<span class="w">  </span><span class="nt">idle_definition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bare_idle | model_loaded_idle | service_idle</span>
+
+<span class="nt">telemetry</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">power_source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvml | dcgm | nvidia_smi | pdu | bmc</span>
+<span class="w">  </span><span class="nt">sampling_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">clock_metrics</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">temperature_metrics</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">throttle_metrics</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">run_window</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">warmup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">steady_state_criteria</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">measurement_start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">measurement_end</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">power_policy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">power_limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">clock_policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default | locked | application_clocks</span>
+<span class="w">  </span><span class="nt">power_cap_sweep</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">decision</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">recommended_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">caveats</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+<p>这个 contract 的作用不是增加文档负担，而是让后续讨论不再混淆以下问题：</p>
+<ul>
+<li>测的是 GPU 本身，还是整机、机柜、数据中心。</li>
+<li>比较的是短时峰值，还是热稳态后的持续交付能力。</li>
+<li>算的是所有能耗，还是扣除 idle 后的增量能耗。</li>
+<li>产出是 raw tokens，还是满足 SLA、质量和稳定性后的有效 token。</li>
+<li>目标是推理单位成本，还是训练到目标质量的总能耗。</li>
+</ul>
+<h2 id="_1">一张总图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TB
+    Workload["Workload<br/>training / prefill / decode / MoE / RAG"]
+    Perf["Performance<br/>tokens/s / step time / TTFT / TPOT / p99"]
+    Power["Power<br/>GPU / CPU / memory / NIC / fans / rack"]
+    Energy["Energy<br/>integral of power over time"]
+    Thermal["Thermal State<br/>temperature / hotspot / fan / cooling"]
+    Clocks["Clocks<br/>core / memory / fabric"]
+    Limits["Limits<br/>power cap / thermal / reliability / policy"]
+    Efficiency["Efficiency<br/>tokens/joule / joules/token / perf/W"]
+    Capacity["Capacity<br/>replicas / rack power / headroom"]
+    Decision["Decision<br/>ship / tune / cap / isolate / scale"]
+
+    Workload --&gt; Perf
+    Workload --&gt; Power
+    Power --&gt; Energy
+    Power --&gt; Thermal
+    Thermal --&gt; Clocks
+    Limits --&gt; Clocks
+    Clocks --&gt; Perf
+    Perf --&gt; Efficiency
+    Energy --&gt; Efficiency
+    Efficiency --&gt; Capacity
+    Thermal --&gt; Capacity
+    Capacity --&gt; Decision
+</div>
+<p>这张图表达一个核心关系：</p>
+<div class="highlight"><pre><span></span><code>可交付性能 = 吞吐 / 延迟 / 稳定性 / 能耗 / 热约束共同成立
+</code></pre></div>
+<p>短时间跑得快，不等于长期能交付。AI 训练和推理都是持续负载，最终要看 steady-state 下的有效吞吐、尾延迟、能耗和硬件健康。</p>
+<h2 id="_2">基本指标<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<h3 id="power">Power<a class="headerlink" href="#power" title="Permanent link">¶</a></h3>
+<p>Power 是瞬时功率，单位通常是 watt。</p>
+<p>常见口径：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU power</td>
+<td>GPU 板卡或芯片相关功耗</td>
+</tr>
+<tr>
+<td>CPU power</td>
+<td>CPU 侧功耗</td>
+</tr>
+<tr>
+<td>node power</td>
+<td>整机功耗，通常包含 GPU、CPU、内存、NIC、SSD、风扇、PSU 损耗</td>
+</tr>
+<tr>
+<td>rack power</td>
+<td>机柜级功耗</td>
+</tr>
+<tr>
+<td>facility power</td>
+<td>数据中心供电和冷却后的整体功耗</td>
+</tr>
+</tbody>
+</table>
+<p>做 benchmark 时必须写清楚功耗口径。</p>
+<p>同样是 <code>joules/token</code>：</p>
+<ul>
+<li>只算 GPU power，适合分析 GPU kernel 或模型配置。</li>
+<li>算 node power，适合分析服务器交付效率。</li>
+<li>算 rack/facility power，适合容量、电力和冷却规划。</li>
+</ul>
+<p>这几个数字不能混用。</p>
+<p>做横向对比时，建议同时保留两个数字：</p>
+<div class="highlight"><pre><span></span><code>power_under_load: workload 运行时的平均功率
+incremental_power: power_under_load - idle_power
+</code></pre></div>
+<p><code>power_under_load</code> 更接近部署成本，<code>incremental_power</code> 更适合分析 workload 自身带来的额外消耗。两者回答的问题不同。</p>
+<h3 id="energy">Energy<a class="headerlink" href="#energy" title="Permanent link">¶</a></h3>
+<p>Energy 是一段时间内消耗的能量。</p>
+<p>公式是：</p>
+<div class="highlight"><pre><span></span><code>energy = integral(power over time)
+</code></pre></div>
+<p>离散采样时可以近似为：</p>
+<div class="highlight"><pre><span></span><code>energy_joules = sum(power_watts_i * delta_time_seconds_i)
+</code></pre></div>
+<p>如果采样间隔固定：</p>
+<div class="highlight"><pre><span></span><code>energy_joules ~= average_power_watts * duration_seconds
+</code></pre></div>
+<p>功率是“每一刻消耗多快”，能量是“这段运行一共消耗多少”。</p>
+<p>如果硬件提供 energy counter，可以直接使用计数器差值：</p>
+<div class="highlight"><pre><span></span><code>energy = energy_counter_end - energy_counter_start
+</code></pre></div>
+<p>如果只能用功率采样积分，则要保留原始采样点。否则很难审查测量窗口是否准确，也很难发现 power spike、缺失采样或时间戳漂移。</p>
+<h3 id="energy-per-token">Energy per Token<a class="headerlink" href="#energy-per-token" title="Permanent link">¶</a></h3>
+<p>推理常用：</p>
+<div class="highlight"><pre><span></span><code>joules_per_output_token = total_energy / output_tokens
+</code></pre></div>
+<p>有时也会看：</p>
+<div class="highlight"><pre><span></span><code>joules_per_total_token = total_energy / (input_tokens + output_tokens)
+</code></pre></div>
+<p>两者含义不同。</p>
+<p>LLM 服务中：</p>
+<ul>
+<li>prefill 主要消耗 input tokens。</li>
+<li>decode 主要交付 output tokens。</li>
+<li>长 prompt、短输出和短 prompt、长输出的能耗结构不同。</li>
+</ul>
+<p>因此报告时要说明 token 口径。</p>
+<p>更完整的推理口径可以写成：</p>
+<div class="highlight"><pre><span></span><code>joules_per_successful_output_token_at_SLA
+  = total_energy_in_measurement_window
+    / output_tokens_from_successful_requests_that_meet_SLA
+</code></pre></div>
+<p>这样可以避免一种常见误判：某个配置通过堆大 batch 降低了平均 <code>joules/token</code>，但 timeout、reject 或 p99 超标更多，线上可用的有效 token 反而下降。</p>
+<h3 id="tokens-per-joule">Tokens per Joule<a class="headerlink" href="#tokens-per-joule" title="Permanent link">¶</a></h3>
+<p><code>tokens/joule</code> 是 <code>joules/token</code> 的倒数：</p>
+<div class="highlight"><pre><span></span><code>tokens_per_joule = tokens / energy_joules
+</code></pre></div>
+<p>越高越好。</p>
+<p>也可以写成：</p>
+<div class="highlight"><pre><span></span><code>tokens/s/W
+</code></pre></div>
+<p>因为：</p>
+<div class="highlight"><pre><span></span><code>tokens/s/W = tokens/s / watts = tokens / joule
+</code></pre></div>
+<p>但 <code>tokens/joule</code> 也必须带上 workload 和 SLA。例如：</p>
+<div class="highlight"><pre><span></span><code>tokens/joule at p99 TPOT &lt;= 50 ms
+tokens/joule for input_len=2k, output_len=512
+tokens/joule under open-loop 80 QPS
+</code></pre></div>
+<p>否则一个长 prompt 测试和一个短 prompt 测试的 <code>tokens/joule</code> 不能直接比较。</p>
+<h3 id="energy-to-target">Energy to Target<a class="headerlink" href="#energy-to-target" title="Permanent link">¶</a></h3>
+<p>训练不能只看 <code>joules/token</code>。</p>
+<p>训练最终目标是达到某个 loss、quality 或 benchmark score。因此更重要的是：</p>
+<div class="highlight"><pre><span></span><code>energy_to_target = total_energy_until_target_quality
+</code></pre></div>
+<p>一个配置可能 tokens/s 高、joules/token 低，但如果收敛变差、需要更多 tokens，最终 energy to target 反而更高。</p>
+<p>训练能效报告应同时记录：</p>
+<ul>
+<li>tokens/s。</li>
+<li>step time。</li>
+<li>joules/step。</li>
+<li>joules/token。</li>
+<li>validation loss / target metric。</li>
+<li>energy to target。</li>
+</ul>
+<p>如果训练实验包含多次失败、调参和重启，最终也要区分：</p>
+<div class="highlight"><pre><span></span><code>run_energy: 单次训练 run 的能耗
+project_energy: 达到目标质量前所有尝试的总能耗
+</code></pre></div>
+<p>前者适合比较训练系统实现，后者更接近真实研发成本。</p>
+<h3 id="sustained-performance">Sustained Performance<a class="headerlink" href="#sustained-performance" title="Permanent link">¶</a></h3>
+<p>持续性能是进入热稳态后，系统长时间可维持的性能。</p>
+<p>它不同于短时峰值：</p>
+<div class="highlight"><pre><span></span><code>peak performance: short window, ideal state
+sustained performance: after warmup, thermal steady state, stable clocks
+</code></pre></div>
+<p>很多问题只会在长时间运行后出现：</p>
+<ul>
+<li>温度升高。</li>
+<li>风扇转速变化。</li>
+<li>power throttling。</li>
+<li>thermal throttling。</li>
+<li>memory clock 下降。</li>
+<li>节点热点。</li>
+<li>机柜功耗逼近上限。</li>
+<li>ECC/Xid/link error 增多。</li>
+</ul>
+<p>所以能效 benchmark 必须区分 warmup 窗口和 steady-state 窗口。</p>
+<h2 id="_3">测量边界<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>能效数据最容易出错的地方是测量边界不清。</p>
+<p>同一个系统至少有四层边界：</p>
+<table>
+<thead>
+<tr>
+<th>边界</th>
+<th>适合回答的问题</th>
+<th>不适合回答的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU-only</td>
+<td>某个模型、kernel、batch、power cap 在 GPU 上是否更省</td>
+<td>整机真实能耗</td>
+</tr>
+<tr>
+<td>node-level</td>
+<td>一台服务器能以多少电力交付多少有效吞吐</td>
+<td>机柜供电和冷却是否足够</td>
+</tr>
+<tr>
+<td>rack-level</td>
+<td>一个机柜可部署多少节点，峰值功率是否超限</td>
+<td>单个 kernel 是否优化成功</td>
+</tr>
+<tr>
+<td>facility-level</td>
+<td>数据中心整体能效、PUE 后的真实能源成本</td>
+<td>单机调参细节</td>
+</tr>
+</tbody>
+</table>
+<p>写报告时不要只写“功耗 5 kW”。要写：</p>
+<div class="highlight"><pre><span></span><code>scope = node-level
+power_source = rack PDU
+idle_baseline = included
+measurement_window = thermal steady state, 30 min
+</code></pre></div>
+<p>这样别人才能判断这个数字是否能用于采购、调度、成本或算法对比。</p>
+<h3 id="gpu-only">GPU-only<a class="headerlink" href="#gpu-only" title="Permanent link">¶</a></h3>
+<p>GPU-only 适合分析：</p>
+<ul>
+<li>模型配置。</li>
+<li>kernel 优化。</li>
+<li>quantization。</li>
+<li>batching。</li>
+<li>KV Cache。</li>
+<li>power cap sweep。</li>
+</ul>
+<p>优点是贴近加速器本身。</p>
+<p>缺点是忽略：</p>
+<ul>
+<li>CPU tokenization。</li>
+<li>host memory。</li>
+<li>NIC。</li>
+<li>NVMe。</li>
+<li>风扇。</li>
+<li>PSU 损耗。</li>
+<li>节点 idle baseline。</li>
+</ul>
+<p>GPU-only 数字不能直接代表整机或数据中心成本。</p>
+<p>它尤其适合做局部因果分析。例如：</p>
+<ul>
+<li>量化前后 GPU 功耗是否下降。</li>
+<li>某个 kernel fusion 是否减少 HBM 访问和能耗。</li>
+<li>同一个模型在不同 batch size 下的 tokens/joule。</li>
+<li>power cap 降低后 GPU 频率和吞吐如何变化。</li>
+</ul>
+<p>但如果 GPU-only <code>joules/token</code> 下降，而 CPU tokenization、network、storage 或风扇功耗上升，node-level 结果可能没有改善。</p>
+<h3 id="node-level">Node-level<a class="headerlink" href="#node-level" title="Permanent link">¶</a></h3>
+<p>Node-level 包含整台服务器。</p>
+<p>它适合回答：</p>
+<ul>
+<li>这台服务器每瓦能交付多少 tokens/s？</li>
+<li>CPU preprocessing 是否抵消了 GPU 优化收益？</li>
+<li>风扇和冷却是否显著增加功耗？</li>
+<li>NIC、NVMe、DPU 是否在某些 workload 下变重要？</li>
+</ul>
+<p>如果目标是采购、容量规划或线上服务，node-level 更有意义。</p>
+<p>Node-level 还适合发现“GPU 优化被系统开销吃掉”的情况：</p>
+<div class="highlight"><pre><span></span><code>GPU energy/token improves by 20%
+node energy/token improves by 5%
+</code></pre></div>
+<p>这通常说明瓶颈或能耗已经转移到 CPU、内存、网络、风扇、PSU 损耗或服务框架开销。</p>
+<h3 id="rack-facility-level">Rack / Facility-level<a class="headerlink" href="#rack-facility-level" title="Permanent link">¶</a></h3>
+<p>Rack-level 和 facility-level 适合回答：</p>
+<ul>
+<li>一个机柜能放多少台高功耗服务器。</li>
+<li>机柜功耗峰值是否会超限。</li>
+<li>冷却是否足够。</li>
+<li>集群调度是否需要 power-aware placement。</li>
+<li>数据中心级 energy/token 是多少。</li>
+</ul>
+<p>这类指标需要 PDU、机柜电表或数据中心侧计量，不能只靠 GPU telemetry。</p>
+<p>Facility-level 还会引入冷却和供配电效率。实际数据中心经常用 PUE 描述设施总能耗与 IT 设备能耗的比例：</p>
+<div class="highlight"><pre><span></span><code>facility_energy ~= IT_energy * PUE
+</code></pre></div>
+<p>如果只做系统优化实验，不一定需要把 PUE 混进去；如果要估算真实能源成本、碳排或数据中心容量，就需要说明是否包含 PUE。</p>
+<h3 id="idle-baseline">Idle Baseline<a class="headerlink" href="#idle-baseline" title="Permanent link">¶</a></h3>
+<p>是否扣除 idle baseline 取决于问题。</p>
+<p>如果要分析“这个 workload 额外消耗多少能量”，可以看：</p>
+<div class="highlight"><pre><span></span><code>incremental_energy = active_energy - idle_power * duration
+</code></pre></div>
+<p>如果要分析“线上部署真实消耗多少能量”，通常不能扣除 idle，因为机器保留容量本身就是成本。</p>
+<p>可以把能耗拆成：</p>
+<div class="highlight"><pre><span></span><code>total_energy = idle_baseline_energy + incremental_workload_energy
+</code></pre></div>
+<p>这对解释优化结果很有用。比如某个优化让 GPU workload 省了 20% 能量，但整机 idle baseline 很高，最终 node-level 只省了 8%。这不是测试错误，而是边界不同。</p>
+<p>报告中必须明确：</p>
+<ul>
+<li>是否扣除 idle baseline。</li>
+<li>idle baseline 怎样测。</li>
+<li>idle 状态是否加载模型。</li>
+<li>是否有常驻服务、监控和 background job。</li>
+</ul>
+<p>推理服务还要特别区分：</p>
+<div class="highlight"><pre><span></span><code>bare idle: 机器开机但没有加载模型
+model loaded idle: 模型常驻显存但没有请求
+service idle: 模型、server、router、monitoring 都在运行但没有业务流量
+</code></pre></div>
+<p>线上容量规划通常更关心 <code>service idle</code>，因为空闲副本也占用电力和热预算。</p>
+<h2 id="_4">采样与时间对齐<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<p>功耗采样不是越随便越好。</p>
+<p>要注意：</p>
+<ul>
+<li>采样间隔。</li>
+<li>时间戳对齐。</li>
+<li>不同指标采样延迟。</li>
+<li>power smoothing。</li>
+<li>telemetry 缺失值。</li>
+<li>多 GPU 采样是否同步。</li>
+<li>benchmark 开始/结束时间是否准确。</li>
+</ul>
+<p>如果每秒采一次 power，但请求只有几十毫秒，就不能把单个请求能耗精确归因到每个请求。可以做阶段级、窗口级或批次级估算。</p>
+<p>一个实用规则是：</p>
+<div class="highlight"><pre><span></span><code>采样间隔越粗，结论粒度越粗。
+</code></pre></div>
+<p>例如：</p>
+<ul>
+<li>10 ms 级别采样可以观察短时 power spike，但工具链要求高。</li>
+<li>100 ms 到 1 s 采样适合大多数服务窗口和训练 step 级分析。</li>
+<li>PDU 或机柜电表如果只有数秒级采样，更适合 node/rack steady-state，而不适合单请求归因。</li>
+</ul>
+<p>推荐做法：</p>
+<div class="highlight"><pre><span></span><code>benchmark timeline:
+  warmup_start
+  steady_state_start
+  measurement_start
+  measurement_end
+  cooldown_end
+
+telemetry timeline:
+  power samples
+  clocks
+  temperatures
+  throttle reasons
+  utilization
+  memory usage
+  error counters
+</code></pre></div>
+<p>能效计算只使用 measurement window，避免把冷启动、模型加载和 warmup 混进去，除非目标就是测端到端冷启动成本。</p>
+<p>时间对齐时建议保留统一的 run id：</p>
+<div class="highlight"><pre><span></span><code>run_id
+  benchmark log
+  request or step metrics
+  power samples
+  clock samples
+  temperature samples
+  throttle reason samples
+  error counters
+  profiler trace, if any
+</code></pre></div>
+<p>之后所有曲线都按同一个 <code>run_id</code> 和时间轴合并。不要事后凭文件名或大概时间猜测。</p>
+<h3 id="_5">能量积分的注意事项<a class="headerlink" href="#_5" title="Permanent link">¶</a></h3>
+<p>如果使用功率采样积分，最好使用相邻采样点之间的真实时间差：</p>
+<div class="highlight"><pre><span></span><code>energy = sum(power_i * (timestamp_{i+1} - timestamp_i))
+</code></pre></div>
+<p>不要假设采样间隔一定固定。真实系统中，采集进程可能因为 CPU 抢占、IO、GC、网络写入或监控系统抖动而产生不均匀间隔。</p>
+<p>需要额外检查：</p>
+<ul>
+<li>measurement window 内是否有采样缺口。</li>
+<li>开始和结束边界是否落在两个采样点之间。</li>
+<li>多 GPU 的采样是否来自同一时刻。</li>
+<li>power smoothing 是否掩盖了尖峰。</li>
+<li>energy counter 是否在 reset、GPU reset 或 driver reload 后清零。</li>
+</ul>
+<p>如果采样质量不足，报告中要降低结论粒度。例如可以说“30 分钟 steady-state node energy/token”，但不要说“某个请求消耗了多少 joule”。</p>
+<h2 id="_6">需要采集的指标<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<h3 id="_7">性能指标<a class="headerlink" href="#_7" title="Permanent link">¶</a></h3>
+<p>推理：</p>
+<ul>
+<li>requests/s。</li>
+<li>output tokens/s。</li>
+<li>total tokens/s。</li>
+<li>TTFT p50/p95/p99。</li>
+<li>TPOT p50/p95/p99。</li>
+<li>E2E latency p50/p95/p99。</li>
+<li>goodput at SLA。</li>
+<li>timeout / cancel / reject。</li>
+</ul>
+<p>训练：</p>
+<ul>
+<li>step time。</li>
+<li>tokens/s。</li>
+<li>tokens/s/GPU。</li>
+<li>MFU。</li>
+<li>loss / validation metric。</li>
+<li>checkpoint overhead。</li>
+<li>failure/restart overhead。</li>
+</ul>
+<p>能效指标不能脱离这些性能指标。</p>
+<h3 id="_8">功耗指标<a class="headerlink" href="#_8" title="Permanent link">¶</a></h3>
+<p>至少采集：</p>
+<ul>
+<li>power draw。</li>
+<li>power limit。</li>
+<li>energy counter，如果硬件支持。</li>
+<li>average/min/max power。</li>
+<li>per-GPU power。</li>
+<li>node/rack power，如果有。</li>
+</ul>
+<p>只看平均 power 不够。短时间 power spike 可能触发机柜或电源限制，也可能对应 p99 抖动。</p>
+<h3 id="_9">频率指标<a class="headerlink" href="#_9" title="Permanent link">¶</a></h3>
+<p>采集：</p>
+<ul>
+<li>graphics / SM clock。</li>
+<li>memory clock。</li>
+<li>application clock 或 locked clock policy。</li>
+<li>clock throttle reason。</li>
+<li>power limit reason。</li>
+<li>thermal limit reason。</li>
+<li>reliability limit reason。</li>
+</ul>
+<p>同样的 workload，如果 clocks 不同，benchmark 结果不可直接比较。</p>
+<h3 id="_10">温度指标<a class="headerlink" href="#_10" title="Permanent link">¶</a></h3>
+<p>采集：</p>
+<ul>
+<li>GPU temperature。</li>
+<li>HBM temperature，如果可用。</li>
+<li>hotspot temperature，如果可用。</li>
+<li>inlet / ambient temperature。</li>
+<li>fan speed 或 pump 状态。</li>
+<li>thermal margin。</li>
+</ul>
+<p>温度不是只看“是否超过上限”。在接近上限前，频率和风扇功耗可能已经变化。</p>
+<h3 id="_11">健康与错误指标<a class="headerlink" href="#_11" title="Permanent link">¶</a></h3>
+<p>采集：</p>
+<ul>
+<li>ECC correctable / uncorrectable。</li>
+<li>Xid。</li>
+<li>retired pages / row remapping。</li>
+<li>PCIe replay / link error。</li>
+<li>NVLink / fabric error。</li>
+<li>GPU reset。</li>
+<li>node reboot。</li>
+</ul>
+<p>长时间 benchmark 需要记录错误。一个能效很好的配置，如果导致错误率或不稳定性上升，就不能直接采用。</p>
+<h2 id="_12">工具链<a class="headerlink" href="#_12" title="Permanent link">¶</a></h2>
+<h3 id="nvidia-smi">nvidia-smi<a class="headerlink" href="#nvidia-smi" title="Permanent link">¶</a></h3>
+<p><code>nvidia-smi</code> 适合快速查看和脚本采样：</p>
+<ul>
+<li>power draw。</li>
+<li>power limit。</li>
+<li>clocks。</li>
+<li>temperature。</li>
+<li>utilization。</li>
+<li>memory。</li>
+<li>ECC / Xid 相关信息。</li>
+</ul>
+<p>它也支持循环采样和 CSV 输出。</p>
+<p>但长期工具最好基于稳定 API 或监控系统。NVIDIA 文档也提醒，NVML 更适合作为维护型工具的底层接口。</p>
+<p>适合用 <code>nvidia-smi</code> 做：</p>
+<ul>
+<li>实验前快速确认 power limit、clock、temperature。</li>
+<li>临时采集少量 CSV 样本。</li>
+<li>排查某台机器是否明显异常。</li>
+</ul>
+<p>不建议把复杂生产 benchmark 建在文本解析上，因为不同驱动版本、字段、单位和错误输出都可能影响解析稳定性。</p>
+<h3 id="nvml">NVML<a class="headerlink" href="#nvml" title="Permanent link">¶</a></h3>
+<p>NVML 是 NVIDIA Management Library，适合程序化采集：</p>
+<ul>
+<li>power。</li>
+<li>clocks。</li>
+<li>temperature。</li>
+<li>utilization。</li>
+<li>ECC。</li>
+<li>process accounting。</li>
+<li>device state。</li>
+</ul>
+<p>如果要把能效 benchmark 做成自动化工具，NVML 通常比解析 <code>nvidia-smi</code> 文本更稳。</p>
+<p>NVML 更适合做：</p>
+<ul>
+<li>benchmark runner 内部的同步采样。</li>
+<li>per-GPU 指标采集。</li>
+<li>power cap / clock policy 的实验控制。</li>
+<li>把硬件状态与请求日志或训练 step 日志写到同一个 run record。</li>
+</ul>
+<p>如果要做高质量实验，建议在每个 run 结束时保存原始 NVML 样本，而不只是保存平均值。</p>
+<h3 id="dcgm-dcgm-exporter">DCGM / DCGM Exporter<a class="headerlink" href="#dcgm-dcgm-exporter" title="Permanent link">¶</a></h3>
+<p>DCGM 适合集群级 GPU telemetry。</p>
+<p>常见用途：</p>
+<ul>
+<li>Prometheus 采集 GPU 指标。</li>
+<li>dashboard。</li>
+<li>alert。</li>
+<li>job-level GPU 统计。</li>
+<li>health diagnostics。</li>
+<li>power、temperature、utilization、memory、errors。</li>
+</ul>
+<p>DCGM 的价值在于长期、集群级观测，而不是替代 profiler。能效分析通常需要把 DCGM 指标与 benchmark 的请求/step 指标对齐。</p>
+<p>DCGM/Prometheus 的优势是“持续”和“规模化”：</p>
+<ul>
+<li>同时观察很多节点和 GPU。</li>
+<li>对比同型号节点之间的 power/temperature/clock 差异。</li>
+<li>在长时间训练或线上推理中发现热区、慢节点、错误计数和 throttle。</li>
+<li>把 benchmark 结果与生产监控对齐。</li>
+</ul>
+<p>它的局限是采样粒度和端到端归因。DCGM 告诉你 GPU 发生了什么，但通常还需要请求日志、训练日志、trace 或 profiler 才能解释为什么发生。</p>
+<h3 id="pdu">外部功率计 / PDU<a class="headerlink" href="#pdu" title="Permanent link">¶</a></h3>
+<p>如果目标是 node/rack/facility 能效，需要外部功率测量：</p>
+<ul>
+<li>智能 PDU。</li>
+<li>机柜电表。</li>
+<li>服务器 BMC。</li>
+<li>实验室功率计。</li>
+<li>数据中心能耗系统。</li>
+</ul>
+<p>外部计量通常采样频率更低，但边界更完整。</p>
+<p>外部功率计最常见的坑是时间同步和采样频率：</p>
+<ul>
+<li>PDU 可能只提供秒级甚至更低频率的数据。</li>
+<li>BMC 读数可能经过平滑处理。</li>
+<li>机柜电表的边界可能包含交换机、存储或其他节点。</li>
+<li>实验室功率计要确认接的是整机输入，而不是某个 PSU 或某一路电源。</li>
+</ul>
+<p>因此外部计量更适合稳态窗口和容量规划，不适合解释单个 kernel 或单个请求的能耗。</p>
+<h2 id="benchmark">Benchmark 流程<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>一套可复现流程如下。</p>
+<h3 id="1">1. 固定环境<a class="headerlink" href="#1" title="Permanent link">¶</a></h3>
+<p>记录：</p>
+<ul>
+<li>GPU 型号和数量。</li>
+<li>CPU、内存、NIC、SSD。</li>
+<li>散热方式。</li>
+<li>driver、CUDA、NCCL、framework、inference engine。</li>
+<li>容器镜像 digest。</li>
+<li>power limit。</li>
+<li>clock policy。</li>
+<li>环境温度。</li>
+<li>节点位置。</li>
+<li>是否共享机柜或共享任务。</li>
+</ul>
+<p>功耗和热状态对环境很敏感，不记录环境就很难复现。</p>
+<h3 id="2-idle-baseline">2. 记录 idle baseline<a class="headerlink" href="#2-idle-baseline" title="Permanent link">¶</a></h3>
+<p>在开始 workload 前记录：</p>
+<ul>
+<li>idle GPU power。</li>
+<li>idle node power。</li>
+<li>idle clocks。</li>
+<li>idle temperatures。</li>
+<li>background process。</li>
+</ul>
+<p>如果模型常驻内存，要说明 idle baseline 是：</p>
+<div class="highlight"><pre><span></span><code>bare idle
+or
+model loaded idle
+</code></pre></div>
+<p>线上推理服务通常更关心 model loaded idle，因为热模型常驻是实际成本。</p>
+<h3 id="3-warmup">3. Warmup 到热稳态<a class="headerlink" href="#3-warmup" title="Permanent link">¶</a></h3>
+<p>不要刚开始就计入正式窗口。</p>
+<p>需要让：</p>
+<ul>
+<li>kernel 编译完成。</li>
+<li>CUDA graph / cache 预热。</li>
+<li>模型权重和 KV Cache 路径稳定。</li>
+<li>temperature 上升到稳定区间。</li>
+<li>fan/pump 响应稳定。</li>
+<li>clocks 稳定。</li>
+</ul>
+<p>可以用以下条件判断：</p>
+<ul>
+<li>最近 N 分钟平均温度变化很小。</li>
+<li>clocks 没有持续下降。</li>
+<li>tokens/s 或 step time 波动进入稳定范围。</li>
+<li>throttle reason 没有新变化。</li>
+</ul>
+<h3 id="31">3.1 热稳态判定<a class="headerlink" href="#31" title="Permanent link">¶</a></h3>
+<p>热稳态不是“温度没有超过上限”，而是系统的温度、风扇、频率和性能都进入稳定区间。</p>
+<p>一个可执行的判定标准可以写成：</p>
+<div class="highlight"><pre><span></span><code>thermal_steady_state is true when:
+  temperature slope is small for N minutes
+  clock range stays within expected band
+  throughput or step time variance is stable
+  fan or pump response is stable
+  no new throttle reason appears
+  no new Xid/ECC/link error appears
+</code></pre></div>
+<p>实践中，训练任务和长上下文推理通常需要更长 warmup；短 prompt、小模型或低 QPS 测试可能较快稳定。报告里不要只写“warmup 5 分钟”，还要说明为什么认为 5 分钟已经进入热稳态。</p>
+<p>如果热稳态前后性能不同，应该分开报告：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>典型表现</th>
+<th>是否用于最终能效结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cold start</td>
+<td>模型加载、kernel 编译、cache 未热</td>
+<td>通常不用于稳态能效</td>
+</tr>
+<tr>
+<td>warmup</td>
+<td>温度上升、风扇响应、频率变化</td>
+<td>用于观察趋势，不直接比较</td>
+</tr>
+<tr>
+<td>steady state</td>
+<td>温度、频率、吞吐、延迟稳定</td>
+<td>用于主要结论</td>
+</tr>
+<tr>
+<td>degradation</td>
+<td>throttle、错误、频率下降、p99 变差</td>
+<td>单独报告为风险</td>
+</tr>
+</tbody>
+</table>
+<p>如果测试过程中一直无法进入 steady state，就说明系统配置、散热、power cap、workload 或调度策略本身存在问题。此时不要强行给出单一能效数字，应把“不稳定”作为主要结论。</p>
+<h3 id="4-workload">4. 固定 workload 分布<a class="headerlink" href="#4-workload" title="Permanent link">¶</a></h3>
+<p>推理要固定：</p>
+<ul>
+<li>模型。</li>
+<li>输入长度分布。</li>
+<li>输出长度分布。</li>
+<li>QPS / 并发。</li>
+<li>batch 策略。</li>
+<li>cache 状态。</li>
+<li>sampling 参数。</li>
+<li>RAG / agent 请求比例。</li>
+</ul>
+<p>训练要固定：</p>
+<ul>
+<li>global batch。</li>
+<li>micro batch。</li>
+<li>sequence length。</li>
+<li>parallel strategy。</li>
+<li>precision。</li>
+<li>checkpoint / eval 频率。</li>
+<li>数据 pipeline。</li>
+</ul>
+<p>能效比较必须在同等 workload 下进行。</p>
+<h3 id="5-steady-state">5. 采集 steady-state 窗口<a class="headerlink" href="#5-steady-state" title="Permanent link">¶</a></h3>
+<p>在测量窗口内采集：</p>
+<ul>
+<li>performance。</li>
+<li>power。</li>
+<li>energy。</li>
+<li>clocks。</li>
+<li>temperatures。</li>
+<li>throttle reason。</li>
+<li>utilization。</li>
+<li>memory。</li>
+<li>error counters。</li>
+</ul>
+<p>输出：</p>
+<div class="highlight"><pre><span></span><code>average_power
+power_p95
+power_p99
+energy
+tokens/s
+goodput at SLA
+joules/token
+tokens/joule
+p95/p99 latency
+temperature range
+clock range
+throttle events
+</code></pre></div>
+<p>推荐至少保存三类数据：</p>
+<ul>
+<li>原始 telemetry：每个采样点的 power、clock、temperature、throttle、error。</li>
+<li>原始 workload metrics：每个请求或每个 step 的时间、状态、token 数、延迟。</li>
+<li>聚合报告：平均值、分位数、总能耗、能效、异常说明。</li>
+</ul>
+<p>只保存聚合值会让结论很难复查。尤其是能效实验，常常需要回看某个时间点是否出现过 throttle、节点抖动或采样缺失。</p>
+<h3 id="6">6. 重复与对比<a class="headerlink" href="#6" title="Permanent link">¶</a></h3>
+<p>至少重复多次，观察方差。</p>
+<p>不同配置之间比较时，必须保持：</p>
+<ul>
+<li>workload 相同。</li>
+<li>steady-state 窗口相同。</li>
+<li>telemetry 口径相同。</li>
+<li>同一硬件或等价硬件。</li>
+<li>同一环境温度范围。</li>
+</ul>
+<p>否则能效结论很容易被环境噪声污染。</p>
+<h2 id="power-cap-sweep">Power Cap Sweep<a class="headerlink" href="#power-cap-sweep" title="Permanent link">¶</a></h2>
+<p>Power cap sweep 是能效分析最常用的方法之一。</p>
+<p>做法是对同一 workload 测多个 power limit：</p>
+<div class="highlight"><pre><span></span><code>power cap: 100%, 90%, 80%, 70%, ...
+</code></pre></div>
+<p>每个点记录：</p>
+<table>
+<thead>
+<tr>
+<th>Power Cap</th>
+<th>tokens/s</th>
+<th>p99 latency</th>
+<th>avg power</th>
+<th>joules/token</th>
+<th>temp</th>
+<th>throttle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100%</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr>
+<td>90%</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr>
+<td>80%</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<p>目标不是找到最低功耗，而是找到 sweet spot：</p>
+<div class="highlight"><pre><span></span><code>在满足 SLA 和稳定性的前提下，joules/token 最低或 tokens/joule 最高
+</code></pre></div>
+<p>常见结果：</p>
+<ul>
+<li>轻微降低 power cap，吞吐几乎不变，能效明显提升。</li>
+<li>继续降低 power cap，吞吐开始快速下降。</li>
+<li>p99 在某个功耗点后明显变差。</li>
+<li>thermal throttling 消失，稳定性改善。</li>
+</ul>
+<p>不同 workload 的曲线不同，不能把一个模型的 sweet spot 直接套到另一个模型。</p>
+<h3 id="_13">曲线怎么看<a class="headerlink" href="#_13" title="Permanent link">¶</a></h3>
+<p>Power cap sweep 至少要看三条曲线：</p>
+<div class="highlight"><pre><span></span><code>throughput vs power cap
+joules/token vs power cap
+p99 latency or step time variance vs power cap
+</code></pre></div>
+<p>常见形态是：</p>
+<ol>
+<li>高 power cap 区间：吞吐接近峰值，但能效不一定最好。</li>
+<li>中间区间：吞吐下降很小，功耗下降明显，tokens/joule 提升。</li>
+<li>低 power cap 区间：频率受限，吞吐和 p99 明显变差，能效开始下降。</li>
+</ol>
+<p>所谓 sweet spot 通常在第 2 段。它不是单纯“功耗最低”的点，而是“有效产出、SLA、稳定性、热余量共同最划算”的区间。</p>
+<h3 id="pareto-frontier">Pareto Frontier<a class="headerlink" href="#pareto-frontier" title="Permanent link">¶</a></h3>
+<p>如果同时比较吞吐、延迟和能耗，可以画 Pareto frontier。</p>
+<p>一个配置如果在所有关键指标上都不如另一个配置，就不值得保留：</p>
+<div class="highlight"><pre><span></span><code>config A:
+  higher goodput
+  lower joules/token
+  lower or equal p99
+  no worse error/throttle
+
+config B:
+  lower goodput
+  higher joules/token
+  higher p99
+
+=&gt; B is dominated by A
+</code></pre></div>
+<p>最终推荐配置往往不是 Pareto frontier 上最极端的点，而是留有 headroom 的点。线上系统需要面对请求波动、环境温度变化、节点老化、故障转移和版本更新。</p>
+<h3 id="sweep">分阶段 Sweep<a class="headerlink" href="#sweep" title="Permanent link">¶</a></h3>
+<p>推理服务最好对不同阶段分别 sweep：</p>
+<ul>
+<li>prefill-heavy workload。</li>
+<li>decode-heavy workload。</li>
+<li>mixed request workload。</li>
+<li>cache hit workload。</li>
+<li>cache miss workload。</li>
+<li>RAG / agent workload。</li>
+</ul>
+<p>训练任务也最好区分：</p>
+<ul>
+<li>纯 forward/backward 稳态。</li>
+<li>eval。</li>
+<li>checkpoint。</li>
+<li>data loading 边界。</li>
+<li>通信密集阶段。</li>
+</ul>
+<p>因为同一个 power cap 对 GEMM、attention、KV Cache 读写、NCCL 通信和 checkpoint IO 的影响不同。只测一个合成 workload，可能选错线上配置。</p>
+<h2 id="_14">训练场景<a class="headerlink" href="#_14" title="Permanent link">¶</a></h2>
+<p>训练能效分析要同时看速度、稳定性和质量。</p>
+<p>训练和推理最大的区别是：训练的目标不是“处理一个请求”，而是“在一定时间和成本内达到目标质量”。</p>
+<p>因此训练能效至少有两层：</p>
+<div class="highlight"><pre><span></span><code>system efficiency:
+  每秒训练多少 token，每个 token 消耗多少能量
+
+optimization efficiency:
+  到达目标 loss / eval score / downstream metric 一共消耗多少能量
+</code></pre></div>
+<p>如果只优化 system efficiency，但导致收敛变差、梯度不稳定、需要更多 token 或更多重跑，最终 energy to target 可能更差。</p>
+<h3 id="step-energy">Step Energy<a class="headerlink" href="#step-energy" title="Permanent link">¶</a></h3>
+<p>可以先算：</p>
+<div class="highlight"><pre><span></span><code>joules_per_step = average_power * step_time
+</code></pre></div>
+<p>再算：</p>
+<div class="highlight"><pre><span></span><code>joules_per_training_token
+  = energy / trained_tokens
+</code></pre></div>
+<p>但这仍然不够，因为训练还包括：</p>
+<ul>
+<li>eval。</li>
+<li>checkpoint。</li>
+<li>restart。</li>
+<li>data preprocessing。</li>
+<li>failed runs。</li>
+<li>hyperparameter search。</li>
+</ul>
+<p>更完整的口径是：</p>
+<div class="highlight"><pre><span></span><code>total_energy
+  = successful_training_energy
+  + eval_energy
+  + checkpoint_energy
+  + restart_energy
+  + failed_experiment_energy
+</code></pre></div>
+<p>对于长训练任务，建议报告两种能耗：</p>
+<div class="highlight"><pre><span></span><code>steady_state_training_energy:
+  只计算稳定训练窗口内的 forward/backward/optimizer
+
+end_to_end_run_energy:
+  包含 eval、checkpoint、数据加载、重启和失败恢复
+</code></pre></div>
+<p>前者适合分析系统实现，后者适合做容量和成本决策。</p>
+<h3 id="energy-to-target_1">Energy to Target<a class="headerlink" href="#energy-to-target_1" title="Permanent link">¶</a></h3>
+<p>训练最终建议报告：</p>
+<div class="highlight"><pre><span></span><code>energy_to_target
+  = total_energy_until(metric &gt;= target_metric)
+</code></pre></div>
+<p>或者对 loss：</p>
+<div class="highlight"><pre><span></span><code>energy_to_target
+  = total_energy_until(validation_loss &lt;= target_loss)
+</code></pre></div>
+<p>这里的 target 必须提前定义，不能在看完实验结果后再挑一个有利指标。</p>
+<p>一个典型报告可以写成：</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>tokens/s/GPU</th>
+<th>joules/token</th>
+<th>time to target</th>
+<th>energy to target</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>baseline</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr>
+<td>larger batch</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>收敛是否一致</td>
+</tr>
+<tr>
+<td>lower power cap</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>step time 与稳定性</td>
+</tr>
+<tr>
+<td>new optimizer</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>质量和重跑次数</td>
+</tr>
+</tbody>
+</table>
+<p>如果某个配置训练吞吐更高，但 energy to target 更差，要优先相信 energy to target。吞吐是过程指标，目标质量是结果指标。</p>
+<h3 id="mfu">MFU 与能效<a class="headerlink" href="#mfu" title="Permanent link">¶</a></h3>
+<p>高 MFU 通常有助于能效，因为计算单元更有效地产出训练 token。</p>
+<p>但高 MFU 不是充分条件。</p>
+<p>可能出现：</p>
+<ul>
+<li>MFU 高，但 power 很高，tokens/joule 不一定最优。</li>
+<li>MFU 高，但通信或 checkpoint 导致端到端能耗高。</li>
+<li>MFU 高，但训练不稳定，需要重跑。</li>
+<li>MFU 高，但数据质量或 batch 设置导致收敛变差。</li>
+</ul>
+<p>训练能效最终要看 energy to target，而不是某个 step 的能效。</p>
+<p>可以把 MFU、tokens/joule 和 loss 曲线放在一起看：</p>
+<div class="highlight"><pre><span></span><code>high MFU + good tokens/joule + same or better convergence
+  =&gt; 值得继续
+
+high MFU + worse convergence
+  =&gt; 需要谨慎
+
+low MFU + good energy_to_target
+  =&gt; 可能是算法或数据效率更好，不应只因 MFU 低否定
+</code></pre></div>
+<h3 id="power-cap">Power Cap 对训练的影响<a class="headerlink" href="#power-cap" title="Permanent link">¶</a></h3>
+<p>对大 GEMM 占主导的训练，降低 power cap 可能会明显增加 step time。</p>
+<p>但也可能出现：</p>
+<ul>
+<li>小幅降 power cap，step time 只略变慢，能效提升。</li>
+<li>降低热点节点功耗后，长期 thermal throttling 减少，整体更稳定。</li>
+<li>多节点训练中，最慢 rank 决定 step time，单看平均 power 没意义。</li>
+</ul>
+<p>训练 power cap sweep 应记录：</p>
+<ul>
+<li>per-rank step time。</li>
+<li>slowest rank。</li>
+<li>communication time。</li>
+<li>GPU power。</li>
+<li>clocks。</li>
+<li>thermal events。</li>
+<li>loss curve。</li>
+</ul>
+<p>多机训练还要特别看慢 rank。同步训练中每一步通常要等所有 rank 完成：</p>
+<div class="highlight"><pre><span></span><code>step_time ~= max(rank_step_time)
+</code></pre></div>
+<p>如果 power cap 让少数热节点变慢，整个训练 job 都会变慢。此时平均 GPU power 或平均 GPU utilization 可能看起来不错，但实际能效会被 slowest rank 拖垮。</p>
+<h3 id="checkpointeval">Checkpoint、Eval 与重启能耗<a class="headerlink" href="#checkpointeval" title="Permanent link">¶</a></h3>
+<p>大型训练任务中，非训练 step 的能耗也不可忽略：</p>
+<ul>
+<li>checkpoint 写盘时 GPU 可能等待，但节点仍然耗电。</li>
+<li>eval 可能占用独立 GPU 或打断训练节奏。</li>
+<li>数据预处理、shuffle、packing 会消耗 CPU、存储和网络。</li>
+<li>节点故障后的重启会重复部分训练进度。</li>
+</ul>
+<p>因此训练报告要写清楚：</p>
+<div class="highlight"><pre><span></span><code>checkpoint_frequency
+checkpoint_duration
+eval_frequency
+restart_count
+lost_steps_after_failure
+failed_run_energy
+</code></pre></div>
+<p>如果一个系统把 steady-state step time 优化了 5%，但让 checkpoint 或重启成本上升，端到端 energy to target 可能没有改善。</p>
+<h2 id="_15">推理场景<a class="headerlink" href="#_15" title="Permanent link">¶</a></h2>
+<p>推理能效要同时看 throughput、latency 和请求分布。</p>
+<p>推理能效的核心不是“每个 token 平均多少 joule”这么简单，而是：</p>
+<div class="highlight"><pre><span></span><code>在指定请求分布和 SLA 下，
+每个成功交付的有效 token 需要多少能量。
+</code></pre></div>
+<p>这要求报告中同时写清楚：</p>
+<ul>
+<li>输入长度分布。</li>
+<li>输出长度分布。</li>
+<li>arrival process 或并发方式。</li>
+<li>cache hit/miss 状态。</li>
+<li>sampling 参数。</li>
+<li>timeout、cancel、reject 的处理方式。</li>
+<li>SLA 定义，例如 TTFT、TPOT、E2E latency。</li>
+</ul>
+<h3 id="prefill-decode">Prefill 与 Decode 分开看<a class="headerlink" href="#prefill-decode" title="Permanent link">¶</a></h3>
+<p>Prefill 和 decode 的功耗形态不同。</p>
+<p>Prefill：</p>
+<ul>
+<li>长 prompt。</li>
+<li>大 GEMM。</li>
+<li>attention 计算密集。</li>
+<li>更可能出现高瞬时功耗。</li>
+</ul>
+<p>Decode：</p>
+<ul>
+<li>逐 token。</li>
+<li>KV Cache 读写。</li>
+<li>小 kernel。</li>
+<li>对 p99 和频率抖动敏感。</li>
+</ul>
+<p>如果只给一个 <code>joules/token</code>，可能掩盖：</p>
+<ul>
+<li>长 prompt 的 prefill 能耗。</li>
+<li>长输出的 decode 能耗。</li>
+<li>KV Cache 命中和 miss 的差异。</li>
+<li>batching 对不同阶段的影响。</li>
+</ul>
+<p>更好的做法是记录：</p>
+<div class="highlight"><pre><span></span><code>prefill energy per input token
+decode energy per output token
+end-to-end energy per request
+</code></pre></div>
+<p>如果工具链无法把单请求能耗精确分开，也可以在 workload 级别构造阶段测试：</p>
+<div class="highlight"><pre><span></span><code>prefill-dominant benchmark:
+  long input, short output
+
+decode-dominant benchmark:
+  short input, long output
+
+mixed benchmark:
+  production-like input/output distribution
+</code></pre></div>
+<p>然后分别报告三个窗口的能效。这样比把所有请求混在一个平均数里更容易解释优化收益。</p>
+<h3 id="cache-hit-cache-miss">Cache Hit 与 Cache Miss<a class="headerlink" href="#cache-hit-cache-miss" title="Permanent link">¶</a></h3>
+<p>Prefix cache、KV Cache reuse、RAG 上下文复用都会改变能耗结构。</p>
+<p>Cache hit 可能减少 prefill 计算：</p>
+<div class="highlight"><pre><span></span><code>same request family
+  with prefix cache hit
+  lower TTFT
+  lower prefill energy
+</code></pre></div>
+<p>但缓存也会带来显存占用、调度复杂度和淘汰成本。报告中要区分：</p>
+<ul>
+<li>cache disabled。</li>
+<li>warm cache。</li>
+<li>cold cache。</li>
+<li>mixed hit rate。</li>
+<li>cache eviction pressure。</li>
+</ul>
+<p>如果只在 warm cache 下测能效，结果可能高估生产收益；如果生产中确实有高复用率，也应该把 hit rate 写入 workload contract。</p>
+<h3 id="batching">Batching 与能效<a class="headerlink" href="#batching" title="Permanent link">¶</a></h3>
+<p>batching 通常能提升 tokens/s/W，因为 GPU 利用率更高。</p>
+<p>但 batching 也可能：</p>
+<ul>
+<li>增加 TTFT。</li>
+<li>增加 KV Cache 占用。</li>
+<li>放大 p99。</li>
+<li>增加单次功耗峰值。</li>
+</ul>
+<p>所以推理能效必须和 SLA 一起看：</p>
+<div class="highlight"><pre><span></span><code>energy_per_successful_token_at_SLA
+</code></pre></div>
+<p>如果一个配置 energy/token 更低，但 p99 超标或 timeout 增加，它不一定是更好的线上配置。</p>
+<p>可以进一步写成：</p>
+<div class="highlight"><pre><span></span><code>goodput_per_watt
+  = successful_tokens_under_SLA_per_second / average_power
+</code></pre></div>
+<p>这比 raw <code>tokens/s/W</code> 更适合线上服务。因为 raw tokens 可能包含超时请求、被取消请求、超过 SLA 的慢请求，甚至包含用户体验上已经失败的产出。</p>
+<h3 id="quantization">Quantization 与能效<a class="headerlink" href="#quantization" title="Permanent link">¶</a></h3>
+<p>量化可能降低：</p>
+<ul>
+<li>weight bytes。</li>
+<li>HBM 读写。</li>
+<li>计算能耗。</li>
+<li>显存占用。</li>
+</ul>
+<p>但也可能增加：</p>
+<ul>
+<li>dequant 开销。</li>
+<li>scale 读取。</li>
+<li>layout conversion。</li>
+<li>kernel fallback。</li>
+<li>质量损失带来的重试或更长输出。</li>
+</ul>
+<p>因此量化能效要同时看：</p>
+<ul>
+<li>tokens/s。</li>
+<li>joules/token。</li>
+<li>TTFT/TPOT。</li>
+<li>quality。</li>
+<li>dequant/fused kernel 是否生效。</li>
+<li>GPU power 和 HBM bandwidth 是否下降。</li>
+</ul>
+<h3 id="speculative-decoding">Speculative Decoding 与能效<a class="headerlink" href="#speculative-decoding" title="Permanent link">¶</a></h3>
+<p>Speculative decoding 可能提高输出吞吐，但它不是天然省电。</p>
+<p>它会引入 draft model、verification、accepted token rate 等因素：</p>
+<div class="highlight"><pre><span></span><code>effective_decode_energy
+  depends on accepted_tokens / drafted_tokens
+</code></pre></div>
+<p>如果接受率高，主模型 decode step 减少，能效可能改善；如果接受率低，draft model 的额外计算可能抵消收益。</p>
+<p>报告中建议记录：</p>
+<ul>
+<li>draft model。</li>
+<li>accepted token rate。</li>
+<li>target model verification cost。</li>
+<li>output tokens/s。</li>
+<li>TPOT p95/p99。</li>
+<li>energy per successful output token。</li>
+</ul>
+<p>只报告加速比，不报告能耗和接受率，无法判断 speculative decoding 是否真的更省。</p>
+<h2 id="_16">常见诊断模式<a class="headerlink" href="#_16" title="Permanent link">¶</a></h2>
+<h3 id="_17">高功耗、高吞吐<a class="headerlink" href="#_17" title="Permanent link">¶</a></h3>
+<p>可能是正常高效运行。</p>
+<p>需要继续看：</p>
+<ul>
+<li>tokens/joule 是否好。</li>
+<li>温度是否稳定。</li>
+<li>clocks 是否稳定。</li>
+<li>p99 是否满足 SLA。</li>
+<li>是否接近机柜功耗上限。</li>
+</ul>
+<p>高功耗不是问题本身，低效率才是问题。</p>
+<h3 id="_18">高功耗、低吞吐<a class="headerlink" href="#_18" title="Permanent link">¶</a></h3>
+<p>可能原因：</p>
+<ul>
+<li>kernel 低效。</li>
+<li>通信等待。</li>
+<li>HBM 访问低效。</li>
+<li>处理了很多超时或取消请求。</li>
+<li>batch 过大导致 p99 失败。</li>
+<li>CPU / storage / network 导致 GPU 无效等待。</li>
+</ul>
+<p>排查：</p>
+<ul>
+<li>看 profiler。</li>
+<li>看 goodput 而不是 raw throughput。</li>
+<li>看 timeout/cancelled。</li>
+<li>看 HBM、SM、Tensor Core 指标。</li>
+<li>看 queueing latency。</li>
+</ul>
+<h3 id="_19">低功耗、低吞吐<a class="headerlink" href="#_19" title="Permanent link">¶</a></h3>
+<p>可能原因：</p>
+<ul>
+<li>数据输入供不上。</li>
+<li>CPU tokenization 瓶颈。</li>
+<li>QPS 不足。</li>
+<li>GPU 没被调度到。</li>
+<li>kernel launch-bound。</li>
+<li>power cap 过低。</li>
+<li>clocks 被策略限制。</li>
+</ul>
+<p>排查：</p>
+<ul>
+<li>看 GPU active。</li>
+<li>看 queue length。</li>
+<li>看 CPU。</li>
+<li>看 clocks。</li>
+<li>看 power limit 和 application clocks。</li>
+</ul>
+<h3 id="_20">温度升高后性能下降<a class="headerlink" href="#_20" title="Permanent link">¶</a></h3>
+<p>可能原因：</p>
+<ul>
+<li>thermal throttling。</li>
+<li>fan/pump 不足。</li>
+<li>机柜热点。</li>
+<li>风道阻塞。</li>
+<li>多个高功耗 job 被调度到同一热区。</li>
+</ul>
+<p>排查：</p>
+<ul>
+<li>对齐 temperature、clocks、tokens/s。</li>
+<li>看 throttle reason。</li>
+<li>对比同型号不同节点。</li>
+<li>做长时间稳态测试。</li>
+</ul>
+<h3 id="p99">平均能效好，但 p99 差<a class="headerlink" href="#p99" title="Permanent link">¶</a></h3>
+<p>可能原因：</p>
+<ul>
+<li>power cap 降得太低。</li>
+<li>clocks 波动。</li>
+<li>batching 过大。</li>
+<li>decode 阶段受频率或 HBM 抖动影响。</li>
+<li>热节点拖尾。</li>
+</ul>
+<p>排查：</p>
+<ul>
+<li>分位数而不是均值。</li>
+<li>phase-level TTFT/TPOT。</li>
+<li>slow replica。</li>
+<li>p99 请求所在节点的 power/clock/temperature。</li>
+</ul>
+<h2 id="_21">容量规划中的功耗<a class="headerlink" href="#_21" title="Permanent link">¶</a></h2>
+<p>容量规划不能只算 GPU 数。</p>
+<p>还要算：</p>
+<ul>
+<li>机柜功率。</li>
+<li>冷却能力。</li>
+<li>电源冗余。</li>
+<li>节点 power headroom。</li>
+<li>热点。</li>
+<li>推理峰值时间段。</li>
+<li>训练大 job 同时运行概率。</li>
+<li>故障转移后的功耗集中。</li>
+</ul>
+<p>一个简单模型：</p>
+<div class="highlight"><pre><span></span><code>rack_power
+  = sum(node_power_under_target_workload)
+  + network_switch_power
+  + storage_power
+  + safety_margin
+</code></pre></div>
+<p>如果线上推理需要 N+1 冗余，还要验证：</p>
+<div class="highlight"><pre><span></span><code>one replica pool fails
+  -&gt; traffic shifts
+  -&gt; remaining nodes power rises
+  -&gt; p99 and thermal state still acceptable
+</code></pre></div>
+<p>否则故障转移可能从性能问题变成功耗和热问题。</p>
+<h3 id="headroom">Headroom 不是浪费<a class="headerlink" href="#headroom" title="Permanent link">¶</a></h3>
+<p>电力和散热都需要 headroom。</p>
+<p>常见原因：</p>
+<ul>
+<li>请求高峰会让推理节点功耗上升。</li>
+<li>长 prompt 或 prefill-heavy 流量会提高瞬时功耗。</li>
+<li>训练 job 同时进入高功耗阶段。</li>
+<li>环境温度上升会降低散热余量。</li>
+<li>节点老化、风扇积尘、冷却液状态会改变热表现。</li>
+<li>故障转移会把流量集中到剩余节点。</li>
+<li>rolling update 时需要临时并存新旧副本。</li>
+</ul>
+<p>因此容量模型不要用“满载平均功率刚好等于机柜上限”。应该使用：</p>
+<div class="highlight"><pre><span></span><code>planned_rack_power
+  = expected_peak_IT_power * safety_factor
+</code></pre></div>
+<p>其中 safety factor 由数据中心供电、冷却、SLA、故障域和运维策略共同决定。</p>
+<h3 id="_22">推理容量中的能效指标<a class="headerlink" href="#_22" title="Permanent link">¶</a></h3>
+<p>推理容量规划可以把单副本 benchmark 曲线转换成：</p>
+<div class="highlight"><pre><span></span><code>replica_count = target_goodput / goodput_per_replica_at_SLA
+total_power = replica_count * node_power_at_target_load
+tokens_per_joule = target_goodput / total_power
+</code></pre></div>
+<p>但这只是起点。还要考虑：</p>
+<ul>
+<li>autoscaling 滞后导致的临时过载。</li>
+<li>多模型混部造成的功耗叠加。</li>
+<li>RAG、rerank、tool call 带来的 CPU/NIC/storage 功耗。</li>
+<li>cache 命中率变化。</li>
+<li>N+1 或 N+K 冗余。</li>
+<li>限流和降级策略。</li>
+</ul>
+<p>如果服务在高峰时必须保留大量空闲副本，<code>service idle</code> 的能耗就会显著影响整体 energy/token。</p>
+<h3 id="_23">训练容量中的能效指标<a class="headerlink" href="#_23" title="Permanent link">¶</a></h3>
+<p>训练容量规划更关注：</p>
+<div class="highlight"><pre><span></span><code>job_completion_time
+energy_to_target
+cluster_power_peak
+power_limit_under_parallel_jobs
+</code></pre></div>
+<p>一个训练 job 单独跑时能效好，不代表它在集群里最好。多个 job 并发时，机柜 power cap、网络拓扑、冷却分布和调度策略会改变整体效率。</p>
+<p>因此训练集群要看：</p>
+<ul>
+<li>单 job tokens/joule。</li>
+<li>多 job packing 后的 cluster tokens/joule。</li>
+<li>是否出现 rack power hotspot。</li>
+<li>是否有慢 rank 被热状态拖慢。</li>
+<li>checkpoint 和 eval 是否集中造成 IO 与功耗峰值。</li>
+<li>低优先级 job 是否可以在电力紧张时降 power cap。</li>
+</ul>
+<h2 id="power-aware-scheduling">Power-aware Scheduling<a class="headerlink" href="#power-aware-scheduling" title="Permanent link">¶</a></h2>
+<p>调度系统可以把功耗和热状态作为信号。</p>
+<p>可用信号：</p>
+<ul>
+<li>node power headroom。</li>
+<li>rack power headroom。</li>
+<li>GPU temperature。</li>
+<li>HBM temperature。</li>
+<li>recent throttle events。</li>
+<li>recent Xid/ECC/link error。</li>
+<li>workload power profile。</li>
+<li>job priority。</li>
+</ul>
+<p>可做策略：</p>
+<ul>
+<li>避免高功耗训练 job 集中到同一机柜。</li>
+<li>把 prefill-heavy 推理分散到 thermal margin 更好的节点。</li>
+<li>避开近期 throttle 严重的节点。</li>
+<li>对低优先级离线 job 设置 power cap。</li>
+<li>在电力紧张时降级 batch job，而不是影响在线推理。</li>
+</ul>
+<p>注意：power-aware scheduling 的目标不是让所有节点功耗一样，而是让 SLA、吞吐、能效和硬件安全同时成立。</p>
+<p>一个简单策略可以分三层：</p>
+<div class="highlight"><pre><span></span><code>admission:
+  当前 rack/node power headroom 是否允许新 job 进入
+
+placement:
+  把 job 放到 power/thermal/error 状态合适的节点
+
+runtime control:
+  根据 SLA、温度、throttle 和功耗动态调整 power cap、batch 或并发
+</code></pre></div>
+<p>推理服务中，power-aware scheduling 要避免影响在线 SLA。训练和离线任务通常更适合做功耗降级，因为它们对尾延迟没有实时要求。</p>
+<h3 id="power-aware">Power-aware 不等于只看功耗<a class="headerlink" href="#power-aware" title="Permanent link">¶</a></h3>
+<p>调度决策至少要同时看：</p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>goodput at SLA</td>
+<td>防止为了省电牺牲服务有效产出</td>
+</tr>
+<tr>
+<td>node power headroom</td>
+<td>防止节点功率超出策略</td>
+</tr>
+<tr>
+<td>rack power headroom</td>
+<td>防止机柜功率集中</td>
+</tr>
+<tr>
+<td>temperature / thermal margin</td>
+<td>防止热区和长期降频</td>
+</tr>
+<tr>
+<td>throttle reason</td>
+<td>判断是否已经被 power/thermal/reliability 限制</td>
+</tr>
+<tr>
+<td>error counters</td>
+<td>避免把关键任务放到不稳定节点</td>
+</tr>
+<tr>
+<td>workload phase</td>
+<td>区分 prefill-heavy、decode-heavy、通信密集、checkpoint 等阶段</td>
+</tr>
+</tbody>
+</table>
+<p>如果调度器只看平均 GPU 利用率，很容易把多个高功耗或高热负载集中到同一机柜，造成局部退化。</p>
+<h2 id="_24">常见误区<a class="headerlink" href="#_24" title="Permanent link">¶</a></h2>
+<h3 id="_25">误区一：功耗越低越好<a class="headerlink" href="#_25" title="Permanent link">¶</a></h3>
+<p>不对。</p>
+<p>如果功耗降低 20%，吞吐降低 50%，能效反而变差。</p>
+<p>正确看：</p>
+<div class="highlight"><pre><span></span><code>tokens/joule
+joules/token
+goodput at SLA per watt
+energy to target quality
+</code></pre></div>
+<h3 id="gpu-power">误区二：GPU power 就代表系统能耗<a class="headerlink" href="#gpu-power" title="Permanent link">¶</a></h3>
+<p>不对。</p>
+<p>CPU、内存、NIC、SSD、风扇、PSU 损耗、冷却都可能显著影响 node/facility 能耗。</p>
+<p>GPU-only 适合局部优化，node/facility 口径适合部署决策。</p>
+<h3 id="benchmark_1">误区三：短 benchmark 的能效可以代表长期运行<a class="headerlink" href="#benchmark_1" title="Permanent link">¶</a></h3>
+<p>不对。</p>
+<p>短 benchmark 可能还没进入热稳态，也可能没有触发风扇、功耗墙、thermal throttling 或机柜热点。</p>
+<p>持续服务和训练任务必须看 steady-state。</p>
+<h3 id="power_1">误区四：平均 power 足够<a class="headerlink" href="#power_1" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p>还要看：</p>
+<ul>
+<li>power spike。</li>
+<li>p95/p99 power。</li>
+<li>clocks。</li>
+<li>throttle reason。</li>
+<li>temperature。</li>
+<li>p99 latency。</li>
+</ul>
+<p>平均值会掩盖峰值和尾部问题。</p>
+<h3 id="energytoken">误区五：只要 energy/token 降低就一定更好<a class="headerlink" href="#energytoken" title="Permanent link">¶</a></h3>
+<p>不一定。</p>
+<p>如果 energy/token 降低是靠更大的 batch、更多排队或更激进量化换来的，可能牺牲：</p>
+<ul>
+<li>TTFT。</li>
+<li>TPOT。</li>
+<li>p99。</li>
+<li>质量。</li>
+<li>稳定性。</li>
+</ul>
+<p>线上推理应看：</p>
+<div class="highlight"><pre><span></span><code>energy per successful token under SLA
+</code></pre></div>
+<p>训练应看：</p>
+<div class="highlight"><pre><span></span><code>energy to target quality
+</code></pre></div>
+<h2 id="_26">报告模板<a class="headerlink" href="#_26" title="Permanent link">¶</a></h2>
+<p>能效 benchmark 可以按下面模板记录。</p>
+<div class="highlight"><pre><span></span><code>Workload:
+  model / precision / batch / sequence length / QPS / request mix / training config
+
+Objective:
+  primary metric
+  guardrail metrics
+  target SLA or target quality
+
+Boundary:
+  GPU-only / node-level / rack-level / facility-level
+  idle baseline included or subtracted
+  idle definition
+
+Environment:
+  hardware / cooling / driver / runtime / engine / container / ambient temperature
+
+Measurement Window:
+  warmup duration
+  thermal steady-state criteria
+  steady-state start/end
+  telemetry sampling interval
+
+Performance:
+  tokens/s / step time / TTFT / TPOT / p95/p99 / goodput at SLA
+
+Power and Energy:
+  average/min/max/p95/p99 power
+  total energy
+  incremental energy, if used
+  joules/token
+  tokens/joule
+  joules/step
+  energy to target, if training
+
+Thermal and Clocks:
+  temperature range
+  core/memory clock range
+  throttle reason
+  fan/pump state
+
+Health:
+  ECC / Xid / link error / reset / node issue
+
+Decision:
+  recommended power cap
+  target utilization
+  capacity headroom
+  power-aware scheduling implication
+  caveats
+</code></pre></div>
+<h2 id="_27">检查清单<a class="headerlink" href="#_27" title="Permanent link">¶</a></h2>
+<p>开始前：</p>
+<ul>
+<li>是否写了 Energy Benchmark Contract？</li>
+<li>是否明确测量边界？</li>
+<li>是否记录 idle baseline？</li>
+<li>是否说明 idle baseline 是 bare idle、model loaded idle 还是 service idle？</li>
+<li>是否固定 workload 分布？</li>
+<li>是否记录 power limit 和 clock policy？</li>
+<li>是否知道 warmup 多久才进入热稳态？</li>
+<li>是否提前定义 SLA 或训练 target quality？</li>
+</ul>
+<p>采集时：</p>
+<ul>
+<li>是否采集 power、temperature、clocks、throttle reason？</li>
+<li>是否采集 p95/p99，而不只看平均吞吐？</li>
+<li>是否对齐 telemetry 和 benchmark 时间戳？</li>
+<li>是否记录错误计数？</li>
+<li>是否保存原始数据？</li>
+<li>是否检查采样缺口、时间戳漂移和 power smoothing？</li>
+<li>是否确认 measurement window 已经热稳态？</li>
+</ul>
+<p>分析时：</p>
+<ul>
+<li>是否区分 peak 和 sustained？</li>
+<li>是否计算 joules/token 或 tokens/joule？</li>
+<li>是否验证 SLA 下的 goodput？</li>
+<li>是否比较多个 power cap？</li>
+<li>是否说明 GPU-only 和 node-level 口径差异？</li>
+<li>是否检查质量、错误率和稳定性？</li>
+<li>是否区分 prefill 和 decode 的能耗？</li>
+<li>是否区分 cache hit 和 cache miss？</li>
+<li>是否报告 power cap sweet spot，而不是只报告最低功耗点？</li>
+<li>训练是否报告 energy to target，而不是只报告 step energy？</li>
+</ul>
+<p>发布结论前：</p>
+<ul>
+<li>是否保留 run manifest、原始 telemetry、workload 日志和聚合报告？</li>
+<li>是否说明外部功率计、PDU、BMC 或 DCGM/NVML 的数据来源？</li>
+<li>是否把 caveats 写清楚，例如采样频率、边界、未包含 PUE、未包含失败重跑？</li>
+<li>是否能从报告复现实验环境、workload、窗口和计算方式？</li>
+</ul>
+<h2 id="_28">小结<a class="headerlink" href="#_28" title="Permanent link">¶</a></h2>
+<p>能效分析的核心不是“省电”，而是：</p>
+<div class="highlight"><pre><span></span><code>在满足质量、延迟、吞吐和稳定性的前提下，
+用更少能量交付更多有效 token 或训练进展。
+</code></pre></div>
+<p>对 AI 系统来说，能效 benchmark 必须把性能指标和硬件状态放在一起看：</p>
+<ul>
+<li>tokens/s 和 p99 说明服务是否好用。</li>
+<li>power 和 energy 说明代价。</li>
+<li>clocks 和 throttle reason 说明是否受功耗/热限制。</li>
+<li>temperature 和 error counters 说明长期风险。</li>
+<li>steady-state 窗口说明能否持续交付。</li>
+</ul>
+<p>当团队开始系统性记录这些指标，容量规划就不会只停留在“需要多少 GPU”，而能进一步回答“需要多少电力、多少冷却、多少 headroom，以及什么配置下每个 token 最划算且最稳定”。</p>
+<h2 id="_29">参考资料<a class="headerlink" href="#_29" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/index.html">NVIDIA DCGM Documentation</a></li>
+<li><a href="https://docs.nvidia.com/deploy/nvidia-smi/">NVIDIA System Management Interface</a></li>
+<li><a href="https://docs.nvidia.com/deploy/nvml-api/">NVIDIA Management Library API Reference</a></li>
+<li><a href="https://mlcommons.org/benchmarks/power/">MLPerf Power Benchmark</a></li>
+<li><a href="https://top500.org/lists/green500/">Green500</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

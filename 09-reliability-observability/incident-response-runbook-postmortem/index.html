@@ -1,0 +1,3113 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/09-reliability-observability/incident-response-runbook-postmortem/" rel="canonical"/>
+<link href="../ai-failure-modes-gpu-nccl-network-storage/" rel="prev"/>
+<link href="../../10-papers-cases/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>Incident Response、Runbook 与故障复盘：从止血到可复现改进 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#incident-responserunbook">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              Incident Response、Runbook 与故障复盘：从止血到可复现改进
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#incident">
+<span class="md-ellipsis">
+      Incident 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      严重级别
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#incident_1">
+<span class="md-ellipsis">
+      Incident 角色
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      何时宣告事故
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#incident-state-document">
+<span class="md-ellipsis">
+      Incident State Document
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      事故响应生命周期
+    </span>
+</a>
+<nav aria-label="事故响应生命周期" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-detect">
+<span class="md-ellipsis">
+      1. Detect
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-declare">
+<span class="md-ellipsis">
+      2. Declare
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-stabilize">
+<span class="md-ellipsis">
+      3. Stabilize
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-diagnose">
+<span class="md-ellipsis">
+      4. Diagnose
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-mitigate">
+<span class="md-ellipsis">
+      5. Mitigate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-recover">
+<span class="md-ellipsis">
+      6. Recover
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-close">
+<span class="md-ellipsis">
+      7. Close
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai">
+<span class="md-ellipsis">
+      AI 系统事故类型
+    </span>
+</a>
+<nav aria-label="AI 系统事故类型" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      推理服务事故
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      训练任务事故
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      集群与平台事故
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runbook">
+<span class="md-ellipsis">
+      Runbook 设计
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runbook_1">
+<span class="md-ellipsis">
+      Runbook 的反模式
+    </span>
+</a>
+<nav aria-label="Runbook 的反模式" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      反模式一：只有命令，没有判断
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      反模式二：只有排查，没有止血
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      反模式三：过度依赖某个工具
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#owner">
+<span class="md-ellipsis">
+      反模式四：没有 owner
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      沟通节奏
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#handoff">
+<span class="md-ellipsis">
+      Handoff
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#postmortem">
+<span class="md-ellipsis">
+      Postmortem 何时需要
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#postmortem_1">
+<span class="md-ellipsis">
+      Postmortem 模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#root-cause-contributing-factors">
+<span class="md-ellipsis">
+      Root Cause 与 Contributing Factors
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#blameless-no-accountability">
+<span class="md-ellipsis">
+      Blameless 不等于 No Accountability
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      行动项质量
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      从事故到 Benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#alert">
+<span class="md-ellipsis">
+      从事故到 Alert
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runbook_2">
+<span class="md-ellipsis">
+      从事故到 Runbook
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      从事故到架构改进
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#incident-knowledge-card">
+<span class="md-ellipsis">
+      Incident Knowledge Card
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      事故数据库
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gameday">
+<span class="md-ellipsis">
+      演练与 GameDay
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      误区一：事故时人人都去排障
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      误区二：先找到根因再缓解
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      误区三：恢复后就结束
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#root-cause">
+<span class="md-ellipsis">
+      误区四：复盘只追一个 root cause
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      误区五：行动项没有验证方式
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      误区六：只沉淀文字，不沉淀实验
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai_1">
+<span class="md-ellipsis">
+      误区七：AI 助手直接自动修复生产事故
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#incident">
+<span class="md-ellipsis">
+      Incident 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      严重级别
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#incident_1">
+<span class="md-ellipsis">
+      Incident 角色
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      何时宣告事故
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#incident-state-document">
+<span class="md-ellipsis">
+      Incident State Document
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      事故响应生命周期
+    </span>
+</a>
+<nav aria-label="事故响应生命周期" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-detect">
+<span class="md-ellipsis">
+      1. Detect
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-declare">
+<span class="md-ellipsis">
+      2. Declare
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-stabilize">
+<span class="md-ellipsis">
+      3. Stabilize
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-diagnose">
+<span class="md-ellipsis">
+      4. Diagnose
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-mitigate">
+<span class="md-ellipsis">
+      5. Mitigate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-recover">
+<span class="md-ellipsis">
+      6. Recover
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-close">
+<span class="md-ellipsis">
+      7. Close
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai">
+<span class="md-ellipsis">
+      AI 系统事故类型
+    </span>
+</a>
+<nav aria-label="AI 系统事故类型" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      推理服务事故
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      训练任务事故
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      集群与平台事故
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runbook">
+<span class="md-ellipsis">
+      Runbook 设计
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runbook_1">
+<span class="md-ellipsis">
+      Runbook 的反模式
+    </span>
+</a>
+<nav aria-label="Runbook 的反模式" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      反模式一：只有命令，没有判断
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      反模式二：只有排查，没有止血
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      反模式三：过度依赖某个工具
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#owner">
+<span class="md-ellipsis">
+      反模式四：没有 owner
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      沟通节奏
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#handoff">
+<span class="md-ellipsis">
+      Handoff
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#postmortem">
+<span class="md-ellipsis">
+      Postmortem 何时需要
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#postmortem_1">
+<span class="md-ellipsis">
+      Postmortem 模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#root-cause-contributing-factors">
+<span class="md-ellipsis">
+      Root Cause 与 Contributing Factors
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#blameless-no-accountability">
+<span class="md-ellipsis">
+      Blameless 不等于 No Accountability
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      行动项质量
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      从事故到 Benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#alert">
+<span class="md-ellipsis">
+      从事故到 Alert
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runbook_2">
+<span class="md-ellipsis">
+      从事故到 Runbook
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      从事故到架构改进
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#incident-knowledge-card">
+<span class="md-ellipsis">
+      Incident Knowledge Card
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      事故数据库
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gameday">
+<span class="md-ellipsis">
+      演练与 GameDay
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      误区一：事故时人人都去排障
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      误区二：先找到根因再缓解
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      误区三：恢复后就结束
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#root-cause">
+<span class="md-ellipsis">
+      误区四：复盘只追一个 root cause
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      误区五：行动项没有验证方式
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      误区六：只沉淀文字，不沉淀实验
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai_1">
+<span class="md-ellipsis">
+      误区七：AI 助手直接自动修复生产事故
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="incident-responserunbook">Incident Response、Runbook 与故障复盘：从止血到可复现改进<a class="headerlink" href="#incident-responserunbook" title="Permanent link">¶</a></h1>
+<p>监控发现问题，SLO 判断问题严重程度，故障模式帮助定位方向。</p>
+<p>但真正发生事故时，团队还需要回答另一类问题：</p>
+<div class="highlight"><pre><span></span><code>谁来指挥？
+谁能改系统？
+谁对外同步状态？
+当前最小止损动作是什么？
+哪些证据必须保留？
+什么时候算恢复？
+恢复后如何避免同类问题复发？
+</code></pre></div>
+<p>如果没有事故响应流程，故障现场很容易失控：</p>
+<ul>
+<li>多个人同时改系统，互相不知道。</li>
+<li>技术负责人忙于排障，没人同步影响范围。</li>
+<li>管理者反复追问 ETA，打断排障。</li>
+<li>看到一个可能原因就立即操作，导致二次事故。</li>
+<li>重启恢复后没人保留证据，复盘无法还原。</li>
+<li>复盘只写“加强监控”，没有可验证行动项。</li>
+</ul>
+<p>AI 系统事故更复杂，因为它同时涉及推理服务、训练任务、GPU、NCCL、网络、存储、调度、模型版本和数据链路。</p>
+<p>本篇重点回答：</p>
+<blockquote>
+<p>AI 系统发生事故时，如何组织 Incident Response，如何编写可执行 Runbook，如何做故障复盘，并把事故转化为可验证、可复现、可被 AI 检索的知识资产？</p>
+</blockquote>
+<h2 id="_1">一张总图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TB
+    Detect["Detect<br/>alert / user report / job failure / anomaly"]
+    Declare["Declare Incident<br/>severity / commander / channel / state doc"]
+    Stabilize["Stabilize<br/>stop bleeding / freeze risky changes / protect evidence"]
+    Diagnose["Diagnose<br/>scope / timeline / hypotheses / evidence"]
+    Mitigate["Mitigate<br/>rollback / drain / throttle / reschedule / fallback"]
+    Recover["Recover<br/>SLO normal / jobs progressing / capacity restored"]
+    Review["Postmortem<br/>timeline / impact / causes / action items"]
+    Improve["Improve<br/>runbook / alert / benchmark / tests / architecture"]
+
+    Detect --&gt; Declare
+    Declare --&gt; Stabilize
+    Stabilize --&gt; Diagnose
+    Diagnose --&gt; Mitigate
+    Mitigate --&gt; Recover
+    Recover --&gt; Review
+    Review --&gt; Improve
+    Improve --&gt; Detect
+</div>
+<p>这张图强调一点：</p>
+<div class="highlight"><pre><span></span><code>事故处理不是找到根因才开始行动，
+而是在保护证据的同时尽快降低影响，
+恢复后再系统性学习和改进。
+</code></pre></div>
+<h2 id="incident">Incident 是什么<a class="headerlink" href="#incident" title="Permanent link">¶</a></h2>
+<p>Incident 不是“有一个告警”。</p>
+<p>Incident 是一个需要协调响应的异常事件。</p>
+<p>可以用下面条件判断是否应该宣告事故：</p>
+<ul>
+<li>用户或关键任务正在受影响。</li>
+<li>SLO burn rate 快速升高。</li>
+<li>需要多个团队协同处理。</li>
+<li>影响范围正在扩大。</li>
+<li>需要执行高风险操作，例如 rollback、drain、限流、禁用功能。</li>
+<li>已经排查一段时间仍没有明确缓解方案。</li>
+<li>问题涉及数据一致性、训练 checkpoint、模型输出可信度或安全边界。</li>
+<li>需要管理层、业务方或用户同步状态。</li>
+</ul>
+<p>宣告事故不是承认失败，而是启动一种更清晰的协作模式。</p>
+<p>早宣告、早关闭，通常比拖到失控后再组织响应更好。</p>
+<h2 id="_2">严重级别<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>Severity 要服务于行动，不是为了给事故贴标签。</p>
+<p>一个简单分级：</p>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>典型影响</th>
+<th>响应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SEV1</td>
+<td>大范围用户不可用、关键训练全停、数据损坏风险</td>
+<td>立即 page，多团队响应，冻结高风险变更</td>
+</tr>
+<tr>
+<td>SEV2</td>
+<td>重要模型/队列受影响，SLO 快速燃烧，有明确用户影响</td>
+<td>立即响应，按需升级</td>
+</tr>
+<tr>
+<td>SEV3</td>
+<td>局部退化、可绕过、影响有限</td>
+<td>工作时间处理或低优先级 page</td>
+</tr>
+<tr>
+<td>SEV4</td>
+<td>风险、异常趋势、未造成明显影响</td>
+<td>ticket、观察、后续修复</td>
+</tr>
+</tbody>
+</table>
+<p>AI 系统可以按对象细化：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>SEV1 例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>在线推理</td>
+<td>主力模型大面积 5xx、TTFT SLO 快速燃烧、无法流式返回</td>
+</tr>
+<tr>
+<td>RAG/Agent</td>
+<td>检索或 tool 层故障导致核心 workflow 大面积失败</td>
+</tr>
+<tr>
+<td>训练平台</td>
+<td>多个关键训练 job hang，checkpoint 无法提交，恢复风险扩大</td>
+</tr>
+<tr>
+<td>GPU 集群</td>
+<td>大规模 node pool 不可调度，NCCL 全局异常，网络域故障</td>
+</tr>
+<tr>
+<td>存储系统</td>
+<td>checkpoint 或模型权重读写不可用，存在数据完整性风险</td>
+</tr>
+<tr>
+<td>环境发布</td>
+<td>driver/CUDA/NCCL/engine 升级导致多任务失败</td>
+</tr>
+</tbody>
+</table>
+<p>Severity 要允许动态调整。初期不知道范围时，可以先按较高等级组织响应，确认影响有限后再降级。</p>
+<h2 id="incident_1">Incident 角色<a class="headerlink" href="#incident_1" title="Permanent link">¶</a></h2>
+<p>事故中最重要的不是所有人都冲上去修，而是职责清晰。</p>
+<p>推荐至少有四类角色。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>责任</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Incident Commander</td>
+<td>统筹响应、确定优先级、授权行动、控制节奏</td>
+</tr>
+<tr>
+<td>Operations Lead</td>
+<td>执行系统变更、rollback、drain、限流、恢复动作</td>
+</tr>
+<tr>
+<td>Communications Lead</td>
+<td>维护对内/对外状态更新、同步影响范围和 ETA</td>
+</tr>
+<tr>
+<td>Scribe / Planning</td>
+<td>维护 live doc、记录时间线、跟踪行动项和 handoff</td>
+</tr>
+</tbody>
+</table>
+<p>复杂事故还会需要：</p>
+<ul>
+<li>推理系统 SME。</li>
+<li>训练系统 SME。</li>
+<li>网络 SME。</li>
+<li>存储 SME。</li>
+<li>GPU/硬件 SME。</li>
+<li>调度平台 SME。</li>
+<li>产品或用户代表。</li>
+<li>安全/合规代表。</li>
+</ul>
+<p>关键原则：</p>
+<div class="highlight"><pre><span></span><code>只有被授权的人执行生产变更；
+所有变更都记录到 incident state document；
+技术排障和沟通同步分开处理。
+</code></pre></div>
+<p>没有角色分离时，最懂系统的人往往被沟通、协调和管理问题打断，真正恢复反而更慢。</p>
+<h2 id="_3">何时宣告事故<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>可以把宣告条件写成规则。</p>
+<p>推理服务：</p>
+<ul>
+<li>page 级 SLO burn-rate alert 触发。</li>
+<li>主力模型错误率超过阈值并持续。</li>
+<li>TTFT/TPOT 大面积超过 SLO。</li>
+<li>admission reject 或 fallback ratio 异常升高。</li>
+<li>多副本同时 crash 或 OOM。</li>
+<li>RAG/Agent workflow 大面积失败。</li>
+</ul>
+<p>训练平台：</p>
+<ul>
+<li>critical job progress SLO 触发。</li>
+<li>多个关键 job NCCL timeout 或 hang。</li>
+<li>checkpoint freshness SLO 触发。</li>
+<li>恢复失败导致 RPO/RTO 风险。</li>
+<li>队列调度异常影响多个团队。</li>
+</ul>
+<p>集群基础设施：</p>
+<ul>
+<li>大规模 GPU node pool 不可用。</li>
+<li>某网络域出现训练集体通信异常。</li>
+<li>存储写入影响 checkpoint。</li>
+<li>driver/CUDA/NCCL 升级导致多任务失败。</li>
+<li>GPU Xid/ECC 异常集中出现。</li>
+</ul>
+<p>如果一个问题需要第二个团队介入，或者单人排查超过固定时间还未收敛，也应考虑宣告事故。</p>
+<h2 id="incident-state-document">Incident State Document<a class="headerlink" href="#incident-state-document" title="Permanent link">¶</a></h2>
+<p>事故现场必须有一个 live document。</p>
+<p>它可以是 Markdown、wiki、云文档或 issue，但要实时更新、多人可见、后续可归档。</p>
+<p>建议模板：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">incident_id</span><span class="p">:</span><span class="w"> </span><span class="s">"INC-2026-0612-001"</span>
+<span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"llama70b</span><span class="nv"> </span><span class="s">interactive</span><span class="nv"> </span><span class="s">TTFT</span><span class="nv"> </span><span class="s">SLO</span><span class="nv"> </span><span class="s">burn</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">high"</span>
+<span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">"SEV2"</span>
+<span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="s">"mitigating"</span>
+<span class="nt">commander</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="nt">ops_lead</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="nt">comms_lead</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="nt">scribe</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="nt">started_at</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-06-12T10:18:00Z"</span>
+<span class="nt">detected_by</span><span class="p">:</span><span class="w"> </span><span class="s">"slo-burn-alert"</span>
+
+<span class="nt">impact</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">services</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"llm-serving"</span>
+<span class="w">  </span><span class="nt">models</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"llama-70b"</span>
+<span class="w">  </span><span class="nt">users_or_tenants</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"interactive-tier"</span>
+<span class="w">  </span><span class="nt">slo</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"ttft_slo</span><span class="nv"> </span><span class="s">burn_rate_1h=18x"</span>
+
+<span class="nt">current_hypothesis</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"prefill</span><span class="nv"> </span><span class="s">worker</span><span class="nv"> </span><span class="s">capacity</span><span class="nv"> </span><span class="s">dropped</span><span class="nv"> </span><span class="s">after</span><span class="nv"> </span><span class="s">node</span><span class="nv"> </span><span class="s">drain"</span>
+
+<span class="nt">current_mitigation</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"rollback</span><span class="nv"> </span><span class="s">routing</span><span class="nv"> </span><span class="s">configB"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"disable</span><span class="nv"> </span><span class="s">new</span><span class="nv"> </span><span class="s">long-context</span><span class="nv"> </span><span class="s">admissions"</span>
+
+<span class="nt">evidence</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dashboard</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">trace_query</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">logs</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">runbook</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+
+<span class="nt">timeline</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">time</span><span class="p">:</span><span class="w"> </span><span class="s">"10:18"</span>
+<span class="w">    </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="s">"SLO</span><span class="nv"> </span><span class="s">burn</span><span class="nv"> </span><span class="s">alert</span><span class="nv"> </span><span class="s">fired"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">time</span><span class="p">:</span><span class="w"> </span><span class="s">"10:22"</span>
+<span class="w">    </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="s">"Incident</span><span class="nv"> </span><span class="s">declared,</span><span class="nv"> </span><span class="s">SEV2"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">time</span><span class="p">:</span><span class="w"> </span><span class="s">"10:27"</span>
+<span class="w">    </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="s">"Routing</span><span class="nv"> </span><span class="s">rollback</span><span class="nv"> </span><span class="s">started"</span>
+</code></pre></div>
+<p>Live doc 的作用：</p>
+<ul>
+<li>让新加入的人快速了解状态。</li>
+<li>防止重复操作。</li>
+<li>记录时间线。</li>
+<li>降低口头沟通损耗。</li>
+<li>为复盘提供原始材料。</li>
+</ul>
+<p>不要等事故结束再补文档。事后补写的时间线通常不准确。</p>
+<h2 id="_4">事故响应生命周期<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<h3 id="1-detect">1. Detect<a class="headerlink" href="#1-detect" title="Permanent link">¶</a></h3>
+<p>检测来源包括：</p>
+<ul>
+<li>SLO burn-rate alert。</li>
+<li>dashboard anomaly。</li>
+<li>用户报障。</li>
+<li>training job failure。</li>
+<li>scheduler queue anomaly。</li>
+<li>node/GPU health event。</li>
+<li>benchmark regression。</li>
+<li>人工巡检。</li>
+</ul>
+<p>检测阶段要确认：</p>
+<ul>
+<li>这是单点噪声还是持续问题？</li>
+<li>是否影响 SLO 或关键任务？</li>
+<li>是否需要宣告事故？</li>
+</ul>
+<p>不要在检测阶段做太多根因猜测。先判断是否需要组织响应。</p>
+<h3 id="2-declare">2. Declare<a class="headerlink" href="#2-declare" title="Permanent link">¶</a></h3>
+<p>宣告事故时要明确：</p>
+<ul>
+<li>severity。</li>
+<li>incident commander。</li>
+<li>incident channel。</li>
+<li>live document。</li>
+<li>初始影响范围。</li>
+<li>下一次状态更新时间。</li>
+</ul>
+<p>示例：</p>
+<div class="highlight"><pre><span></span><code>Declared SEV2 for llama70b interactive TTFT regression.
+IC: Alice
+Ops: Bob
+Comms: Carol
+Incident doc: ...
+Next update: 10 minutes.
+</code></pre></div>
+<p>这样所有人知道在哪里协作、谁有决策权、什么时候会有下一次信息。</p>
+<h3 id="3-stabilize">3. Stabilize<a class="headerlink" href="#3-stabilize" title="Permanent link">¶</a></h3>
+<p>Stabilize 的目标是止血。</p>
+<p>常见动作：</p>
+<ul>
+<li>暂停 rollout。</li>
+<li>freeze 高风险变更。</li>
+<li>rollback 最近版本。</li>
+<li>drain 可疑节点。</li>
+<li>限制长上下文请求。</li>
+<li>降级 RAG/Agent 部分能力。</li>
+<li>暂停大规模训练任务启动。</li>
+<li>调整 routing。</li>
+<li>提高容量或切流。</li>
+<li>保护 checkpoint 和证据。</li>
+</ul>
+<p>注意：</p>
+<div class="highlight"><pre><span></span><code>止血不是根因分析。
+</code></pre></div>
+<p>在事故早期，选择可逆、低风险、影响明确的动作优先。</p>
+<h3 id="4-diagnose">4. Diagnose<a class="headerlink" href="#4-diagnose" title="Permanent link">¶</a></h3>
+<p>诊断阶段建立假设并找证据。</p>
+<p>建议格式：</p>
+<div class="highlight"><pre><span></span><code>Hypothesis:
+  TTFT 上升来自 prefill 队列积压。
+
+Evidence:
+  prefill queue wait p99 同步上升。
+  decode TPOT 基本稳定。
+  10:12 后 prefill worker 可用数从 32 降到 18。
+
+Disconfirming evidence:
+  GPU clocks 正常。
+  RAG retrieval latency 正常。
+
+Next test:
+  回滚 routing configB 并观察 prefill queue wait。
+</code></pre></div>
+<p>这样能避免“凭感觉改系统”。</p>
+<h3 id="5-mitigate">5. Mitigate<a class="headerlink" href="#5-mitigate" title="Permanent link">¶</a></h3>
+<p>Mitigation 是降低影响，不一定恢复到最终状态。</p>
+<p>推理常见 mitigation：</p>
+<ul>
+<li>rollback engine 或 config。</li>
+<li>切回较小模型。</li>
+<li>降低 max input/output tokens。</li>
+<li>限制低优先级租户。</li>
+<li>开启 admission control。</li>
+<li>暂停高风险功能。</li>
+<li>暂时关闭 speculative decoding。</li>
+<li>调整 prefill/decode routing。</li>
+</ul>
+<p>训练常见 mitigation：</p>
+<ul>
+<li>暂停新大作业。</li>
+<li>reschedule 到健康 node pool。</li>
+<li>从上一个 checkpoint 恢复。</li>
+<li>降低并行规模。</li>
+<li>禁用可疑节点/机架。</li>
+<li>暂停 eval 或 checkpoint 频率。</li>
+<li>回滚镜像/driver/NCCL 配置。</li>
+</ul>
+<p>基础设施常见 mitigation：</p>
+<ul>
+<li>cordon/drain 节点。</li>
+<li>隔离 GPU。</li>
+<li>降低网络域调度权重。</li>
+<li>回滚存储配置。</li>
+<li>限制模型权重拉取并发。</li>
+<li>提高 cache 命中。</li>
+</ul>
+<p>Mitigation 后必须验证 SLO 或任务指标确实恢复。</p>
+<h3 id="6-recover">6. Recover<a class="headerlink" href="#6-recover" title="Permanent link">¶</a></h3>
+<p>恢复不是“没有告警”。</p>
+<p>恢复条件要提前定义：</p>
+<ul>
+<li>SLO burn rate 回落。</li>
+<li>错误率低于阈值。</li>
+<li>TTFT/TPOT 恢复到正常范围。</li>
+<li>critical job 继续推进。</li>
+<li>checkpoint freshness 恢复。</li>
+<li>GPU pool readiness 恢复。</li>
+<li>降级策略已解除或明确保留。</li>
+<li>临时变更已经记录。</li>
+</ul>
+<p>如果只是告警静默，但系统仍在降级，就不能算完全恢复。</p>
+<h3 id="7-close">7. Close<a class="headerlink" href="#7-close" title="Permanent link">¶</a></h3>
+<p>关闭事故前要确认：</p>
+<ul>
+<li>用户影响结束。</li>
+<li>关键任务恢复。</li>
+<li>临时 mitigation 有 owner。</li>
+<li>证据包完整。</li>
+<li>postmortem owner 确定。</li>
+<li>action items 初步记录。</li>
+<li>是否需要后续用户或团队沟通。</li>
+</ul>
+<p>关闭事故不等于关闭所有修复。它只是表示紧急响应阶段结束。</p>
+<h2 id="ai">AI 系统事故类型<a class="headerlink" href="#ai" title="Permanent link">¶</a></h2>
+<h3 id="_5">推理服务事故<a class="headerlink" href="#_5" title="Permanent link">¶</a></h3>
+<p>常见触发：</p>
+<ul>
+<li>TTFT SLO burn。</li>
+<li>TPOT 上升。</li>
+<li>stream interruption。</li>
+<li>5xx/timeout。</li>
+<li>KV cache OOM。</li>
+<li>router 热点。</li>
+<li>RAG dependency failure。</li>
+<li>Agent tool storm。</li>
+<li>模型加载失败。</li>
+<li>多副本同时 OOM。</li>
+</ul>
+<p>响应重点：</p>
+<ul>
+<li>快速确认影响模型和租户。</li>
+<li>区分 prefill、decode、queue、RAG、tool、streaming。</li>
+<li>判断是否与 rollout、routing、cache、scheduler 相关。</li>
+<li>优先降低用户影响，例如 fallback、限流、降级。</li>
+<li>保留 request trace、profile、raw metrics 和 config diff。</li>
+</ul>
+<h3 id="_6">训练任务事故<a class="headerlink" href="#_6" title="Permanent link">¶</a></h3>
+<p>常见触发：</p>
+<ul>
+<li>job hang。</li>
+<li>NCCL timeout。</li>
+<li>NaN/Inf。</li>
+<li>OOM。</li>
+<li>checkpoint 写失败。</li>
+<li>resume 失败。</li>
+<li>多 rank 进度不一致。</li>
+<li>数据读取异常。</li>
+<li>eval backlog。</li>
+</ul>
+<p>响应重点：</p>
+<ul>
+<li>保护 checkpoint。</li>
+<li>判断是否能安全重启。</li>
+<li>定位 first bad rank。</li>
+<li>收集 rank logs、NCCL logs、node events、GPU events。</li>
+<li>避免盲目 kill 导致证据丢失。</li>
+<li>验证恢复后的 loss、step、scheduler、optimizer 状态。</li>
+</ul>
+<h3 id="_7">集群与平台事故<a class="headerlink" href="#_7" title="Permanent link">¶</a></h3>
+<p>常见触发：</p>
+<ul>
+<li>GPU node pool 不可用。</li>
+<li>调度系统异常。</li>
+<li>存储不可用。</li>
+<li>RDMA/RoCE 异常。</li>
+<li>driver/CUDA/NCCL 升级回归。</li>
+<li>node problem detector 大量上报。</li>
+<li>image/model pull storm。</li>
+<li>多租户隔离失效。</li>
+</ul>
+<p>响应重点：</p>
+<ul>
+<li>定界资源池、机架、网络域和队列。</li>
+<li>暂停高风险调度。</li>
+<li>隔离可疑节点或域。</li>
+<li>保留 node profile、event、diagnostic。</li>
+<li>确认受影响任务和租户。</li>
+<li>与容量和发布治理联动。</li>
+</ul>
+<h2 id="runbook">Runbook 设计<a class="headerlink" href="#runbook" title="Permanent link">¶</a></h2>
+<p>Runbook 是事故中的可执行操作手册。</p>
+<p>它不应该只写背景知识，而要能让值班工程师执行。</p>
+<p>一个好的 runbook 包含：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>适用场景</td>
+<td>哪类告警或事故使用</td>
+</tr>
+<tr>
+<td>影响判断</td>
+<td>如何确认是否用户/任务受影响</td>
+</tr>
+<tr>
+<td>快速止血</td>
+<td>可逆、低风险、优先执行的动作</td>
+</tr>
+<tr>
+<td>证据收集</td>
+<td>必须保存的日志、trace、profile、event</td>
+</tr>
+<tr>
+<td>分层排查</td>
+<td>从症状到可能原因的检查顺序</td>
+</tr>
+<tr>
+<td>升级路径</td>
+<td>什么时候叫哪个团队</td>
+</tr>
+<tr>
+<td>禁止动作</td>
+<td>事故中不能随便做的事</td>
+</tr>
+<tr>
+<td>恢复验证</td>
+<td>什么指标证明恢复</td>
+</tr>
+<tr>
+<td>复盘输入</td>
+<td>哪些信息必须进 postmortem</td>
+</tr>
+</tbody>
+</table>
+<p>示例结构：</p>
+<div class="highlight"><pre><span></span><code>Runbook: TTFT SLO Burn
+
+Trigger:
+  - llama serving TTFT SLO page alert
+
+Impact:
+  - check model, tenant, cluster, request class
+
+Quick mitigation:
+  - freeze rollout
+  - rollback latest routing config
+  - enable long-context admission limit
+  - shift traffic to healthy pool
+
+Evidence:
+  - SLO dashboard
+  - request traces for slow samples
+  - scheduler queue metrics
+  - prefill/decode worker health
+  - recent deploy/config events
+
+Escalation:
+  - serving runtime owner
+  - cluster scheduling owner
+  - RAG/tool owner if workflow-level impact
+
+Recovery:
+  - burn_rate_5m and burn_rate_1h below threshold
+  - TTFT p99 back to normal
+  - no abnormal fallback/reject ratio
+</code></pre></div>
+<p>Runbook 要定期演练。没有演练过的 runbook 在事故中很可能不可用。</p>
+<h2 id="runbook_1">Runbook 的反模式<a class="headerlink" href="#runbook_1" title="Permanent link">¶</a></h2>
+<h3 id="_8">反模式一：只有命令，没有判断<a class="headerlink" href="#_8" title="Permanent link">¶</a></h3>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>restart service
+</code></pre></div>
+<p>这不够。</p>
+<p>要写清楚：</p>
+<ul>
+<li>什么情况下可以重启。</li>
+<li>重启影响哪些请求或任务。</li>
+<li>重启前要保存什么证据。</li>
+<li>重启后如何验证。</li>
+<li>重启失败怎么办。</li>
+</ul>
+<h3 id="_9">反模式二：只有排查，没有止血<a class="headerlink" href="#_9" title="Permanent link">¶</a></h3>
+<p>事故现场的第一目标是降低影响。</p>
+<p>Runbook 要先给出安全止血路径，再进入深度排查。</p>
+<h3 id="_10">反模式三：过度依赖某个工具<a class="headerlink" href="#_10" title="Permanent link">¶</a></h3>
+<p>如果事故影响了监控、云文档、聊天系统或身份系统，runbook 也可能打不开。</p>
+<p>关键 runbook 应有：</p>
+<ul>
+<li>离线副本。</li>
+<li>命令行路径。</li>
+<li>备用沟通渠道。</li>
+<li>只读诊断命令。</li>
+<li>最小恢复步骤。</li>
+</ul>
+<h3 id="owner">反模式四：没有 owner<a class="headerlink" href="#owner" title="Permanent link">¶</a></h3>
+<p>无人维护的 runbook 很快过期。</p>
+<p>每个 runbook 都应有 owner、更新时间、验证记录和适用版本。</p>
+<h2 id="_11">沟通节奏<a class="headerlink" href="#_11" title="Permanent link">¶</a></h2>
+<p>事故沟通要稳定，不要等有人追问才更新。</p>
+<p>建议：</p>
+<ul>
+<li>SEV1：每 10-15 分钟更新。</li>
+<li>SEV2：每 15-30 分钟更新。</li>
+<li>SEV3：按阶段更新。</li>
+</ul>
+<p>每次更新包含：</p>
+<div class="highlight"><pre><span></span><code>Status:
+  investigating / mitigating / recovering / monitoring
+
+Impact:
+  affected services, models, tenants, jobs
+
+Current understanding:
+  what is known, what is unknown
+
+Actions:
+  what changed since last update
+
+Next:
+  next planned action and next update time
+</code></pre></div>
+<p>好的沟通不是制造确定性，而是明确已知、未知和下一步。</p>
+<h2 id="handoff">Handoff<a class="headerlink" href="#handoff" title="Permanent link">¶</a></h2>
+<p>长事故必须做 handoff。</p>
+<p>Handoff 不能只说：</p>
+<div class="highlight"><pre><span></span><code>你接一下。
+</code></pre></div>
+<p>至少包含：</p>
+<ul>
+<li>当前 commander。</li>
+<li>当前 severity。</li>
+<li>当前影响范围。</li>
+<li>已执行动作。</li>
+<li>哪些动作有效或无效。</li>
+<li>当前假设。</li>
+<li>待验证假设。</li>
+<li>临时 mitigation。</li>
+<li>风险和禁止动作。</li>
+<li>下一个更新时间。</li>
+</ul>
+<p>建议明确说：</p>
+<div class="highlight"><pre><span></span><code>你现在是 Incident Commander，是否确认接管？
+</code></pre></div>
+<p>这能避免责任模糊。</p>
+<h2 id="postmortem">Postmortem 何时需要<a class="headerlink" href="#postmortem" title="Permanent link">¶</a></h2>
+<p>不是所有小问题都需要完整 postmortem。</p>
+<p>但下面情况应该写：</p>
+<ul>
+<li>SEV1/SEV2。</li>
+<li>用户或关键任务受影响。</li>
+<li>SLO 错误预算明显消耗。</li>
+<li>数据损坏或训练 checkpoint 风险。</li>
+<li>多团队协作处理。</li>
+<li>需要回滚或大规模隔离。</li>
+<li>检测、响应或恢复明显低效。</li>
+<li>同类问题重复发生。</li>
+<li>有重要经验可沉淀。</li>
+</ul>
+<p>对于小问题，可以写 lightweight incident note。</p>
+<p>关键是不要让重要事故只停留在聊天记录里。</p>
+<h2 id="postmortem_1">Postmortem 模板<a class="headerlink" href="#postmortem_1" title="Permanent link">¶</a></h2>
+<p>建议模板：</p>
+<div class="highlight"><pre><span></span><code>Title:
+  concise incident name
+
+Summary:
+  what happened, who was affected, how it was resolved
+
+Impact:
+  users / tenants / models / jobs / GPUs / SLO / cost
+
+Timeline:
+  detection, declaration, key actions, mitigation, recovery, close
+
+Root causes and contributing factors:
+  technical causes, process gaps, missing guardrails
+
+What went well:
+  detection, response, runbook, rollback, collaboration
+
+What went poorly:
+  delays, missing signals, confusing ownership, failed mitigation
+
+Where we got lucky:
+  conditions that reduced impact but should not be relied on
+
+Detection:
+  how it was detected, how it should be detected next time
+
+Mitigation:
+  what stopped the bleeding and why
+
+Evidence:
+  dashboards, logs, traces, profiles, events, manifests
+
+Action items:
+  owner, deadline, verification method
+
+Follow-up:
+  benchmark, alert, runbook, architecture, test, capacity
+</code></pre></div>
+<p>AI 系统复盘还应额外记录：</p>
+<ul>
+<li>model。</li>
+<li>engine/runtime。</li>
+<li>workload class。</li>
+<li>request length distribution。</li>
+<li>training job id。</li>
+<li>rank/node/GPU mapping。</li>
+<li>checkpoint state。</li>
+<li>driver/CUDA/NCCL/PyTorch versions。</li>
+<li>node pool / rack / network domain。</li>
+<li>data source 或 RAG dependency。</li>
+<li>benchmark case 是否需要新增。</li>
+</ul>
+<h2 id="root-cause-contributing-factors">Root Cause 与 Contributing Factors<a class="headerlink" href="#root-cause-contributing-factors" title="Permanent link">¶</a></h2>
+<p>复盘不要只写一个 root cause。</p>
+<p>复杂系统事故通常是多个因素叠加：</p>
+<div class="highlight"><pre><span></span><code>直接触发因素 + 系统薄弱点 + 检测缺口 + 流程缺口 + 恢复缺口
+</code></pre></div>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>Trigger:
+  routing config rollout changed prefill placement.
+
+Technical factor:
+  prefill workers had insufficient headroom.
+
+Observability gap:
+  no alert on prefill queue wait by model.
+
+Process gap:
+  rollout skipped long-context canary.
+
+Recovery gap:
+  rollback runbook did not mention cache warmup impact.
+</code></pre></div>
+<p>这种写法比：</p>
+<div class="highlight"><pre><span></span><code>root cause: bad config
+</code></pre></div>
+<p>更有学习价值。</p>
+<h2 id="blameless-no-accountability">Blameless 不等于 No Accountability<a class="headerlink" href="#blameless-no-accountability" title="Permanent link">¶</a></h2>
+<p>Blameless 的意思不是“不追责、不改进”。</p>
+<p>它的意思是：</p>
+<div class="highlight"><pre><span></span><code>复盘关注系统如何让这个错误变得可能，
+以及如何改变系统让同类错误更难发生。
+</code></pre></div>
+<p>仍然需要 accountability：</p>
+<ul>
+<li>行动项有 owner。</li>
+<li>截止时间明确。</li>
+<li>验证方式明确。</li>
+<li>高风险变更要补 guardrail。</li>
+<li>重复事故要升级治理。</li>
+</ul>
+<p>避免在复盘中写：</p>
+<div class="highlight"><pre><span></span><code>某工程师操作失误。
+</code></pre></div>
+<p>改写为：</p>
+<div class="highlight"><pre><span></span><code>发布系统允许单人绕过 long-context canary，
+且配置 diff 没有标记 prefill placement 风险。
+</code></pre></div>
+<p>后一种才能产生系统改进。</p>
+<h2 id="_12">行动项质量<a class="headerlink" href="#_12" title="Permanent link">¶</a></h2>
+<p>好的 action item 是可验证的。</p>
+<p>差的行动项：</p>
+<ul>
+<li>加强监控。</li>
+<li>提高稳定性。</li>
+<li>优化流程。</li>
+<li>后续关注。</li>
+<li>避免再犯。</li>
+</ul>
+<p>好的行动项：</p>
+<div class="highlight"><pre><span></span><code>Add model+request_class prefill_queue_wait histogram alert.
+Owner: serving-observability
+Due: 2026-06-30
+Verification: trigger alert in staging replay with trace long-context-2026w22.
+</code></pre></div>
+<p>行动项至少包含：</p>
+<ul>
+<li>具体改动。</li>
+<li>owner。</li>
+<li>deadline。</li>
+<li>验证方式。</li>
+<li>关联 incident。</li>
+<li>优先级。</li>
+<li>是否阻塞 release。</li>
+</ul>
+<p>没有验证方式的行动项，很容易变成任务列表里的噪声。</p>
+<h2 id="benchmark">从事故到 Benchmark<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>AI 系统事故很适合沉淀成 benchmark。</p>
+<p>映射关系：</p>
+<table>
+<thead>
+<tr>
+<th>事故</th>
+<th>Benchmark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>long-context TTFT 事故</td>
+<td>长上下文 trace replay</td>
+</tr>
+<tr>
+<td>prefix cache 失效</td>
+<td>cache hit/miss 分桶 benchmark</td>
+</tr>
+<tr>
+<td>NCCL timeout</td>
+<td>多节点 collective health benchmark</td>
+</tr>
+<tr>
+<td>checkpoint 写慢</td>
+<td>checkpoint write/read benchmark</td>
+</tr>
+<tr>
+<td>RAG dependency 抖动</td>
+<td>workflow latency replay</td>
+</tr>
+<tr>
+<td>DataLoader stall</td>
+<td>dataset shard read benchmark</td>
+</tr>
+<tr>
+<td>thermal throttling</td>
+<td>steady-state power/thermal benchmark</td>
+</tr>
+<tr>
+<td>queue overload</td>
+<td>open-loop load test with goodput</td>
+</tr>
+</tbody>
+</table>
+<p>Postmortem 应回答：</p>
+<div class="highlight"><pre><span></span><code>这次事故是否可以转成一个可重复实验？
+如果可以，谁负责补 benchmark？
+这个 benchmark 是否进入 regression suite？
+</code></pre></div>
+<p>这能把事故经验从文字变成工程防线。</p>
+<h2 id="alert">从事故到 Alert<a class="headerlink" href="#alert" title="Permanent link">¶</a></h2>
+<p>复盘也要问：</p>
+<ul>
+<li>事故是怎么被发现的？</li>
+<li>是否由用户先发现？</li>
+<li>告警是否太晚？</li>
+<li>告警是否太吵？</li>
+<li>是否缺少 SLO？</li>
+<li>是否缺少分桶指标？</li>
+<li>是否缺少事件关联？</li>
+</ul>
+<p>常见改进：</p>
+<ul>
+<li>新增 SLO burn-rate alert。</li>
+<li>改静态阈值为错误预算告警。</li>
+<li>增加 model/workload/tenant 分桶。</li>
+<li>增加 queue wait、checkpoint freshness、rank progress。</li>
+<li>降低无动作告警。</li>
+<li>增加 incident evidence link。</li>
+</ul>
+<p>不要只增加更多告警。每个告警都要有 owner 和 runbook。</p>
+<h2 id="runbook_2">从事故到 Runbook<a class="headerlink" href="#runbook_2" title="Permanent link">¶</a></h2>
+<p>每次事故后，runbook 至少要检查：</p>
+<ul>
+<li>是否存在相关 runbook。</li>
+<li>现场是否找得到。</li>
+<li>止血动作是否有效。</li>
+<li>是否有错误或过期步骤。</li>
+<li>是否缺少证据收集步骤。</li>
+<li>是否缺少升级路径。</li>
+<li>是否需要离线备用版本。</li>
+</ul>
+<p>如果事故中有人口头传授关键步骤，这些步骤必须进入 runbook。</p>
+<h2 id="_13">从事故到架构改进<a class="headerlink" href="#_13" title="Permanent link">¶</a></h2>
+<p>不是所有事故都能靠 runbook 解决。</p>
+<p>有些问题需要架构改进：</p>
+<ul>
+<li>缺少隔离域。</li>
+<li>单点调度组件。</li>
+<li>没有 fallback。</li>
+<li>checkpoint 协议不完整。</li>
+<li>发布系统缺少 canary。</li>
+<li>cache 失效导致全局雪崩。</li>
+<li>模型权重分发没有限流。</li>
+<li>多租户隔离不足。</li>
+<li>单集群容量没有 headroom。</li>
+</ul>
+<p>复盘要区分：</p>
+<table>
+<thead>
+<tr>
+<th>改进类型</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>detection</td>
+<td>更早发现</td>
+</tr>
+<tr>
+<td>mitigation</td>
+<td>更快止血</td>
+</tr>
+<tr>
+<td>prevention</td>
+<td>降低复发概率</td>
+</tr>
+<tr>
+<td>recovery</td>
+<td>更快恢复</td>
+</tr>
+<tr>
+<td>resilience</td>
+<td>降低影响范围</td>
+</tr>
+<tr>
+<td>learning</td>
+<td>更好复现和沉淀</td>
+</tr>
+</tbody>
+</table>
+<p>不要把所有行动项都写成检测类。只会更早发现但不能止血或预防，长期价值有限。</p>
+<h2 id="incident-knowledge-card">Incident Knowledge Card<a class="headerlink" href="#incident-knowledge-card" title="Permanent link">¶</a></h2>
+<p>为了让 AI 助手能检索事故经验，建议为重要事故生成结构化 knowledge card。</p>
+<div class="highlight"><pre><span></span><code><span class="nt">incident_id</span><span class="p">:</span><span class="w"> </span><span class="s">"INC-2026-0612-001"</span>
+<span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"llama70b</span><span class="nv"> </span><span class="s">TTFT</span><span class="nv"> </span><span class="s">regression</span><span class="nv"> </span><span class="s">after</span><span class="nv"> </span><span class="s">routing</span><span class="nv"> </span><span class="s">config</span><span class="nv"> </span><span class="s">rollout"</span>
+<span class="nt">date</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-06-12"</span>
+<span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">"SEV2"</span>
+<span class="nt">domains</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inference</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">scheduling</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">observability</span>
+<span class="nt">signals</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"ttft_slo_burn_rate"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"prefill_queue_wait"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"routing_config_event"</span>
+<span class="nt">root_causes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"routing</span><span class="nv"> </span><span class="s">config</span><span class="nv"> </span><span class="s">shifted</span><span class="nv"> </span><span class="s">long-context</span><span class="nv"> </span><span class="s">traffic</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">underprovisioned</span><span class="nv"> </span><span class="s">prefill</span><span class="nv"> </span><span class="s">pool"</span>
+<span class="nt">contributing_factors</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"long-context</span><span class="nv"> </span><span class="s">canary</span><span class="nv"> </span><span class="s">missing"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"prefill</span><span class="nv"> </span><span class="s">queue</span><span class="nv"> </span><span class="s">alert</span><span class="nv"> </span><span class="s">missing</span><span class="nv"> </span><span class="s">model/request_class</span><span class="nv"> </span><span class="s">labels"</span>
+<span class="nt">mitigations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"rollback</span><span class="nv"> </span><span class="s">routing</span><span class="nv"> </span><span class="s">config"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"temporary</span><span class="nv"> </span><span class="s">long-context</span><span class="nv"> </span><span class="s">admission</span><span class="nv"> </span><span class="s">limit"</span>
+<span class="nt">benchmarks_added</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"long-context-trace-replay-2026w22"</span>
+<span class="nt">runbooks_updated</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"ttft-slo-burn"</span>
+<span class="nt">action_items</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"add</span><span class="nv"> </span><span class="s">prefill</span><span class="nv"> </span><span class="s">queue</span><span class="nv"> </span><span class="s">wait</span><span class="nv"> </span><span class="s">alert</span><span class="nv"> </span><span class="s">by</span><span class="nv"> </span><span class="s">model/request_class"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"add</span><span class="nv"> </span><span class="s">routing</span><span class="nv"> </span><span class="s">config</span><span class="nv"> </span><span class="s">canary</span><span class="nv"> </span><span class="s">gate"</span>
+</code></pre></div>
+<p>这类 card 不替代 postmortem，而是帮助知识库和 AI 快速索引：</p>
+<ul>
+<li>事故类型。</li>
+<li>相关信号。</li>
+<li>根因模式。</li>
+<li>有效 mitigation。</li>
+<li>后续 benchmark。</li>
+<li>更新过的 runbook。</li>
+</ul>
+<h2 id="_14">事故数据库<a class="headerlink" href="#_14" title="Permanent link">¶</a></h2>
+<p>长期看，事故不应只是散落在文档里。</p>
+<p>事故数据库至少支持按这些字段查询：</p>
+<ul>
+<li>severity。</li>
+<li>domain。</li>
+<li>model。</li>
+<li>engine。</li>
+<li>node pool。</li>
+<li>workload class。</li>
+<li>failure mode。</li>
+<li>SLO。</li>
+<li>root cause category。</li>
+<li>mitigation。</li>
+<li>action item status。</li>
+<li>benchmark added。</li>
+<li>repeated incident。</li>
+</ul>
+<p>典型查询：</p>
+<div class="highlight"><pre><span></span><code>过去 6 个月 NCCL timeout 事故中，多少与网络配置有关？
+哪些 TTFT 事故最终都和 prefill queue wait 有关？
+哪些 action items 逾期后导致同类事故复发？
+哪个 node pool 的 GPU Xid 事故最多？
+哪些事故补充了 regression benchmark？
+</code></pre></div>
+<p>如果这些问题只能靠人回忆，说明事故知识没有沉淀成资产。</p>
+<h2 id="gameday">演练与 GameDay<a class="headerlink" href="#gameday" title="Permanent link">¶</a></h2>
+<p>事故响应流程需要演练。</p>
+<p>AI 系统可以设计 GameDay：</p>
+<ul>
+<li>模拟推理服务 TTFT SLO burn。</li>
+<li>模拟某 node pool GPU Xid 激增。</li>
+<li>模拟 NCCL timeout。</li>
+<li>模拟 checkpoint 存储写入失败。</li>
+<li>模拟 RAG dependency 延迟。</li>
+<li>模拟模型权重分发雪崩。</li>
+<li>模拟调度系统不可用。</li>
+</ul>
+<p>演练不只是测试系统，也测试人和流程：</p>
+<ul>
+<li>是否能快速宣告事故。</li>
+<li>commander 是否清楚。</li>
+<li>live doc 是否可用。</li>
+<li>runbook 是否能执行。</li>
+<li>备用沟通渠道是否可用。</li>
+<li>mitigation 是否真的有效。</li>
+<li>证据是否被保留。</li>
+</ul>
+<p>没有演练过的事故流程，事故中通常会变形。</p>
+<h2 id="_15">常见误区<a class="headerlink" href="#_15" title="Permanent link">¶</a></h2>
+<h3 id="_16">误区一：事故时人人都去排障<a class="headerlink" href="#_16" title="Permanent link">¶</a></h3>
+<p>不对。</p>
+<p>事故需要指挥、执行、沟通、记录和专家支持。所有人都盯日志，沟通和决策就会失控。</p>
+<h3 id="_17">误区二：先找到根因再缓解<a class="headerlink" href="#_17" title="Permanent link">¶</a></h3>
+<p>危险。</p>
+<p>用户或关键任务正在受影响时，应优先止血。根因分析可以在保护证据后继续。</p>
+<h3 id="_18">误区三：恢复后就结束<a class="headerlink" href="#_18" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p>恢复只是响应阶段结束。真正的工程价值来自 postmortem、action items、runbook、alert 和 benchmark。</p>
+<h3 id="root-cause">误区四：复盘只追一个 root cause<a class="headerlink" href="#root-cause" title="Permanent link">¶</a></h3>
+<p>过于简化。</p>
+<p>AI 系统事故通常有触发因素、系统薄弱点、检测缺口、流程缺口和恢复缺口。</p>
+<h3 id="_19">误区五：行动项没有验证方式<a class="headerlink" href="#_19" title="Permanent link">¶</a></h3>
+<p>没有验证方式，行动项就无法证明完成。</p>
+<p>要写清楚如何在 staging、benchmark、replay、chaos test 或 production guardrail 中验证。</p>
+<h3 id="_20">误区六：只沉淀文字，不沉淀实验<a class="headerlink" href="#_20" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p>重要事故应尽可能变成 benchmark、health check、regression rule 或 fault injection case。</p>
+<h3 id="ai_1">误区七：AI 助手直接自动修复生产事故<a class="headerlink" href="#ai_1" title="Permanent link">¶</a></h3>
+<p>风险很高。</p>
+<p>AI 助手适合检索 runbook、汇总证据、生成假设、查找相似事故、起草更新和复盘。生产变更仍应有权限、审批、审计和人类确认。</p>
+<h2 id="_21">检查清单<a class="headerlink" href="#_21" title="Permanent link">¶</a></h2>
+<p>宣告事故时：</p>
+<ul>
+<li>是否有 incident commander？</li>
+<li>是否有 channel？</li>
+<li>是否有 live doc？</li>
+<li>是否定义 severity？</li>
+<li>是否说明初始影响范围？</li>
+<li>是否约定下一次更新时间？</li>
+</ul>
+<p>响应中：</p>
+<ul>
+<li>是否冻结高风险变更？</li>
+<li>是否明确谁能改生产？</li>
+<li>是否保留关键证据？</li>
+<li>是否记录所有操作？</li>
+<li>是否区分 mitigation 和 root cause？</li>
+<li>是否定期更新状态？</li>
+<li>是否需要升级 severity？</li>
+</ul>
+<p>恢复时：</p>
+<ul>
+<li>SLO 是否恢复？</li>
+<li>关键任务是否恢复推进？</li>
+<li>临时降级是否解除或记录？</li>
+<li>可疑节点或配置是否仍被使用？</li>
+<li>是否确认没有二次影响？</li>
+<li>是否确定 postmortem owner？</li>
+</ul>
+<p>复盘时：</p>
+<ul>
+<li>时间线是否来自 live doc 和系统事件？</li>
+<li>影响范围是否量化？</li>
+<li>是否包含 contributing factors？</li>
+<li>是否写 what went well / poorly / lucky？</li>
+<li>action items 是否有 owner、deadline、verification？</li>
+<li>是否更新 runbook？</li>
+<li>是否补充 alert？</li>
+<li>是否生成 benchmark 或 health check？</li>
+<li>是否生成 AI-readable incident card？</li>
+</ul>
+<p>月度/季度评审：</p>
+<ul>
+<li>哪类事故最多？</li>
+<li>哪些 action items 逾期？</li>
+<li>哪些事故重复发生？</li>
+<li>哪些事故由用户先发现？</li>
+<li>哪些事故补充了 benchmark？</li>
+<li>哪些 runbook 被事故验证过？</li>
+</ul>
+<h2 id="_22">小结<a class="headerlink" href="#_22" title="Permanent link">¶</a></h2>
+<p>事故响应的核心不是“谁最快找到根因”，而是组织团队在压力下稳定行动。</p>
+<p>一句话：</p>
+<div class="highlight"><pre><span></span><code>Incident Response 负责止血和协调，
+Runbook 负责把经验变成可执行步骤，
+Postmortem 负责把事故变成系统改进，
+Benchmark 和 Alert 负责防止同类问题再次悄悄发生。
+</code></pre></div>
+<p>对 AI 系统来说，每次事故都应该尽量沉淀出四类资产：</p>
+<ul>
+<li>更清晰的 SLO 或告警。</li>
+<li>更可执行的 runbook。</li>
+<li>更可复现的 benchmark 或健康检查。</li>
+<li>更结构化的 incident knowledge card。</li>
+</ul>
+<p>这样事故才不会只是一段痛苦经历，而会变成知识库和系统能力的一部分。</p>
+<h2 id="_23">参考资料<a class="headerlink" href="#_23" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://sre.google/sre-book/effective-troubleshooting/">Google SRE: Effective Troubleshooting</a></li>
+<li><a href="https://sre.google/sre-book/emergency-response/">Google SRE: Emergency Response</a></li>
+<li><a href="https://sre.google/sre-book/managing-incidents/">Google SRE: Managing Incidents</a></li>
+<li><a href="https://sre.google/sre-book/postmortem-culture/">Google SRE: Postmortem Culture</a></li>
+<li><a href="https://sre.google/workbook/incident-response/">Google SRE Workbook: Incident Response</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

@@ -1,0 +1,3495 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/06-accelerators-architecture/workload-mapping-compiler-runtime-interface/" rel="canonical"/>
+<link href="../accelerator-architecture-tradeoffs/" rel="prev"/>
+<link href="../../07-cluster-infra/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>Workload Mapping：算子、Compiler、Runtime 与硬件执行 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#workload-mappingcompilerruntime">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              Workload Mapping：算子、Compiler、Runtime 与硬件执行
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload-mapping">
+<span class="md-ellipsis">
+      Workload Mapping 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mapping">
+<span class="md-ellipsis">
+      Mapping 决策流程
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mapping_1">
+<span class="md-ellipsis">
+      为什么 Mapping 会决定真实性能
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decode-step">
+<span class="md-ellipsis">
+      端到端例子：一个 Decode Step
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step">
+<span class="md-ellipsis">
+      端到端例子：一个训练 Step
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      从模型到硬件的层次
+    </span>
+</a>
+<nav aria-label="从模型到硬件的层次" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      模型层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#graph-ir">
+<span class="md-ellipsis">
+      Graph / IR 层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      算子层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kernel">
+<span class="md-ellipsis">
+      Kernel 层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runtime">
+<span class="md-ellipsis">
+      Runtime 层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      硬件层
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      算子支持：跑通不等于跑快
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compiler">
+<span class="md-ellipsis">
+      Compiler 做什么
+    </span>
+</a>
+<nav aria-label="Compiler 做什么" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#capture">
+<span class="md-ellipsis">
+      Capture
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ir">
+<span class="md-ellipsis">
+      IR 优化
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lowering">
+<span class="md-ellipsis">
+      Lowering
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lowering_1">
+<span class="md-ellipsis">
+      Lowering 示例
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autotuning">
+<span class="md-ellipsis">
+      Autotuning
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#guardspecialization-recompile">
+<span class="md-ellipsis">
+      Guard、Specialization 与 Recompile
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runtime-interface">
+<span class="md-ellipsis">
+      Runtime Interface：编译器和硬件之间的合约
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#memory-planning-buffer-lifetime">
+<span class="md-ellipsis">
+      Memory Planning 与 Buffer Lifetime
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#correctness-gate">
+<span class="md-ellipsis">
+      Correctness Gate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#layout">
+<span class="md-ellipsis">
+      数据 Layout 是第一等问题
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fusion">
+<span class="md-ellipsis">
+      Fusion：减少中间数据搬运
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tiling">
+<span class="md-ellipsis">
+      Tiling：把大问题拆到硬件能吃的块
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#precision-mapping">
+<span class="md-ellipsis">
+      Precision Mapping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parallel-mapping">
+<span class="md-ellipsis">
+      Parallel Mapping：多卡不是自动加速
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-mapping">
+<span class="md-ellipsis">
+      Training Mapping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inference-mapping">
+<span class="md-ellipsis">
+      Inference Mapping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#target-backend">
+<span class="md-ellipsis">
+      Target Backend 差异
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dynamic-shape">
+<span class="md-ellipsis">
+      Dynamic Shape 与线上推理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fallback">
+<span class="md-ellipsis">
+      Fallback 是端到端性能杀手
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 方法
+    </span>
+</a>
+<nav aria-label="Benchmark 方法" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#microbenchmark">
+<span class="md-ellipsis">
+      Microbenchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#operator-benchmark">
+<span class="md-ellipsis">
+      Operator Benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#graph-benchmark">
+<span class="md-ellipsis">
+      Graph Benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#end-to-end-benchmark">
+<span class="md-ellipsis">
+      End-to-End Benchmark
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#profiler">
+<span class="md-ellipsis">
+      Profiler 证据矩阵
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mapping-manifest">
+<span class="md-ellipsis">
+      Mapping Manifest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#shape-inventory">
+<span class="md-ellipsis">
+      建立 Shape Inventory
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      优先优化热路径
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      消除无价值数据搬运
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#layout_1">
+<span class="md-ellipsis">
+      让 Layout 贯穿多层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recompile">
+<span class="md-ellipsis">
+      管理 Recompile
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runtime_1">
+<span class="md-ellipsis">
+      把 Runtime 也纳入优化
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      误区一：编译器会自动解决所有性能问题
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      误区二：算子支持表等于端到端性能
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gemm">
+<span class="md-ellipsis">
+      误区三：只优化最大的 GEMM
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fusion_1">
+<span class="md-ellipsis">
+      误区四：Fusion 越多越好
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_1">
+<span class="md-ellipsis">
+      误区五：静态 benchmark 能代表线上推理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mapping_2">
+<span class="md-ellipsis">
+      误区六：硬件换了，mapping 可以不变
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      延伸阅读
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload-mapping">
+<span class="md-ellipsis">
+      Workload Mapping 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mapping">
+<span class="md-ellipsis">
+      Mapping 决策流程
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mapping_1">
+<span class="md-ellipsis">
+      为什么 Mapping 会决定真实性能
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decode-step">
+<span class="md-ellipsis">
+      端到端例子：一个 Decode Step
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step">
+<span class="md-ellipsis">
+      端到端例子：一个训练 Step
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      从模型到硬件的层次
+    </span>
+</a>
+<nav aria-label="从模型到硬件的层次" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      模型层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#graph-ir">
+<span class="md-ellipsis">
+      Graph / IR 层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      算子层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kernel">
+<span class="md-ellipsis">
+      Kernel 层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runtime">
+<span class="md-ellipsis">
+      Runtime 层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      硬件层
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      算子支持：跑通不等于跑快
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compiler">
+<span class="md-ellipsis">
+      Compiler 做什么
+    </span>
+</a>
+<nav aria-label="Compiler 做什么" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#capture">
+<span class="md-ellipsis">
+      Capture
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ir">
+<span class="md-ellipsis">
+      IR 优化
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lowering">
+<span class="md-ellipsis">
+      Lowering
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#lowering_1">
+<span class="md-ellipsis">
+      Lowering 示例
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#autotuning">
+<span class="md-ellipsis">
+      Autotuning
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#guardspecialization-recompile">
+<span class="md-ellipsis">
+      Guard、Specialization 与 Recompile
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runtime-interface">
+<span class="md-ellipsis">
+      Runtime Interface：编译器和硬件之间的合约
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#memory-planning-buffer-lifetime">
+<span class="md-ellipsis">
+      Memory Planning 与 Buffer Lifetime
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#correctness-gate">
+<span class="md-ellipsis">
+      Correctness Gate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#layout">
+<span class="md-ellipsis">
+      数据 Layout 是第一等问题
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fusion">
+<span class="md-ellipsis">
+      Fusion：减少中间数据搬运
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tiling">
+<span class="md-ellipsis">
+      Tiling：把大问题拆到硬件能吃的块
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#precision-mapping">
+<span class="md-ellipsis">
+      Precision Mapping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parallel-mapping">
+<span class="md-ellipsis">
+      Parallel Mapping：多卡不是自动加速
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#training-mapping">
+<span class="md-ellipsis">
+      Training Mapping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inference-mapping">
+<span class="md-ellipsis">
+      Inference Mapping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#target-backend">
+<span class="md-ellipsis">
+      Target Backend 差异
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dynamic-shape">
+<span class="md-ellipsis">
+      Dynamic Shape 与线上推理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fallback">
+<span class="md-ellipsis">
+      Fallback 是端到端性能杀手
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 方法
+    </span>
+</a>
+<nav aria-label="Benchmark 方法" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#microbenchmark">
+<span class="md-ellipsis">
+      Microbenchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#operator-benchmark">
+<span class="md-ellipsis">
+      Operator Benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#graph-benchmark">
+<span class="md-ellipsis">
+      Graph Benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#end-to-end-benchmark">
+<span class="md-ellipsis">
+      End-to-End Benchmark
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#profiler">
+<span class="md-ellipsis">
+      Profiler 证据矩阵
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mapping-manifest">
+<span class="md-ellipsis">
+      Mapping Manifest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#shape-inventory">
+<span class="md-ellipsis">
+      建立 Shape Inventory
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      优先优化热路径
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      消除无价值数据搬运
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#layout_1">
+<span class="md-ellipsis">
+      让 Layout 贯穿多层
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recompile">
+<span class="md-ellipsis">
+      管理 Recompile
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runtime_1">
+<span class="md-ellipsis">
+      把 Runtime 也纳入优化
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      误区一：编译器会自动解决所有性能问题
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      误区二：算子支持表等于端到端性能
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gemm">
+<span class="md-ellipsis">
+      误区三：只优化最大的 GEMM
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fusion_1">
+<span class="md-ellipsis">
+      误区四：Fusion 越多越好
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_1">
+<span class="md-ellipsis">
+      误区五：静态 benchmark 能代表线上推理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mapping_2">
+<span class="md-ellipsis">
+      误区六：硬件换了，mapping 可以不变
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      延伸阅读
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="workload-mappingcompilerruntime">Workload Mapping：算子、Compiler、Runtime 与硬件执行<a class="headerlink" href="#workload-mappingcompilerruntime" title="Permanent link">¶</a></h1>
+<p>AI 加速器不会直接执行“Transformer”或“训练任务”。硬件真正执行的是一串 kernel、memory copy、collective communication 和 runtime 调度动作。</p>
+<p>从模型到硬件之间，需要完成一件事：</p>
+<blockquote>
+<p>把 workload 映射到具体硬件资源上，让计算单元、存储层次、互连和 runtime 协同工作。</p>
+</blockquote>
+<p>这件事就是 workload mapping。</p>
+<p>如果 mapping 做得好，同样的模型和同样的硬件可以得到高吞吐、低延迟和稳定能效。如果 mapping 做得不好，硬件峰值再高也会表现为 GPU/NPU 利用率低、HBM 带宽浪费、频繁 fallback、编译时间长、尾延迟抖动和多卡扩展效率差。</p>
+<h2 id="_1">一张总图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TB
+    Model["Model / Workload<br/>Transformer / MoE / Multimodal / Training / Serving"]
+    Graph["Graph / IR<br/>FX / HLO / StableHLO / MLIR / vendor IR"]
+    Ops["Operators<br/>GEMM / Attention / Norm / Softmax / MoE / Collectives"]
+    Mapping["Mapping Decisions<br/>layout / dtype / tiling / fusion / sharding"]
+    Kernels["Kernels / Library Calls<br/>cuBLAS / custom kernel / Triton / vendor kernels"]
+    Runtime["Runtime<br/>scheduler / memory manager / streams / graph executor"]
+    Hardware["Hardware<br/>SM / Tensor Core / SRAM / HBM / NoC / Interconnect"]
+    Metrics["Observed Metrics<br/>latency / throughput / MFU / power / errors"]
+
+    Model --&gt; Graph
+    Graph --&gt; Ops
+    Ops --&gt; Mapping
+    Mapping --&gt; Kernels
+    Kernels --&gt; Runtime
+    Runtime --&gt; Hardware
+    Hardware --&gt; Metrics
+    Metrics --&gt; Mapping
+</div>
+<p>这张图表达一个核心判断：</p>
+<div class="highlight"><pre><span></span><code>硬件性能不是自动出现的
+它需要 graph、operator、compiler、kernel、runtime 和 topology 一起把 workload 映射好
+</code></pre></div>
+<h2 id="workload-mapping">Workload Mapping 是什么<a class="headerlink" href="#workload-mapping" title="Permanent link">¶</a></h2>
+<p>Workload mapping 可以理解为一组选择：</p>
+<ul>
+<li>一个模型算子由哪个 kernel 执行。</li>
+<li>tensor 用什么 dtype 和 layout。</li>
+<li>GEMM / attention / reduction 如何分块。</li>
+<li>数据放在 register、SRAM、cache、HBM 还是 host memory。</li>
+<li>哪些 op 融合，哪些 op 保持独立。</li>
+<li>一个 batch 如何切到多个 GPU/NPU。</li>
+<li>一个模型如何做 TP、PP、DP、EP。</li>
+<li>collective group 如何映射到互连拓扑。</li>
+<li>runtime 何时 launch kernel、何时通信、何时等待。</li>
+<li>动态 shape 如何复用已编译代码。</li>
+<li>unsupported op 如何处理。</li>
+</ul>
+<p>所以 workload mapping 不是单个编译器优化，也不是单个 kernel 调参。它横跨模型、图编译、算子库、kernel、运行时、显存管理和分布式通信。</p>
+<h2 id="mapping">Mapping 决策流程<a class="headerlink" href="#mapping" title="Permanent link">¶</a></h2>
+<p>做 workload mapping 时，可以按一条固定路径分析：</p>
+<div class="highlight"><pre><span></span><code>1. 定义 workload
+   -&gt; 训练 / 推理 / Prefill / Decode / MoE / 多模态 / RAG
+
+2. 统计 shape inventory
+   -&gt; batch、sequence length、hidden、head_dim、expert tokens、image size
+
+3. 拆出热路径
+   -&gt; 哪些 op、哪些 kernel、哪些 communication 占主要时间或 p99
+
+4. 选择数据表示
+   -&gt; dtype、layout、sharding、KV Cache 格式、scale metadata
+
+5. 选择执行路径
+   -&gt; library call、generated kernel、custom kernel、collective、fallback
+
+6. 规划内存和调度
+   -&gt; buffer lifetime、workspace、stream、overlap、cache、allocator
+
+7. 验证端到端
+   -&gt; 性能、质量、数值正确性、稳定性、能效、可复现性
+</code></pre></div>
+<p>这个流程的关键是不要从“我要优化某个 kernel”开始，而要从真实 workload 的形状、热路径和关键路径开始。否则很容易优化了一个漂亮的 microbenchmark，却没有改善端到端训练 step 或推理 p99。</p>
+<h2 id="mapping_1">为什么 Mapping 会决定真实性能<a class="headerlink" href="#mapping_1" title="Permanent link">¶</a></h2>
+<p>以一个 Transformer layer 为例，表面上它只是：</p>
+<div class="highlight"><pre><span></span><code>Attention + MLP + Norm + Residual
+</code></pre></div>
+<p>真正执行时会变成：</p>
+<ul>
+<li>Q/K/V projection GEMM。</li>
+<li>RoPE。</li>
+<li>attention score 计算。</li>
+<li>mask。</li>
+<li>softmax。</li>
+<li>dropout 或 sampling 相关逻辑。</li>
+<li>value aggregation。</li>
+<li>output projection。</li>
+<li>LayerNorm / RMSNorm。</li>
+<li>MLP up/gate/down projection。</li>
+<li>activation function。</li>
+<li>residual add。</li>
+<li>dtype cast。</li>
+<li>reshape / transpose。</li>
+<li>KV Cache read/write。</li>
+<li>tensor parallel collective。</li>
+</ul>
+<p>每一步都要决定：</p>
+<ul>
+<li>是否走矩阵单元。</li>
+<li>是否从 HBM 读写。</li>
+<li>是否能在片上 SRAM 复用。</li>
+<li>是否产生临时 tensor。</li>
+<li>是否需要同步。</li>
+<li>是否跨卡通信。</li>
+<li>是否触发 fallback。</li>
+</ul>
+<p>一条糟糕的 mapping 可能让模型跑通，但性能很差。</p>
+<p>例如：</p>
+<ul>
+<li>GEMM shape 不适合 Tensor Core tile。</li>
+<li>attention 写出完整 score matrix，HBM IO 过大。</li>
+<li>LayerNorm、activation、residual 分成多个小 kernel，launch overhead 和 HBM 往返过多。</li>
+<li>transpose 频繁发生，吞掉优化收益。</li>
+<li>dynamic shape 导致频繁 recompile。</li>
+<li>unsupported op fallback 到 CPU，引发 device-host copy。</li>
+<li>TP group 跨节点，层内 collective 被网络拖慢。</li>
+</ul>
+<p>这些问题不是“硬件不够快”，而是 mapping 没有把 workload 放到合适的执行路径上。</p>
+<h2 id="decode-step">端到端例子：一个 Decode Step<a class="headerlink" href="#decode-step" title="Permanent link">¶</a></h2>
+<p>LLM Decode 看起来只是“生成下一个 token”，但一个请求在硬件上会变成一串 mapping 决策：</p>
+<div class="highlight"><pre><span></span><code>active requests
+  -&gt; scheduler 组成 batch
+  -&gt; 读取每个请求的 KV Cache block table
+  -&gt; Q projection / K/V update
+  -&gt; attention 读取历史 KV
+  -&gt; MLP GEMM
+  -&gt; logits projection
+  -&gt; sampling / top-k / top-p
+  -&gt; 写回新 token 和 KV Cache
+</code></pre></div>
+<p>每一步都有不同瓶颈：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>关键 mapping</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>batch 调度</td>
+<td>请求合并、SLO、长短请求混排、padding</td>
+</tr>
+<tr>
+<td>KV Cache</td>
+<td>page/block layout、cache locality、量化、碎片</td>
+</tr>
+<tr>
+<td>attention</td>
+<td>MHA/MQA/GQA、PagedAttention、Flash/Paged kernel</td>
+</tr>
+<tr>
+<td>GEMM</td>
+<td>batch size、dtype、tile、Tensor Core 对齐</td>
+</tr>
+<tr>
+<td>logits/sampling</td>
+<td>vocab shard、top-k/top-p、CPU/GPU fallback</td>
+</tr>
+<tr>
+<td>runtime</td>
+<td>stream、memory pool、CUDA Graph、recompile、cache eviction</td>
+</tr>
+</tbody>
+</table>
+<p>这解释了为什么 Decode 的优化不能只看 GEMM。很多时候 TPOT 和 p99 受 KV Cache layout、batch scheduler、sampling fallback 或 runtime allocator 影响。</p>
+<h2 id="step">端到端例子：一个训练 Step<a class="headerlink" href="#step" title="Permanent link">¶</a></h2>
+<p>训练 step 的 mapping 又是另一种形态：</p>
+<div class="highlight"><pre><span></span><code>data batch
+  -&gt; forward
+  -&gt; activation save / checkpoint
+  -&gt; loss
+  -&gt; backward
+  -&gt; gradient communication
+  -&gt; optimizer step
+  -&gt; checkpoint / logging / eval hooks
+</code></pre></div>
+<p>关键 mapping 包括：</p>
+<ul>
+<li>activation 是否保存、重算或 offload。</li>
+<li>forward/backward 是否被 compiler capture。</li>
+<li>backward bucket 何时发起通信。</li>
+<li>FSDP/ZeRO 参数 all-gather 是否能 prefetch。</li>
+<li>optimizer state 是 FP32、低精度还是 sharded。</li>
+<li>gradient communication 是否低精度、是否 overlap。</li>
+<li>checkpoint 是否阻塞训练关键路径。</li>
+</ul>
+<p>训练 mapping 的目标不是单个 kernel 最快，而是稳定降低 step time，并且不破坏收敛、数值稳定和可恢复性。</p>
+<h2 id="_2">从模型到硬件的层次<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<h3 id="_3">模型层<a class="headerlink" href="#_3" title="Permanent link">¶</a></h3>
+<p>模型层关注：</p>
+<ul>
+<li>模型结构。</li>
+<li>tensor shape。</li>
+<li>sequence length。</li>
+<li>batch size。</li>
+<li>attention pattern。</li>
+<li>MoE routing。</li>
+<li>多模态输入。</li>
+<li>训练还是推理。</li>
+<li>是否有 KV Cache、optimizer state、activation checkpointing。</li>
+</ul>
+<p>模型层决定了 workload 的基本形态。</p>
+<p>例如：</p>
+<ul>
+<li>大 batch 训练更容易形成大 GEMM。</li>
+<li>Decode 推理有很多小步、KV Cache 读取和调度问题。</li>
+<li>MoE 增加 routing、AllToAll 和 grouped GEMM。</li>
+<li>长上下文会显著增加 attention 和 KV Cache 成本。</li>
+<li>多模态模型会引入 vision/audio encoder 和跨模态 projector。</li>
+</ul>
+<p>如果模型层 shape 非常动态，后面的 compiler 和 runtime 都要为动态性付出代价。</p>
+<h3 id="graph-ir">Graph / IR 层<a class="headerlink" href="#graph-ir" title="Permanent link">¶</a></h3>
+<p>模型通常会被表示为计算图或中间表示。</p>
+<p>常见形式包括：</p>
+<ul>
+<li>PyTorch FX graph。</li>
+<li>TorchInductor IR。</li>
+<li>XLA HLO。</li>
+<li>StableHLO。</li>
+<li>MLIR dialect。</li>
+<li>ONNX graph。</li>
+<li>厂商自定义 IR。</li>
+</ul>
+<p>Graph / IR 的作用是让编译器能看见计算结构，并做优化：</p>
+<ul>
+<li>常量折叠。</li>
+<li>dead code elimination。</li>
+<li>op fusion。</li>
+<li>layout propagation。</li>
+<li>dtype propagation。</li>
+<li>shape inference。</li>
+<li>memory planning。</li>
+<li>sharding propagation。</li>
+<li>lowering。</li>
+</ul>
+<p>OpenXLA/XLA、StableHLO 和 MLIR 这类项目的核心价值就在于为 tensor computation 提供可分析、可变换、可 lowering 的中间表示。没有 IR，优化就只能停留在单个 op 或手写 kernel 层面。</p>
+<p>IR 不是只有一种层次。常见做法是多层 IR：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>关注点</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高层 graph</td>
+<td>模型语义、op 依赖、shape、dtype</td>
+<td>FX、ONNX、StableHLO/HLO</td>
+</tr>
+<tr>
+<td>中层 tensor IR</td>
+<td>fusion、layout、buffer、loop/tile</td>
+<td>MLIR dialect、compiler internal IR</td>
+</tr>
+<tr>
+<td>低层 kernel IR</td>
+<td>thread/block、vector、memory、指令选择</td>
+<td>Triton IR、LLVM IR、PTX/ISA 之前的 IR</td>
+</tr>
+</tbody>
+</table>
+<p>多层 IR 的好处是：高层可以看见全图结构，低层可以表达硬件细节。一个成熟编译栈通常要在这些层之间传递 shape、layout、dtype、alias、lifetime 和 target hardware 信息。</p>
+<h3 id="_4">算子层<a class="headerlink" href="#_4" title="Permanent link">¶</a></h3>
+<p>算子层关注每个 op 怎么执行。</p>
+<p>AI 常见算子包括：</p>
+<ul>
+<li>GEMM / batched GEMM。</li>
+<li>convolution。</li>
+<li>attention。</li>
+<li>softmax。</li>
+<li>LayerNorm / RMSNorm。</li>
+<li>embedding。</li>
+<li>activation。</li>
+<li>top-k / sampling。</li>
+<li>quantize / dequantize。</li>
+<li>reshape / transpose / concat。</li>
+<li>MoE routing / dispatch / combine。</li>
+<li>AllReduce / AllGather / ReduceScatter / AllToAll。</li>
+</ul>
+<p>算子层最重要的问题是：</p>
+<blockquote>
+<p>这个 op 有没有高性能实现？它能不能和周围 op 融合？它的 shape 是否适合硬件？</p>
+</blockquote>
+<p>很多新硬件或新编译器的端到端性能问题，不是主 GEMM 不快，而是长尾算子覆盖不完整。</p>
+<h3 id="kernel">Kernel 层<a class="headerlink" href="#kernel" title="Permanent link">¶</a></h3>
+<p>Kernel 层是真正贴近硬件的执行单元。</p>
+<p>一个高性能 kernel 要决定：</p>
+<ul>
+<li>tile size。</li>
+<li>block size。</li>
+<li>program ID mapping。</li>
+<li>num warps / wavefront。</li>
+<li>pipeline stages。</li>
+<li>register 使用量。</li>
+<li>shared memory / SRAM 使用量。</li>
+<li>memory coalescing。</li>
+<li>bank conflict。</li>
+<li>vectorized load/store。</li>
+<li>Tensor Core / Matrix Core 使用。</li>
+<li>accumulator dtype。</li>
+<li>epilogue fusion。</li>
+<li>boundary mask。</li>
+</ul>
+<p>Triton、CUDA、CUTLASS、vendor kernel library 都在这一层发挥作用。</p>
+<p>Kernel 层的核心矛盾是：</p>
+<div class="highlight"><pre><span></span><code>更大 tile 可以提高数据复用
+但也会增加 register / SRAM 压力
+进而降低 occupancy 或引发 spill
+</code></pre></div>
+<p>所以 kernel mapping 不只是“把块调大”，而是在复用、并行度、occupancy、带宽和寄存器压力之间找平衡。</p>
+<h3 id="runtime">Runtime 层<a class="headerlink" href="#runtime" title="Permanent link">¶</a></h3>
+<p>Runtime 负责把 kernel、memory、communication 和 request/job 调度起来。</p>
+<p>Runtime 常做：</p>
+<ul>
+<li>kernel launch。</li>
+<li>stream 管理。</li>
+<li>event synchronization。</li>
+<li>memory allocation。</li>
+<li>graph execution。</li>
+<li>cache 管理。</li>
+<li>batching。</li>
+<li>request scheduling。</li>
+<li>collective launch。</li>
+<li>error handling。</li>
+<li>device placement。</li>
+<li>multi-process / multi-tenant coordination。</li>
+</ul>
+<p>训练 runtime 关注 step pipeline、communication overlap、checkpoint 和 fault tolerance。推理 runtime 关注 continuous batching、KV Cache、prefix cache、P/D 分离、SLO 和尾延迟。</p>
+<p>Runtime mapping 决定了理论上的 kernel 优化能否真正转化为端到端收益。</p>
+<h3 id="_5">硬件层<a class="headerlink" href="#_5" title="Permanent link">¶</a></h3>
+<p>硬件层提供资源：</p>
+<ul>
+<li>scalar/vector units。</li>
+<li>Tensor Core / Matrix Engine。</li>
+<li>register file。</li>
+<li>SRAM/shared memory。</li>
+<li>L1/L2 cache。</li>
+<li>HBM。</li>
+<li>NoC。</li>
+<li>PCIe/NVLink/CXL/RDMA。</li>
+<li>copy engine。</li>
+<li>synchronization primitive。</li>
+</ul>
+<p>硬件层不是一个平坦资源池。不同资源带宽、延迟、容量和约束都不同。Mapping 的目标就是让正确的数据在正确时间出现在正确层级。</p>
+<h2 id="_6">算子支持：跑通不等于跑快<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>评估加速器和编译器时，算子支持要分层看。</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不支持</td>
+<td>模型无法运行，或必须手工改模型</td>
+</tr>
+<tr>
+<td>支持但 fallback</td>
+<td>可以运行，但回退到 CPU、慢 kernel 或解释路径</td>
+</tr>
+<tr>
+<td>支持基础 kernel</td>
+<td>可以在设备上运行，但未融合或未针对 shape 优化</td>
+</tr>
+<tr>
+<td>支持高性能 kernel</td>
+<td>有适配 dtype、layout、tile、epilogue 的优化实现</td>
+</tr>
+<tr>
+<td>支持 graph-level fusion</td>
+<td>能和周围 op 融合，减少中间写回和 launch</td>
+</tr>
+<tr>
+<td>支持动态场景</td>
+<td>能处理 shape 变化、batching、cache、runtime 调度</td>
+</tr>
+</tbody>
+</table>
+<p>很多性能陷阱发生在“支持但 fallback”或“支持基础 kernel”阶段。</p>
+<p>例如一个 LLM 推理模型：</p>
+<ul>
+<li>GEMM 走高性能矩阵库。</li>
+<li>RoPE 是普通 elementwise kernel。</li>
+<li>RMSNorm 没融合。</li>
+<li>dequantize 单独读写 HBM。</li>
+<li>sampling 在 CPU 上做。</li>
+<li>KV Cache layout 不匹配 attention kernel。</li>
+</ul>
+<p>这种系统每个 op 都“支持”，但端到端仍然可能很慢。</p>
+<p>所以看算子支持时，要问：</p>
+<ul>
+<li>op 是在设备上执行还是 CPU fallback。</li>
+<li>是否触发 device-host copy。</li>
+<li>dtype 是否是目标 dtype。</li>
+<li>layout 是否需要额外 transpose。</li>
+<li>是否能 fusion。</li>
+<li>是否有 target shape 的 autotune 结果。</li>
+<li>profiler 中是否有很多小 kernel。</li>
+<li>p99 是否受某个长尾 op 影响。</li>
+</ul>
+<h2 id="compiler">Compiler 做什么<a class="headerlink" href="#compiler" title="Permanent link">¶</a></h2>
+<p>编译器的任务不是简单“把 Python 变成 CUDA”。它通常做多层变换。</p>
+<p>典型流程：</p>
+<div class="highlight"><pre><span></span><code>Frontend capture
+  -&gt; Graph / IR
+  -&gt; Shape and dtype analysis
+  -&gt; Fusion and canonicalization
+  -&gt; Layout and memory planning
+  -&gt; Lowering to library call / generated kernel / custom call
+  -&gt; Code generation
+  -&gt; Autotuning
+  -&gt; Runtime execution
+</code></pre></div>
+<p>不同系统名字不同，但大体问题相似。</p>
+<h3 id="capture">Capture<a class="headerlink" href="#capture" title="Permanent link">¶</a></h3>
+<p>编译器首先要捕获模型计算。</p>
+<p>难点包括：</p>
+<ul>
+<li>Python 动态控制流。</li>
+<li>tensor shape 动态变化。</li>
+<li>data-dependent branch。</li>
+<li>mutation。</li>
+<li>random number。</li>
+<li>custom autograd。</li>
+<li>unsupported Python side effect。</li>
+</ul>
+<p>如果 capture 不完整，就会出现 graph break。Graph break 会让编译器只能优化局部，端到端 fusion 和 memory planning 都受影响。</p>
+<h3 id="ir">IR 优化<a class="headerlink" href="#ir" title="Permanent link">¶</a></h3>
+<p>IR 层可以做：</p>
+<ul>
+<li>删除无用 op。</li>
+<li>合并等价 op。</li>
+<li>把复杂 op 分解成硬件支持的基本 op。</li>
+<li>把多个小 op 融合。</li>
+<li>传播 layout。</li>
+<li>推导 shape。</li>
+<li>分析 alias 和 lifetime。</li>
+</ul>
+<p>MLIR 的多 dialect 思路和 XLA/StableHLO 的 tensor IR 思路，都是为了让不同层次的优化有清晰表达。</p>
+<h3 id="lowering">Lowering<a class="headerlink" href="#lowering" title="Permanent link">¶</a></h3>
+<p>Lowering 是把高层 op 变成更贴近硬件的形式。</p>
+<p>例如：</p>
+<ul>
+<li><code>matmul</code> lowering 到 cuBLAS / CUTLASS / generated GEMM。</li>
+<li><code>attention</code> lowering 到 FlashAttention 类 kernel。</li>
+<li><code>layernorm + residual</code> lowering 到 fused kernel。</li>
+<li><code>allreduce</code> lowering 到 NCCL/RCCL/vendor collective。</li>
+<li><code>reshape/transpose</code> 尽量变成 metadata change，避免真实搬数据。</li>
+</ul>
+<p>Lowering 的选择会直接影响性能。</p>
+<p>同一个 high-level op，可以有多种实现：</p>
+<ul>
+<li>调库。</li>
+<li>生成 kernel。</li>
+<li>调手写 custom kernel。</li>
+<li>分解成多个基础 op。</li>
+<li>fallback。</li>
+</ul>
+<p>编译器要根据 shape、dtype、layout、target hardware 和 runtime 信息选择。</p>
+<h3 id="lowering_1">Lowering 示例<a class="headerlink" href="#lowering_1" title="Permanent link">¶</a></h3>
+<p>以 <code>linear -&gt; bias -&gt; activation</code> 为例，可能有多种 lowering：</p>
+<table>
+<thead>
+<tr>
+<th>lowering</th>
+<th>执行方式</th>
+<th>适合情况</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>library GEMM + separate bias + separate activation</td>
+<td>调库后多个小 kernel</td>
+<td>简单、保守、容易跑通</td>
+</tr>
+<tr>
+<td>GEMM epilogue fusion</td>
+<td>bias/activation 放进 GEMM epilogue</td>
+<td>减少 HBM 写回和 kernel launch</td>
+</tr>
+<tr>
+<td>generated fused kernel</td>
+<td>编译器生成完整 fused op</td>
+<td>shape 固定、fusion 收益大</td>
+</tr>
+<tr>
+<td>custom kernel</td>
+<td>手写 CUDA/Triton/vendor kernel</td>
+<td>热路径明确、需要极致优化</td>
+</tr>
+<tr>
+<td>fallback decomposition</td>
+<td>分解成基础 op 或 CPU 路径</td>
+<td>兼容但可能很慢</td>
+</tr>
+</tbody>
+</table>
+<p>Lowering 的核心不是“哪个方式最高级”，而是当前 shape、dtype、layout、硬件和 runtime 下哪个端到端成本最低。</p>
+<p>Attention 也是类似：</p>
+<ul>
+<li>短序列、小 batch 可能被 launch overhead 主导。</li>
+<li>长序列 Prefill 更适合 IO-aware attention kernel。</li>
+<li>Decode 更关心 KV Cache layout、page table 和小 batch GEMM。</li>
+<li>Sparse/Sliding Window attention 要看 pattern 是否适合 block-level kernel。</li>
+</ul>
+<p>同一个数学 op，在不同 workload 阶段可能需要完全不同的 lowering。</p>
+<h3 id="autotuning">Autotuning<a class="headerlink" href="#autotuning" title="Permanent link">¶</a></h3>
+<p>很多 kernel 参数没有一个永远最优的值。</p>
+<p>Autotuning 会尝试不同配置：</p>
+<ul>
+<li>tile size。</li>
+<li>num warps。</li>
+<li>pipeline stages。</li>
+<li>memory layout。</li>
+<li>split-k。</li>
+<li>block scheduling。</li>
+<li>epilogue fusion。</li>
+</ul>
+<p>然后为特定 shape 和硬件选择更快配置。</p>
+<p>Autotuning 的问题是：</p>
+<ul>
+<li>搜索成本高。</li>
+<li>结果依赖硬件和 driver。</li>
+<li>dynamic shape 会扩大搜索空间。</li>
+<li>线上 serving 不能频繁长时间 autotune。</li>
+<li>缓存和版本管理复杂。</li>
+</ul>
+<p>所以生产系统经常要做 shape bucketing、预编译、warmup 和 autotune cache。</p>
+<h3 id="guardspecialization-recompile">Guard、Specialization 与 Recompile<a class="headerlink" href="#guardspecialization-recompile" title="Permanent link">¶</a></h3>
+<p>很多编译系统会根据 shape、dtype、stride、device、requires_grad、control flow 等条件生成专门版本。</p>
+<p>这些条件可以理解为 guard：</p>
+<div class="highlight"><pre><span></span><code>如果输入满足这些条件
+  使用已编译版本
+否则
+  graph break / recompile / fallback
+</code></pre></div>
+<p>Specialization 可以让常见 shape 很快，但会带来风险：</p>
+<ul>
+<li>线上 shape 太散，编译缓存膨胀。</li>
+<li>首次请求遇到冷编译，尾延迟升高。</li>
+<li>guard 频繁失败，优化路径不稳定。</li>
+<li>不同版本 driver 或 compiler 生成的 kernel 不一致。</li>
+</ul>
+<p>生产系统需要记录：</p>
+<ul>
+<li>compiled graph 数量。</li>
+<li>recompile 次数。</li>
+<li>guard failure 原因。</li>
+<li>compile latency。</li>
+<li>cache hit rate。</li>
+<li>每个 compiled artifact 对应的 shape bucket。</li>
+</ul>
+<p>否则“编译器优化”可能在用户侧表现为不可解释的延迟尖刺。</p>
+<h2 id="runtime-interface">Runtime Interface：编译器和硬件之间的合约<a class="headerlink" href="#runtime-interface" title="Permanent link">¶</a></h2>
+<p>编译器生成计划后，还需要 runtime 执行。</p>
+<p>Runtime interface 至少要表达：</p>
+<ul>
+<li>kernel 入口。</li>
+<li>tensor 地址。</li>
+<li>shape / stride。</li>
+<li>dtype。</li>
+<li>stream。</li>
+<li>dependency。</li>
+<li>workspace。</li>
+<li>temporary buffer。</li>
+<li>collective group。</li>
+<li>device placement。</li>
+<li>error handling。</li>
+<li>profiling marker。</li>
+</ul>
+<p>可以把 runtime interface 理解成合约：</p>
+<div class="highlight"><pre><span></span><code>compiler 说：
+  我需要这些 tensor、这些 layout、这些 workspace、这些顺序和同步关系
+
+runtime 说：
+  我负责分配内存、安排 stream、发起 kernel、处理通信、监控错误
+
+hardware 说：
+  我按这些指令和数据路径执行，但必须满足 alignment、dtype、layout、同步等约束
+</code></pre></div>
+<p>如果合约设计不好，会出现：</p>
+<ul>
+<li>compiler 以为 tensor layout 不变，runtime 实际做了额外 copy。</li>
+<li>runtime memory allocator 导致 fragmentation。</li>
+<li>kernel workspace 竞争显存。</li>
+<li>stream dependency 过度保守，失去 overlap。</li>
+<li>collective 和 compute 没有并行。</li>
+<li>dynamic shape 导致频繁重新编译。</li>
+<li>error 无法定位到具体 kernel 或 op。</li>
+</ul>
+<h2 id="memory-planning-buffer-lifetime">Memory Planning 与 Buffer Lifetime<a class="headerlink" href="#memory-planning-buffer-lifetime" title="Permanent link">¶</a></h2>
+<p>Memory planning 是 workload mapping 中很容易被低估的一层。</p>
+<p>编译器和 runtime 要决定：</p>
+<ul>
+<li>哪些 tensor 需要真实分配。</li>
+<li>哪些 tensor 只是 view 或 metadata change。</li>
+<li>中间 buffer 何时创建、何时释放、能否复用。</li>
+<li>workspace 大小如何选择。</li>
+<li>activation 保存还是重算。</li>
+<li>KV Cache block 如何分配、回收和压缩。</li>
+<li>communication buffer 和 compute buffer 是否能重叠。</li>
+<li>CUDA Graph 或 graph executor 是否要求稳定地址。</li>
+</ul>
+<p>一个简单例子：</p>
+<div class="highlight"><pre><span></span><code>op A output -&gt; op B input -&gt; op C input
+</code></pre></div>
+<p>如果 <code>op A</code> 的输出只被 <code>op B</code> 使用一次，且 <code>op B</code> 可以融合进 <code>op A</code> 或复用同一 buffer，那么就可能省掉一次 HBM 写回和一次 allocation。反过来，如果某个 tensor 被多个下游 op 使用，或者 alias 关系复杂，编译器就不能随便覆盖它。</p>
+<p>Memory planning 常见问题：</p>
+<ul>
+<li>allocator fragmentation 导致明明总显存够却 OOM。</li>
+<li>temporary buffer 峰值超过预期。</li>
+<li>dynamic batch 让 KV Cache 空洞增多。</li>
+<li>graph break 让编译器看不见 tensor lifetime。</li>
+<li>custom op 隐藏内部 allocation。</li>
+<li>communication workspace 和 model activation 同时达到峰值。</li>
+</ul>
+<p>所以 profiler 里除了看 kernel time，还要看 allocation timeline、peak memory、temporary buffer、copy kernel 和 fragmentation。</p>
+<h2 id="correctness-gate">Correctness Gate<a class="headerlink" href="#correctness-gate" title="Permanent link">¶</a></h2>
+<p>Mapping 优化必须先保证正确性。</p>
+<p>每次改变 layout、dtype、fusion、tiling、parallel mapping 或 lowering，都可能引入错误：</p>
+<ul>
+<li>stride/index 算错。</li>
+<li>mask 边界处理错误。</li>
+<li>reduction 顺序改变导致数值差异。</li>
+<li>FP8/INT8 scale 管理错误。</li>
+<li>parallel shard 拼接错位。</li>
+<li>dropout/RNG 状态不一致。</li>
+<li>dynamic shape 分支漏测。</li>
+<li>fused kernel 没处理特殊值。</li>
+</ul>
+<p>建议设置 correctness gate：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>检查</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kernel</td>
+<td>与 reference kernel 对比，覆盖边界 shape 和 dtype</td>
+</tr>
+<tr>
+<td>Operator</td>
+<td>forward/backward 数值误差、NaN/Inf、极值输入</td>
+</tr>
+<tr>
+<td>Graph</td>
+<td>compiled vs eager、fusion on/off、dynamic shape</td>
+</tr>
+<tr>
+<td>Distributed</td>
+<td>单卡 vs 多卡、不同 rank mapping、checkpoint/resume</td>
+</tr>
+<tr>
+<td>End-to-end</td>
+<td>loss curve、eval、生成质量、p99 和异常请求</td>
+</tr>
+</tbody>
+</table>
+<p>性能优化如果没有 correctness gate，很容易把“跑得快”建立在隐蔽错误上。</p>
+<h2 id="layout">数据 Layout 是第一等问题<a class="headerlink" href="#layout" title="Permanent link">¶</a></h2>
+<p>很多性能问题来自 layout。</p>
+<p>Layout 包括：</p>
+<ul>
+<li>row-major / column-major。</li>
+<li>NCHW / NHWC。</li>
+<li>contiguous / strided。</li>
+<li>blocked layout。</li>
+<li>tensor core friendly layout。</li>
+<li>KV Cache page layout。</li>
+<li>MoE token packing layout。</li>
+<li>sharded tensor layout。</li>
+</ul>
+<p>Layout 影响：</p>
+<ul>
+<li>memory coalescing。</li>
+<li>cache locality。</li>
+<li>Tensor Core 使用。</li>
+<li>vectorized load/store。</li>
+<li>transpose 成本。</li>
+<li>collective packing。</li>
+<li>fusion 可行性。</li>
+</ul>
+<p>一个常见问题是：</p>
+<div class="highlight"><pre><span></span><code>A op 喜欢 layout 1
+B op 喜欢 layout 2
+中间需要 transpose
+transpose 本身没有数学价值，但会读写大量 HBM
+</code></pre></div>
+<p>如果 layout propagation 做得好，可以让多个 op 共享同一种高效 layout，或者把 transpose 融合/消除。否则大量 invisible data movement 会吃掉硬件收益。</p>
+<h2 id="fusion">Fusion：减少中间数据搬运<a class="headerlink" href="#fusion" title="Permanent link">¶</a></h2>
+<p>Fusion 的目标不是减少数学计算，而是减少：</p>
+<ul>
+<li>kernel launch。</li>
+<li>HBM 读写。</li>
+<li>intermediate tensor。</li>
+<li>synchronization。</li>
+<li>memory allocation。</li>
+</ul>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>x = layernorm(x)
+y = matmul(x, w)
+z = y + residual
+</code></pre></div>
+<p>某些场景可以把 norm、bias、activation、residual、dequantize、epilogue 等融合到更少 kernel 中。</p>
+<p>Fusion 的收益：</p>
+<ul>
+<li>减少 HBM 往返。</li>
+<li>减少小 kernel launch。</li>
+<li>提高 cache / register / SRAM 复用。</li>
+<li>降低 latency。</li>
+</ul>
+<p>Fusion 的代价：</p>
+<ul>
+<li>kernel 更复杂。</li>
+<li>register pressure 增加。</li>
+<li>occupancy 可能下降。</li>
+<li>代码生成更难。</li>
+<li>dynamic shape 更难处理。</li>
+<li>debug 更难。</li>
+</ul>
+<p>所以 fusion 不是越多越好。合理 fusion 要看算子特性、shape、memory traffic 和硬件资源。</p>
+<h2 id="tiling">Tiling：把大问题拆到硬件能吃的块<a class="headerlink" href="#tiling" title="Permanent link">¶</a></h2>
+<p>Tiling 是 workload mapping 的核心技术。</p>
+<p>大矩阵不能一次全部放进 register 或 SRAM，所以要切块：</p>
+<div class="highlight"><pre><span></span><code>大矩阵
+  -&gt; block tile
+  -&gt; warp tile
+  -&gt; matrix instruction tile
+  -&gt; register fragment
+</code></pre></div>
+<p>好的 tiling 会让：</p>
+<ul>
+<li>A/B tile 在片上多次复用。</li>
+<li>HBM 访问连续且合并。</li>
+<li>Tensor Core 输入 shape 对齐。</li>
+<li>accumulator 放在 register。</li>
+<li>shared memory 不发生严重 bank conflict。</li>
+<li>occupancy 足够。</li>
+</ul>
+<p>差的 tiling 会导致：</p>
+<ul>
+<li>HBM 重复读取。</li>
+<li>register spill。</li>
+<li>shared memory 冲突。</li>
+<li>计算单元等待数据。</li>
+<li>边界 mask 太多。</li>
+<li>小 shape 利用率差。</li>
+</ul>
+<p>Tiling 参数和硬件强相关，所以跨硬件迁移时不能假设同一套 tile 永远最优。</p>
+<h2 id="precision-mapping">Precision Mapping<a class="headerlink" href="#precision-mapping" title="Permanent link">¶</a></h2>
+<p>低精度不是简单 cast。</p>
+<p>Precision mapping 要决定：</p>
+<ul>
+<li>权重存储 dtype。</li>
+<li>activation 存储 dtype。</li>
+<li>GEMM 输入 dtype。</li>
+<li>accumulator dtype。</li>
+<li>reduction dtype。</li>
+<li>scale 粒度。</li>
+<li>outlier 如何处理。</li>
+<li>communication dtype。</li>
+<li>checkpoint dtype。</li>
+</ul>
+<p>如果硬件支持 FP8/INT8/INT4，但 compiler/runtime 没有正确管理 scale、layout、accumulator 和 fallback，低精度路径就不会稳定工作。</p>
+<p>训练中还要关注：</p>
+<ul>
+<li>loss scaling。</li>
+<li>master weight。</li>
+<li>optimizer state。</li>
+<li>gradient communication。</li>
+<li>overflow/underflow。</li>
+</ul>
+<p>推理中还要关注：</p>
+<ul>
+<li>weight-only quantization。</li>
+<li>activation quantization。</li>
+<li>KV Cache quantization。</li>
+<li>per-channel / per-group scale。</li>
+<li>dequantize 是否融合进 GEMM。</li>
+</ul>
+<p>Precision mapping 是硬件、数值和系统的交叉问题。</p>
+<h2 id="parallel-mapping">Parallel Mapping：多卡不是自动加速<a class="headerlink" href="#parallel-mapping" title="Permanent link">¶</a></h2>
+<p>当 workload 放不进单卡，或者单卡吞吐不够，就要做 parallel mapping。</p>
+<p>需要决定：</p>
+<ul>
+<li>Data Parallel group。</li>
+<li>Tensor Parallel group。</li>
+<li>Pipeline Parallel stage。</li>
+<li>Expert Parallel group。</li>
+<li>Sequence Parallel。</li>
+<li>ZeRO/FSDP shard。</li>
+<li>KV Cache placement。</li>
+<li>rank mapping。</li>
+<li>collective algorithm。</li>
+</ul>
+<p>Parallel mapping 要匹配互连拓扑。</p>
+<p>例如：</p>
+<ul>
+<li>TP 通信高频，尽量放在节点内高速 GPU fabric。</li>
+<li>DP/FSDP 可以跨节点，但要 bucket 和 overlap。</li>
+<li>EP/MoE 的 AllToAll 对 bisection bandwidth 敏感。</li>
+<li>PP 要考虑 stage balance 和 pipeline bubble。</li>
+<li>P/D 分离要考虑 KV transfer 路径和频率。</li>
+</ul>
+<p>多卡性能差，常常不是单卡 kernel 差，而是 parallel mapping 把高频通信放到了错误拓扑上。</p>
+<h2 id="training-mapping">Training Mapping<a class="headerlink" href="#training-mapping" title="Permanent link">¶</a></h2>
+<p>训练 mapping 和推理 mapping 不同，因为训练有 backward、optimizer 和长期状态。</p>
+<p>训练 mapping 要处理：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>Mapping 问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>forward activation</td>
+<td>保存、重算、offload、shard、dtype</td>
+</tr>
+<tr>
+<td>backward graph</td>
+<td>autograd capture、fusion、通信启动时机</td>
+</tr>
+<tr>
+<td>gradients</td>
+<td>bucket、reduce-scatter/all-reduce、dtype、overlap</td>
+</tr>
+<tr>
+<td>parameters</td>
+<td>FSDP/ZeRO shard、all-gather、prefetch、layout</td>
+</tr>
+<tr>
+<td>optimizer state</td>
+<td>FP32/低精度、shard、CPU/NVMe offload</td>
+</tr>
+<tr>
+<td>RNG/dropout</td>
+<td>checkpointing 和 recomputation 的一致性</td>
+</tr>
+<tr>
+<td>checkpoint</td>
+<td>shard format、异步保存、resume 正确性</td>
+</tr>
+</tbody>
+</table>
+<p>训练 mapping 的几个典型目标：</p>
+<ul>
+<li>降低 peak activation memory。</li>
+<li>让 backward communication 尽量 overlap。</li>
+<li>避免 optimizer step 成为 memory-bound 长尾。</li>
+<li>让 FSDP/ZeRO all-gather 不阻塞 forward。</li>
+<li>保持 loss curve 和 baseline 一致。</li>
+<li>让 checkpoint/resume 后状态完整。</li>
+</ul>
+<p>因此训练优化要看 step timeline，而不只看 forward kernel。</p>
+<h2 id="inference-mapping">Inference Mapping<a class="headerlink" href="#inference-mapping" title="Permanent link">¶</a></h2>
+<p>推理 mapping 更关注请求调度、KV Cache 和尾延迟。</p>
+<p>推理 mapping 要处理：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>Mapping 问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>request batch</td>
+<td>continuous batching、admission control、SLO</td>
+</tr>
+<tr>
+<td>prefill</td>
+<td>长 prompt GEMM/attention、chunked prefill、P/D 分离</td>
+</tr>
+<tr>
+<td>decode</td>
+<td>小 batch GEMM、KV Cache bandwidth、TPOT</td>
+</tr>
+<tr>
+<td>KV Cache</td>
+<td>block size、page table、layout、量化、eviction</td>
+</tr>
+<tr>
+<td>prefix cache</td>
+<td>cache key、共享前缀、命中率、内存压力</td>
+</tr>
+<tr>
+<td>logits/sampling</td>
+<td>vocab shard、top-k/top-p、CPU fallback</td>
+</tr>
+<tr>
+<td>multi-tenant</td>
+<td>模型共存、显存池、QoS、隔离</td>
+</tr>
+</tbody>
+</table>
+<p>推理 mapping 的几个典型目标：</p>
+<ul>
+<li>降低 TTFT。</li>
+<li>降低 TPOT。</li>
+<li>提高 batch throughput。</li>
+<li>控制 p95/p99 latency。</li>
+<li>提高 KV Cache 利用率。</li>
+<li>减少 fallback 和冷编译。</li>
+</ul>
+<p>推理系统里，runtime mapping 往往和 kernel mapping 一样重要。一个 attention kernel 很快，但 scheduler、cache eviction 或 allocator 抖动，仍然会让线上 p99 变差。</p>
+<h2 id="target-backend">Target Backend 差异<a class="headerlink" href="#target-backend" title="Permanent link">¶</a></h2>
+<p>同一个 graph 在不同硬件后端上，最佳 mapping 往往不同。</p>
+<table>
+<thead>
+<tr>
+<th>后端差异</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>矩阵指令 tile</td>
+<td>GEMM/attention tile、alignment、padding</td>
+</tr>
+<tr>
+<td>SRAM/shared memory 大小</td>
+<td>fusion、tiling、FlashAttention block size</td>
+</tr>
+<tr>
+<td>register file</td>
+<td>occupancy、spill、fusion 边界</td>
+</tr>
+<tr>
+<td>HBM 带宽</td>
+<td>memory-bound op、KV Cache、layout</td>
+</tr>
+<tr>
+<td>cache 行为</td>
+<td>blocking、program ordering、reuse</td>
+</tr>
+<tr>
+<td>低精度格式</td>
+<td>FP8/INT8/INT4 路径、accumulator、scale</td>
+</tr>
+<tr>
+<td>interconnect</td>
+<td>TP/EP/DP group、collective algorithm</td>
+</tr>
+<tr>
+<td>compiler backend</td>
+<td>lowering、fusion、dynamic shape、fallback</td>
+</tr>
+</tbody>
+</table>
+<p>因此跨硬件迁移时，不能只改 device name。需要重新验证：</p>
+<ul>
+<li>shape inventory。</li>
+<li>layout。</li>
+<li>kernel selection。</li>
+<li>autotune cache。</li>
+<li>parallel group。</li>
+<li>precision policy。</li>
+<li>fallback log。</li>
+<li>profiler evidence。</li>
+</ul>
+<p>硬件越专用，mapping 对 compiler/runtime 的依赖通常越强。</p>
+<h2 id="dynamic-shape">Dynamic Shape 与线上推理<a class="headerlink" href="#dynamic-shape" title="Permanent link">¶</a></h2>
+<p>训练 benchmark 常常用固定 batch 和 sequence length。线上推理不是这样。</p>
+<p>线上推理有：</p>
+<ul>
+<li>prompt 长度不同。</li>
+<li>output 长度不同。</li>
+<li>request 到达时间不同。</li>
+<li>batch 动态合并。</li>
+<li>KV Cache 动态增长。</li>
+<li>prefix cache 命中不确定。</li>
+<li>tool call 和 RAG context 不确定。</li>
+<li>speculative decoding 接受率变化。</li>
+</ul>
+<p>这会给 compiler/runtime 带来挑战：</p>
+<ul>
+<li>shape 变化导致 recompile。</li>
+<li>padding 浪费计算。</li>
+<li>kernel 选择不稳定。</li>
+<li>memory allocator 碎片。</li>
+<li>cache block 管理复杂。</li>
+<li>p99 latency 受长尾 shape 影响。</li>
+</ul>
+<p>常见处理方法：</p>
+<ul>
+<li>shape bucketing。</li>
+<li>padding 到有限集合。</li>
+<li>dynamic shape compilation。</li>
+<li>预编译常见 shape。</li>
+<li>runtime autotune cache。</li>
+<li>paged KV Cache。</li>
+<li>continuous batching。</li>
+<li>admission control。</li>
+</ul>
+<p>推理系统的 mapping 不能只看单个静态 shape 的 kernel 性能，要看真实请求分布。</p>
+<h2 id="fallback">Fallback 是端到端性能杀手<a class="headerlink" href="#fallback" title="Permanent link">¶</a></h2>
+<p>Fallback 指某个 op、shape、dtype 或 layout 没有高性能实现，被迫走慢路径。</p>
+<p>Fallback 可能发生在：</p>
+<ul>
+<li>compiler 无法 capture。</li>
+<li>IR 不支持某个 op。</li>
+<li>target backend 不支持某个 dtype。</li>
+<li>kernel library 没有该 shape 的实现。</li>
+<li>dynamic shape 超出编译器能力。</li>
+<li>custom op 没有设备实现。</li>
+<li>runtime 不支持某种 memory layout。</li>
+</ul>
+<p>Fallback 的危害：</p>
+<ul>
+<li>触发 CPU/GPU 同步。</li>
+<li>引入 device-host copy。</li>
+<li>打断 fusion。</li>
+<li>增加 kernel launch。</li>
+<li>引发 graph break。</li>
+<li>让 profiler 难以解释。</li>
+<li>造成 p99 抖动。</li>
+</ul>
+<p>排查 fallback 时，要看：</p>
+<ul>
+<li>graph break log。</li>
+<li>compiler explain。</li>
+<li>profiler timeline。</li>
+<li>kernel name。</li>
+<li>CPU activity。</li>
+<li>H2D/D2H copy。</li>
+<li>unsupported op warning。</li>
+<li>dynamic shape guard 和 recompile log。</li>
+</ul>
+<p>端到端优化时，消除一个 fallback 往往比优化主 GEMM 1% 更有价值。</p>
+<h2 id="benchmark">Benchmark 方法<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>Workload mapping 的 benchmark 要能定位映射问题。</p>
+<p>建议分层：</p>
+<h3 id="microbenchmark">Microbenchmark<a class="headerlink" href="#microbenchmark" title="Permanent link">¶</a></h3>
+<p>测单个硬件能力：</p>
+<ul>
+<li>GEMM。</li>
+<li>HBM bandwidth。</li>
+<li>shared memory / SRAM。</li>
+<li>Tensor Core dtype。</li>
+<li>PCIe / NVLink / RDMA。</li>
+<li>kernel launch overhead。</li>
+</ul>
+<h3 id="operator-benchmark">Operator Benchmark<a class="headerlink" href="#operator-benchmark" title="Permanent link">¶</a></h3>
+<p>测具体 op：</p>
+<ul>
+<li>attention。</li>
+<li>LayerNorm / RMSNorm。</li>
+<li>FlashAttention。</li>
+<li>MoE grouped GEMM。</li>
+<li>all-to-all dispatch/combine。</li>
+<li>quantized GEMM。</li>
+<li>KV Cache read/write。</li>
+</ul>
+<h3 id="graph-benchmark">Graph Benchmark<a class="headerlink" href="#graph-benchmark" title="Permanent link">¶</a></h3>
+<p>测一段真实子图：</p>
+<ul>
+<li>Transformer layer。</li>
+<li>attention block。</li>
+<li>MLP block。</li>
+<li>MoE layer。</li>
+<li>prefill stage。</li>
+<li>decode step。</li>
+</ul>
+<h3 id="end-to-end-benchmark">End-to-End Benchmark<a class="headerlink" href="#end-to-end-benchmark" title="Permanent link">¶</a></h3>
+<p>测真实训练或推理：</p>
+<ul>
+<li>tokens/s。</li>
+<li>step time。</li>
+<li>TTFT。</li>
+<li>TPOT。</li>
+<li>p95/p99。</li>
+<li>MFU/HFU。</li>
+<li>power。</li>
+<li>memory footprint。</li>
+<li>recompile count。</li>
+<li>fallback count。</li>
+<li>graph break count。</li>
+<li>kernel time breakdown。</li>
+</ul>
+<p>一个好的 mapping benchmark 不只回答“快不快”，还要回答：</p>
+<ul>
+<li>哪个 op 慢。</li>
+<li>哪个 layout 造成额外搬运。</li>
+<li>哪个 shape 触发 fallback。</li>
+<li>哪个 kernel 没吃到矩阵单元。</li>
+<li>哪个通信暴露在 critical path。</li>
+<li>哪个 runtime decision 导致尾延迟。</li>
+</ul>
+<h2 id="profiler">Profiler 证据矩阵<a class="headerlink" href="#profiler" title="Permanent link">¶</a></h2>
+<p>Workload mapping 的判断必须靠证据。</p>
+<p>常见现象和证据如下：</p>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>需要看的证据</th>
+<th>可能方向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tensor Core 利用率低</td>
+<td>kernel metrics、instruction mix、shape、dtype</td>
+<td>tile/alignment/dtype 不匹配</td>
+</tr>
+<tr>
+<td>HBM traffic 高</td>
+<td>memory throughput、bytes moved、copy/transpose kernel</td>
+<td>layout、fusion、temporary buffer</td>
+</tr>
+<tr>
+<td>小 kernel 很多</td>
+<td>profiler timeline、kernel duration、launch count</td>
+<td>fusion、CUDA Graph、runtime batching</td>
+</tr>
+<tr>
+<td>recompile 多</td>
+<td>compiler log、guard failure、compiled graph cache</td>
+<td>shape bucketing、dynamic shape、预编译</td>
+</tr>
+<tr>
+<td>CPU activity 高</td>
+<td>CPU timeline、H2D/D2H copy、fallback log</td>
+<td>unsupported op、synchronization、sampling</td>
+</tr>
+<tr>
+<td>communication 暴露</td>
+<td>NCCL/RCCL timeline、stream overlap、rank trace</td>
+<td>bucket、rank mapping、topology、overlap</td>
+</tr>
+<tr>
+<td>p99 抖动</td>
+<td>request trace、allocator、KV cache、compile event</td>
+<td>runtime scheduling、cache、冷编译</td>
+</tr>
+<tr>
+<td>OOM 或碎片</td>
+<td>allocation timeline、reserved/active memory、KV blocks</td>
+<td>memory planning、pool、block size</td>
+</tr>
+</tbody>
+</table>
+<p>如果没有 profiler 证据，很多优化只是猜测。Mapping 优化的基本流程应该是：</p>
+<div class="highlight"><pre><span></span><code>假设瓶颈
+  -&gt; 找 profiler 证据
+  -&gt; 改 mapping
+  -&gt; 做 A/B benchmark
+  -&gt; 检查正确性和端到端指标
+</code></pre></div>
+<h2 id="mapping-manifest">Mapping Manifest<a class="headerlink" href="#mapping-manifest" title="Permanent link">¶</a></h2>
+<p>为了让 benchmark 可复现，建议为每次实验保存 mapping manifest。</p>
+<p>至少包括：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">commit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">dtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">shapes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">compiler</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">framework</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">compiler</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">dynamic_shape</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">graph_breaks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">compiled_graphs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">runtime</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">batcher</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">kv_cache_layout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">memory_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">cuda_graph</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">streams</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">kernels</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">attention</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">gemm_backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">custom_kernels</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">autotune_cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">parallelism</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">tp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">pp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">ep</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">rank_mapping</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+
+<span class="nt">hardware</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">accelerator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">interconnect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">power_policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+<p>没有 manifest，就很难解释为什么同一模型在不同日期、不同节点、不同 driver 上性能不同。</p>
+<h2 id="_7">常见优化方向<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<h3 id="shape-inventory">建立 Shape Inventory<a class="headerlink" href="#shape-inventory" title="Permanent link">¶</a></h3>
+<p>先统计真实 workload 的 shape 分布：</p>
+<ul>
+<li>prompt length。</li>
+<li>output length。</li>
+<li>batch size。</li>
+<li>sequence length。</li>
+<li>hidden size。</li>
+<li>expert token count。</li>
+<li>image/audio resolution。</li>
+</ul>
+<p>没有 shape inventory，就无法判断 compiler、kernel 和 autotune 应该优先优化什么。</p>
+<h3 id="_8">优先优化热路径<a class="headerlink" href="#_8" title="Permanent link">¶</a></h3>
+<p>不要平均对待所有 op。</p>
+<p>先看：</p>
+<ul>
+<li>总时间最高的 op。</li>
+<li>p99 贡献最大的 op。</li>
+<li>HBM traffic 最大的 op。</li>
+<li>fallback op。</li>
+<li>频繁出现的小 kernel。</li>
+<li>communication exposed time。</li>
+</ul>
+<p>热路径之外的优化可能很优雅，但对端到端收益有限。</p>
+<h3 id="_9">消除无价值数据搬运<a class="headerlink" href="#_9" title="Permanent link">¶</a></h3>
+<p>重点找：</p>
+<ul>
+<li>transpose。</li>
+<li>contiguous copy。</li>
+<li>dtype cast。</li>
+<li>dequantize 独立 kernel。</li>
+<li>CPU/GPU 同步。</li>
+<li>H2D/D2H copy。</li>
+<li>临时 tensor 写 HBM。</li>
+</ul>
+<p>这些操作有时不改变模型数学结果，却消耗大量时间和能耗。</p>
+<h3 id="layout_1">让 Layout 贯穿多层<a class="headerlink" href="#layout_1" title="Permanent link">¶</a></h3>
+<p>一个 op 内部 layout 最优，不等于全图最优。</p>
+<p>更好的方法是跨 op 看 layout：</p>
+<ul>
+<li>上游生成什么 layout。</li>
+<li>下游需要什么 layout。</li>
+<li>是否能避免中间 transpose。</li>
+<li>是否能让 KV Cache layout 直接匹配 attention kernel。</li>
+<li>是否能让 sharded tensor layout 匹配 collective。</li>
+</ul>
+<h3 id="recompile">管理 Recompile<a class="headerlink" href="#recompile" title="Permanent link">¶</a></h3>
+<p>对动态 shape 系统，要监控：</p>
+<ul>
+<li>recompile count。</li>
+<li>compile latency。</li>
+<li>guard failure。</li>
+<li>cache hit rate。</li>
+<li>每种 shape 的执行次数。</li>
+</ul>
+<p>如果线上频繁 recompile，用户看到的不是编译器优化，而是延迟尖刺。</p>
+<h3 id="runtime_1">把 Runtime 也纳入优化<a class="headerlink" href="#runtime_1" title="Permanent link">¶</a></h3>
+<p>很多性能问题不是 kernel 本身，而是 runtime：</p>
+<ul>
+<li>batch 调度不合理。</li>
+<li>memory allocator 碎片。</li>
+<li>stream dependency 过度保守。</li>
+<li>collective launch 太晚。</li>
+<li>cache eviction 策略差。</li>
+<li>admission control 不合理。</li>
+<li>多模型混部互相干扰。</li>
+</ul>
+<p>优化 mapping 时，要同时看 compiler output 和 runtime timeline。</p>
+<h2 id="_10">常见误区<a class="headerlink" href="#_10" title="Permanent link">¶</a></h2>
+<h3 id="_11">误区一：编译器会自动解决所有性能问题<a class="headerlink" href="#_11" title="Permanent link">¶</a></h3>
+<p>编译器很重要，但它受限于 IR、shape、layout、算子支持、硬件 backend 和 runtime 信息。很多优化需要模型、kernel、runtime 和部署策略一起配合。</p>
+<h3 id="_12">误区二：算子支持表等于端到端性能<a class="headerlink" href="#_12" title="Permanent link">¶</a></h3>
+<p>支持一个 op 只代表能运行。是否高性能，还要看 dtype、layout、shape、fusion、fallback 和动态场景。</p>
+<h3 id="gemm">误区三：只优化最大的 GEMM<a class="headerlink" href="#gemm" title="Permanent link">¶</a></h3>
+<p>GEMM 重要，但端到端瓶颈可能在 attention IO、KV Cache、Norm、sampling、MoE AllToAll、fallback 或 runtime 调度。</p>
+<h3 id="fusion_1">误区四：Fusion 越多越好<a class="headerlink" href="#fusion_1" title="Permanent link">¶</a></h3>
+<p>Fusion 可以减少 HBM IO，但也可能增加 register pressure、降低 occupancy、增加编译复杂度。要用 benchmark 判断。</p>
+<h3 id="benchmark_1">误区五：静态 benchmark 能代表线上推理<a class="headerlink" href="#benchmark_1" title="Permanent link">¶</a></h3>
+<p>线上 shape、并发、cache、batching、routing 都是动态的。只测固定 batch 和固定 sequence length 会低估 p99 风险。</p>
+<h3 id="mapping_2">误区六：硬件换了，mapping 可以不变<a class="headerlink" href="#mapping_2" title="Permanent link">¶</a></h3>
+<p>不同硬件的矩阵 tile、SRAM、cache、HBM、互连和 dtype 支持不同。换硬件时，layout、tiling、fusion、parallel group 都可能要重调。</p>
+<h2 id="_13">设计检查清单<a class="headerlink" href="#_13" title="Permanent link">¶</a></h2>
+<p>评估 workload mapping 时，可以按下面检查：</p>
+<ul>
+<li>模型是否能完整 capture。</li>
+<li>是否有 graph break。</li>
+<li>是否有 unsupported op。</li>
+<li>是否有 CPU fallback。</li>
+<li>hot op 是否有高性能 kernel。</li>
+<li>dtype 是否走到硬件低精度路径。</li>
+<li>accumulator 和 scale 是否正确。</li>
+<li>layout 是否导致额外 transpose。</li>
+<li>memory planning 是否能复用 buffer、控制峰值和碎片。</li>
+<li>fusion 是否减少 HBM IO。</li>
+<li>tile 是否匹配矩阵单元。</li>
+<li>register/shared memory 压力是否合理。</li>
+<li>dynamic shape 是否频繁 recompile。</li>
+<li>guard failure、compiled graph 数量和 compile latency 是否可控。</li>
+<li>runtime 是否有多余同步。</li>
+<li>memory allocator 是否有碎片。</li>
+<li>communication 是否能 overlap。</li>
+<li>parallel group 是否匹配拓扑。</li>
+<li>correctness gate 是否覆盖 kernel、operator、graph、distributed 和 end-to-end。</li>
+<li>mapping manifest 是否记录 shape、compiler、runtime、kernel、parallelism 和 hardware。</li>
+<li>benchmark 是否覆盖真实 shape 分布。</li>
+</ul>
+<h2 id="_14">小结<a class="headerlink" href="#_14" title="Permanent link">¶</a></h2>
+<p>Workload mapping 是 AI 系统性能的连接层。</p>
+<div class="highlight"><pre><span></span><code>模型定义了要算什么
+编译器决定如何表达和变换
+算子库和 kernel 决定如何执行
+runtime 决定何时执行和如何调度
+硬件决定可用资源和约束
+benchmark 告诉我们 mapping 是否真的有效
+</code></pre></div>
+<p>理解 workload mapping 后，就能把很多模糊问题拆开：</p>
+<ul>
+<li>为什么同一个模型在不同硬件上差异很大。</li>
+<li>为什么某个 backend 峰值高但端到端慢。</li>
+<li>为什么 dynamic shape 会造成延迟尖刺。</li>
+<li>为什么 unsupported op 会毁掉整条链路。</li>
+<li>为什么优化 kernel 之外还要优化 runtime 和 layout。</li>
+<li>为什么训练和推理需要不同的 mapping 策略。</li>
+<li>为什么 benchmark 必须同时保存 profiler 证据和 mapping manifest。</li>
+</ul>
+<p>从硬件研发和 AI Infra 的角度看，真正有竞争力的系统不是只有快芯片，而是能把真实 workload 稳定映射到硬件上的完整栈。</p>
+<h2 id="_15">延伸阅读<a class="headerlink" href="#_15" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://openxla.org/xla">OpenXLA Documentation</a></li>
+<li><a href="https://openxla.org/stablehlo">StableHLO Documentation</a></li>
+<li><a href="https://mlir.llvm.org/">MLIR Project</a></li>
+<li><a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html">NVIDIA CUDA C++ Programming Guide</a></li>
+<li><a href="https://triton-lang.org/main/index.html">Triton Documentation</a></li>
+<li><a href="https://pytorch.org/docs/stable/torch.compiler.html">PyTorch torch.compile Documentation</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

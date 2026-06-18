@@ -1,0 +1,3752 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/07-cluster-infra/mixed-workload-multitenancy-isolation/" rel="canonical"/>
+<link href="../environment-reproducibility-containers/" rel="prev"/>
+<link href="../resource-utilization-fragmentation-capacity/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>混合集群与多租户隔离：训练、推理、Notebook 与批处理共存 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#notebook">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload">
+<span class="md-ellipsis">
+      先区分 workload 类型
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload-contract">
+<span class="md-ellipsis">
+      Workload Contract：混部的最小声明
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      多租户要隔离什么
+    </span>
+</a>
+<nav aria-label="多租户要隔离什么" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      资源隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      性能隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      故障隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      安全隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      环境隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      数据隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      控制面隔离
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#namespaceaccountproject-queue">
+<span class="md-ellipsis">
+      租户模型：Namespace、Account、Project 与 Queue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      节点池设计
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      单集群、多集群与虚拟集群
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hard-isolation-soft-sharing">
+<span class="md-ellipsis">
+      Hard Isolation 与 Soft Sharing
+    </span>
+</a>
+<nav aria-label="Hard Isolation 与 Soft Sharing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hard-isolation">
+<span class="md-ellipsis">
+      Hard Isolation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#soft-sharing">
+<span class="md-ellipsis">
+      Soft Sharing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quota-borrowing">
+<span class="md-ellipsis">
+      Quota Borrowing
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      隔离等级：不要只有“隔离/不隔离”
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queuequotaprioritypreemption">
+<span class="md-ellipsis">
+      Queue、Quota、Priority、Preemption
+    </span>
+</a>
+<nav aria-label="Queue、Quota、Priority、Preemption" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queue">
+<span class="md-ellipsis">
+      Queue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quota">
+<span class="md-ellipsis">
+      Quota
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priority">
+<span class="md-ellipsis">
+      Priority
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#preemption">
+<span class="md-ellipsis">
+      Preemption
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai">
+<span class="md-ellipsis">
+      AI 任务的抢占生命周期
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      在线推理与训练混部
+    </span>
+</a>
+<nav aria-label="在线推理与训练混部" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      为什么想混部
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      为什么难
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      混部边界
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#notebook_1">
+<span class="md-ellipsis">
+      Notebook 治理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      系统任务保护
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kubernetes">
+<span class="md-ellipsis">
+      Kubernetes 隔离工具箱
+    </span>
+</a>
+<nav aria-label="Kubernetes 隔离工具箱" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kubernetes_1">
+<span class="md-ellipsis">
+      Kubernetes 中的推荐落地边界
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slurm">
+<span class="md-ellipsis">
+      Slurm 隔离工具箱
+    </span>
+</a>
+<nav aria-label="Slurm 隔离工具箱" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slurm-kubernetes">
+<span class="md-ellipsis">
+      Slurm 与 Kubernetes 混用
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-migmps-time-slicing">
+<span class="md-ellipsis">
+      GPU 共享：MIG、MPS 与 Time Slicing
+    </span>
+</a>
+<nav aria-label="GPU 共享：MIG、MPS 与 Time Slicing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig">
+<span class="md-ellipsis">
+      MIG
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mps">
+<span class="md-ellipsis">
+      MPS
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#time-slicing">
+<span class="md-ellipsis">
+      Time Slicing
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      存储与网络的多租户
+    </span>
+</a>
+<nav aria-label="存储与网络的多租户" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      存储隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      网络隔离
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      可观测性：看见干扰
+    </span>
+</a>
+<nav aria-label="可观测性：看见干扰" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      资源使用
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      调度状态
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sla">
+<span class="md-ellipsis">
+      SLA
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_24">
+<span class="md-ellipsis">
+      多租户公平性
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#noisy-neighbor">
+<span class="md-ellipsis">
+      Noisy Neighbor：干扰归因
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_25">
+<span class="md-ellipsis">
+      常见策略模板
+    </span>
+</a>
+<nav aria-label="常见策略模板" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_26">
+<span class="md-ellipsis">
+      策略一：训练主导型集群
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_27">
+<span class="md-ellipsis">
+      策略二：推理主导型集群
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_28">
+<span class="md-ellipsis">
+      策略三：共享研究平台
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_29">
+<span class="md-ellipsis">
+      策略四：成本优化型集群
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_30">
+<span class="md-ellipsis">
+      准入控制
+    </span>
+</a>
+<nav aria-label="准入控制" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_31">
+<span class="md-ellipsis">
+      准入策略模板
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_32">
+<span class="md-ellipsis">
+      资源碎片
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_33">
+<span class="md-ellipsis">
+      成本与归因
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_34">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_35">
+<span class="md-ellipsis">
+      误区一：所有任务放一个队列最公平
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-quota">
+<span class="md-ellipsis">
+      误区二：GPU quota 够了就不需要别的隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_36">
+<span class="md-ellipsis">
+      误区三：抢占一定能提高利用率
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_37">
+<span class="md-ellipsis">
+      误区四：推理和训练混部只要设置优先级
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#notebook_2">
+<span class="md-ellipsis">
+      误区五：Notebook 是小事
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_38">
+<span class="md-ellipsis">
+      误区六：利用率高就是好
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_39">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_40">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_41">
+<span class="md-ellipsis">
+      延伸阅读
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload">
+<span class="md-ellipsis">
+      先区分 workload 类型
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload-contract">
+<span class="md-ellipsis">
+      Workload Contract：混部的最小声明
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      多租户要隔离什么
+    </span>
+</a>
+<nav aria-label="多租户要隔离什么" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      资源隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      性能隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      故障隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      安全隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      环境隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      数据隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      控制面隔离
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#namespaceaccountproject-queue">
+<span class="md-ellipsis">
+      租户模型：Namespace、Account、Project 与 Queue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      节点池设计
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      单集群、多集群与虚拟集群
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hard-isolation-soft-sharing">
+<span class="md-ellipsis">
+      Hard Isolation 与 Soft Sharing
+    </span>
+</a>
+<nav aria-label="Hard Isolation 与 Soft Sharing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#hard-isolation">
+<span class="md-ellipsis">
+      Hard Isolation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#soft-sharing">
+<span class="md-ellipsis">
+      Soft Sharing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quota-borrowing">
+<span class="md-ellipsis">
+      Quota Borrowing
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      隔离等级：不要只有“隔离/不隔离”
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queuequotaprioritypreemption">
+<span class="md-ellipsis">
+      Queue、Quota、Priority、Preemption
+    </span>
+</a>
+<nav aria-label="Queue、Quota、Priority、Preemption" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queue">
+<span class="md-ellipsis">
+      Queue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quota">
+<span class="md-ellipsis">
+      Quota
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priority">
+<span class="md-ellipsis">
+      Priority
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#preemption">
+<span class="md-ellipsis">
+      Preemption
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai">
+<span class="md-ellipsis">
+      AI 任务的抢占生命周期
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      在线推理与训练混部
+    </span>
+</a>
+<nav aria-label="在线推理与训练混部" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      为什么想混部
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      为什么难
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      混部边界
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#notebook_1">
+<span class="md-ellipsis">
+      Notebook 治理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      系统任务保护
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kubernetes">
+<span class="md-ellipsis">
+      Kubernetes 隔离工具箱
+    </span>
+</a>
+<nav aria-label="Kubernetes 隔离工具箱" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kubernetes_1">
+<span class="md-ellipsis">
+      Kubernetes 中的推荐落地边界
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slurm">
+<span class="md-ellipsis">
+      Slurm 隔离工具箱
+    </span>
+</a>
+<nav aria-label="Slurm 隔离工具箱" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slurm-kubernetes">
+<span class="md-ellipsis">
+      Slurm 与 Kubernetes 混用
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-migmps-time-slicing">
+<span class="md-ellipsis">
+      GPU 共享：MIG、MPS 与 Time Slicing
+    </span>
+</a>
+<nav aria-label="GPU 共享：MIG、MPS 与 Time Slicing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig">
+<span class="md-ellipsis">
+      MIG
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mps">
+<span class="md-ellipsis">
+      MPS
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#time-slicing">
+<span class="md-ellipsis">
+      Time Slicing
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      存储与网络的多租户
+    </span>
+</a>
+<nav aria-label="存储与网络的多租户" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      存储隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      网络隔离
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      可观测性：看见干扰
+    </span>
+</a>
+<nav aria-label="可观测性：看见干扰" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      资源使用
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      调度状态
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sla">
+<span class="md-ellipsis">
+      SLA
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_24">
+<span class="md-ellipsis">
+      多租户公平性
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#noisy-neighbor">
+<span class="md-ellipsis">
+      Noisy Neighbor：干扰归因
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_25">
+<span class="md-ellipsis">
+      常见策略模板
+    </span>
+</a>
+<nav aria-label="常见策略模板" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_26">
+<span class="md-ellipsis">
+      策略一：训练主导型集群
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_27">
+<span class="md-ellipsis">
+      策略二：推理主导型集群
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_28">
+<span class="md-ellipsis">
+      策略三：共享研究平台
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_29">
+<span class="md-ellipsis">
+      策略四：成本优化型集群
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_30">
+<span class="md-ellipsis">
+      准入控制
+    </span>
+</a>
+<nav aria-label="准入控制" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_31">
+<span class="md-ellipsis">
+      准入策略模板
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_32">
+<span class="md-ellipsis">
+      资源碎片
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_33">
+<span class="md-ellipsis">
+      成本与归因
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_34">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_35">
+<span class="md-ellipsis">
+      误区一：所有任务放一个队列最公平
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-quota">
+<span class="md-ellipsis">
+      误区二：GPU quota 够了就不需要别的隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_36">
+<span class="md-ellipsis">
+      误区三：抢占一定能提高利用率
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_37">
+<span class="md-ellipsis">
+      误区四：推理和训练混部只要设置优先级
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#notebook_2">
+<span class="md-ellipsis">
+      误区五：Notebook 是小事
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_38">
+<span class="md-ellipsis">
+      误区六：利用率高就是好
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_39">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_40">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_41">
+<span class="md-ellipsis">
+      延伸阅读
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="notebook">混合集群与多租户隔离：训练、推理、Notebook 与批处理共存<a class="headerlink" href="#notebook" title="Permanent link">¶</a></h1>
+<p>AI 集群很少只跑一种任务。真实环境里通常同时存在：</p>
+<ul>
+<li>大规模训练任务。</li>
+<li>在线推理服务。</li>
+<li>Notebook 和交互式实验。</li>
+<li>数据预处理和离线评测。</li>
+<li>embedding、RAG index 构建和批量推理。</li>
+<li>系统监控、日志采集、镜像缓存、存储网关等基础设施任务。</li>
+</ul>
+<p>这些任务共用 GPU、CPU、内存、网络、存储、镜像仓库和调度系统，但它们的目标完全不同。</p>
+<p>训练任务关心吞吐、扩展效率和故障恢复；推理任务关心 p99 latency、稳定性和弹性扩缩容；Notebook 关心响应速度和灵活性；批处理关心成本和排队时间；系统任务关心高可用和低干扰。</p>
+<p>因此，混合集群的核心问题不是“能不能把所有任务都提交进去”，而是：</p>
+<blockquote>
+<p>如何在同一套集群资源上，让不同租户、不同优先级、不同 SLA、不同资源形态的 AI workload 共存，同时控制干扰、碎片、故障半径和治理复杂度？</p>
+</blockquote>
+<h2 id="_1">一张总图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TB
+    Users["Tenants<br/>research / platform / product / batch"]
+    Portal["Submission Layer<br/>notebook / CLI / API / CI"]
+    Policy["Policy Layer<br/>quota / priority / admission / security"]
+    Queues["Queues<br/>team queue / service queue / best-effort queue"]
+    Scheduler["Scheduler<br/>Slurm / Kubernetes / Ray / Kueue / Volcano"]
+    Pools["Node Pools<br/>training / inference / dev / system / spare"]
+    Runtime["Runtime Isolation<br/>cgroup / namespace / GPU device / MIG / MPS"]
+    Infra["Shared Infra<br/>network / storage / registry / observability"]
+    Workloads["Workloads<br/>train / serve / notebook / eval / ETL / RAG"]
+    Signals["Feedback<br/>utilization / pending reason / SLA / fairness"]
+
+    Users --&gt; Portal
+    Portal --&gt; Policy
+    Policy --&gt; Queues
+    Queues --&gt; Scheduler
+    Scheduler --&gt; Pools
+    Pools --&gt; Runtime
+    Runtime --&gt; Workloads
+    Infra --&gt; Workloads
+    Workloads --&gt; Signals
+    Signals --&gt; Policy
+    Signals --&gt; Scheduler
+</div>
+<p>这张图强调三点：</p>
+<ul>
+<li>多租户不是只靠调度器完成，入口、策略、队列、运行时隔离和可观测性都要参与。</li>
+<li>混部不是简单提高利用率，而是在利用率、SLA、公平性、隔离和可维护性之间取舍。</li>
+<li>集群治理应该形成反馈闭环：资源使用、排队原因、SLA 违约和故障复盘要反过来修正队列和策略。</li>
+</ul>
+<h2 id="workload">先区分 workload 类型<a class="headerlink" href="#workload" title="Permanent link">¶</a></h2>
+<p>混合集群设计的第一步，是承认不同 workload 的行为差异。</p>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>典型资源</th>
+<th>时间特征</th>
+<th>主要目标</th>
+<th>主要风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LLM 训练</td>
+<td>多机多卡、网络、存储</td>
+<td>长时运行</td>
+<td>step time、扩展效率、可恢复</td>
+<td>gang 等待、故障重启、网络拥塞</td>
+</tr>
+<tr>
+<td>微调 / LoRA</td>
+<td>少量 GPU、存储</td>
+<td>中短任务</td>
+<td>周转时间、环境灵活</td>
+<td>碎片化、依赖漂移</td>
+</tr>
+<tr>
+<td>在线推理</td>
+<td>GPU、CPU、内存、网络</td>
+<td>长驻服务</td>
+<td>p99 latency、可用性、吞吐</td>
+<td>被抢占、batch 抖动、模型加载慢</td>
+</tr>
+<tr>
+<td>离线推理</td>
+<td>GPU、存储、网络</td>
+<td>批量任务</td>
+<td>成本、吞吐</td>
+<td>与在线服务争资源</td>
+</tr>
+<tr>
+<td>Notebook</td>
+<td>GPU、CPU、内存</td>
+<td>交互式、空闲多</td>
+<td>响应速度、易用性</td>
+<td>占而不用、手工改环境</td>
+</tr>
+<tr>
+<td>数据预处理</td>
+<td>CPU、内存、存储、网络</td>
+<td>批处理</td>
+<td>数据吞吐、成本</td>
+<td>小文件、元数据压力</td>
+</tr>
+<tr>
+<td>RAG index 构建</td>
+<td>CPU/GPU、存储、向量库</td>
+<td>批处理或周期性</td>
+<td>构建速度、一致性</td>
+<td>存储和网络尖峰</td>
+</tr>
+<tr>
+<td>Benchmark</td>
+<td>固定硬件、低干扰</td>
+<td>短时或周期性</td>
+<td>可比较、可解释</td>
+<td>被混部噪声污染</td>
+</tr>
+<tr>
+<td>系统组件</td>
+<td>CPU、内存、网络</td>
+<td>长驻</td>
+<td>稳定性</td>
+<td>被用户任务挤压</td>
+</tr>
+</tbody>
+</table>
+<p>这些任务不能都放在一个默认队列里。否则会出现：</p>
+<ul>
+<li>Notebook 长期占用 GPU，训练任务排队。</li>
+<li>低优先级离线推理把在线推理 p99 拉高。</li>
+<li>数据预处理把共享文件系统打满，训练 GPU 等数据。</li>
+<li>多个大训练任务同时 checkpoint，存储瞬间拥塞。</li>
+<li>Benchmark 被后台任务干扰，结论不可用。</li>
+</ul>
+<h2 id="workload-contract">Workload Contract：混部的最小声明<a class="headerlink" href="#workload-contract" title="Permanent link">¶</a></h2>
+<p>混合集群里最容易出问题的任务，往往不是“资源申请很大”的任务，而是“没有说清楚自己是什么”的任务。</p>
+<p>所以入口层应该要求每个任务声明 workload contract。它不需要很复杂，但至少要把调度器、准入策略和运维人员需要判断的内容写清楚。</p>
+<p>示例：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">workload</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sft-run-2026-06-12</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">training</span>
+<span class="w">  </span><span class="nt">tenant</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">research-a</span>
+<span class="w">  </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">normal</span>
+<span class="w">  </span><span class="nt">queue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train-h100</span>
+<span class="w">  </span><span class="nt">interruptible</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">checkpoint</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">interval_minutes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">s3://bucket/checkpoints/sft-run-2026-06-12/</span>
+
+<span class="nt">resources</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">gpu</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">h100</span>
+<span class="w">    </span><span class="nt">count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">    </span><span class="nt">topology</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">same-rack-preferred</span>
+<span class="w">  </span><span class="nt">cpu_per_gpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span>
+<span class="w">  </span><span class="nt">memory_per_gpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128Gi</span>
+<span class="w">  </span><span class="nt">local_nvme</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2Ti</span>
+
+<span class="nt">isolation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">data_class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">internal</span>
+<span class="w">  </span><span class="nt">network_profile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">training-rdma</span>
+<span class="w">  </span><span class="nt">storage_profile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared-fs-high-throughput</span>
+<span class="w">  </span><span class="nt">environment_family</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train-h100-cu122</span>
+
+<span class="nt">slo</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">max_queue_wait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12h</span>
+<span class="w">  </span><span class="nt">expected_duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">36h</span>
+<span class="w">  </span><span class="nt">preemption_grace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15m</span>
+</code></pre></div>
+<p>这个 contract 的价值在于：</p>
+<ul>
+<li>调度系统知道任务需要什么资源和拓扑。</li>
+<li>准入策略知道它能不能进入某个队列。</li>
+<li>抢占策略知道它是否可中断。</li>
+<li>存储和网络策略知道它会制造什么负载。</li>
+<li>事故复盘时能知道它为什么被允许运行。</li>
+</ul>
+<p>不同 workload 的 contract 重点不同：</p>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>contract 必须讲清楚</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>在线推理</td>
+<td>SLA、模型 artifact、扩缩容边界、是否可驱逐、流量入口</td>
+</tr>
+<tr>
+<td>大训练</td>
+<td>GPU 拓扑、gang 需求、checkpoint、最大运行时间、恢复策略</td>
+</tr>
+<tr>
+<td>Notebook</td>
+<td>idle timeout、最大运行时间、数据权限、是否允许临时装包</td>
+</tr>
+<tr>
+<td>数据预处理</td>
+<td>存储路径、IOPS/吞吐预算、小文件数量、输出提交方式</td>
+</tr>
+<tr>
+<td>Benchmark</td>
+<td>固定节点池、固定镜像、输入 trace、低干扰要求</td>
+</tr>
+</tbody>
+</table>
+<p>没有 contract 的任务应该进入低优先级默认队列，不能直接使用生产推理池、高优先级、privileged 权限或关键数据路径。</p>
+<h2 id="_2">多租户要隔离什么<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>多租户隔离不只是“不同团队用不同 namespace”。至少要分七个维度。</p>
+<h3 id="_3">资源隔离<a class="headerlink" href="#_3" title="Permanent link">¶</a></h3>
+<p>控制每个租户能用多少：</p>
+<ul>
+<li>GPU 数量和 GPU 类型。</li>
+<li>CPU、内存、ephemeral storage。</li>
+<li>本地 NVMe cache。</li>
+<li>网络带宽或 RDMA 能力。</li>
+<li>共享文件系统配额。</li>
+<li>对象存储 bucket/prefix。</li>
+<li>镜像仓库和构建资源。</li>
+</ul>
+<p>Kubernetes ResourceQuota 可以限制 namespace 级别的对象数量和资源总量；Slurm 可以用 account、partition、QoS、fairshare 等方式控制租户使用。</p>
+<p>资源隔离解决的是“谁能用多少”，但不自动解决“用得是否高效”。</p>
+<h3 id="_4">性能隔离<a class="headerlink" href="#_4" title="Permanent link">¶</a></h3>
+<p>性能隔离关注一个任务是否会拖慢另一个任务。</p>
+<p>典型干扰包括：</p>
+<ul>
+<li>多个任务共享同一 PCIe switch 或 NIC。</li>
+<li>多个 job 同时走同一个 RDMA uplink。</li>
+<li>本地 NVMe cache 被别的任务清空。</li>
+<li>共享文件系统 metadata server 被小文件打爆。</li>
+<li>CPU thread、DataLoader、tokenizer 抢占推理服务 CPU。</li>
+<li>推理服务和训练任务共享 GPU 时互相影响。</li>
+</ul>
+<p>性能隔离通常比资源隔离更难，因为它依赖拓扑和运行时行为。</p>
+<h3 id="_5">故障隔离<a class="headerlink" href="#_5" title="Permanent link">¶</a></h3>
+<p>故障隔离关注失败是否扩散。</p>
+<p>例如：</p>
+<ul>
+<li>一个团队的错误镜像是否拖垮节点。</li>
+<li>一个任务的日志量是否打满磁盘。</li>
+<li>一个 job 的 NCCL hang 是否占住整批 GPU。</li>
+<li>某个数据集路径异常是否影响所有训练任务。</li>
+<li>一个租户的恶意或错误配置是否影响 host。</li>
+</ul>
+<p>故障隔离需要限额、超时、健康检查、自动清理和权限边界共同完成。</p>
+<h3 id="_6">安全隔离<a class="headerlink" href="#_6" title="Permanent link">¶</a></h3>
+<p>AI 集群常常保存训练数据、模型权重、日志、实验结果和密钥。安全隔离包括：</p>
+<ul>
+<li>身份认证和授权。</li>
+<li>namespace / account / project 边界。</li>
+<li>Secret 访问控制。</li>
+<li>容器权限限制。</li>
+<li>host path、privileged container、host network 的限制。</li>
+<li>网络访问控制。</li>
+<li>数据集和模型 artifact 权限。</li>
+</ul>
+<p>Kubernetes 官方多租户文档强调，隔离既包括控制面隔离，也包括数据面隔离。对于 AI 集群，数据面隔离尤其重要，因为很多任务会挂载大规模数据和模型。</p>
+<h3 id="_7">环境隔离<a class="headerlink" href="#_7" title="Permanent link">¶</a></h3>
+<p>环境隔离关注依赖是否互相污染：</p>
+<ul>
+<li>是否共享 Conda 环境。</li>
+<li>是否允许运行时 <code>pip install -U</code>。</li>
+<li>Notebook 环境和 batch 环境是否一致。</li>
+<li>生产推理是否使用 immutable image。</li>
+<li>自定义 CUDA extension 是否写入共享路径。</li>
+<li>编译缓存是否按镜像、模型、GPU 架构区分。</li>
+</ul>
+<p>环境隔离与上一篇“环境可复现”直接相关。混合集群里越允许灵活环境，越需要明确哪些任务可以灵活，哪些必须固定。</p>
+<h3 id="_8">数据隔离<a class="headerlink" href="#_8" title="Permanent link">¶</a></h3>
+<p>数据隔离关注谁能读写哪些数据，以及不同任务的数据生命周期。</p>
+<p>包括：</p>
+<ul>
+<li>数据集只读挂载。</li>
+<li>checkpoint 写入路径隔离。</li>
+<li>模型权重发布路径隔离。</li>
+<li>RAG index 构建和发布路径隔离。</li>
+<li>临时数据清理。</li>
+<li>日志和 trace 脱敏。</li>
+</ul>
+<p>训练和推理常常共享模型 artifact，但不应该共享所有中间路径。否则一次错误覆盖可能影响线上服务。</p>
+<h3 id="_9">控制面隔离<a class="headerlink" href="#_9" title="Permanent link">¶</a></h3>
+<p>控制面隔离关注用户能否影响调度和集群状态。</p>
+<p>例如：</p>
+<ul>
+<li>用户是否能创建高优先级任务。</li>
+<li>用户是否能使用 privileged pod。</li>
+<li>用户是否能修改 node selector、toleration、priority class。</li>
+<li>用户是否能创建大量小任务压垮 API server。</li>
+<li>用户是否能绕过队列直接提交到节点池。</li>
+</ul>
+<p>很多混合集群问题不是底层算力不够，而是控制面没有准入策略。</p>
+<h2 id="namespaceaccountproject-queue">租户模型：Namespace、Account、Project 与 Queue<a class="headerlink" href="#namespaceaccountproject-queue" title="Permanent link">¶</a></h2>
+<p>多租户治理首先要统一“租户”到底是什么。不同系统的抽象不同：</p>
+<ul>
+<li>Kubernetes 常用 namespace 表达边界。</li>
+<li>Slurm 常用 account、association、partition、QoS。</li>
+<li>云平台常用 project、folder、billing account。</li>
+<li>队列系统常用 LocalQueue、ClusterQueue、cohort、resource flavor。</li>
+</ul>
+<p>如果这些概念各自独立，就会出现权限、配额和成本归因对不上的问题。例如：</p>
+<div class="highlight"><pre><span></span><code>Kubernetes namespace: team-a-dev
+Slurm account: research-a
+Object storage prefix: /datasets/group-alpha/
+Cost tag: project-123
+Queue: shared-gpu
+</code></pre></div>
+<p>这些名字如果没有映射关系，后续很难回答“这个任务属于谁、消耗谁的 quota、能访问哪些数据、成本算到哪里”。</p>
+<p>更好的做法是建立一张租户映射表：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>字段</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identity</td>
+<td>tenant_id</td>
+<td><code>research-a</code></td>
+</tr>
+<tr>
+<td>Kubernetes</td>
+<td>namespace / service account</td>
+<td><code>research-a-train</code>、<code>research-a-dev</code></td>
+</tr>
+<tr>
+<td>Slurm</td>
+<td>account / QoS</td>
+<td><code>research-a</code>、<code>normal</code></td>
+</tr>
+<tr>
+<td>Queue</td>
+<td>local queue / cluster queue</td>
+<td><code>team-a-train</code> -&gt; <code>h100-training</code></td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>bucket / prefix / quota</td>
+<td><code>s3://ai-data/research-a/</code></td>
+</tr>
+<tr>
+<td>Registry</td>
+<td>image namespace</td>
+<td><code>registry.example.com/research-a/*</code></td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>billing tag</td>
+<td><code>tenant=research-a</code></td>
+</tr>
+<tr>
+<td>Security</td>
+<td>data class</td>
+<td>public / internal / restricted</td>
+</tr>
+</tbody>
+</table>
+<p>租户模型要同时服务四件事：</p>
+<ul>
+<li>授权：谁能提交什么任务，能访问哪些资源。</li>
+<li>配额：谁有多少 guaranteed quota，能借多少。</li>
+<li>审计：谁在什么时候运行了什么。</li>
+<li>归因：资源、成本、故障和 SLA 影响算到谁。</li>
+</ul>
+<p>Kubernetes ResourceQuota 可以限制 namespace 内资源和对象总量；Kueue 的 LocalQueue/ClusterQueue 可以把用户入口和集群级资源池解耦；Slurm 的 account/QoS/fairshare 可以把历史使用量纳入优先级。AI 平台通常需要把这些层统一起来，而不是只依赖其中一个。</p>
+<h2 id="_10">节点池设计<a class="headerlink" href="#_10" title="Permanent link">¶</a></h2>
+<p>混合集群通常不会把所有节点放在一个池子里。更常见的是把节点按用途、硬件和隔离级别分组。</p>
+<table>
+<thead>
+<tr>
+<th>Node Pool</th>
+<th>典型任务</th>
+<th>设计重点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training Pool</td>
+<td>大规模训练、微调</td>
+<td>高带宽网络、拓扑一致、gang scheduling</td>
+</tr>
+<tr>
+<td>Inference Pool</td>
+<td>在线推理</td>
+<td>稳定性、模型缓存、低抖动、弹性扩缩容</td>
+</tr>
+<tr>
+<td>Dev Pool</td>
+<td>Notebook、小实验</td>
+<td>灵活、低优先级、可抢占、自动回收</td>
+</tr>
+<tr>
+<td>Batch Pool</td>
+<td>数据预处理、离线推理</td>
+<td>成本、吞吐、可抢占</td>
+</tr>
+<tr>
+<td>Benchmark Pool</td>
+<td>性能测试</td>
+<td>低干扰、固定环境、固定拓扑</td>
+</tr>
+<tr>
+<td>System Pool</td>
+<td>监控、日志、控制面组件</td>
+<td>高可靠、避免被用户任务挤压</td>
+</tr>
+<tr>
+<td>Spare / Burst Pool</td>
+<td>临时扩容、抢占式资源</td>
+<td>成本优化、容忍中断</td>
+</tr>
+</tbody>
+</table>
+<p>节点池太少会导致互相干扰；节点池太多会导致碎片和管理成本上升。</p>
+<p>一个常见折中是：</p>
+<div class="highlight"><pre><span></span><code>关键在线服务和 benchmark 硬隔离
+大训练和普通批处理软隔离
+Notebook 和低优先级任务可抢占
+系统组件独立节点池
+</code></pre></div>
+<h2 id="_11">单集群、多集群与虚拟集群<a class="headerlink" href="#_11" title="Permanent link">¶</a></h2>
+<p>混部不一定意味着所有东西必须在一个 Kubernetes 或 Slurm 集群里。常见形态有三种。</p>
+<table>
+<thead>
+<tr>
+<th>形态</th>
+<th>优点</th>
+<th>风险</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单集群多节点池</td>
+<td>资源池大，调度灵活，统一观测</td>
+<td>控制面影响面大，策略复杂</td>
+<td>中小规模统一平台</td>
+</tr>
+<tr>
+<td>多物理集群</td>
+<td>故障隔离强，策略简单</td>
+<td>资源碎片、跨集群调度和成本归因复杂</td>
+<td>生产推理、核心训练、强安全边界</td>
+</tr>
+<tr>
+<td>虚拟集群 / 逻辑租户</td>
+<td>用户体验接近独立集群，底层仍共享</td>
+<td>需要额外控制面和策略治理</td>
+<td>多团队共享研究平台</td>
+</tr>
+</tbody>
+</table>
+<p>选择时可以按三个问题判断：</p>
+<ol>
+<li>这个 workload 的事故会不会影响生产服务？</li>
+<li>它是否需要和其他 workload 共享同一批昂贵 GPU 才能提高利用率？</li>
+<li>控制面、网络、存储和安全策略是否能承受混部复杂度？</li>
+</ol>
+<p>经验上：</p>
+<ul>
+<li>生产在线推理和关键 benchmark 更适合独立集群或强隔离节点池。</li>
+<li>研发训练、微调、离线推理适合共享集群加队列治理。</li>
+<li>Notebook 可以共享底层资源，但要通过虚拟边界、idle 回收和权限限制降低风险。</li>
+<li>安全等级不同的数据任务不应只靠队列隔离，必要时要物理或网络隔离。</li>
+</ul>
+<h2 id="hard-isolation-soft-sharing">Hard Isolation 与 Soft Sharing<a class="headerlink" href="#hard-isolation-soft-sharing" title="Permanent link">¶</a></h2>
+<p>混部策略可以放在一条轴上理解。</p>
+<div class="highlight"><pre><span></span><code>hard isolation
+  -&gt; dedicated node pool
+  -&gt; quota + queue
+  -&gt; quota borrowing
+  -&gt; opportunistic sharing
+  -&gt; best-effort preemptible
+soft sharing
+</code></pre></div>
+<h3 id="hard-isolation">Hard Isolation<a class="headerlink" href="#hard-isolation" title="Permanent link">¶</a></h3>
+<p>硬隔离适合：</p>
+<ul>
+<li>在线推理核心服务。</li>
+<li>关键 benchmark。</li>
+<li>安全级别高的数据。</li>
+<li>需要固定拓扑的大训练。</li>
+<li>系统控制面组件。</li>
+</ul>
+<p>优点是可预测、容易排障；缺点是利用率可能低。</p>
+<h3 id="soft-sharing">Soft Sharing<a class="headerlink" href="#soft-sharing" title="Permanent link">¶</a></h3>
+<p>软共享适合：</p>
+<ul>
+<li>离线批处理。</li>
+<li>Notebook。</li>
+<li>小规模微调。</li>
+<li>低优先级评测。</li>
+<li>资源空闲时的 opportunistic job。</li>
+</ul>
+<p>优点是利用率高；缺点是需要更强的抢占、隔离和可观测性。</p>
+<h3 id="quota-borrowing">Quota Borrowing<a class="headerlink" href="#quota-borrowing" title="Permanent link">¶</a></h3>
+<p>很多队列系统支持“有配额上限，但空闲资源可以借用”。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>team-a guaranteed: 64 GPU
+team-a max: 128 GPU
+team-b guaranteed: 64 GPU
+team-b max: 128 GPU
+shared cluster: 192 GPU
+</code></pre></div>
+<p>当 team-b 空闲时，team-a 可以临时使用超过 guaranteed 的资源；当 team-b 提交任务时，系统可以通过排队或抢占逐步收回借用资源。</p>
+<p>这比静态切分资源更高效，但必须回答：</p>
+<ul>
+<li>借用资源是否可抢占。</li>
+<li>抢占谁。</li>
+<li>抢占前是否有 grace period。</li>
+<li>在线服务是否允许被抢占。</li>
+<li>大训练被抢占后 checkpoint 是否足够快。</li>
+</ul>
+<h2 id="_12">隔离等级：不要只有“隔离/不隔离”<a class="headerlink" href="#_12" title="Permanent link">¶</a></h2>
+<p>现实中很少只有两种状态。更实用的是定义隔离等级，让不同 workload 按风险进入不同等级。</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>典型 workload</th>
+<th>隔离要求</th>
+<th>调度策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tier 0</td>
+<td>控制面、核心在线推理、关键网关</td>
+<td>独立节点池、强权限边界、不可抢占</td>
+<td>最高优先级，保留容量</td>
+</tr>
+<tr>
+<td>Tier 1</td>
+<td>重要训练、生产评测、正式 benchmark</td>
+<td>固定环境、固定节点池或拓扑、低干扰</td>
+<td>高优先级，谨慎抢占</td>
+</tr>
+<tr>
+<td>Tier 2</td>
+<td>常规训练、微调、离线推理</td>
+<td>队列隔离、quota、可观测</td>
+<td>正常优先级，可借用</td>
+</tr>
+<tr>
+<td>Tier 3</td>
+<td>Notebook、小实验、数据探索</td>
+<td>dev pool、idle timeout、权限限制</td>
+<td>低优先级，可抢占</td>
+</tr>
+<tr>
+<td>Tier 4</td>
+<td>opportunistic batch、spot 任务</td>
+<td>best effort、可中断、自动重试</td>
+<td>使用空闲资源，随时回收</td>
+</tr>
+</tbody>
+</table>
+<p>隔离等级要写进准入策略，而不是只写在文档里。例如：</p>
+<ul>
+<li>Tier 0/1 任务必须使用镜像 digest 和受支持环境族。</li>
+<li>Tier 0/1 任务不能和未知 Notebook 混部。</li>
+<li>Tier 2 可以借用资源，但要接受排队和部分抢占。</li>
+<li>Tier 3 必须有 idle timeout 和最大运行时间。</li>
+<li>Tier 4 必须声明可中断和重试方式。</li>
+</ul>
+<p>这样平台不需要对每个任务单独争论，而是把风险和权利用等级表达出来。</p>
+<h2 id="queuequotaprioritypreemption">Queue、Quota、Priority、Preemption<a class="headerlink" href="#queuequotaprioritypreemption" title="Permanent link">¶</a></h2>
+<p>混合集群治理最核心的四个词是：</p>
+<div class="highlight"><pre><span></span><code>queue
+quota
+priority
+preemption
+</code></pre></div>
+<h3 id="queue">Queue<a class="headerlink" href="#queue" title="Permanent link">¶</a></h3>
+<p>Queue 是用户提交任务时看到的入口。</p>
+<p>好的队列应该表达：</p>
+<ul>
+<li>属于哪个团队或项目。</li>
+<li>面向哪类 workload。</li>
+<li>可用哪些节点池。</li>
+<li>默认优先级。</li>
+<li>是否允许借用资源。</li>
+<li>是否允许抢占或被抢占。</li>
+<li>是否有最大运行时间。</li>
+</ul>
+<p>Kueue 这类 Kubernetes 批处理队列系统把 LocalQueue、ClusterQueue、ResourceFlavor 等概念分开：用户提交到本地队列，平台侧把不同队列映射到集群资源和 flavor。这个模型适合把“用户入口”和“底层资源池”解耦。</p>
+<h3 id="quota">Quota<a class="headerlink" href="#quota" title="Permanent link">¶</a></h3>
+<p>Quota 表示租户或队列的资源边界。</p>
+<p>Quota 可以是：</p>
+<ul>
+<li>硬上限：不能超过。</li>
+<li>软上限：可以借用空闲资源。</li>
+<li>最小保障：资源紧张时仍应保留。</li>
+<li>周期预算：按天、周、月统计资源用量。</li>
+<li>对象数量限制：限制 pod/job/PVC/configmap 数量。</li>
+</ul>
+<p>Kubernetes ResourceQuota 适合 namespace 内的资源和对象数量治理；AI 批处理场景往往还需要队列层的 GPU quota、fairshare 和借用策略。</p>
+<h3 id="priority">Priority<a class="headerlink" href="#priority" title="Permanent link">¶</a></h3>
+<p>Priority 决定资源紧张时谁先运行，谁可以等待。</p>
+<p>高优先级通常给：</p>
+<ul>
+<li>在线推理。</li>
+<li>生产评测。</li>
+<li>关键发布流程。</li>
+<li>快到 deadline 的任务。</li>
+<li>系统组件。</li>
+</ul>
+<p>低优先级通常给：</p>
+<ul>
+<li>Notebook 空闲 session。</li>
+<li>离线批处理。</li>
+<li>可重试评测。</li>
+<li>opportunistic training。</li>
+</ul>
+<p>Kubernetes Pod Priority and Preemption 允许高优先级 Pod 抢占低优先级 Pod，但对 AI workload 要谨慎：抢占一个普通 Web Pod 和抢占一个 512 GPU 训练 job 的代价完全不同。</p>
+<h3 id="preemption">Preemption<a class="headerlink" href="#preemption" title="Permanent link">¶</a></h3>
+<p>Preemption 是提高利用率的强工具，也是制造事故的强工具。</p>
+<p>适合被抢占的任务：</p>
+<ul>
+<li>有 checkpoint 的训练。</li>
+<li>可重跑的数据处理。</li>
+<li>离线推理。</li>
+<li>Notebook idle session。</li>
+<li>低优先级评测。</li>
+</ul>
+<p>不适合被抢占的任务：</p>
+<ul>
+<li>无冗余在线推理。</li>
+<li>关键 benchmark。</li>
+<li>控制面组件。</li>
+<li>没有 checkpoint 的长训练。</li>
+<li>正在写关键 artifact 的任务。</li>
+</ul>
+<p>抢占策略必须配合：</p>
+<ul>
+<li>checkpoint 周期。</li>
+<li>graceful termination。</li>
+<li>最大运行时间。</li>
+<li>retry policy。</li>
+<li>artifact 原子提交。</li>
+<li>用户可见的 pending/preempted reason。</li>
+</ul>
+<h3 id="ai">AI 任务的抢占生命周期<a class="headerlink" href="#ai" title="Permanent link">¶</a></h3>
+<p>AI 任务抢占不能只发送一个 kill 信号。一个更稳妥的生命周期是：</p>
+<div class="highlight"><pre><span></span><code>preempt requested
+  -&gt; mark draining
+  -&gt; stop accepting new work
+  -&gt; checkpoint / flush output
+  -&gt; release lease
+  -&gt; terminate
+  -&gt; requeue / reschedule
+  -&gt; restore
+  -&gt; validate progress
+</code></pre></div>
+<p>不同任务对应的动作不同：</p>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>抢占前动作</th>
+<th>恢复动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>训练</td>
+<td>保存 checkpoint、记录 global step、停止写入非原子 artifact</td>
+<td>从 checkpoint 恢复，校验 step 和 optimizer state</td>
+</tr>
+<tr>
+<td>离线推理</td>
+<td>flush 已完成分片、提交分片 manifest</td>
+<td>跳过已完成分片，继续剩余分片</td>
+</tr>
+<tr>
+<td>数据预处理</td>
+<td>原子提交输出目录，避免半成品覆盖正式数据</td>
+<td>从输入 manifest 重新切分或续跑</td>
+</tr>
+<tr>
+<td>Notebook</td>
+<td>保存 session 状态，提示用户迁移</td>
+<td>重新分配低优先级资源</td>
+</tr>
+<tr>
+<td>在线推理</td>
+<td>从负载均衡摘除副本，等待请求 drain</td>
+<td>新副本预热后再接流量</td>
+</tr>
+</tbody>
+</table>
+<p>抢占策略至少要定义：</p>
+<ul>
+<li><code>termination_grace_period</code> 是否足够完成 checkpoint。</li>
+<li>超时后是否强杀。</li>
+<li>被抢占后是否自动 requeue。</li>
+<li>连续抢占次数是否有限制。</li>
+<li>抢占原因是否进入 run manifest。</li>
+<li>抢占造成的浪费如何计入成本。</li>
+</ul>
+<p>如果一个 workload 没有恢复策略，就不应该被标记为 preemptible。否则调度器看似提高了利用率，实际只是把计算浪费转移到用户身上。</p>
+<h2 id="_13">在线推理与训练混部<a class="headerlink" href="#_13" title="Permanent link">¶</a></h2>
+<p>训练和推理混部是最有吸引力、也最容易出问题的场景。</p>
+<h3 id="_14">为什么想混部<a class="headerlink" href="#_14" title="Permanent link">¶</a></h3>
+<p>因为在线推理的负载有波峰波谷：</p>
+<ul>
+<li>白天高峰，夜间低谷。</li>
+<li>活动期间高峰，平时低谷。</li>
+<li>不同业务峰值时间不同。</li>
+</ul>
+<p>空闲 GPU 如果完全保留给推理，会降低利用率。低谷时可以运行低优先级训练、离线推理或数据任务。</p>
+<h3 id="_15">为什么难<a class="headerlink" href="#_15" title="Permanent link">¶</a></h3>
+<p>在线推理和训练的性能目标冲突：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>训练</th>
+<th>在线推理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目标</td>
+<td>平均吞吐、step time</td>
+<td>p95/p99 latency、可用性</td>
+</tr>
+<tr>
+<td>资源使用</td>
+<td>长时高占用</td>
+<td>随请求波动</td>
+</tr>
+<tr>
+<td>容错</td>
+<td>可 checkpoint 重跑</td>
+<td>请求不能随意失败</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>gang、拓扑敏感</td>
+<td>弹性、滚动发布</td>
+</tr>
+<tr>
+<td>性能风险</td>
+<td>网络/存储拥塞</td>
+<td>抖动、冷启动、batch 延迟</td>
+</tr>
+</tbody>
+</table>
+<p>因此，常见策略是：</p>
+<div class="highlight"><pre><span></span><code>推理保留基础容量
+  + 空闲资源运行低优先级批任务
+  + 高峰时回收低优先级任务
+  + 推理扩容优先
+  + 批任务必须可中断
+</code></pre></div>
+<h3 id="_16">混部边界<a class="headerlink" href="#_16" title="Permanent link">¶</a></h3>
+<p>推理和训练混部时要设边界：</p>
+<ul>
+<li>不让训练任务使用推理服务所在节点的所有 CPU。</li>
+<li>不让训练 checkpoint 挤占模型加载和日志路径。</li>
+<li>不让训练 NCCL 流量影响推理入口网络。</li>
+<li>推理节点上的低优先级任务必须可驱逐。</li>
+<li>推理服务要有模型预热和冷启动预算。</li>
+<li>低优先级任务不能使用生产推理的 secret。</li>
+</ul>
+<p>如果这些边界没有建立，混部带来的利用率提升很容易被 p99 抖动和事故成本抵消。</p>
+<h2 id="notebook_1">Notebook 治理<a class="headerlink" href="#notebook_1" title="Permanent link">¶</a></h2>
+<p>Notebook 是研发效率工具，也是 GPU 利用率治理难点。</p>
+<p>典型问题：</p>
+<ul>
+<li>用户启动后忘记关闭。</li>
+<li>GPU 被进程占用但显存和算力利用率很低。</li>
+<li>Notebook 内临时安装依赖，环境不可复现。</li>
+<li>开发 session 使用生产数据。</li>
+<li>多个 Notebook 共享同一机器，互相影响。</li>
+</ul>
+<p>常见治理策略：</p>
+<ul>
+<li>默认使用 dev node pool。</li>
+<li>设置 idle timeout。</li>
+<li>设置最大连续运行时间。</li>
+<li>对 Notebook GPU 配额单独统计。</li>
+<li>长时间训练必须转成 batch job。</li>
+<li>关键实验必须固化为镜像和 manifest。</li>
+<li>Notebook 镜像和生产镜像分离。</li>
+</ul>
+<p>一个实用规则是：</p>
+<div class="highlight"><pre><span></span><code>Notebook 用来探索，不用来承载关键长任务。
+</code></pre></div>
+<p>当探索变成可复现实验，应进入 batch 或 training queue。</p>
+<h2 id="_17">系统任务保护<a class="headerlink" href="#_17" title="Permanent link">¶</a></h2>
+<p>混合集群必须保护系统任务。</p>
+<p>系统任务包括：</p>
+<ul>
+<li>DNS、CNI、CSI。</li>
+<li>GPU device plugin。</li>
+<li>DCGM exporter。</li>
+<li>日志 agent。</li>
+<li>metrics collector。</li>
+<li>ingress / gateway。</li>
+<li>镜像缓存和 registry mirror。</li>
+<li>调度器和队列控制器。</li>
+</ul>
+<p>如果系统任务和用户任务争抢资源，会出现很难排查的问题：</p>
+<ul>
+<li>节点心跳抖动。</li>
+<li>日志丢失。</li>
+<li>监控空洞。</li>
+<li>CSI mount 超时。</li>
+<li>GPU plugin 异常导致资源不可见。</li>
+<li>调度器延迟升高。</li>
+</ul>
+<p>因此应考虑：</p>
+<ul>
+<li>system node pool。</li>
+<li>system priority class。</li>
+<li>resource requests/limits。</li>
+<li>taints/tolerations。</li>
+<li>pod disruption budget。</li>
+<li>和用户任务分离的日志/监控资源。</li>
+</ul>
+<p>系统任务不应该靠“刚好还有一点 CPU”运行。</p>
+<h2 id="kubernetes">Kubernetes 隔离工具箱<a class="headerlink" href="#kubernetes" title="Permanent link">¶</a></h2>
+<p>Kubernetes 提供了很多通用隔离工具，但 AI 场景要组合使用。</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>解决什么</th>
+<th>AI 场景注意点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Namespace</td>
+<td>逻辑分组</td>
+<td>不是安全边界本身，需要 RBAC/Policy</td>
+</tr>
+<tr>
+<td>ResourceQuota</td>
+<td>namespace 资源上限</td>
+<td>GPU extended resource 也要纳入治理</td>
+</tr>
+<tr>
+<td>LimitRange</td>
+<td>默认 request/limit</td>
+<td>避免用户漏写 CPU/memory</td>
+</tr>
+<tr>
+<td>PriorityClass</td>
+<td>优先级</td>
+<td>谨慎给用户高优先级权限</td>
+</tr>
+<tr>
+<td>Preemption</td>
+<td>高优先级抢占低优先级</td>
+<td>大训练抢占代价高，要配 checkpoint</td>
+</tr>
+<tr>
+<td>QoS Class</td>
+<td>Guaranteed/Burstable/BestEffort</td>
+<td>推理服务应避免 BestEffort</td>
+</tr>
+<tr>
+<td>NodeSelector/Affinity</td>
+<td>节点选择</td>
+<td>表达 GPU 型号、拓扑、节点池</td>
+</tr>
+<tr>
+<td>Taints/Tolerations</td>
+<td>控制哪些任务能上节点</td>
+<td>保护系统池、推理池、benchmark 池</td>
+</tr>
+<tr>
+<td>NetworkPolicy</td>
+<td>网络访问控制</td>
+<td>限制租户间访问和外部访问</td>
+</tr>
+<tr>
+<td>Pod Security Standards</td>
+<td>限制容器权限</td>
+<td>控制 privileged、host path、host network</td>
+</tr>
+</tbody>
+</table>
+<p>这些工具的共同问题是：它们只提供机制，不自动给出策略。AI Infra 的工作是把策略固化成默认模板、准入规则和队列约束。</p>
+<h3 id="kubernetes_1">Kubernetes 中的推荐落地边界<a class="headerlink" href="#kubernetes_1" title="Permanent link">¶</a></h3>
+<p>在 Kubernetes 里做 AI 多租户时，不建议让用户直接提交任意 Pod。更稳的路径是：</p>
+<div class="highlight"><pre><span></span><code>user intent
+  -&gt; workload template
+  -&gt; admission policy
+  -&gt; queue object
+  -&gt; generated pod/job
+</code></pre></div>
+<p>也就是说，用户提交“我要跑一个训练任务”，平台根据模板生成 Pod、Job、RayJob、PyTorchJob 或 Kueue Workload，而不是让用户手写所有底层字段。</p>
+<p>建议默认固化：</p>
+<ul>
+<li>namespace、service account 和 tenant 的映射。</li>
+<li>node selector、toleration 和 topology 选择。</li>
+<li>resource requests/limits。</li>
+<li>priority class。</li>
+<li>image digest 和环境族。</li>
+<li>network policy。</li>
+<li>secret mount 白名单。</li>
+<li>volume mount 白名单。</li>
+<li>termination grace period。</li>
+<li>sidecar、日志和指标采集。</li>
+</ul>
+<p>用户可以改业务参数，但不应该随意改：</p>
+<ul>
+<li><code>hostNetwork</code></li>
+<li><code>hostPID</code></li>
+<li><code>privileged</code></li>
+<li>任意 <code>hostPath</code></li>
+<li>system node pool toleration</li>
+<li>高优先级 priority class</li>
+<li>未授权 secret</li>
+<li>绕过队列的 node selector</li>
+</ul>
+<p>这些字段一旦开放，namespace 就很难作为可靠边界。</p>
+<h2 id="slurm">Slurm 隔离工具箱<a class="headerlink" href="#slurm" title="Permanent link">¶</a></h2>
+<p>很多 AI 训练集群仍然以 Slurm 为主。Slurm 的优势是 HPC 批处理、拓扑、accounting、fairshare 和大型 gang job。</p>
+<p>常见抽象包括：</p>
+<ul>
+<li>Partition：把节点分组。</li>
+<li>Account：按组织、项目或团队统计资源。</li>
+<li>QOS：限制优先级、最大资源、最大运行时间等。</li>
+<li>Fairshare：根据历史使用量调整优先级。</li>
+<li>GRES：表示 GPU 等通用资源。</li>
+<li>Reservation：预留资源。</li>
+<li>Preemption：抢占低优先级 job。</li>
+</ul>
+<p>AI 场景下要关注：</p>
+<ul>
+<li>大训练 job 需要 gang 分配。</li>
+<li>交互式 job 不能长期占住高价值节点。</li>
+<li>Fairshare 要结合 GPU 类型和 GPU hour，而不只是 job 数。</li>
+<li>Preemption 必须和 checkpoint 能力匹配。</li>
+<li>Partition 不宜过碎，否则排队和碎片严重。</li>
+</ul>
+<h3 id="slurm-kubernetes">Slurm 与 Kubernetes 混用<a class="headerlink" href="#slurm-kubernetes" title="Permanent link">¶</a></h3>
+<p>不少 AI 平台会同时有 Slurm 和 Kubernetes：</p>
+<ul>
+<li>Slurm 承载大规模训练和 HPC 风格批处理。</li>
+<li>Kubernetes 承载在线推理、Notebook、控制面和云原生服务。</li>
+<li>Ray 可能横跨二者，用于数据处理、分布式推理或实验平台。</li>
+</ul>
+<p>混用时最大的风险不是“两个系统都能调度”，而是它们看不到彼此的真实资源状态。</p>
+<p>常见问题：</p>
+<ul>
+<li>Kubernetes 认为某节点空闲，但 Slurm 已经保留或占用。</li>
+<li>Slurm job 和 Kubernetes Pod 共享同一节点导致 GPU/CPU/网络争用。</li>
+<li>两边的 quota、account、priority、cost tag 不一致。</li>
+<li>日志、指标和故障归因被拆散。</li>
+<li>用户可以选择更宽松的一边绕过策略。</li>
+</ul>
+<p>更稳的做法是明确边界：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>物理隔离</td>
+<td>一批节点归 Slurm，一批节点归 Kubernetes</td>
+</tr>
+<tr>
+<td>时间隔离</td>
+<td>维护窗口或批处理窗口内切换资源归属</td>
+</tr>
+<tr>
+<td>控制器协调</td>
+<td>用统一平台在两边创建任务并维护资源状态</td>
+</tr>
+<tr>
+<td>单向承载</td>
+<td>Kubernetes 只跑服务，Slurm 只跑大训练，不共享节点</td>
+</tr>
+</tbody>
+</table>
+<p>如果必须共享节点，至少要有统一的 node ownership、资源锁、GPU 设备可见性控制和成本归因。不建议让两个调度器在同一批 GPU 上独立做最终决策。</p>
+<h2 id="gpu-migmps-time-slicing">GPU 共享：MIG、MPS 与 Time Slicing<a class="headerlink" href="#gpu-migmps-time-slicing" title="Permanent link">¶</a></h2>
+<p>GPU 共享是混部中的敏感点。</p>
+<h3 id="mig">MIG<a class="headerlink" href="#mig" title="Permanent link">¶</a></h3>
+<p>MIG 把支持的 GPU 切成硬件隔离的实例，适合：</p>
+<ul>
+<li>小模型推理。</li>
+<li>Notebook。</li>
+<li>小规模实验。</li>
+<li>多租户隔离要求较高的场景。</li>
+</ul>
+<p>限制是：</p>
+<ul>
+<li>不是所有 GPU 都支持。</li>
+<li>切分形态固定。</li>
+<li>大模型训练不适合。</li>
+<li>切分和调度策略需要配合。</li>
+</ul>
+<h3 id="mps">MPS<a class="headerlink" href="#mps" title="Permanent link">¶</a></h3>
+<p>MPS 让多个 CUDA 进程更高效共享 GPU，适合某些小 kernel、低占用场景。</p>
+<p>但它的隔离性弱于 MIG，使用时要注意：</p>
+<ul>
+<li>显存控制。</li>
+<li>错误传播。</li>
+<li>性能干扰。</li>
+<li>用户权限边界。</li>
+</ul>
+<h3 id="time-slicing">Time Slicing<a class="headerlink" href="#time-slicing" title="Permanent link">¶</a></h3>
+<p>Time slicing 可以让多个容器轮流使用 GPU，适合低优先级、交互式或轻量任务。</p>
+<p>但对延迟敏感推理和 benchmark 来说，time slicing 可能带来不可接受的抖动。</p>
+<p>结论是：</p>
+<div class="highlight"><pre><span></span><code>GPU 共享适合提高小任务利用率，不适合默认用于所有任务。
+</code></pre></div>
+<h2 id="_18">存储与网络的多租户<a class="headerlink" href="#_18" title="Permanent link">¶</a></h2>
+<p>很多混部问题表面上是 GPU 争用，根因其实是网络或存储。</p>
+<h3 id="_19">存储隔离<a class="headerlink" href="#_19" title="Permanent link">¶</a></h3>
+<p>需要治理：</p>
+<ul>
+<li>每个租户的容量配额。</li>
+<li>checkpoint 写入速率。</li>
+<li>小文件数量。</li>
+<li>本地 NVMe cache 使用。</li>
+<li>对象存储 API 请求量。</li>
+<li>共享文件系统 metadata 压力。</li>
+</ul>
+<p>如果只限制 GPU 数量，不限制 checkpoint 和数据读取，高优先级训练仍然可能被低优先级数据任务拖慢。</p>
+<h3 id="_20">网络隔离<a class="headerlink" href="#_20" title="Permanent link">¶</a></h3>
+<p>需要治理：</p>
+<ul>
+<li>RDMA 网络和普通业务网络分离。</li>
+<li>训练 all-reduce 流量和推理入口流量分离。</li>
+<li>多租户网络访问控制。</li>
+<li>QoS / traffic class。</li>
+<li>拓扑感知调度。</li>
+<li>拥塞可观测性。</li>
+</ul>
+<p>RoCE 集群尤其要小心。一个错误配置或突发流量可能造成 PFC pause、ECN 异常和尾延迟恶化。</p>
+<h2 id="_21">可观测性：看见干扰<a class="headerlink" href="#_21" title="Permanent link">¶</a></h2>
+<p>混合集群必须能看见干扰，否则只能靠用户抱怨。</p>
+<p>需要监控的指标包括：</p>
+<h3 id="_22">资源使用<a class="headerlink" href="#_22" title="Permanent link">¶</a></h3>
+<ul>
+<li>GPU utilization。</li>
+<li>GPU memory。</li>
+<li>SM occupancy。</li>
+<li>HBM bandwidth。</li>
+<li>CPU utilization。</li>
+<li>memory pressure。</li>
+<li>local NVMe usage。</li>
+<li>network throughput。</li>
+<li>storage IOPS 和 metadata rate。</li>
+</ul>
+<h3 id="_23">调度状态<a class="headerlink" href="#_23" title="Permanent link">¶</a></h3>
+<ul>
+<li>pending job 数量。</li>
+<li>pending reason。</li>
+<li>queue wait time。</li>
+<li>quota 使用率。</li>
+<li>fairshare 变化。</li>
+<li>preemption 次数。</li>
+<li>gang job 等待时间。</li>
+<li>fragmentation。</li>
+</ul>
+<h3 id="sla">SLA<a class="headerlink" href="#sla" title="Permanent link">¶</a></h3>
+<ul>
+<li>推理 p50/p95/p99。</li>
+<li>请求错误率。</li>
+<li>模型加载时间。</li>
+<li>训练 step time。</li>
+<li>checkpoint duration。</li>
+<li>DataLoader wait。</li>
+<li>job restart 次数。</li>
+</ul>
+<h3 id="_24">多租户公平性<a class="headerlink" href="#_24" title="Permanent link">¶</a></h3>
+<ul>
+<li>每个租户 GPU hour。</li>
+<li>每个租户等待时间。</li>
+<li>每个租户被抢占次数。</li>
+<li>每个租户 quota borrowing。</li>
+<li>每个租户资源浪费。</li>
+</ul>
+<p>没有这些指标，混部策略无法调优。</p>
+<h2 id="noisy-neighbor">Noisy Neighbor：干扰归因<a class="headerlink" href="#noisy-neighbor" title="Permanent link">¶</a></h2>
+<p>混合集群里的典型抱怨是：</p>
+<div class="highlight"><pre><span></span><code>我的代码没变，但今天变慢了。
+</code></pre></div>
+<p>这时如果没有干扰归因，只能在代码、数据、环境、网络和邻居任务之间猜。更好的做法是把 noisy neighbor 当成一类正式故障处理。</p>
+<p>常见干扰源：</p>
+<table>
+<thead>
+<tr>
+<th>干扰源</th>
+<th>表现</th>
+<th>证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU 共享</td>
+<td>SM/HBM 抖动、推理 p99 上升</td>
+<td>同卡进程、MIG/MPS/time slicing 配置</td>
+</tr>
+<tr>
+<td>CPU 争用</td>
+<td>tokenizer/DataLoader 慢、服务线程排队</td>
+<td>CPU throttling、run queue、cgroup 指标</td>
+</tr>
+<tr>
+<td>网络拥塞</td>
+<td>NCCL timeout、all-reduce 变慢、推理入口抖动</td>
+<td>fabric metrics、ECN/PFC、NCCL log</td>
+</tr>
+<tr>
+<td>存储拥塞</td>
+<td>checkpoint 慢、DataLoader wait 高</td>
+<td>IOPS、吞吐、metadata rate、对象存储请求</td>
+</tr>
+<tr>
+<td>控制面压力</td>
+<td>Pod 创建慢、调度延迟、watch 超时</td>
+<td>API server、scheduler、queue controller 指标</td>
+</tr>
+<tr>
+<td>镜像风暴</td>
+<td>大量 Pod 同时拉镜像，节点启动慢</td>
+<td>registry、node image cache、pull duration</td>
+</tr>
+<tr>
+<td>日志风暴</td>
+<td>节点磁盘或日志系统压力</td>
+<td>log agent queue、磁盘使用率、drop count</td>
+</tr>
+</tbody>
+</table>
+<p>排查时建议按时间窗口对齐：</p>
+<div class="highlight"><pre><span></span><code>victim workload slowdown window
+  -&gt; same node / same rack workloads
+  -&gt; same storage path workloads
+  -&gt; same network fabric workloads
+  -&gt; same control plane events
+  -&gt; recent scheduling / preemption / rollout events
+</code></pre></div>
+<p>对线上推理尤其要记录：</p>
+<ul>
+<li>同节点是否有低优先级 batch。</li>
+<li>同时段是否有大规模镜像拉取。</li>
+<li>模型加载路径是否被训练 checkpoint 挤占。</li>
+<li>ingress、tokenizer、scheduler、GPU worker 哪一段变慢。</li>
+<li>prefix cache 或 KV cache 是否被重建。</li>
+</ul>
+<p>对训练任务则要记录：</p>
+<ul>
+<li>是否和其他大 job 共用 rack uplink。</li>
+<li>是否有同时 checkpoint 的任务。</li>
+<li>是否发生过重调度、抢占或节点替换。</li>
+<li>是否跨了不同 GPU 拓扑或不同 node profile。</li>
+</ul>
+<p>Noisy neighbor 治理不是追求完全无干扰，而是让干扰可见、可归因、可用策略缓解。</p>
+<h2 id="_25">常见策略模板<a class="headerlink" href="#_25" title="Permanent link">¶</a></h2>
+<h3 id="_26">策略一：训练主导型集群<a class="headerlink" href="#_26" title="Permanent link">¶</a></h3>
+<p>适合研究和模型开发阶段。</p>
+<div class="highlight"><pre><span></span><code>training pool: majority GPU
+dev pool: small, preemptible
+inference pool: separate minimal
+batch pool: uses idle capacity
+benchmark pool: small dedicated
+</code></pre></div>
+<p>关注点：</p>
+<ul>
+<li>大 job 排队效率。</li>
+<li>GPU 拓扑一致性。</li>
+<li>checkpoint 和恢复。</li>
+<li>fairshare。</li>
+<li>Notebook 自动回收。</li>
+</ul>
+<h3 id="_27">策略二：推理主导型集群<a class="headerlink" href="#_27" title="Permanent link">¶</a></h3>
+<p>适合模型上线和服务平台。</p>
+<div class="highlight"><pre><span></span><code>inference pool: reserved + autoscaling
+batch inference: low priority
+training/fine-tune: separate or preemptible
+model cache: local NVMe
+canary pool: deployment validation
+</code></pre></div>
+<p>关注点：</p>
+<ul>
+<li>p99 latency。</li>
+<li>模型加载和预热。</li>
+<li>rollback。</li>
+<li>低优先级任务驱逐。</li>
+<li>线上和离线网络隔离。</li>
+</ul>
+<h3 id="_28">策略三：共享研究平台<a class="headerlink" href="#_28" title="Permanent link">¶</a></h3>
+<p>适合多个课题组或团队共用。</p>
+<div class="highlight"><pre><span></span><code>team queues
+guaranteed quota
+borrowable quota
+dev queue
+benchmark reservation
+shared storage quota
+</code></pre></div>
+<p>关注点：</p>
+<ul>
+<li>公平性。</li>
+<li>配额透明。</li>
+<li>排队原因可解释。</li>
+<li>数据权限。</li>
+<li>环境模板。</li>
+</ul>
+<h3 id="_29">策略四：成本优化型集群<a class="headerlink" href="#_29" title="Permanent link">¶</a></h3>
+<p>适合大量离线任务和弹性资源。</p>
+<div class="highlight"><pre><span></span><code>base reserved capacity
+burst spot/preemptible capacity
+checkpoint-aware training
+best-effort batch jobs
+aggressive idle cleanup
+</code></pre></div>
+<p>关注点：</p>
+<ul>
+<li>任务是否可中断。</li>
+<li>checkpoint 成本。</li>
+<li>重试风暴。</li>
+<li>队列退避。</li>
+<li>成本归因。</li>
+</ul>
+<h2 id="_30">准入控制<a class="headerlink" href="#_30" title="Permanent link">¶</a></h2>
+<p>准入控制决定任务能否进入集群。</p>
+<p>AI 任务常见准入检查：</p>
+<ul>
+<li>是否指定队列。</li>
+<li>是否指定镜像 digest。</li>
+<li>是否声明 GPU/CPU/memory。</li>
+<li>是否超过租户 quota。</li>
+<li>是否使用未授权节点池。</li>
+<li>是否使用禁止的 host path。</li>
+<li>是否设置 checkpoint 路径。</li>
+<li>是否设置最大运行时间。</li>
+<li>是否使用高优先级。</li>
+<li>是否使用生产 secret。</li>
+<li>是否符合环境矩阵。</li>
+</ul>
+<p>准入控制的目标不是增加门槛，而是把事故挡在运行前。</p>
+<h3 id="_31">准入策略模板<a class="headerlink" href="#_31" title="Permanent link">¶</a></h3>
+<p>可以把准入策略分成三类。</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>必填字段</td>
+<td>保证任务可治理</td>
+<td>queue、tenant、workload type、resource request、image digest</td>
+</tr>
+<tr>
+<td>禁止字段</td>
+<td>防止越权和破坏隔离</td>
+<td>privileged、host network、未授权 host path、高优先级滥用</td>
+</tr>
+<tr>
+<td>条件规则</td>
+<td>根据 workload type 调整要求</td>
+<td>training 必须有 checkpoint，inference 必须有 readiness，benchmark 必须固定节点池</td>
+</tr>
+</tbody>
+</table>
+<p>示例规则：</p>
+<div class="highlight"><pre><span></span><code>if workload.type == "training" and gpu.count &gt;= 8:
+  require checkpoint.enabled == true
+  require max_runtime is set
+  require queue in allowed_training_queues
+
+if workload.type == "online-inference":
+  require priority in ["prod", "critical"]
+  require readiness_probe
+  require model_artifact_digest
+  deny preemptible == true
+
+if workload.type == "notebook":
+  require idle_timeout &lt;= 4h
+  deny production_secret_mount
+  require queue == "dev"
+
+if workload.tier in ["Tier 0", "Tier 1"]:
+  require image_digest
+  require supported_environment_family
+  deny best_effort_qos
+</code></pre></div>
+<p>准入系统还应该给出可理解的拒绝原因：</p>
+<div class="highlight"><pre><span></span><code>rejected: notebook workload cannot mount production secret "prod-model-key"
+rejected: training job requesting 64 GPUs must define checkpoint policy
+rejected: benchmark workload must use benchmark node pool
+</code></pre></div>
+<p>可解释性很重要。否则用户只会看到“任务提交失败”，然后绕过平台规则。</p>
+<h2 id="_32">资源碎片<a class="headerlink" href="#_32" title="Permanent link">¶</a></h2>
+<p>混合集群很容易出现碎片：</p>
+<ul>
+<li>8 卡节点上剩 1 张卡，大训练用不了。</li>
+<li>某些节点 CPU 不够，GPU 空闲。</li>
+<li>某些节点本地 NVMe 满了，GPU 空闲。</li>
+<li>GPU 型号分散，任务可用范围缩小。</li>
+<li>MIG 切分后形态不匹配。</li>
+<li>大 job 需要同一拓扑，资源分散在多个 rack。</li>
+</ul>
+<p>碎片治理手段包括：</p>
+<ul>
+<li>bin packing 和 gang scheduling。</li>
+<li>topology-aware scheduling。</li>
+<li>大任务优先匹配完整节点。</li>
+<li>小任务使用小 GPU、MIG 或 dev pool。</li>
+<li>定期 defragmentation。</li>
+<li>限制随意 node selector。</li>
+<li>统一 GPU flavor 命名。</li>
+</ul>
+<p>利用率指标不能只看“GPU 是否分配”。如果 GPU 已分配但任务 pending、DataLoader 等待或网络拥塞，实际有效利用率仍然低。</p>
+<h2 id="_33">成本与归因<a class="headerlink" href="#_33" title="Permanent link">¶</a></h2>
+<p>多租户集群必须能回答：</p>
+<div class="highlight"><pre><span></span><code>谁用了多少资源？
+用于什么 workload？
+是否符合配额？
+等待时间是多少？
+浪费在哪里？
+性能损失来自哪里？
+</code></pre></div>
+<p>常见归因维度：</p>
+<ul>
+<li>team / project / namespace / account。</li>
+<li>workload type。</li>
+<li>queue。</li>
+<li>GPU type。</li>
+<li>node pool。</li>
+<li>priority class。</li>
+<li>image/environment。</li>
+<li>dataset/model artifact。</li>
+</ul>
+<p>成本治理不是单纯压低使用量，而是让资源从低价值占用流向高价值任务。</p>
+<h2 id="_34">常见误区<a class="headerlink" href="#_34" title="Permanent link">¶</a></h2>
+<h3 id="_35">误区一：所有任务放一个队列最公平<a class="headerlink" href="#_35" title="Permanent link">¶</a></h3>
+<p>表面公平，实际会让长任务、短任务、在线服务和 Notebook 互相伤害。公平必须结合 workload 类型和 SLA。</p>
+<h3 id="gpu-quota">误区二：GPU quota 够了就不需要别的隔离<a class="headerlink" href="#gpu-quota" title="Permanent link">¶</a></h3>
+<p>网络、存储、CPU、内存、镜像拉取和控制面都可能成为共享瓶颈。</p>
+<h3 id="_36">误区三：抢占一定能提高利用率<a class="headerlink" href="#_36" title="Permanent link">¶</a></h3>
+<p>如果任务没有 checkpoint、恢复慢或写 artifact 不原子，抢占会制造更多浪费。</p>
+<h3 id="_37">误区四：推理和训练混部只要设置优先级<a class="headerlink" href="#_37" title="Permanent link">¶</a></h3>
+<p>优先级只能影响调度和抢占，不能自动隔离网络、存储、CPU、模型缓存和尾延迟。</p>
+<h3 id="notebook_2">误区五：Notebook 是小事<a class="headerlink" href="#notebook_2" title="Permanent link">¶</a></h3>
+<p>Notebook 常常是长期 GPU 占用、环境漂移和数据权限问题的来源。</p>
+<h3 id="_38">误区六：利用率高就是好<a class="headerlink" href="#_38" title="Permanent link">¶</a></h3>
+<p>高利用率可能来自低价值任务占满资源。AI 集群更应关注有效吞吐、SLA、公平性和可恢复性。</p>
+<h2 id="_39">设计检查清单<a class="headerlink" href="#_39" title="Permanent link">¶</a></h2>
+<ul>
+<li>是否明确区分训练、推理、Notebook、批处理、benchmark 和系统任务。</li>
+<li>是否要求任务声明 workload contract。</li>
+<li>是否有统一 tenant_id，并映射 namespace、account、queue、storage、registry 和 cost tag。</li>
+<li>是否有清晰的 node pool 策略。</li>
+<li>是否决定哪些 workload 放在单集群、多集群或虚拟集群。</li>
+<li>是否定义 Tier 0 到 Tier 4 等隔离等级。</li>
+<li>是否有 team/project queue。</li>
+<li>是否有 guaranteed quota、max quota 和 borrowing 策略。</li>
+<li>是否定义 priority class，并限制谁能使用高优先级。</li>
+<li>哪些任务可以被抢占，哪些不能。</li>
+<li>被抢占任务是否有 checkpoint、graceful termination、requeue 和恢复验证。</li>
+<li>在线推理是否与低优先级任务有明确隔离边界。</li>
+<li>Notebook 是否有 idle timeout 和最大运行时间。</li>
+<li>系统任务是否有独立资源保障。</li>
+<li>Kubernetes 用户是否只能通过模板和队列提交，而不是任意 Pod。</li>
+<li>Slurm 和 Kubernetes 是否有清晰节点归属或统一资源锁。</li>
+<li>GPU、CPU、memory、storage、network 是否都纳入治理。</li>
+<li>共享文件系统和对象存储是否有租户配额。</li>
+<li>是否有 NetworkPolicy 或等价网络隔离。</li>
+<li>是否限制 privileged、host path、host network。</li>
+<li>是否记录 pending reason、preemption、quota borrowing 和 SLA。</li>
+<li>是否能定位 noisy neighbor 干扰。</li>
+<li>是否有资源碎片指标。</li>
+<li>是否能按 team/project/workload 做成本归因。</li>
+<li>是否有准入控制阻止危险配置。</li>
+</ul>
+<h2 id="_40">小结<a class="headerlink" href="#_40" title="Permanent link">¶</a></h2>
+<p>混合集群的目标不是“把所有任务塞进一个大池子”，而是在共享中建立边界：</p>
+<div class="highlight"><pre><span></span><code>workload classification
+  -&gt; queue and quota
+  -&gt; priority and preemption
+  -&gt; node pool and topology
+  -&gt; runtime isolation
+  -&gt; storage/network governance
+  -&gt; observability and feedback
+</code></pre></div>
+<p>对 AI Infra 来说，混部的价值在于提升资源有效利用率，而不是追求表面分配率。好的混合集群会让高优先级任务有保障，低优先级任务能利用空闲资源，研发探索不阻塞生产服务，系统组件不被用户任务拖垮。</p>
+<p>一旦这些边界不清，集群就会从“共享资源池”退化成“互相干扰的黑盒”。</p>
+<h2 id="_41">延伸阅读<a class="headerlink" href="#_41" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/security/multi-tenancy/">Kubernetes Multi-tenancy</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/policy/resource-quotas/">Kubernetes Resource Quotas</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/">Kubernetes Pod Priority and Preemption</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/">Kubernetes Pod QoS Classes</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/">Kubernetes Network Policies</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/security/pod-security-standards/">Kubernetes Pod Security Standards</a></li>
+<li><a href="https://kueue.sigs.k8s.io/docs/concepts/local_queue/">Kueue LocalQueue</a></li>
+<li><a href="https://kueue.sigs.k8s.io/docs/concepts/cluster_queue/">Kueue ClusterQueue</a></li>
+<li><a href="https://slurm.schedmd.com/priority_multifactor.html">Slurm Multifactor Priority Plugin</a></li>
+<li><a href="https://slurm.schedmd.com/fair_tree.html">Slurm Fair Tree</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

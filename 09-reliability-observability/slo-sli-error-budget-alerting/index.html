@@ -1,0 +1,3575 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/09-reliability-observability/slo-sli-error-budget-alerting/" rel="canonical"/>
+<link href="../observability-overview-signals/" rel="prev"/>
+<link href="../ai-failure-modes-gpu-nccl-network-storage/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>SLO、SLI、错误预算与告警策略：从用户体验到行动门槛 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#slosli">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      基本术语
+    </span>
+</a>
+<nav aria-label="基本术语" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sli">
+<span class="md-ellipsis">
+      SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo">
+<span class="md-ellipsis">
+      SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sla">
+<span class="md-ellipsis">
+      SLA
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-budget">
+<span class="md-ellipsis">
+      Error Budget
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#burn-rate">
+<span class="md-ellipsis">
+      Burn Rate
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo-contract">
+<span class="md-ellipsis">
+      SLO Contract
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      从用户旅程开始
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai-sli">
+<span class="md-ellipsis">
+      AI 推理 SLI 设计
+    </span>
+</a>
+<nav aria-label="AI 推理 SLI 设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#availability-sli">
+<span class="md-ellipsis">
+      Availability SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#latency-sli">
+<span class="md-ellipsis">
+      Latency SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#goodput-sli">
+<span class="md-ellipsis">
+      Goodput SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#degraded-mode-sli">
+<span class="md-ellipsis">
+      Degraded Mode SLI
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai-sli_1">
+<span class="md-ellipsis">
+      AI 训练 SLI 设计
+    </span>
+</a>
+<nav aria-label="AI 训练 SLI 设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#job-start-sli">
+<span class="md-ellipsis">
+      Job Start SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#job-progress-sli">
+<span class="md-ellipsis">
+      Job Progress SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint-freshness-sli">
+<span class="md-ellipsis">
+      Checkpoint Freshness SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#restart-recovery-sli">
+<span class="md-ellipsis">
+      Restart Recovery SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numerical-health-sli">
+<span class="md-ellipsis">
+      Numerical Health SLI
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sli_1">
+<span class="md-ellipsis">
+      集群平台 SLI 设计
+    </span>
+</a>
+<nav aria-label="集群平台 SLI 设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-allocatable-sli">
+<span class="md-ellipsis">
+      GPU Allocatable SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scheduling-sli">
+<span class="md-ellipsis">
+      Scheduling SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#networkstorage-sli">
+<span class="md-ellipsis">
+      Network/Storage SLI
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#good-eventsbad-events-total-events">
+<span class="md-ellipsis">
+      Good Events、Bad Events 与 Total Events
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#occurrencetime-slice-ratio-time-slice">
+<span class="md-ellipsis">
+      Occurrence、Time Slice 与 Ratio Time Slice
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-budget_1">
+<span class="md-ellipsis">
+      Error Budget 计算
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#burn-rate_1">
+<span class="md-ellipsis">
+      Burn Rate 告警
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#burn-rate_2">
+<span class="md-ellipsis">
+      多窗口、多 Burn Rate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_1">
+<span class="md-ellipsis">
+      推理服务 SLO 示例
+    </span>
+</a>
+<nav aria-label="推理服务 SLO 示例" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      交互式聊天
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decode">
+<span class="md-ellipsis">
+      Decode 流式稳定性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rag-workflow">
+<span class="md-ellipsis">
+      RAG Workflow
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_2">
+<span class="md-ellipsis">
+      训练平台 SLO 示例
+    </span>
+</a>
+<nav aria-label="训练平台 SLO 示例" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#critical-training-job-progress">
+<span class="md-ellipsis">
+      Critical Training Job Progress
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint-freshness">
+<span class="md-ellipsis">
+      Checkpoint Freshness
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recovery-slo">
+<span class="md-ellipsis">
+      Recovery SLO
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_3">
+<span class="md-ellipsis">
+      集群平台 SLO 示例
+    </span>
+</a>
+<nav aria-label="集群平台 SLO 示例" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-pool-readiness">
+<span class="md-ellipsis">
+      GPU Pool Readiness
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scheduling-latency">
+<span class="md-ellipsis">
+      Scheduling Latency
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#storage-write-availability">
+<span class="md-ellipsis">
+      Storage Write Availability
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#guardrail">
+<span class="md-ellipsis">
+      多目标和 Guardrail
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload-class-slo">
+<span class="md-ellipsis">
+      按 Workload Class 分 SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      测量窗口
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      排除条件
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      告警分级
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      告警内容模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      发布治理和错误预算
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_4">
+<span class="md-ellipsis">
+      SLO 与容量规划
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo-benchmark">
+<span class="md-ellipsis">
+      SLO 与 Benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai-slo">
+<span class="md-ellipsis">
+      AI 特有的 SLO 难点
+    </span>
+</a>
+<nav aria-label="AI 特有的 SLO 难点" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      输出质量难以量化
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#streaming">
+<span class="md-ellipsis">
+      Streaming 部分成功
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      长尾请求
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      多租户和优先级
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_5">
+<span class="md-ellipsis">
+      误区一：把所有指标都做成 SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_6">
+<span class="md-ellipsis">
+      误区二：SLO 只写目标，不写测量口径
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#latency-slo">
+<span class="md-ellipsis">
+      误区三：用平均 latency 做 SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_7">
+<span class="md-ellipsis">
+      误区四：把资源指标当用户 SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#100-slo">
+<span class="md-ellipsis">
+      误区五：追求 100% SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      误区六：错误预算耗尽后没有动作
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_8">
+<span class="md-ellipsis">
+      误区七：事后修改 SLO 来掩盖事故
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      基本术语
+    </span>
+</a>
+<nav aria-label="基本术语" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sli">
+<span class="md-ellipsis">
+      SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo">
+<span class="md-ellipsis">
+      SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sla">
+<span class="md-ellipsis">
+      SLA
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-budget">
+<span class="md-ellipsis">
+      Error Budget
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#burn-rate">
+<span class="md-ellipsis">
+      Burn Rate
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo-contract">
+<span class="md-ellipsis">
+      SLO Contract
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      从用户旅程开始
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai-sli">
+<span class="md-ellipsis">
+      AI 推理 SLI 设计
+    </span>
+</a>
+<nav aria-label="AI 推理 SLI 设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#availability-sli">
+<span class="md-ellipsis">
+      Availability SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#latency-sli">
+<span class="md-ellipsis">
+      Latency SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#goodput-sli">
+<span class="md-ellipsis">
+      Goodput SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#degraded-mode-sli">
+<span class="md-ellipsis">
+      Degraded Mode SLI
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai-sli_1">
+<span class="md-ellipsis">
+      AI 训练 SLI 设计
+    </span>
+</a>
+<nav aria-label="AI 训练 SLI 设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#job-start-sli">
+<span class="md-ellipsis">
+      Job Start SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#job-progress-sli">
+<span class="md-ellipsis">
+      Job Progress SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint-freshness-sli">
+<span class="md-ellipsis">
+      Checkpoint Freshness SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#restart-recovery-sli">
+<span class="md-ellipsis">
+      Restart Recovery SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numerical-health-sli">
+<span class="md-ellipsis">
+      Numerical Health SLI
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sli_1">
+<span class="md-ellipsis">
+      集群平台 SLI 设计
+    </span>
+</a>
+<nav aria-label="集群平台 SLI 设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-allocatable-sli">
+<span class="md-ellipsis">
+      GPU Allocatable SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scheduling-sli">
+<span class="md-ellipsis">
+      Scheduling SLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#networkstorage-sli">
+<span class="md-ellipsis">
+      Network/Storage SLI
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#good-eventsbad-events-total-events">
+<span class="md-ellipsis">
+      Good Events、Bad Events 与 Total Events
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#occurrencetime-slice-ratio-time-slice">
+<span class="md-ellipsis">
+      Occurrence、Time Slice 与 Ratio Time Slice
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#error-budget_1">
+<span class="md-ellipsis">
+      Error Budget 计算
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#burn-rate_1">
+<span class="md-ellipsis">
+      Burn Rate 告警
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#burn-rate_2">
+<span class="md-ellipsis">
+      多窗口、多 Burn Rate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_1">
+<span class="md-ellipsis">
+      推理服务 SLO 示例
+    </span>
+</a>
+<nav aria-label="推理服务 SLO 示例" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      交互式聊天
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decode">
+<span class="md-ellipsis">
+      Decode 流式稳定性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rag-workflow">
+<span class="md-ellipsis">
+      RAG Workflow
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_2">
+<span class="md-ellipsis">
+      训练平台 SLO 示例
+    </span>
+</a>
+<nav aria-label="训练平台 SLO 示例" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#critical-training-job-progress">
+<span class="md-ellipsis">
+      Critical Training Job Progress
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint-freshness">
+<span class="md-ellipsis">
+      Checkpoint Freshness
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#recovery-slo">
+<span class="md-ellipsis">
+      Recovery SLO
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_3">
+<span class="md-ellipsis">
+      集群平台 SLO 示例
+    </span>
+</a>
+<nav aria-label="集群平台 SLO 示例" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-pool-readiness">
+<span class="md-ellipsis">
+      GPU Pool Readiness
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scheduling-latency">
+<span class="md-ellipsis">
+      Scheduling Latency
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#storage-write-availability">
+<span class="md-ellipsis">
+      Storage Write Availability
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#guardrail">
+<span class="md-ellipsis">
+      多目标和 Guardrail
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload-class-slo">
+<span class="md-ellipsis">
+      按 Workload Class 分 SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      测量窗口
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      排除条件
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      告警分级
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      告警内容模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      发布治理和错误预算
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_4">
+<span class="md-ellipsis">
+      SLO 与容量规划
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo-benchmark">
+<span class="md-ellipsis">
+      SLO 与 Benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai-slo">
+<span class="md-ellipsis">
+      AI 特有的 SLO 难点
+    </span>
+</a>
+<nav aria-label="AI 特有的 SLO 难点" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      输出质量难以量化
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#streaming">
+<span class="md-ellipsis">
+      Streaming 部分成功
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      长尾请求
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      多租户和优先级
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_5">
+<span class="md-ellipsis">
+      误区一：把所有指标都做成 SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_6">
+<span class="md-ellipsis">
+      误区二：SLO 只写目标，不写测量口径
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#latency-slo">
+<span class="md-ellipsis">
+      误区三：用平均 latency 做 SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_7">
+<span class="md-ellipsis">
+      误区四：把资源指标当用户 SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#100-slo">
+<span class="md-ellipsis">
+      误区五：追求 100% SLO
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      误区六：错误预算耗尽后没有动作
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo_8">
+<span class="md-ellipsis">
+      误区七：事后修改 SLO 来掩盖事故
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="slosli">SLO、SLI、错误预算与告警策略：从用户体验到行动门槛<a class="headerlink" href="#slosli" title="Permanent link">¶</a></h1>
+<p>可观测性告诉我们系统发生了什么。</p>
+<p>SLO 告诉我们：</p>
+<div class="highlight"><pre><span></span><code>这些现象是否已经坏到需要采取行动？
+</code></pre></div>
+<p>没有 SLO 的监控系统，很容易变成两种极端：</p>
+<ul>
+<li>指标很多，但不知道哪个真的重要。</li>
+<li>告警很多，但不知道哪个值得打断人。</li>
+</ul>
+<p>对 AI 系统尤其如此。</p>
+<p>推理服务可能同时有 TTFT、TPOT、E2E latency、tokens/s、queue wait、KV cache、batch size、GPU power、tool call latency、RAG recall 等指标。</p>
+<p>训练平台可能同时有 step time、tokens/s、MFU、loss、NaN、OOM、NCCL timeout、checkpoint、eval backlog、rank progress、queue wait 等指标。</p>
+<p>如果没有 SLO，团队会在事故中反复争论：</p>
+<div class="highlight"><pre><span></span><code>这到底算不算故障？
+需要 page 吗？
+需要回滚吗？
+需要停止发布吗？
+用户是否真的受影响？
+</code></pre></div>
+<p>本篇重点回答：</p>
+<blockquote>
+<p>如何为 AI 推理、训练和集群平台定义 SLI、SLO、错误预算和告警策略，让可靠性判断从“看感觉”变成可执行的工程契约？</p>
+</blockquote>
+<h2 id="_1">一张总图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TB
+    UserJourney["User / Job Journey<br/>interactive request / batch inference / training job"]
+    SLI["SLI<br/>measurable service behavior"]
+    SLO["SLO<br/>target over a time window"]
+    Budget["Error Budget<br/>allowed badness"]
+    Burn["Burn Rate<br/>how fast budget is consumed"]
+    Alert["Alert Policy<br/>page / ticket / dashboard"]
+    Action["Action<br/>rollback / throttle / drain / scale / freeze release"]
+    Review["Review<br/>postmortem / target tuning / benchmark"]
+
+    UserJourney --&gt; SLI
+    SLI --&gt; SLO
+    SLO --&gt; Budget
+    Budget --&gt; Burn
+    Burn --&gt; Alert
+    Alert --&gt; Action
+    Action --&gt; Review
+    Review --&gt; UserJourney
+</div>
+<p>这张图的逻辑是：</p>
+<div class="highlight"><pre><span></span><code>先定义用户或任务真正关心什么，
+再定义如何测量，
+再定义目标，
+再把目标转成可消耗的错误预算，
+最后把预算消耗速度转成告警和行动。
+</code></pre></div>
+<p>不要从“已有哪个指标”开始设计 SLO。应该从“用户或任务在什么情况下认为系统不可用、不可接受或不可信”开始。</p>
+<h2 id="_2">基本术语<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<h3 id="sli">SLI<a class="headerlink" href="#sli" title="Permanent link">¶</a></h3>
+<p>SLI 是 Service Level Indicator。</p>
+<p>它是一个可量化的服务水平指标。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>过去 30 天内，成功且 TTFT &lt;= 500 ms 的交互式推理请求比例。
+</code></pre></div>
+<p>SLI 的重点是“定义清楚”。</p>
+<p>同样叫 latency SLI，下面几种完全不同：</p>
+<ul>
+<li>server receive 到 first token。</li>
+<li>client send 到 first token。</li>
+<li>last token 完成时间。</li>
+<li>不含排队时间的 GPU execution time。</li>
+<li>只统计成功请求。</li>
+<li>失败请求也算 bad event。</li>
+<li>按请求统计。</li>
+<li>按 token 统计。</li>
+<li>按租户、模型、优先级分桶统计。</li>
+</ul>
+<p>SLI 没定义清楚，SLO 就没有意义。</p>
+<h3 id="slo">SLO<a class="headerlink" href="#slo" title="Permanent link">¶</a></h3>
+<p>SLO 是 Service Level Objective。</p>
+<p>它是 SLI 在某个时间窗口内要达到的目标。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>30 天滚动窗口内，99.5% 的交互式请求满足：
+  success == true
+  TTFT &lt;= 500 ms
+  TPOT p99 &lt;= 50 ms
+</code></pre></div>
+<p>SLO 的重点是“有时间窗口、有目标、有测量口径”。</p>
+<p>一个 SLO 至少要包含：</p>
+<ul>
+<li>服务或 workload。</li>
+<li>统计对象。</li>
+<li>SLI 公式。</li>
+<li>好事件和坏事件定义。</li>
+<li>时间窗口。</li>
+<li>目标值。</li>
+<li>数据来源。</li>
+<li>排除条件。</li>
+<li>负责人。</li>
+<li>违反时的行动。</li>
+</ul>
+<h3 id="sla">SLA<a class="headerlink" href="#sla" title="Permanent link">¶</a></h3>
+<p>SLA 是 Service Level Agreement。</p>
+<p>它通常是对外或跨组织的协议，可能带有补偿、扣费、责任或合同后果。</p>
+<p>工程团队日常更常用的是 SLO。</p>
+<p>可以这样理解：</p>
+<div class="highlight"><pre><span></span><code>SLI：怎么量。
+SLO：要达到什么目标。
+SLA：如果没达到，对外承诺有什么后果。
+</code></pre></div>
+<p>内部知识库里应优先把 SLI 和 SLO 定义清楚，再讨论是否需要 SLA。</p>
+<h3 id="error-budget">Error Budget<a class="headerlink" href="#error-budget" title="Permanent link">¶</a></h3>
+<p>错误预算是 SLO 允许系统“不完美”的空间。</p>
+<p>如果 SLO 是 99.9%，那么错误预算就是：</p>
+<div class="highlight"><pre><span></span><code>1 - 99.9% = 0.1%
+</code></pre></div>
+<p>在 30 天窗口中，如果有 1000 万次有效请求，0.1% 错误预算就是：</p>
+<div class="highlight"><pre><span></span><code>10,000,000 * 0.001 = 10,000 个 bad events
+</code></pre></div>
+<p>错误预算的价值是把可靠性和研发速度连接起来：</p>
+<ul>
+<li>预算充足，可以继续发布、实验和优化。</li>
+<li>预算快速燃烧，需要减慢变更、回滚或投入稳定性工作。</li>
+<li>预算耗尽，应冻结高风险发布，优先恢复可靠性。</li>
+</ul>
+<h3 id="burn-rate">Burn Rate<a class="headerlink" href="#burn-rate" title="Permanent link">¶</a></h3>
+<p>Burn rate 是错误预算消耗速度。</p>
+<p>如果一个服务 30 天 SLO 的错误预算是 0.1%，而最近 1 小时的错误率是 1%，那么它正在以：</p>
+<div class="highlight"><pre><span></span><code>1% / 0.1% = 10x
+</code></pre></div>
+<p>的速度消耗预算。</p>
+<p>Burn rate 的意义是：</p>
+<div class="highlight"><pre><span></span><code>不是只看现在错了多少，
+而是看如果这种状态持续下去，多久会烧完预算。
+</code></pre></div>
+<p>这比单纯的静态阈值更适合告警。</p>
+<h2 id="slo-contract">SLO Contract<a class="headerlink" href="#slo-contract" title="Permanent link">¶</a></h2>
+<p>建议把每个 SLO 写成 contract。</p>
+<p>最小结构如下：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">slo_id</span><span class="p">:</span><span class="w"> </span><span class="s">"llama70b-interactive-ttft"</span>
+<span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="s">"llm-serving"</span>
+<span class="nt">workload_class</span><span class="p">:</span><span class="w"> </span><span class="s">"interactive"</span>
+<span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">"llama-70b"</span>
+<span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="s">"serving-platform"</span>
+<span class="nt">window</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">"rolling"</span>
+<span class="w">  </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="s">"30d"</span>
+<span class="nt">sli</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">"good_events_ratio"</span>
+<span class="w">  </span><span class="nt">good_event</span><span class="p">:</span><span class="w"> </span><span class="s">"success</span><span class="nv"> </span><span class="s">==</span><span class="nv"> </span><span class="s">true</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">ttft_ms</span><span class="nv"> </span><span class="s">&lt;=</span><span class="nv"> </span><span class="s">500"</span>
+<span class="w">  </span><span class="nt">total_event</span><span class="p">:</span><span class="w"> </span><span class="s">"valid</span><span class="nv"> </span><span class="s">interactive</span><span class="nv"> </span><span class="s">inference</span><span class="nv"> </span><span class="s">request"</span>
+<span class="w">  </span><span class="nt">data_source</span><span class="p">:</span><span class="w"> </span><span class="s">"server</span><span class="nv"> </span><span class="s">metrics</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">request</span><span class="nv"> </span><span class="s">logs"</span>
+<span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.995</span>
+<span class="nt">budget</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">bad_event_ratio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.005</span>
+<span class="nt">alerting</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">page</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">burn_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">14.4</span>
+<span class="w">      </span><span class="nt">long_window</span><span class="p">:</span><span class="w"> </span><span class="s">"1h"</span>
+<span class="w">      </span><span class="nt">short_window</span><span class="p">:</span><span class="w"> </span><span class="s">"5m"</span>
+<span class="w">  </span><span class="nt">ticket</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">burn_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="nt">long_window</span><span class="p">:</span><span class="w"> </span><span class="s">"24h"</span>
+<span class="w">      </span><span class="nt">short_window</span><span class="p">:</span><span class="w"> </span><span class="s">"2h"</span>
+<span class="nt">actions</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">budget_low</span><span class="p">:</span><span class="w"> </span><span class="s">"freeze</span><span class="nv"> </span><span class="s">risky</span><span class="nv"> </span><span class="s">rollout"</span>
+<span class="w">  </span><span class="nt">page</span><span class="p">:</span><span class="w"> </span><span class="s">"follow</span><span class="nv"> </span><span class="s">runbook</span><span class="nv"> </span><span class="s">llm-serving-ttft"</span>
+<span class="nt">exclusions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"synthetic</span><span class="nv"> </span><span class="s">load</span><span class="nv"> </span><span class="s">tests"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"requests</span><span class="nv"> </span><span class="s">explicitly</span><span class="nv"> </span><span class="s">cancelled</span><span class="nv"> </span><span class="s">by</span><span class="nv"> </span><span class="s">client</span><span class="nv"> </span><span class="s">before</span><span class="nv"> </span><span class="s">scheduling"</span>
+<span class="nt">caveats</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"does</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">cover</span><span class="nv"> </span><span class="s">RAG</span><span class="nv"> </span><span class="s">tool</span><span class="nv"> </span><span class="s">latency"</span>
+</code></pre></div>
+<p>Contract 的好处是：</p>
+<ul>
+<li>新人能看懂目标。</li>
+<li>AI 助手能检索和解释。</li>
+<li>告警规则能从 contract 生成。</li>
+<li>dashboard 能自动链接 SLO。</li>
+<li>事故复盘能引用同一份定义。</li>
+<li>benchmark 能复用同一套指标口径。</li>
+</ul>
+<p>OpenSLO 这类规范的价值也在这里：把 SLO、SLI、数据源、告警策略等写成可交换、可版本化的 YAML 对象，而不是散落在不同监控系统界面里。</p>
+<h2 id="_3">从用户旅程开始<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>SLO 不应该从底层资源开始。</p>
+<p>比如：</p>
+<div class="highlight"><pre><span></span><code>GPU utilization &gt; 70%
+</code></pre></div>
+<p>这不是一个好 SLO。</p>
+<p>GPU 利用率是资源效率指标，不是用户体验指标。GPU 利用率低可能是浪费，也可能是低负载；GPU 利用率高可能是有效吞吐，也可能是过载、重试或低效 kernel。</p>
+<p>好的 SLO 从用户或任务旅程开始。</p>
+<p>推理场景：</p>
+<table>
+<thead>
+<tr>
+<th>用户旅程</th>
+<th>用户关心什么</th>
+<th>候选 SLO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>交互式聊天</td>
+<td>首 token 快、流式稳定、少失败</td>
+<td>TTFT、TPOT、success rate</td>
+</tr>
+<tr>
+<td>批量离线推理</td>
+<td>总完成时间、成本、失败可重试</td>
+<td>job completion、tokens/hour、retry success</td>
+</tr>
+<tr>
+<td>RAG 问答</td>
+<td>端到端时延、检索成功、答案可用</td>
+<td>workflow latency、tool success、LLM success</td>
+</tr>
+<tr>
+<td>Agent workflow</td>
+<td>多轮调用成功、工具错误可恢复</td>
+<td>workflow success、step timeout、fallback</td>
+</tr>
+<tr>
+<td>多模态推理</td>
+<td>图片/视频处理成功、首响应时间</td>
+<td>preprocessing latency、E2E success</td>
+</tr>
+</tbody>
+</table>
+<p>训练场景：</p>
+<table>
+<thead>
+<tr>
+<th>用户旅程</th>
+<th>用户关心什么</th>
+<th>候选 SLO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>预训练任务</td>
+<td>训练持续推进、故障可恢复</td>
+<td>job progress、checkpoint freshness、restart success</td>
+</tr>
+<tr>
+<td>微调任务</td>
+<td>在预期时间内完成、结果可取回</td>
+<td>completion latency、success rate</td>
+</tr>
+<tr>
+<td>分布式实验</td>
+<td>rank 不挂、NCCL 不频繁 timeout</td>
+<td>step success、collective failure rate</td>
+</tr>
+<tr>
+<td>评估任务</td>
+<td>指标按时生成、结果可信</td>
+<td>eval completion、artifact availability</td>
+</tr>
+<tr>
+<td>平台队列</td>
+<td>等待时间可预期、公平调度</td>
+<td>queue wait、admission latency</td>
+</tr>
+</tbody>
+</table>
+<p>集群平台场景：</p>
+<table>
+<thead>
+<tr>
+<th>用户旅程</th>
+<th>用户关心什么</th>
+<th>候选 SLO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>申请 GPU</td>
+<td>作业能在合理时间启动</td>
+<td>queue wait / scheduling latency</td>
+</tr>
+<tr>
+<td>使用节点</td>
+<td>节点健康、GPU 可用</td>
+<td>allocatable GPU availability</td>
+</tr>
+<tr>
+<td>访问数据</td>
+<td>数据可读、checkpoint 可写</td>
+<td>storage availability / latency</td>
+</tr>
+<tr>
+<td>使用网络</td>
+<td>分布式训练通信稳定</td>
+<td>RDMA/NCCL success rate</td>
+</tr>
+<tr>
+<td>升级环境</td>
+<td>镜像、驱动、Runtime 可复现</td>
+<td>environment readiness</td>
+</tr>
+</tbody>
+</table>
+<p>先选旅程，再选 SLI。</p>
+<h2 id="ai-sli">AI 推理 SLI 设计<a class="headerlink" href="#ai-sli" title="Permanent link">¶</a></h2>
+<p>推理服务最常见的 SLI 是可用性和延迟。</p>
+<h3 id="availability-sli">Availability SLI<a class="headerlink" href="#availability-sli" title="Permanent link">¶</a></h3>
+<p>基础形式：</p>
+<div class="highlight"><pre><span></span><code>good_requests / valid_requests
+</code></pre></div>
+<p>good request 可以定义为：</p>
+<div class="highlight"><pre><span></span><code>HTTP/gRPC status success
+and no server timeout
+and no engine error
+and no policy-level failure
+</code></pre></div>
+<p>但 AI 推理需要更细。</p>
+<p>很多请求不是简单成功或失败：</p>
+<ul>
+<li>client 主动取消。</li>
+<li>生成到一半断流。</li>
+<li>tool call 失败但有 fallback。</li>
+<li>RAG 检索失败但模型仍返回。</li>
+<li>safety policy 拒绝。</li>
+<li>超过最大 token 限制。</li>
+<li>低优先级请求被 admission control 拒绝。</li>
+</ul>
+<p>这些情况要明确计入口径。</p>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>client 发送后立即取消</td>
+<td>可从 total 中排除，前提是未进入调度</td>
+</tr>
+<tr>
+<td>已调度后取消</td>
+<td>通常计入 total，是否 bad 取决于产品语义</td>
+</tr>
+<tr>
+<td>server timeout</td>
+<td>bad</td>
+</tr>
+<tr>
+<td>OOM / KV cache allocation failed</td>
+<td>bad</td>
+</tr>
+<tr>
+<td>rate limit reject</td>
+<td>可单独统计，不一定进入服务可用性 SLO</td>
+</tr>
+<tr>
+<td>safety rejection</td>
+<td>通常不是 infra bad event</td>
+</tr>
+<tr>
+<td>fallback 成功</td>
+<td>可以计为 degraded success，另设 degraded ratio</td>
+</tr>
+</tbody>
+</table>
+<h3 id="latency-sli">Latency SLI<a class="headerlink" href="#latency-sli" title="Permanent link">¶</a></h3>
+<p>推理 latency 不应该只用一个 E2E。</p>
+<p>推荐至少拆：</p>
+<div class="highlight"><pre><span></span><code>TTFT: client send 或 server receive 到 first token
+TPOT: decode 阶段平均/分位 token 间隔
+E2E: 请求开始到最后 token
+queue wait: 进入服务到开始执行
+</code></pre></div>
+<p>交互式请求常用：</p>
+<div class="highlight"><pre><span></span><code>99% of valid interactive requests have TTFT &lt;= 500 ms
+99% of generated tokens have TPOT &lt;= 50 ms
+</code></pre></div>
+<p>但 TPOT 有两种口径：</p>
+<ul>
+<li>按请求统计每个请求的平均 TPOT。</li>
+<li>按 token 统计每个 token interval。</li>
+</ul>
+<p>二者不同。按 token 统计会让长输出请求权重更大；按请求统计会让短输出请求权重更大。Contract 必须说明。</p>
+<h3 id="goodput-sli">Goodput SLI<a class="headerlink" href="#goodput-sli" title="Permanent link">¶</a></h3>
+<p>吞吐不是 SLO，goodput 更适合作为可靠性/容量交界指标。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>goodput = 满足 TTFT/TPOT/error 条件的成功请求数 / 秒
+</code></pre></div>
+<p>如果系统 QPS 很高但大量请求超时，throughput 看起来高，goodput 其实低。</p>
+<p>Goodput SLI 适合用于：</p>
+<ul>
+<li>capacity guardrail。</li>
+<li>autoscaling。</li>
+<li>release gate。</li>
+<li>benchmark 与线上校准。</li>
+</ul>
+<h3 id="degraded-mode-sli">Degraded Mode SLI<a class="headerlink" href="#degraded-mode-sli" title="Permanent link">¶</a></h3>
+<p>AI 服务常有降级：</p>
+<ul>
+<li>关闭 prefix cache。</li>
+<li>降低 max output tokens。</li>
+<li>使用较小模型 fallback。</li>
+<li>禁用 tool call。</li>
+<li>降低检索 top-k。</li>
+<li>限制低优先级租户。</li>
+</ul>
+<p>这些不一定是 hard failure，但用户体验已经下降。</p>
+<p>建议单独统计：</p>
+<div class="highlight"><pre><span></span><code>degraded_success_ratio
+fallback_ratio
+admission_reject_ratio
+stream_interruption_ratio
+</code></pre></div>
+<p>否则系统可能“全部成功”，但实际一直在降级。</p>
+<h2 id="ai-sli_1">AI 训练 SLI 设计<a class="headerlink" href="#ai-sli_1" title="Permanent link">¶</a></h2>
+<p>训练系统的 SLO 和在线推理不同。</p>
+<p>训练任务不是每个请求都立刻返回，而是长时间运行。</p>
+<p>常见 SLI：</p>
+<h3 id="job-start-sli">Job Start SLI<a class="headerlink" href="#job-start-sli" title="Permanent link">¶</a></h3>
+<p>衡量任务能否启动：</p>
+<div class="highlight"><pre><span></span><code>valid jobs scheduled within target queue wait / valid jobs submitted
+</code></pre></div>
+<p>可按资源类型分桶：</p>
+<ul>
+<li>1 GPU。</li>
+<li>8 GPU。</li>
+<li>64 GPU。</li>
+<li>512 GPU。</li>
+<li>H100。</li>
+<li>A100。</li>
+<li>特定网络拓扑。</li>
+</ul>
+<p>大作业和小作业不能混在一个 SLO 中，否则大作业会被平均值掩盖。</p>
+<h3 id="job-progress-sli">Job Progress SLI<a class="headerlink" href="#job-progress-sli" title="Permanent link">¶</a></h3>
+<p>衡量任务是否持续推进：</p>
+<div class="highlight"><pre><span></span><code>training jobs with step progress in last N minutes / running training jobs
+</code></pre></div>
+<p>或者：</p>
+<div class="highlight"><pre><span></span><code>steps completed successfully / expected steps attempted
+</code></pre></div>
+<p>这能发现：</p>
+<ul>
+<li>hang。</li>
+<li>DataLoader 卡住。</li>
+<li>rank 某一侧停滞。</li>
+<li>NCCL collective 等待。</li>
+<li>checkpoint 阻塞。</li>
+<li>storage stall。</li>
+</ul>
+<h3 id="checkpoint-freshness-sli">Checkpoint Freshness SLI<a class="headerlink" href="#checkpoint-freshness-sli" title="Permanent link">¶</a></h3>
+<p>训练可靠性很大程度上取决于 checkpoint。</p>
+<p>可以定义：</p>
+<div class="highlight"><pre><span></span><code>running critical jobs with committed checkpoint age &lt;= 30 min / running critical jobs
+</code></pre></div>
+<p>或者：</p>
+<div class="highlight"><pre><span></span><code>successful checkpoint saves / checkpoint attempts
+</code></pre></div>
+<p>这比只看 job 是否 alive 更有效。一个任务活着但 6 小时没有成功 checkpoint，实际恢复风险很高。</p>
+<h3 id="restart-recovery-sli">Restart Recovery SLI<a class="headerlink" href="#restart-recovery-sli" title="Permanent link">¶</a></h3>
+<p>衡量故障后能否恢复：</p>
+<div class="highlight"><pre><span></span><code>jobs recovered to previous progress within RTO / recoverable failed jobs
+</code></pre></div>
+<p>也可以按 RPO/RTO：</p>
+<ul>
+<li>RPO：最多丢多少训练进度。</li>
+<li>RTO：多久恢复到继续训练。</li>
+</ul>
+<p>训练平台的可靠性不能只看“是否失败”，还要看“失败后是否可恢复”。</p>
+<h3 id="numerical-health-sli">Numerical Health SLI<a class="headerlink" href="#numerical-health-sli" title="Permanent link">¶</a></h3>
+<p>训练不是只要跑完就行。</p>
+<p>一些数值问题应该进入 reliability 视角：</p>
+<ul>
+<li>NaN。</li>
+<li>Inf。</li>
+<li>loss spike。</li>
+<li>grad norm abnormal。</li>
+<li>optimizer state corruption。</li>
+<li>checkpoint load mismatch。</li>
+</ul>
+<p>这些可以作为 guardrail SLI，而不一定作为 page 级 SLO。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>critical training jobs with no NaN/Inf in last 24h / critical training jobs
+</code></pre></div>
+<h2 id="sli_1">集群平台 SLI 设计<a class="headerlink" href="#sli_1" title="Permanent link">¶</a></h2>
+<p>集群平台服务的是训练、推理、Notebook、benchmark、数据处理等任务。</p>
+<p>它的 SLO 不应只看 Kubernetes node ready 或 Slurm daemon alive。</p>
+<p>更有意义的是：</p>
+<h3 id="gpu-allocatable-sli">GPU Allocatable SLI<a class="headerlink" href="#gpu-allocatable-sli" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>allocatable healthy GPUs / expected GPUs
+</code></pre></div>
+<p>要区分：</p>
+<ul>
+<li>physically present。</li>
+<li>driver visible。</li>
+<li>scheduler allocatable。</li>
+<li>not cordoned。</li>
+<li>not in maintenance。</li>
+<li>passed health check。</li>
+<li>workload-ready。</li>
+</ul>
+<p>一张卡在 <code>nvidia-smi</code> 能看到，不代表它可以被训练任务可靠使用。</p>
+<h3 id="scheduling-sli">Scheduling SLI<a class="headerlink" href="#scheduling-sli" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>jobs admitted and started within target time / valid jobs
+</code></pre></div>
+<p>需要按资源规格和队列分桶。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>95% of 8xH100 interactive training jobs start within 30 min
+90% of 64xH100 batch training jobs start within 12h
+</code></pre></div>
+<p>队列等待不是单纯可靠性问题，也涉及容量、公平性和优先级。因此 SLO contract 要写明适用队列和优先级。</p>
+<h3 id="networkstorage-sli">Network/Storage SLI<a class="headerlink" href="#networkstorage-sli" title="Permanent link">¶</a></h3>
+<p>对分布式训练，网络和存储是服务能力的一部分。</p>
+<p>候选 SLI：</p>
+<div class="highlight"><pre><span></span><code>successful NCCL health checks / attempted checks
+RDMA path available nodes / expected nodes
+checkpoint write success / checkpoint write attempts
+dataset shard read latency within target / reads
+</code></pre></div>
+<p>这些 SLI 既可用于告警，也可用于入池门禁。</p>
+<h2 id="good-eventsbad-events-total-events">Good Events、Bad Events 与 Total Events<a class="headerlink" href="#good-eventsbad-events-total-events" title="Permanent link">¶</a></h2>
+<p>SLO 最核心的工程细节是事件定义。</p>
+<p>一个 ratio SLI 可以写成：</p>
+<div class="highlight"><pre><span></span><code>good_events / total_events
+</code></pre></div>
+<p>也可以写成：</p>
+<div class="highlight"><pre><span></span><code>1 - bad_events / total_events
+</code></pre></div>
+<p>关键是 <code>total_events</code> 必须定义清楚。</p>
+<p>推理 total event 可能是：</p>
+<ul>
+<li>所有 API 请求。</li>
+<li>进入 scheduler 的请求。</li>
+<li>通过 admission control 的请求。</li>
+<li>interactive 请求。</li>
+<li>某个模型的请求。</li>
+<li>某个租户等级的请求。</li>
+<li>某个长度分桶的请求。</li>
+</ul>
+<p>训练 total event 可能是：</p>
+<ul>
+<li>提交的 job。</li>
+<li>通过 admission 的 job。</li>
+<li>已启动的 job。</li>
+<li>step attempt。</li>
+<li>checkpoint attempt。</li>
+<li>recoverable failure。</li>
+</ul>
+<p>不同 total event 会得到完全不同的 SLO。</p>
+<p>一个常见错误是把被 admission control 拒绝的请求排除掉，导致系统看起来很可靠，但用户看到的是“请求被拒绝”。更好的做法是：</p>
+<ul>
+<li>服务内部 SLO 可以排除未进入服务的请求。</li>
+<li>用户体验 SLO 应把 admission reject 作为单独 SLI。</li>
+<li>容量治理需要单独追踪 reject 和 queue wait。</li>
+</ul>
+<h2 id="occurrencetime-slice-ratio-time-slice">Occurrence、Time Slice 与 Ratio Time Slice<a class="headerlink" href="#occurrencetime-slice-ratio-time-slice" title="Permanent link">¶</a></h2>
+<p>错误预算常见三种口径。</p>
+<table>
+<thead>
+<tr>
+<th>口径</th>
+<th>解释</th>
+<th>适合场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>occurrence</td>
+<td>按事件数统计好坏</td>
+<td>高 QPS 请求、token、step</td>
+</tr>
+<tr>
+<td>time slice</td>
+<td>按时间片是否达标统计</td>
+<td>低流量服务、平台可用性</td>
+</tr>
+<tr>
+<td>ratio time slice</td>
+<td>每个时间片先算比例，再聚合</td>
+<td>流量波动大但每片有足够样本</td>
+</tr>
+</tbody>
+</table>
+<p>推理服务高 QPS 时，occurrence 很自然：</p>
+<div class="highlight"><pre><span></span><code>good_requests / valid_requests
+</code></pre></div>
+<p>但低流量服务会有问题。假设 1 小时只有 10 个请求，失败 1 个就是 10% 错误率，可能触发很高 burn rate，但未必代表系统性故障。</p>
+<p>低流量服务可以考虑：</p>
+<ul>
+<li>synthetic traffic。</li>
+<li>time-slice SLO。</li>
+<li>合并多个同类服务。</li>
+<li>降低 page 级告警敏感度。</li>
+<li>使用 ticket 级告警。</li>
+</ul>
+<p>训练平台适合混合：</p>
+<ul>
+<li>step success 用 occurrence。</li>
+<li>job progress 用 time slice。</li>
+<li>GPU pool availability 用 time slice。</li>
+<li>checkpoint save success 用 occurrence。</li>
+</ul>
+<h2 id="error-budget_1">Error Budget 计算<a class="headerlink" href="#error-budget_1" title="Permanent link">¶</a></h2>
+<p>假设 SLO：</p>
+<div class="highlight"><pre><span></span><code>30 天内 99.5% 的交互式请求满足 TTFT &lt;= 500 ms 且成功返回
+</code></pre></div>
+<p>那么：</p>
+<div class="highlight"><pre><span></span><code>budget_ratio = 1 - 0.995 = 0.005
+</code></pre></div>
+<p>如果 30 天内有 2000 万个有效请求：</p>
+<div class="highlight"><pre><span></span><code>allowed_bad_events = 20,000,000 * 0.005 = 100,000
+</code></pre></div>
+<p>如果已经有 35,000 个 bad events：</p>
+<div class="highlight"><pre><span></span><code>budget_consumed = 35,000 / 100,000 = 35%
+budget_remaining = 65%
+</code></pre></div>
+<p>错误预算可以转成行动规则：</p>
+<table>
+<thead>
+<tr>
+<th>预算状态</th>
+<th>建议动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>remaining &gt; 50%</td>
+<td>正常发布和实验</td>
+</tr>
+<tr>
+<td>remaining 20%-50%</td>
+<td>关注趋势，限制高风险变更</td>
+</tr>
+<tr>
+<td>remaining 0%-20%</td>
+<td>冻结高风险发布，优先稳定性修复</td>
+</tr>
+<tr>
+<td>remaining &lt;= 0%</td>
+<td>停止非紧急变更，复盘并恢复可靠性</td>
+</tr>
+</tbody>
+</table>
+<p>这不是唯一策略，但必须提前写清楚。</p>
+<p>如果每次事故后才临时讨论是否冻结发布，SLO 就没有发挥治理作用。</p>
+<h2 id="burn-rate_1">Burn Rate 告警<a class="headerlink" href="#burn-rate_1" title="Permanent link">¶</a></h2>
+<p>静态告警常写成：</p>
+<div class="highlight"><pre><span></span><code>p99_ttft_ms &gt; 500 for 10m
+</code></pre></div>
+<p>它有几个问题：</p>
+<ul>
+<li>不知道消耗多少错误预算。</li>
+<li>不区分轻微抖动和严重事故。</li>
+<li>低流量时噪声大。</li>
+<li>高流量时可能发现太晚。</li>
+</ul>
+<p>Burn rate 告警更关注预算消耗速度。</p>
+<p>定义：</p>
+<div class="highlight"><pre><span></span><code>burn_rate = observed_error_ratio / budget_error_ratio
+</code></pre></div>
+<p>例如 SLO 99.9%，预算错误率 0.1%。</p>
+<p>如果最近 5 分钟错误率 2%：</p>
+<div class="highlight"><pre><span></span><code>burn_rate = 2% / 0.1% = 20x
+</code></pre></div>
+<p>这意味着如果持续下去，30 天预算会在：</p>
+<div class="highlight"><pre><span></span><code>30 days / 20 = 1.5 days
+</code></pre></div>
+<p>内烧完。</p>
+<p>Burn rate 告警的好处是把短期现象和长期目标连接起来。</p>
+<h2 id="burn-rate_2">多窗口、多 Burn Rate<a class="headerlink" href="#burn-rate_2" title="Permanent link">¶</a></h2>
+<p>单窗口告警容易误判。</p>
+<p>只看短窗口：</p>
+<ul>
+<li>发现快。</li>
+<li>噪声高。</li>
+<li>容易被瞬时抖动触发。</li>
+</ul>
+<p>只看长窗口：</p>
+<ul>
+<li>精度高。</li>
+<li>发现慢。</li>
+<li>对严重事故不敏感。</li>
+</ul>
+<p>更常见的策略是短窗口和长窗口同时满足。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>page if:
+  error_rate_1h &gt; 14.4 * budget_error_rate
+  and
+  error_rate_5m &gt; 14.4 * budget_error_rate
+</code></pre></div>
+<p>含义是：</p>
+<ul>
+<li>1 小时窗口确认这不是瞬时毛刺。</li>
+<li>5 分钟窗口确认问题仍在发生。</li>
+</ul>
+<p>也可以设置慢性问题告警：</p>
+<div class="highlight"><pre><span></span><code>ticket if:
+  error_rate_24h &gt; 3 * budget_error_rate
+  and
+  error_rate_2h &gt; 3 * budget_error_rate
+</code></pre></div>
+<p>page 适合需要立即响应的事故。</p>
+<p>ticket 适合持续消耗预算但不需要半夜叫醒人的问题。</p>
+<p>AI 系统中，page 级告警应该尽量绑定用户影响，例如：</p>
+<ul>
+<li>interactive requests SLO burn rate high。</li>
+<li>training critical jobs not making progress。</li>
+<li>checkpoint freshness SLO burning fast。</li>
+<li>GPU pool allocatable SLO below target and affecting scheduled jobs。</li>
+</ul>
+<p>不要因为单个 GPU temperature 偶发升高就 page。硬件指标可以作为诊断证据或 ticket，除非它已经造成用户或任务影响。</p>
+<h2 id="slo_1">推理服务 SLO 示例<a class="headerlink" href="#slo_1" title="Permanent link">¶</a></h2>
+<h3 id="_4">交互式聊天<a class="headerlink" href="#_4" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nt">slo_id</span><span class="p">:</span><span class="w"> </span><span class="s">"chat-interactive-availability-latency"</span>
+<span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="s">"llm-chat"</span>
+<span class="nt">workload_class</span><span class="p">:</span><span class="w"> </span><span class="s">"interactive"</span>
+<span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="s">"30d</span><span class="nv"> </span><span class="s">rolling"</span>
+<span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99.5%</span>
+<span class="nt">sli</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total</span><span class="p">:</span><span class="w"> </span><span class="s">"valid</span><span class="nv"> </span><span class="s">interactive</span><span class="nv"> </span><span class="s">requests</span><span class="nv"> </span><span class="s">admitted</span><span class="nv"> </span><span class="s">by</span><span class="nv"> </span><span class="s">router"</span>
+<span class="w">  </span><span class="nt">good</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">request_success == true</span>
+<span class="w">    </span><span class="no">and stream_started == true</span>
+<span class="w">    </span><span class="no">and ttft_ms &lt;= 500</span>
+<span class="w">    </span><span class="no">and request_e2e_ms &lt;= 30000</span>
+<span class="nt">bad_event_notes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">server timeout is bad</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kv cache allocation failure is bad</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client cancel before admission is excluded</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">safety rejection is tracked separately</span>
+</code></pre></div>
+<p>这里把 TTFT 和 E2E 合在一个 SLO 中，适合用户体验导向。</p>
+<p>也可以拆成多个 SLO：</p>
+<ul>
+<li>availability。</li>
+<li>TTFT。</li>
+<li>stream continuity。</li>
+<li>degraded mode ratio。</li>
+</ul>
+<p>拆得太细会增加治理成本，所以要控制数量。</p>
+<h3 id="decode">Decode 流式稳定性<a class="headerlink" href="#decode" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nt">slo_id</span><span class="p">:</span><span class="w"> </span><span class="s">"chat-streaming-token-cadence"</span>
+<span class="nt">sli</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total</span><span class="p">:</span><span class="w"> </span><span class="s">"generated</span><span class="nv"> </span><span class="s">token</span><span class="nv"> </span><span class="s">intervals</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">valid</span><span class="nv"> </span><span class="s">interactive</span><span class="nv"> </span><span class="s">requests"</span>
+<span class="w">  </span><span class="nt">good</span><span class="p">:</span><span class="w"> </span><span class="s">"token_interval_ms</span><span class="nv"> </span><span class="s">&lt;=</span><span class="nv"> </span><span class="s">80"</span>
+<span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99.0%</span>
+<span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="s">"7d</span><span class="nv"> </span><span class="s">rolling"</span>
+</code></pre></div>
+<p>这个 SLO 更关注流式体验。</p>
+<p>注意它按 token interval 统计，不是按请求统计。长回复会贡献更多样本。是否接受这种权重，需要在 contract 中说明。</p>
+<h3 id="rag-workflow">RAG Workflow<a class="headerlink" href="#rag-workflow" title="Permanent link">¶</a></h3>
+<p>RAG 不应该只看 LLM 调用。</p>
+<p>端到端 SLO 可以定义：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">slo_id</span><span class="p">:</span><span class="w"> </span><span class="s">"rag-answer-workflow"</span>
+<span class="nt">sli</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total</span><span class="p">:</span><span class="w"> </span><span class="s">"valid</span><span class="nv"> </span><span class="s">RAG</span><span class="nv"> </span><span class="s">user</span><span class="nv"> </span><span class="s">questions"</span>
+<span class="w">  </span><span class="nt">good</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">workflow_success == true</span>
+<span class="w">    </span><span class="no">and retrieval_success == true</span>
+<span class="w">    </span><span class="no">and llm_success == true</span>
+<span class="w">    </span><span class="no">and e2e_ms &lt;= 8000</span>
+<span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99.0%</span>
+<span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="s">"30d</span><span class="nv"> </span><span class="s">rolling"</span>
+</code></pre></div>
+<p>同时保留分阶段 SLI：</p>
+<ul>
+<li>retrieval latency。</li>
+<li>rerank latency。</li>
+<li>context packing error。</li>
+<li>LLM TTFT/TPOT。</li>
+<li>tool call timeout。</li>
+</ul>
+<p>端到端 SLO 用来判断用户体验，分阶段 SLI 用来定位原因。</p>
+<h2 id="slo_2">训练平台 SLO 示例<a class="headerlink" href="#slo_2" title="Permanent link">¶</a></h2>
+<h3 id="critical-training-job-progress">Critical Training Job Progress<a class="headerlink" href="#critical-training-job-progress" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nt">slo_id</span><span class="p">:</span><span class="w"> </span><span class="s">"critical-training-progress"</span>
+<span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="s">"training-platform"</span>
+<span class="nt">workload_class</span><span class="p">:</span><span class="w"> </span><span class="s">"critical-training"</span>
+<span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="s">"30d</span><span class="nv"> </span><span class="s">rolling"</span>
+<span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99.0%</span>
+<span class="nt">sli</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total</span><span class="p">:</span><span class="w"> </span><span class="s">"5-minute</span><span class="nv"> </span><span class="s">time</span><span class="nv"> </span><span class="s">slices</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">running</span><span class="nv"> </span><span class="s">critical</span><span class="nv"> </span><span class="s">training</span><span class="nv"> </span><span class="s">jobs"</span>
+<span class="w">  </span><span class="nt">good</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">job_has_completed_step_in_slice == true</span>
+<span class="w">    </span><span class="no">or job_state in ["checkpointing", "evaluating"] within allowed_window</span>
+</code></pre></div>
+<p>这个 SLO 关注“任务是否持续推进”。</p>
+<p>如果只看进程是否 alive，很多 hang 发现不了。</p>
+<h3 id="checkpoint-freshness">Checkpoint Freshness<a class="headerlink" href="#checkpoint-freshness" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nt">slo_id</span><span class="p">:</span><span class="w"> </span><span class="s">"training-checkpoint-freshness"</span>
+<span class="nt">sli</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total</span><span class="p">:</span><span class="w"> </span><span class="s">"running</span><span class="nv"> </span><span class="s">critical</span><span class="nv"> </span><span class="s">jobs</span><span class="nv"> </span><span class="s">requiring</span><span class="nv"> </span><span class="s">checkpoint"</span>
+<span class="w">  </span><span class="nt">good</span><span class="p">:</span><span class="w"> </span><span class="s">"latest_committed_checkpoint_age_minutes</span><span class="nv"> </span><span class="s">&lt;=</span><span class="nv"> </span><span class="s">30"</span>
+<span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">98.0%</span>
+<span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="s">"7d</span><span class="nv"> </span><span class="s">rolling"</span>
+</code></pre></div>
+<p>这个 SLO 会推动团队建设：</p>
+<ul>
+<li>checkpoint manifest。</li>
+<li>committed/latest 语义。</li>
+<li>保存失败告警。</li>
+<li>存储容量治理。</li>
+<li>恢复演练。</li>
+</ul>
+<h3 id="recovery-slo">Recovery SLO<a class="headerlink" href="#recovery-slo" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nt">slo_id</span><span class="p">:</span><span class="w"> </span><span class="s">"training-recovery-rto"</span>
+<span class="nt">sli</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total</span><span class="p">:</span><span class="w"> </span><span class="s">"recoverable</span><span class="nv"> </span><span class="s">failed</span><span class="nv"> </span><span class="s">critical</span><span class="nv"> </span><span class="s">jobs"</span>
+<span class="w">  </span><span class="nt">good</span><span class="p">:</span><span class="w"> </span><span class="s">"job_resumed_to_previous_progress_within_minutes</span><span class="nv"> </span><span class="s">&lt;=</span><span class="nv"> </span><span class="s">20"</span>
+<span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">95.0%</span>
+<span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="s">"30d</span><span class="nv"> </span><span class="s">rolling"</span>
+</code></pre></div>
+<p>训练平台不能保证永不失败，但应该保证失败后能恢复。</p>
+<p>这类 SLO 比“job failure count”更有工程意义。</p>
+<h2 id="slo_3">集群平台 SLO 示例<a class="headerlink" href="#slo_3" title="Permanent link">¶</a></h2>
+<h3 id="gpu-pool-readiness">GPU Pool Readiness<a class="headerlink" href="#gpu-pool-readiness" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nt">slo_id</span><span class="p">:</span><span class="w"> </span><span class="s">"h100-pool-workload-ready"</span>
+<span class="nt">sli</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total</span><span class="p">:</span><span class="w"> </span><span class="s">"expected</span><span class="nv"> </span><span class="s">H100</span><span class="nv"> </span><span class="s">GPUs</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">production</span><span class="nv"> </span><span class="s">pool</span><span class="nv"> </span><span class="s">time</span><span class="nv"> </span><span class="s">slices"</span>
+<span class="w">  </span><span class="nt">good</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">gpu_present == true</span>
+<span class="w">    </span><span class="no">and driver_ready == true</span>
+<span class="w">    </span><span class="no">and scheduler_allocatable == true</span>
+<span class="w">    </span><span class="no">and health_check_passed == true</span>
+<span class="w">    </span><span class="no">and not maintenance</span>
+<span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99.0%</span>
+<span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="s">"30d</span><span class="nv"> </span><span class="s">rolling"</span>
+</code></pre></div>
+<p>这个 SLO 比 node ready 更接近 AI workload。</p>
+<h3 id="scheduling-latency">Scheduling Latency<a class="headerlink" href="#scheduling-latency" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nt">slo_id</span><span class="p">:</span><span class="w"> </span><span class="s">"interactive-training-start-latency"</span>
+<span class="nt">sli</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total</span><span class="p">:</span><span class="w"> </span><span class="s">"valid</span><span class="nv"> </span><span class="s">interactive</span><span class="nv"> </span><span class="s">training</span><span class="nv"> </span><span class="s">jobs</span><span class="nv"> </span><span class="s">requesting</span><span class="nv"> </span><span class="s">&lt;=</span><span class="nv"> </span><span class="s">8</span><span class="nv"> </span><span class="s">H100"</span>
+<span class="w">  </span><span class="nt">good</span><span class="p">:</span><span class="w"> </span><span class="s">"job_start_latency_minutes</span><span class="nv"> </span><span class="s">&lt;=</span><span class="nv"> </span><span class="s">30"</span>
+<span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">95.0%</span>
+<span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="s">"7d</span><span class="nv"> </span><span class="s">rolling"</span>
+</code></pre></div>
+<p>这个 SLO 不等于“所有训练任务 30 分钟内启动”。大规模训练和批处理任务应有不同队列、不同目标。</p>
+<h3 id="storage-write-availability">Storage Write Availability<a class="headerlink" href="#storage-write-availability" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nt">slo_id</span><span class="p">:</span><span class="w"> </span><span class="s">"checkpoint-storage-write"</span>
+<span class="nt">sli</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total</span><span class="p">:</span><span class="w"> </span><span class="s">"checkpoint</span><span class="nv"> </span><span class="s">write</span><span class="nv"> </span><span class="s">attempts</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">production</span><span class="nv"> </span><span class="s">training</span><span class="nv"> </span><span class="s">jobs"</span>
+<span class="w">  </span><span class="nt">good</span><span class="p">:</span><span class="w"> </span><span class="s">"write_success</span><span class="nv"> </span><span class="s">==</span><span class="nv"> </span><span class="s">true</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">commit_latency_seconds</span><span class="nv"> </span><span class="s">&lt;=</span><span class="nv"> </span><span class="s">120"</span>
+<span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99.5%</span>
+<span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="s">"30d</span><span class="nv"> </span><span class="s">rolling"</span>
+</code></pre></div>
+<p>Checkpoint 存储的 SLO 会直接影响训练 RPO/RTO。</p>
+<h2 id="guardrail">多目标和 Guardrail<a class="headerlink" href="#guardrail" title="Permanent link">¶</a></h2>
+<p>AI 系统常常需要多个目标。</p>
+<p>例如推理服务：</p>
+<ul>
+<li>availability &gt;= 99.9%。</li>
+<li>TTFT good event ratio &gt;= 99.5%。</li>
+<li>stream interruption &lt;= 0.1%。</li>
+<li>degraded mode ratio &lt;= 1%。</li>
+<li>cost/request 不超过预算。</li>
+</ul>
+<p>但是 SLO 数量不能无限增长。</p>
+<p>建议区分：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>primary SLO</td>
+<td>决定 page、发布、稳定性优先级</td>
+</tr>
+<tr>
+<td>guardrail SLI</td>
+<td>防止局部优化破坏其他目标</td>
+</tr>
+<tr>
+<td>diagnostic metric</td>
+<td>用于定位原因，不直接告警</td>
+</tr>
+<tr>
+<td>business metric</td>
+<td>用于产品/成本决策，不等于可靠性 SLO</td>
+</tr>
+</tbody>
+</table>
+<p>例如 GPU 利用率通常是 diagnostic 或 efficiency metric，不应直接作为 primary SLO。</p>
+<p>Prefix cache hit rate 也是诊断指标。它下降可能导致 TTFT/TPOT 变差，但不应天然 page。</p>
+<h2 id="workload-class-slo">按 Workload Class 分 SLO<a class="headerlink" href="#workload-class-slo" title="Permanent link">¶</a></h2>
+<p>AI 系统很少只有一种 workload。</p>
+<p>同一个集群可能同时跑：</p>
+<ul>
+<li>交互式聊天。</li>
+<li>批量推理。</li>
+<li>RAG workflow。</li>
+<li>Agent workflow。</li>
+<li>Notebook。</li>
+<li>训练。</li>
+<li>评估。</li>
+<li>benchmark。</li>
+</ul>
+<p>这些 workload 的可靠性目标不同。</p>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>workload</th>
+<th>更关注</th>
+<th>目标倾向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>interactive inference</td>
+<td>TTFT、TPOT、availability</td>
+<td>高可靠、低延迟</td>
+</tr>
+<tr>
+<td>batch inference</td>
+<td>completion time、cost、retry</td>
+<td>可延迟、可重试</td>
+</tr>
+<tr>
+<td>training</td>
+<td>progress、checkpoint、recovery</td>
+<td>可恢复、长期稳定</td>
+</tr>
+<tr>
+<td>eval</td>
+<td>result availability、artifact correctness</td>
+<td>准确完成</td>
+</tr>
+<tr>
+<td>notebook</td>
+<td>start latency、session stability</td>
+<td>交互可用</td>
+</tr>
+<tr>
+<td>benchmark</td>
+<td>reproducibility、environment integrity</td>
+<td>可复现</td>
+</tr>
+</tbody>
+</table>
+<p>不要给所有 workload 套同一个 99.9% availability。</p>
+<p>过高目标会增加成本，过低目标会伤害关键用户。</p>
+<h2 id="_5">测量窗口<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<p>SLO 必须有时间窗口。</p>
+<p>常见窗口：</p>
+<ul>
+<li>7 天滚动。</li>
+<li>28/30 天滚动。</li>
+<li>月度 calendar window。</li>
+<li>季度 window。</li>
+</ul>
+<p>滚动窗口适合连续运营和告警。</p>
+<p>Calendar window 适合报告、结算和管理。</p>
+<p>AI 系统中可以同时使用：</p>
+<ul>
+<li>短窗口看事故。</li>
+<li>30 天窗口看可靠性。</li>
+<li>季度窗口看平台成熟度。</li>
+</ul>
+<p>注意，窗口越短，抖动越大；窗口越长，反馈越慢。</p>
+<h2 id="_6">排除条件<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>SLO contract 必须写排除条件。</p>
+<p>但排除条件不能滥用。</p>
+<p>合理排除：</p>
+<ul>
+<li>用户在请求进入服务前主动取消。</li>
+<li>明确标记的压测流量。</li>
+<li>实验环境。</li>
+<li>明确不受保障的 best-effort 队列。</li>
+<li>上游依赖已声明不可用且 contract 另有定义。</li>
+</ul>
+<p>危险排除：</p>
+<ul>
+<li>所有超时都排除。</li>
+<li>所有 OOM 都排除。</li>
+<li>所有低优先级租户都排除但产品仍承诺可用。</li>
+<li>所有高负载时段都排除。</li>
+<li>事后临时排除某次事故。</li>
+</ul>
+<p>排除条件应可审计，并在报告中显示。</p>
+<p>如果一个 SLO 需要经常事后排除，说明 SLO 定义或系统能力有问题。</p>
+<h2 id="_7">告警分级<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<p>不是所有 SLO 违反都应该 page。</p>
+<p>可以分级：</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>触发</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>page</td>
+<td>快速燃烧错误预算、用户正在受影响</td>
+<td>立即响应</td>
+</tr>
+<tr>
+<td>ticket</td>
+<td>慢性消耗预算、有可靠性风险</td>
+<td>工作时间处理</td>
+</tr>
+<tr>
+<td>dashboard</td>
+<td>需要观察，但无需行动</td>
+<td>趋势分析</td>
+</tr>
+<tr>
+<td>report</td>
+<td>月度/季度可靠性评审</td>
+<td>治理和规划</td>
+</tr>
+</tbody>
+</table>
+<p>Page 级告警要非常克制。</p>
+<p>一个好的 page 应该满足：</p>
+<ul>
+<li>真实用户或关键任务正在受影响。</li>
+<li>有明确 owner。</li>
+<li>有 runbook。</li>
+<li>有可执行动作。</li>
+<li>不是单纯噪声。</li>
+</ul>
+<p>如果一个告警没有明确动作，就不应该 page。</p>
+<h2 id="_8">告警内容模板<a class="headerlink" href="#_8" title="Permanent link">¶</a></h2>
+<p>告警应该带上下文，而不是只发指标名。</p>
+<div class="highlight"><pre><span></span><code>Alert:
+  SLO burn rate high for llama70b interactive TTFT
+
+Scope:
+  service: llm-serving
+  model: llama-70b
+  workload_class: interactive
+  cluster: prod-a
+
+SLO:
+  target: 99.5% good requests over 30d
+  good_event: success and TTFT &lt;= 500 ms
+
+Current:
+  burn_rate_1h: 18x
+  burn_rate_5m: 22x
+  error_budget_consumed_30d: 42%
+
+Evidence:
+  ttft_p99_ms: 920
+  queue_wait_p99_ms: 480
+  prefill_workers_available: 18/32
+  kv_cache_allocation_failure_rate: 0.8%
+
+Recent events:
+  model config rollout at 10:12
+  node pool h100-a drain at 10:18
+
+Links:
+  dashboard: ...
+  trace search: ...
+  runbook: ...
+</code></pre></div>
+<p>这种告警能直接引导行动。</p>
+<p>不要只发：</p>
+<div class="highlight"><pre><span></span><code>HighLatency
+</code></pre></div>
+<h2 id="_9">发布治理和错误预算<a class="headerlink" href="#_9" title="Permanent link">¶</a></h2>
+<p>错误预算不仅用于告警，也用于发布治理。</p>
+<p>可以约定：</p>
+<div class="highlight"><pre><span></span><code>如果关键 SLO 的 30 天错误预算剩余 &lt; 20%，暂停高风险发布。
+如果某次发布导致 page 级 burn rate，自动回滚或进入 canary hold。
+如果连续两次发布触发同类 SLO 事故，必须补充 regression benchmark。
+</code></pre></div>
+<p>对 AI 系统，发布风险包括：</p>
+<ul>
+<li>model engine 升级。</li>
+<li>scheduler 策略变更。</li>
+<li>KV cache 策略变更。</li>
+<li>CUDA/NCCL/driver 升级。</li>
+<li>quantization 配置变更。</li>
+<li>speculative decoding 开关。</li>
+<li>model rollout。</li>
+<li>routing 策略变更。</li>
+<li>checkpoint 格式变更。</li>
+</ul>
+<p>这些变更不一定改变功能，但可能改变 latency、tail、stability 和 recovery。</p>
+<p>SLO 可以把“是否允许继续发布”从主观判断变成工程规则。</p>
+<h2 id="slo_4">SLO 与容量规划<a class="headerlink" href="#slo_4" title="Permanent link">¶</a></h2>
+<p>SLO 也会推动容量规划。</p>
+<p>例如推理服务：</p>
+<div class="highlight"><pre><span></span><code>SLO: 99.5% interactive requests TTFT &lt;= 500 ms
+</code></pre></div>
+<p>如果在 QPS 增长后 burn rate 持续升高，说明系统已经接近容量边界。</p>
+<p>此时可能需要：</p>
+<ul>
+<li>增加 prefill 副本。</li>
+<li>做 prefill/decode 分离。</li>
+<li>优化 routing。</li>
+<li>提高 prefix cache hit rate。</li>
+<li>限制超长输入。</li>
+<li>增加 GPU。</li>
+<li>改 batch 策略。</li>
+</ul>
+<p>训练平台：</p>
+<div class="highlight"><pre><span></span><code>SLO: 95% of 8xH100 interactive jobs start within 30 min
+</code></pre></div>
+<p>如果长期不达标，可能说明：</p>
+<ul>
+<li>GPU 容量不足。</li>
+<li>队列优先级错误。</li>
+<li>碎片严重。</li>
+<li>大作业占用资源。</li>
+<li>节点维护比例过高。</li>
+<li>资源请求规格不合理。</li>
+</ul>
+<p>SLO 是容量问题的输入，而不是只用于事故响应。</p>
+<h2 id="slo-benchmark">SLO 与 Benchmark<a class="headerlink" href="#slo-benchmark" title="Permanent link">¶</a></h2>
+<p>Benchmark 应该使用与线上 SLO 相同或可映射的指标口径。</p>
+<p>例如线上 SLO 是：</p>
+<div class="highlight"><pre><span></span><code>interactive TTFT &lt;= 500 ms
+TPOT &lt;= 50 ms
+</code></pre></div>
+<p>那么 benchmark 不应只报告：</p>
+<div class="highlight"><pre><span></span><code>tokens/s
+</code></pre></div>
+<p>而应报告：</p>
+<ul>
+<li>goodput at TTFT/TPOT SLA。</li>
+<li>p95/p99 TTFT。</li>
+<li>p95/p99 TPOT。</li>
+<li>queue wait。</li>
+<li>error/timeout。</li>
+<li>输入输出长度分桶。</li>
+</ul>
+<p>这样 benchmark 才能回答：</p>
+<div class="highlight"><pre><span></span><code>这个优化是否真的改善 SLO？
+</code></pre></div>
+<p>线上事故也应反向沉淀成 benchmark case：</p>
+<div class="highlight"><pre><span></span><code>SLO burn incident -&gt; trace/workload sample -&gt; benchmark case -&gt; regression rule
+</code></pre></div>
+<h2 id="ai-slo">AI 特有的 SLO 难点<a class="headerlink" href="#ai-slo" title="Permanent link">¶</a></h2>
+<h3 id="_10">输出质量难以量化<a class="headerlink" href="#_10" title="Permanent link">¶</a></h3>
+<p>基础设施 SLO 通常先关注可用性、延迟、恢复和稳定性。</p>
+<p>输出质量可以作为产品或模型评估 SLO，但很难和系统 reliability 直接绑定。</p>
+<p>例如：</p>
+<ul>
+<li>回答是否正确。</li>
+<li>RAG 是否引用正确文档。</li>
+<li>Agent 是否完成任务。</li>
+<li>多模态理解是否准确。</li>
+</ul>
+<p>这些可以进入 workflow-level SLI，但需要明确 evaluator、sample set、judge 口径和版本。</p>
+<h3 id="streaming">Streaming 部分成功<a class="headerlink" href="#streaming" title="Permanent link">¶</a></h3>
+<p>流式响应可能：</p>
+<ul>
+<li>首 token 成功但中途断开。</li>
+<li>用户取消。</li>
+<li>生成被截断。</li>
+<li>backend timeout。</li>
+</ul>
+<p>因此要定义：</p>
+<ul>
+<li>stream started 是否算成功。</li>
+<li>stream completed 是否算成功。</li>
+<li>partial answer 是否 degraded。</li>
+<li>token cadence 是否单独统计。</li>
+</ul>
+<h3 id="_11">长尾请求<a class="headerlink" href="#_11" title="Permanent link">¶</a></h3>
+<p>长上下文、长输出、复杂 RAG 和 Agent 请求天然更慢。</p>
+<p>建议按 request class 或 length bucket 定义 SLO：</p>
+<div class="highlight"><pre><span></span><code>short interactive
+long context interactive
+batch
+rag
+agent
+</code></pre></div>
+<p>不要用一个 latency 目标覆盖所有请求。</p>
+<h3 id="_12">多租户和优先级<a class="headerlink" href="#_12" title="Permanent link">¶</a></h3>
+<p>不同租户、队列和优先级可能有不同保障。</p>
+<p>Contract 应明确：</p>
+<ul>
+<li>哪些租户属于 guaranteed。</li>
+<li>哪些属于 best-effort。</li>
+<li>preemption 是否允许。</li>
+<li>admission reject 是否计入用户 SLO。</li>
+<li>降级策略是否允许。</li>
+</ul>
+<h2 id="_13">常见误区<a class="headerlink" href="#_13" title="Permanent link">¶</a></h2>
+<h3 id="slo_5">误区一：把所有指标都做成 SLO<a class="headerlink" href="#slo_5" title="Permanent link">¶</a></h3>
+<p>不需要。</p>
+<p>SLO 应少而关键。太多 SLO 会稀释注意力，让告警和评审变复杂。</p>
+<h3 id="slo_6">误区二：SLO 只写目标，不写测量口径<a class="headerlink" href="#slo_6" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p><code>TTFT 99% &lt; 500 ms</code> 如果不说明统计对象、窗口、数据来源、失败口径和排除条件，就无法执行。</p>
+<h3 id="latency-slo">误区三：用平均 latency 做 SLO<a class="headerlink" href="#latency-slo" title="Permanent link">¶</a></h3>
+<p>危险。</p>
+<p>AI 服务常被尾延迟支配。应优先使用 histogram 和分位数，或者用 good event ratio 表达“满足阈值的请求比例”。</p>
+<h3 id="slo_7">误区四：把资源指标当用户 SLO<a class="headerlink" href="#slo_7" title="Permanent link">¶</a></h3>
+<p>GPU 利用率、显存占用、网络带宽是诊断指标，不是用户目标。</p>
+<p>它们可以触发 ticket 或容量治理，但 page 级告警应尽量绑定用户影响。</p>
+<h3 id="100-slo">误区五：追求 100% SLO<a class="headerlink" href="#100-slo" title="Permanent link">¶</a></h3>
+<p>不现实，也不经济。</p>
+<p>100% 目标会消灭错误预算，让团队无法在可靠性和研发速度之间做理性取舍。</p>
+<h3 id="_14">误区六：错误预算耗尽后没有动作<a class="headerlink" href="#_14" title="Permanent link">¶</a></h3>
+<p>如果预算耗尽后仍照常发布，错误预算就是摆设。</p>
+<p>必须提前定义预算状态对应动作。</p>
+<h3 id="slo_8">误区七：事后修改 SLO 来掩盖事故<a class="headerlink" href="#slo_8" title="Permanent link">¶</a></h3>
+<p>SLO 可以迭代，但不能为了让某次事故看起来没发生而事后改定义。</p>
+<p>如果定义确实有问题，应记录变更原因，并保留旧 SLO 下的事故事实。</p>
+<h2 id="_15">检查清单<a class="headerlink" href="#_15" title="Permanent link">¶</a></h2>
+<p>定义 SLO 前：</p>
+<ul>
+<li>用户或任务旅程是否明确？</li>
+<li>是推理、训练、平台队列、存储、网络还是 benchmark？</li>
+<li>是否区分 workload class、模型、租户、优先级？</li>
+<li>是否知道用户最不能接受什么？</li>
+</ul>
+<p>定义 SLI 时：</p>
+<ul>
+<li>good event 是什么？</li>
+<li>bad event 是什么？</li>
+<li>total event 是什么？</li>
+<li>数据来源是什么？</li>
+<li>是按请求、按 token、按 step、按 job，还是按时间片？</li>
+<li>是否使用 histogram 或 good event ratio？</li>
+<li>是否定义了排除条件？</li>
+</ul>
+<p>定义 SLO 时：</p>
+<ul>
+<li>目标值是多少？</li>
+<li>时间窗口是多少？</li>
+<li>是 rolling 还是 calendar？</li>
+<li>是否有 owner？</li>
+<li>是否有 caveats？</li>
+<li>是否能被 dashboard 和 AI 检索？</li>
+</ul>
+<p>定义错误预算时：</p>
+<ul>
+<li>预算如何计算？</li>
+<li>预算剩余多少时采取什么动作？</li>
+<li>是否用于发布治理？</li>
+<li>是否用于容量规划？</li>
+<li>是否进入月度/季度评审？</li>
+</ul>
+<p>定义告警时：</p>
+<ul>
+<li>page、ticket、dashboard 如何区分？</li>
+<li>是否使用 burn rate？</li>
+<li>是否有短窗口和长窗口？</li>
+<li>是否包含 runbook？</li>
+<li>是否包含最近变更和证据链接？</li>
+<li>是否能从告警跳到 trace、logs、profiles 和 dashboard？</li>
+</ul>
+<p>运行后评审：</p>
+<ul>
+<li>告警是否有用？</li>
+<li>有没有误报和漏报？</li>
+<li>SLO 是否过严或过松？</li>
+<li>是否有 SLO 无法驱动行动？</li>
+<li>线上事故是否沉淀为 benchmark 和 runbook？</li>
+</ul>
+<h2 id="_16">小结<a class="headerlink" href="#_16" title="Permanent link">¶</a></h2>
+<p>SLO 的核心不是写一个漂亮目标，而是建立行动边界。</p>
+<p>一句话：</p>
+<div class="highlight"><pre><span></span><code>SLI 定义怎么量，
+SLO 定义要达到什么，
+错误预算定义能坏多少，
+burn rate 定义坏得有多快，
+告警定义什么时候必须行动。
+</code></pre></div>
+<p>对 AI 系统来说，SLO 应从用户旅程和任务旅程出发，再映射到 TTFT、TPOT、成功率、job progress、checkpoint freshness、GPU pool readiness、queue wait 等指标。</p>
+<p>好的 SLO 会把可观测性、Benchmark、容量规划、发布治理和事故复盘连成闭环。</p>
+<h2 id="_17">参考资料<a class="headerlink" href="#_17" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://sre.google/sre-book/service-level-objectives/">Google SRE: Service Level Objectives</a></li>
+<li><a href="https://sre.google/workbook/alerting-on-slos/">Google SRE Workbook: Alerting on SLOs</a></li>
+<li><a href="https://github.com/OpenSLO/OpenSLO">OpenSLO Specification</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

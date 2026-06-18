@@ -1,0 +1,3176 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/07-cluster-infra/gpu-topology-numa-mig-mps-isolation/" rel="canonical"/>
+<link href="../scheduling-queues-resource-management/" rel="prev"/>
+<link href="../rdma-network-nccl-topology-congestion/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>GPU 拓扑、NUMA、MIG/MPS 与资源隔离 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#gpu-numamigmps">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张单机拓扑图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      拓扑为什么重要
+    </span>
+</a>
+<nav aria-label="拓扑为什么重要" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-to-gpu">
+<span class="md-ellipsis">
+      GPU-to-GPU
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-to-nic">
+<span class="md-ellipsis">
+      GPU-to-NIC
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-to-cpu-host-memory">
+<span class="md-ellipsis">
+      GPU-to-CPU / Host Memory
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-to-nvme">
+<span class="md-ellipsis">
+      GPU-to-NVMe
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      常见拓扑关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload">
+<span class="md-ellipsis">
+      Workload 到拓扑需求的映射
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nvidia-smi-topo-m">
+<span class="md-ellipsis">
+      读懂 nvidia-smi topo -m
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#topology-manifest">
+<span class="md-ellipsis">
+      Topology Manifest：把拓扑变成平台数据
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numacpu-pcie">
+<span class="md-ellipsis">
+      NUMA：CPU、内存和 PCIe 的局部性
+    </span>
+</a>
+<nav aria-label="NUMA：CPU、内存和 PCIe 的局部性" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numa">
+<span class="md-ellipsis">
+      NUMA 绑定原则
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpunic-affinity-rail">
+<span class="md-ellipsis">
+      GPU/NIC Affinity 与多 Rail
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig-gpu">
+<span class="md-ellipsis">
+      MIG：硬件级 GPU 分区
+    </span>
+</a>
+<nav aria-label="MIG：硬件级 GPU 分区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig">
+<span class="md-ellipsis">
+      MIG 的价值
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig_1">
+<span class="md-ellipsis">
+      MIG 的限制
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig_2">
+<span class="md-ellipsis">
+      MIG 调度策略
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig_3">
+<span class="md-ellipsis">
+      MIG 生命周期与碎片
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mps-gpu">
+<span class="md-ellipsis">
+      MPS：多进程共享 GPU
+    </span>
+</a>
+<nav aria-label="MPS：多进程共享 GPU" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mps">
+<span class="md-ellipsis">
+      MPS 的价值
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mps_1">
+<span class="md-ellipsis">
+      MPS 的风险
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#time-slicing-oversubscription">
+<span class="md-ellipsis">
+      Time Slicing 与 Oversubscription
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu">
+<span class="md-ellipsis">
+      共享 GPU 的治理边界
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exclusive-gpumigmps">
+<span class="md-ellipsis">
+      Exclusive GPU、MIG、MPS 怎么选
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kubernetes-gpu">
+<span class="md-ellipsis">
+      Kubernetes 中的 GPU 资源表达
+    </span>
+</a>
+<nav aria-label="Kubernetes 中的 GPU 资源表达" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kubernetes">
+<span class="md-ellipsis">
+      Kubernetes 里的拓扑相关组件
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slurm-gpu">
+<span class="md-ellipsis">
+      Slurm 中的 GPU 资源表达
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      拓扑感知调度契约
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      资源隔离维度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank-mapping">
+<span class="md-ellipsis">
+      Rank Mapping 与拓扑
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      可观测性与故障归因
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 方法
+    </span>
+</a>
+<nav aria-label="Benchmark 方法" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_1">
+<span class="md-ellipsis">
+      单机拓扑 benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_2">
+<span class="md-ellipsis">
+      多租户共享 benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload-benchmark">
+<span class="md-ellipsis">
+      端到端 workload benchmark
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      标准化资源池
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      给拓扑打标签
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      让小任务不要打碎大节点
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cpu-gpu-nic">
+<span class="md-ellipsis">
+      绑定 CPU / GPU / NIC
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      区分性能隔离和安全隔离
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu_1">
+<span class="md-ellipsis">
+      误区一：同型号 GPU 完全等价
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig-gpu_1">
+<span class="md-ellipsis">
+      误区二：MIG 可以替代所有 GPU 共享方案
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mps_2">
+<span class="md-ellipsis">
+      误区三：MPS 等于强隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu_2">
+<span class="md-ellipsis">
+      误区四：GPU 分片一定提高利用率
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-utilization">
+<span class="md-ellipsis">
+      误区五：只看 GPU utilization
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      误区六：拓扑靠用户手工处理
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      延伸阅读
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张单机拓扑图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      拓扑为什么重要
+    </span>
+</a>
+<nav aria-label="拓扑为什么重要" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-to-gpu">
+<span class="md-ellipsis">
+      GPU-to-GPU
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-to-nic">
+<span class="md-ellipsis">
+      GPU-to-NIC
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-to-cpu-host-memory">
+<span class="md-ellipsis">
+      GPU-to-CPU / Host Memory
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-to-nvme">
+<span class="md-ellipsis">
+      GPU-to-NVMe
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      常见拓扑关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload">
+<span class="md-ellipsis">
+      Workload 到拓扑需求的映射
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nvidia-smi-topo-m">
+<span class="md-ellipsis">
+      读懂 nvidia-smi topo -m
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#topology-manifest">
+<span class="md-ellipsis">
+      Topology Manifest：把拓扑变成平台数据
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numacpu-pcie">
+<span class="md-ellipsis">
+      NUMA：CPU、内存和 PCIe 的局部性
+    </span>
+</a>
+<nav aria-label="NUMA：CPU、内存和 PCIe 的局部性" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#numa">
+<span class="md-ellipsis">
+      NUMA 绑定原则
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpunic-affinity-rail">
+<span class="md-ellipsis">
+      GPU/NIC Affinity 与多 Rail
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig-gpu">
+<span class="md-ellipsis">
+      MIG：硬件级 GPU 分区
+    </span>
+</a>
+<nav aria-label="MIG：硬件级 GPU 分区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig">
+<span class="md-ellipsis">
+      MIG 的价值
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig_1">
+<span class="md-ellipsis">
+      MIG 的限制
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig_2">
+<span class="md-ellipsis">
+      MIG 调度策略
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig_3">
+<span class="md-ellipsis">
+      MIG 生命周期与碎片
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mps-gpu">
+<span class="md-ellipsis">
+      MPS：多进程共享 GPU
+    </span>
+</a>
+<nav aria-label="MPS：多进程共享 GPU" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mps">
+<span class="md-ellipsis">
+      MPS 的价值
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mps_1">
+<span class="md-ellipsis">
+      MPS 的风险
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#time-slicing-oversubscription">
+<span class="md-ellipsis">
+      Time Slicing 与 Oversubscription
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu">
+<span class="md-ellipsis">
+      共享 GPU 的治理边界
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#exclusive-gpumigmps">
+<span class="md-ellipsis">
+      Exclusive GPU、MIG、MPS 怎么选
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kubernetes-gpu">
+<span class="md-ellipsis">
+      Kubernetes 中的 GPU 资源表达
+    </span>
+</a>
+<nav aria-label="Kubernetes 中的 GPU 资源表达" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kubernetes">
+<span class="md-ellipsis">
+      Kubernetes 里的拓扑相关组件
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slurm-gpu">
+<span class="md-ellipsis">
+      Slurm 中的 GPU 资源表达
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      拓扑感知调度契约
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      资源隔离维度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank-mapping">
+<span class="md-ellipsis">
+      Rank Mapping 与拓扑
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      可观测性与故障归因
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 方法
+    </span>
+</a>
+<nav aria-label="Benchmark 方法" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_1">
+<span class="md-ellipsis">
+      单机拓扑 benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark_2">
+<span class="md-ellipsis">
+      多租户共享 benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload-benchmark">
+<span class="md-ellipsis">
+      端到端 workload benchmark
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      标准化资源池
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      给拓扑打标签
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      让小任务不要打碎大节点
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cpu-gpu-nic">
+<span class="md-ellipsis">
+      绑定 CPU / GPU / NIC
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      区分性能隔离和安全隔离
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu_1">
+<span class="md-ellipsis">
+      误区一：同型号 GPU 完全等价
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mig-gpu_1">
+<span class="md-ellipsis">
+      误区二：MIG 可以替代所有 GPU 共享方案
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mps_2">
+<span class="md-ellipsis">
+      误区三：MPS 等于强隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu_2">
+<span class="md-ellipsis">
+      误区四：GPU 分片一定提高利用率
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-utilization">
+<span class="md-ellipsis">
+      误区五：只看 GPU utilization
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      误区六：拓扑靠用户手工处理
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      延伸阅读
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="gpu-numamigmps">GPU 拓扑、NUMA、MIG/MPS 与资源隔离<a class="headerlink" href="#gpu-numamigmps" title="Permanent link">¶</a></h1>
+<p>AI 集群调度不能只看“还有几张 GPU”。同样是 8 张 GPU，可能是一台服务器内互连很强的 8 张卡，也可能分散在多个节点；可能 GPU 和 NIC 在同一个 PCIe switch 下，也可能隔着 CPU socket；可能是整卡独占，也可能是 MIG 分片或 MPS 共享。</p>
+<p>这些差异会直接影响：</p>
+<ul>
+<li>Tensor Parallel 的 GPU-to-GPU 通信。</li>
+<li>多机训练的 GPU-to-NIC RDMA 路径。</li>
+<li>DataLoader 和 CPU preprocessing 的 NUMA 访问。</li>
+<li>推理服务的 p95/p99。</li>
+<li>多租户隔离和故障影响范围。</li>
+<li>集群碎片和资源利用率。</li>
+</ul>
+<p>这篇关注的问题是：</p>
+<blockquote>
+<p>一个 AI workload 拿到的 GPU，到底处在怎样的硬件拓扑和隔离边界里？</p>
+</blockquote>
+<h2 id="_1">一张单机拓扑图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TB
+    subgraph Socket0["CPU Socket 0 / NUMA 0"]
+        CPU0["CPU cores"]
+        MEM0["DDR memory"]
+        RC0["PCIe root complex"]
+    end
+
+    subgraph Socket1["CPU Socket 1 / NUMA 1"]
+        CPU1["CPU cores"]
+        MEM1["DDR memory"]
+        RC1["PCIe root complex"]
+    end
+
+    UPI["CPU inter-socket link"]
+    CPU0 &lt;--&gt; UPI
+    UPI &lt;--&gt; CPU1
+
+    SW0["PCIe Switch 0"]
+    SW1["PCIe Switch 1"]
+    RC0 &lt;--&gt; SW0
+    RC1 &lt;--&gt; SW1
+
+    GPU0["GPU 0"]
+    GPU1["GPU 1"]
+    GPU2["GPU 2"]
+    GPU3["GPU 3"]
+    GPU4["GPU 4"]
+    GPU5["GPU 5"]
+    GPU6["GPU 6"]
+    GPU7["GPU 7"]
+
+    NIC0["NIC 0<br/>RDMA"]
+    NIC1["NIC 1<br/>RDMA"]
+    NVME0["Local NVMe"]
+    NVME1["Local NVMe"]
+
+    SW0 &lt;--&gt; GPU0
+    SW0 &lt;--&gt; GPU1
+    SW0 &lt;--&gt; GPU2
+    SW0 &lt;--&gt; GPU3
+    SW0 &lt;--&gt; NIC0
+    SW0 &lt;--&gt; NVME0
+
+    SW1 &lt;--&gt; GPU4
+    SW1 &lt;--&gt; GPU5
+    SW1 &lt;--&gt; GPU6
+    SW1 &lt;--&gt; GPU7
+    SW1 &lt;--&gt; NIC1
+    SW1 &lt;--&gt; NVME1
+
+    NVSW["NVLink / NVSwitch domain"]
+    GPU0 &lt;--&gt; NVSW
+    GPU1 &lt;--&gt; NVSW
+    GPU2 &lt;--&gt; NVSW
+    GPU3 &lt;--&gt; NVSW
+    GPU4 &lt;--&gt; NVSW
+    GPU5 &lt;--&gt; NVSW
+    GPU6 &lt;--&gt; NVSW
+    GPU7 &lt;--&gt; NVSW
+</div>
+<p>这张图强调几个事实：</p>
+<ul>
+<li>GPU 与 GPU 之间可能通过 NVLink/NVSwitch，也可能通过 PCIe。</li>
+<li>GPU 与 NIC 是否靠近，会影响 RDMA 和 NCCL/RCCL 性能。</li>
+<li>GPU 与 CPU socket / host memory 是否靠近，会影响 DataLoader、runtime、H2D/D2H copy。</li>
+<li>本地 NVMe 也有拓扑位置，不是所有 GPU 访问它都等价。</li>
+<li>单机内部已经有 NUMA-like 差异，多机之后差异更大。</li>
+</ul>
+<h2 id="_2">拓扑为什么重要<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>AI workload 对拓扑敏感，主要因为它们不是单个进程独立计算。</p>
+<h3 id="gpu-to-gpu">GPU-to-GPU<a class="headerlink" href="#gpu-to-gpu" title="Permanent link">¶</a></h3>
+<p>Tensor Parallel、Pipeline Parallel、Expert Parallel、KV Cache transfer 都会让 GPU 之间通信。</p>
+<p>如果 GPU pair 之间是 NVLink/NVSwitch，通信路径通常更快；如果走 PCIe，甚至跨 CPU socket，延迟和带宽会明显不同。</p>
+<p>对 TP 来说，这种差异尤其明显：</p>
+<div class="highlight"><pre><span></span><code>每个 Transformer layer 都可能有 collective
+高频通信走慢链路
+  -&gt; Tensor Core 等待
+  -&gt; tokens/s 下降
+  -&gt; p99 变差
+</code></pre></div>
+<h3 id="gpu-to-nic">GPU-to-NIC<a class="headerlink" href="#gpu-to-nic" title="Permanent link">¶</a></h3>
+<p>多机训练和分布式推理依赖 NIC。</p>
+<p>如果 GPU 和 NIC 在同一个 PCIe switch 或同一个 NUMA 近邻域，GPU Direct RDMA 更容易走到高效路径。如果 GPU 使用远端 NIC，可能需要跨 CPU socket 或更复杂路径，增加延迟并降低有效带宽。</p>
+<p>这会影响：</p>
+<ul>
+<li>DDP AllReduce。</li>
+<li>FSDP/ZeRO ReduceScatter / AllGather。</li>
+<li>MoE AllToAll。</li>
+<li>P/D 分离中的 KV transfer。</li>
+<li>多节点 TP。</li>
+</ul>
+<h3 id="gpu-to-cpu-host-memory">GPU-to-CPU / Host Memory<a class="headerlink" href="#gpu-to-cpu-host-memory" title="Permanent link">¶</a></h3>
+<p>CPU 仍然负责很多工作：</p>
+<ul>
+<li>DataLoader。</li>
+<li>tokenization。</li>
+<li>runtime control。</li>
+<li>model serving frontend。</li>
+<li>storage client。</li>
+<li>logging / metrics。</li>
+</ul>
+<p>如果 CPU thread 绑定在远端 NUMA node，而 GPU 挂在另一个 socket 下，H2D copy、page pinning、network stack、storage IO 都可能受影响。</p>
+<h3 id="gpu-to-nvme">GPU-to-NVMe<a class="headerlink" href="#gpu-to-nvme" title="Permanent link">¶</a></h3>
+<p>本地 NVMe 常用于：</p>
+<ul>
+<li>dataset cache。</li>
+<li>checkpoint staging。</li>
+<li>model weight cache。</li>
+<li>temporary shard。</li>
+</ul>
+<p>但 NVMe 也挂在某个 PCIe root complex 下。某些 GPU 访问它更近，某些 GPU 访问它更远。数据密集任务要关注这种 locality。</p>
+<h2 id="_3">常见拓扑关系<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>可以把拓扑关系分成几类。</p>
+<table>
+<thead>
+<tr>
+<th>关系</th>
+<th>含义</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>same GPU</td>
+<td>同一张卡</td>
+<td>无跨 GPU 通信</td>
+</tr>
+<tr>
+<td>same NVLink domain</td>
+<td>GPU 间有高速互连</td>
+<td>适合 TP、P2P、KV transfer</td>
+</tr>
+<tr>
+<td>same PCIe switch</td>
+<td>同一 PCIe switch 下</td>
+<td>比跨 socket 好，但通常弱于 NVLink</td>
+</tr>
+<tr>
+<td>same CPU socket</td>
+<td>同 NUMA 域</td>
+<td>CPU/GPU/NIC 访问更近</td>
+</tr>
+<tr>
+<td>cross socket</td>
+<td>跨 CPU socket</td>
+<td>可能经过 UPI/QPI/Infinity Fabric 等链路</td>
+</tr>
+<tr>
+<td>cross node</td>
+<td>跨服务器</td>
+<td>依赖 IB/RoCE/Ethernet</td>
+</tr>
+<tr>
+<td>cross rack</td>
+<td>跨机架或更远</td>
+<td>受网络层级和拥塞影响</td>
+</tr>
+</tbody>
+</table>
+<p>调度和 rank mapping 要尽量让高频通信发生在近距离关系中。</p>
+<h2 id="workload">Workload 到拓扑需求的映射<a class="headerlink" href="#workload" title="Permanent link">¶</a></h2>
+<p>不同 AI workload 对拓扑的敏感点不同。不要把所有任务都简单标成“需要 GPU”。</p>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>关键拓扑需求</th>
+<th>典型错误放置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单卡推理</td>
+<td>GPU 显存、CPU frontend、模型权重加载路径</td>
+<td>CPU 远端、模型加载慢、p99 抖动</td>
+</tr>
+<tr>
+<td>多卡 TP 推理</td>
+<td>同机 GPU-to-GPU 带宽、KV Cache 传输</td>
+<td>TP group 跨 PCIe 或跨 socket</td>
+</tr>
+<tr>
+<td>P/D 分离推理</td>
+<td>prefill/decode 节点间网络、KV transfer 路径</td>
+<td>P/D 距离太远，KV 传输成为瓶颈</td>
+</tr>
+<tr>
+<td>DDP 训练</td>
+<td>多节点网络、GPU/NIC affinity、DP rank 分布</td>
+<td>所有 rank 挤同 rail 或跨弱链路</td>
+</tr>
+<tr>
+<td>FSDP/ZeRO</td>
+<td>ReduceScatter/AllGather 网络路径</td>
+<td>GPU 到 NIC 远端，step time 抖动</td>
+</tr>
+<tr>
+<td>Tensor Parallel 训练</td>
+<td>同机 NVLink/NVSwitch、rank 顺序</td>
+<td>TP group 被打散到弱连接 GPU</td>
+</tr>
+<tr>
+<td>Expert Parallel / MoE</td>
+<td>AllToAll、跨节点 bisection bandwidth</td>
+<td>expert group 跨 rack，tail latency 变差</td>
+</tr>
+<tr>
+<td>Data pipeline</td>
+<td>CPU NUMA、host memory、NVMe、storage client</td>
+<td>DataLoader 远端访问，GPU 等数据</td>
+</tr>
+<tr>
+<td>Benchmark</td>
+<td>固定节点、固定拓扑、无共享干扰</td>
+<td>不同拓扑混测，结果不可解释</td>
+</tr>
+</tbody>
+</table>
+<p>所以拓扑需求至少要拆成三类：</p>
+<ul>
+<li>硬约束：不满足就不能跑，例如 8 GPU single-node、80 GB HBM、特定 MIG profile。</li>
+<li>强偏好：不满足能跑但明显变慢，例如 TP group 最好在 NVSwitch 内。</li>
+<li>软偏好：不满足影响较小，例如 batch inference 尽量靠近本地模型缓存。</li>
+</ul>
+<p>调度系统要区分这三类。把强偏好误写成硬约束，会让排队时间变长；把硬约束误写成软偏好，则可能让任务启动后失败或性能不可接受。</p>
+<h2 id="nvidia-smi-topo-m">读懂 <code>nvidia-smi topo -m</code><a class="headerlink" href="#nvidia-smi-topo-m" title="Permanent link">¶</a></h2>
+<p>NVIDIA 系统里常用 <code>nvidia-smi topo -m</code> 查看 GPU、NIC、CPU affinity 的拓扑关系。</p>
+<p>常见输出会显示：</p>
+<ul>
+<li>GPU 与 GPU 之间的连接类型。</li>
+<li>GPU 与 NIC 之间的亲和性。</li>
+<li>CPU affinity。</li>
+<li>NUMA affinity。</li>
+</ul>
+<p>不同系统中的标记可能包括 NVLink、PCIe switch、host bridge、system link 等含义。具体解释要以当前 <code>nvidia-smi</code> 文档和输出说明为准。</p>
+<p>使用时重点不是记住缩写，而是回答：</p>
+<ul>
+<li>哪些 GPU 之间最近。</li>
+<li>哪些 GPU 适合组成 TP group。</li>
+<li>哪些 GPU 更靠近哪张 NIC。</li>
+<li>哪些 CPU cores 更适合服务某些 GPU。</li>
+<li>是否存在跨 socket 路径。</li>
+<li>调度分配是否打散了本该放近的 rank。</li>
+</ul>
+<p>典型流程：</p>
+<ol>
+<li>查看 <code>nvidia-smi topo -m</code>。</li>
+<li>找到 GPU-to-GPU 关系。</li>
+<li>找到 GPU-to-NIC 关系。</li>
+<li>结合 NUMA 绑定 CPU worker。</li>
+<li>结合 NCCL topology / profiler 观察通信是否符合预期。</li>
+</ol>
+<h2 id="topology-manifest">Topology Manifest：把拓扑变成平台数据<a class="headerlink" href="#topology-manifest" title="Permanent link">¶</a></h2>
+<p>手工登录节点看 <code>nvidia-smi topo -m</code> 只能解决排查问题，不能支撑平台调度。平台需要把拓扑记录成可查询、可比较、可审计的数据。</p>
+<p>一个节点的 topology manifest 可以包含：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>示例</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU inventory</td>
+<td>GPU UUID、PCI bus id、型号、显存</td>
+<td>稳定识别设备，避免重启后 index 变化</td>
+</tr>
+<tr>
+<td>GPU fabric</td>
+<td>NVLink、NVSwitch、PCIe-only、P2P capability</td>
+<td>决定 TP/P2P/collective 放置</td>
+</tr>
+<tr>
+<td>GPU/NIC affinity</td>
+<td>GPU0-3 靠近 NIC0，GPU4-7 靠近 NIC1</td>
+<td>决定 RDMA rail 和 rank-to-NIC</td>
+</tr>
+<tr>
+<td>CPU NUMA affinity</td>
+<td>GPU0-3 属于 NUMA0，GPU4-7 属于 NUMA1</td>
+<td>决定 CPU worker 和 pinned memory</td>
+</tr>
+<tr>
+<td>NVMe locality</td>
+<td>NVMe0 靠近 socket0，NVMe1 靠近 socket1</td>
+<td>决定数据缓存和 checkpoint staging</td>
+</tr>
+<tr>
+<td>MIG geometry</td>
+<td>all-disabled、all-1g.10gb、mixed profiles</td>
+<td>决定可分配资源和碎片</td>
+</tr>
+<tr>
+<td>sharing mode</td>
+<td>none、MPS、time-slicing</td>
+<td>决定隔离和资源语义</td>
+</tr>
+<tr>
+<td>health state</td>
+<td>ECC、Xid、NVLink error、降频、温度</td>
+<td>决定是否入池或隔离</td>
+</tr>
+<tr>
+<td>software state</td>
+<td>driver、CUDA、NCCL、device plugin、fabric manager</td>
+<td>决定可复现和兼容性</td>
+</tr>
+</tbody>
+</table>
+<p>manifest 的价值是把节点从“有 8 张 GPU”升级为“这 8 张 GPU 的位置、连法、邻近设备、共享模式和健康状态是什么”。</p>
+<p>它可以被多个系统使用：</p>
+<ul>
+<li>调度器用它决定资源匹配。</li>
+<li>启动器用它生成 rank mapping。</li>
+<li>benchmark 用它解释性能差异。</li>
+<li>运维系统用它发现配置漂移。</li>
+<li>成本系统用它区分整卡、MIG、共享 GPU 的计费。</li>
+</ul>
+<p>如果没有 manifest，拓扑信息只存在于节点当前状态和个人经验里。节点换卡、驱动升级、MIG 重新配置、BIOS 变更或 NIC 换槽后，平台很难知道性能变化来自哪里。</p>
+<h2 id="numacpu-pcie">NUMA：CPU、内存和 PCIe 的局部性<a class="headerlink" href="#numacpu-pcie" title="Permanent link">¶</a></h2>
+<p>NUMA 是 Non-Uniform Memory Access。多 socket 服务器中，每个 CPU socket 通常有自己的本地内存和 PCIe root complex。访问本地资源比访问远端资源更快。</p>
+<p>AI 节点里，NUMA 影响：</p>
+<ul>
+<li>CPU thread 访问 host memory。</li>
+<li>pinned memory。</li>
+<li>H2D/D2H copy。</li>
+<li>DataLoader 到 GPU 的数据路径。</li>
+<li>GPU 和 NIC 的 PCIe 路径。</li>
+<li>storage client。</li>
+<li>tokenizer / preprocessing。</li>
+</ul>
+<p>一个常见问题：</p>
+<div class="highlight"><pre><span></span><code>GPU 在 NUMA 0
+NIC 在 NUMA 0
+DataLoader thread 跑在 NUMA 1
+host memory 分配在 NUMA 1
+</code></pre></div>
+<p>结果数据要跨 socket，再到 GPU/NIC，带来额外延迟和带宽损失。</p>
+<h3 id="numa">NUMA 绑定原则<a class="headerlink" href="#numa" title="Permanent link">¶</a></h3>
+<p>常见原则：</p>
+<ul>
+<li>让服务某个 GPU 的 CPU thread 靠近该 GPU。</li>
+<li>让 GPU 使用邻近 NIC。</li>
+<li>让 pinned memory 尽量在近端 NUMA 分配。</li>
+<li>DataLoader worker 不要随机散到远端 socket。</li>
+<li>多进程训练中，rank 与 GPU/CPU/NIC 一起绑定。</li>
+<li>同一节点上多个任务避免争用同一个 socket 的 CPU/NIC/NVMe。</li>
+</ul>
+<p>NUMA 不是只属于 CPU 优化。多 GPU AI 节点里，它直接影响端到端吞吐。</p>
+<h2 id="gpunic-affinity-rail">GPU/NIC Affinity 与多 Rail<a class="headerlink" href="#gpunic-affinity-rail" title="Permanent link">¶</a></h2>
+<p>多机训练常有多个 NIC。</p>
+<p>理想状态下：</p>
+<ul>
+<li>GPU 0-3 使用 NIC 0。</li>
+<li>GPU 4-7 使用 NIC 1。</li>
+<li>每张 NIC 服务拓扑邻近的 GPU。</li>
+<li>NCCL/RCCL 能识别多 rail。</li>
+<li>网络流量均匀分布。</li>
+</ul>
+<p>如果所有 GPU 都挤到同一张 NIC，或者远端 GPU 访问远端 NIC，网络性能会下降。</p>
+<p>需要关注：</p>
+<ul>
+<li>NIC 和 GPU 是否在同一 PCIe switch / root complex。</li>
+<li>多 NIC 是否都被通信库使用。</li>
+<li>rail 分配是否对称。</li>
+<li>rank order 是否让通信组跨越不必要路径。</li>
+<li>交换机层面是否也有 rail 对应关系。</li>
+</ul>
+<p>GPU/NIC affinity 是 topology-aware scheduling 的核心输入之一。</p>
+<h2 id="mig-gpu">MIG：硬件级 GPU 分区<a class="headerlink" href="#mig-gpu" title="Permanent link">¶</a></h2>
+<p>MIG 是 Multi-Instance GPU。它允许一张支持 MIG 的 NVIDIA GPU 被划分成多个隔离的 GPU instance，每个 instance 拥有一部分计算和内存资源。</p>
+<p>直觉：</p>
+<div class="highlight"><pre><span></span><code>一张大 GPU
+  -&gt; 切成多个硬件隔离的 GPU instance
+  -&gt; 每个 instance 作为独立资源被调度
+</code></pre></div>
+<p>MIG 适合：</p>
+<ul>
+<li>小模型推理。</li>
+<li>embedding / rerank 服务。</li>
+<li>notebook 小实验。</li>
+<li>多租户共享。</li>
+<li>需要比 MPS 更强隔离的场景。</li>
+<li>显存需求可预测的小 workload。</li>
+</ul>
+<h3 id="mig">MIG 的价值<a class="headerlink" href="#mig" title="Permanent link">¶</a></h3>
+<p>MIG 解决的问题是：</p>
+<ul>
+<li>整卡给小任务太浪费。</li>
+<li>多租户共享整卡容易互相干扰。</li>
+<li>需要更清晰的显存和计算资源边界。</li>
+<li>希望调度器把一张 GPU 拆成多个可见资源。</li>
+</ul>
+<p>相比 MPS 或普通多进程共享，MIG 的隔离更硬：</p>
+<ul>
+<li>显存容量按 profile 划分。</li>
+<li>计算资源按 instance 划分。</li>
+<li>错误和性能干扰边界更清晰。</li>
+<li>Kubernetes / device plugin 可以把 MIG instance 暴露成可调度资源。</li>
+</ul>
+<h3 id="mig_1">MIG 的限制<a class="headerlink" href="#mig_1" title="Permanent link">¶</a></h3>
+<p>MIG 不是万能资源池。</p>
+<p>限制包括：</p>
+<ul>
+<li>profile 是离散的，不是任意切分。</li>
+<li>重新配置 MIG 可能需要 drain 节点或重启相关工作负载。</li>
+<li>大任务不能自动把多个小 MIG instance 合成完整 GPU。</li>
+<li>某些跨 GPU 或 profiling 能力在 MIG 模式下有限制。</li>
+<li>资源碎片会从“GPU 碎片”变成“MIG profile 碎片”。</li>
+<li>不适合需要整卡带宽、整卡显存或复杂多 GPU 通信的任务。</li>
+</ul>
+<p>例如一个需要整张 80 GB GPU 的任务，无法使用几个小 MIG slice 替代，除非模型和 runtime 明确支持这种切分。</p>
+<h3 id="mig_2">MIG 调度策略<a class="headerlink" href="#mig_2" title="Permanent link">¶</a></h3>
+<p>MIG 适合独立资源池管理：</p>
+<ul>
+<li>小推理任务池。</li>
+<li>notebook / dev pool。</li>
+<li>embedding pool。</li>
+<li>低优先级实验池。</li>
+</ul>
+<p>不要让关键训练节点频繁在 MIG/non-MIG 模式之间切换。那会增加运维复杂度和排队不确定性。</p>
+<h3 id="mig_3">MIG 生命周期与碎片<a class="headerlink" href="#mig_3" title="Permanent link">¶</a></h3>
+<p>MIG 的运维难点不在“能不能切”，而在“切成什么、什么时候切、切完谁来用”。</p>
+<p>MIG 生命周期通常包括：</p>
+<div class="highlight"><pre><span></span><code>节点入池
+  -&gt; 选择 MIG 策略
+  -&gt; 配置 profile
+  -&gt; device plugin 暴露资源
+  -&gt; workload 调度
+  -&gt; 监控使用率和碎片
+  -&gt; drain 节点
+  -&gt; 重新配置或回到整卡
+</code></pre></div>
+<p>常见 MIG 策略有三类：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>含义</th>
+<th>适合场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>固定 profile</td>
+<td>整个池长期使用同一种 profile</td>
+<td>embedding、小模型推理、教学实验</td>
+</tr>
+<tr>
+<td>混合 profile</td>
+<td>同一节点或池里提供多种 profile</td>
+<td>任务尺寸多样，但调度复杂度更高</td>
+</tr>
+<tr>
+<td>按池切换</td>
+<td>不同 node pool 使用不同 MIG 配置</td>
+<td>平台治理清晰，适合生产</td>
+</tr>
+</tbody>
+</table>
+<p>MIG 碎片和 GPU 碎片类似，但更细：</p>
+<ul>
+<li>剩余 slice 不能组成目标 profile。</li>
+<li>某类 profile 空闲很多，另一类 profile 长期短缺。</li>
+<li>用户请求 profile 过于分散，导致调度失败。</li>
+<li>重新配置需要 drain 节点，影响已有服务。</li>
+<li>profile 与模型尺寸不匹配，显存浪费或不足。</li>
+</ul>
+<p>因此，MIG 资源最好不要无限开放 profile。平台应根据真实 workload 选择少数标准 profile，并把它们绑定到明确的资源池。例如 embedding 池固定一种 profile，notebook 池固定另一种 profile，生产推理池尽量避免频繁重切。</p>
+<h2 id="mps-gpu">MPS：多进程共享 GPU<a class="headerlink" href="#mps-gpu" title="Permanent link">¶</a></h2>
+<p>MPS 是 CUDA Multi-Process Service。它允许多个 CUDA 进程更高效地共享同一张 GPU，减少进程上下文切换开销，并改善小 kernel 多进程并发时的利用率。</p>
+<p>直觉：</p>
+<div class="highlight"><pre><span></span><code>多个 CUDA 进程
+  -&gt; 通过 MPS server 协调
+  -&gt; 共享同一张 GPU 执行资源
+</code></pre></div>
+<p>MPS 适合：</p>
+<ul>
+<li>多个小 CUDA 进程。</li>
+<li>MPI rank 共享 GPU。</li>
+<li>小模型推理。</li>
+<li>开发实验。</li>
+<li>单个进程无法打满 GPU 的场景。</li>
+</ul>
+<h3 id="mps">MPS 的价值<a class="headerlink" href="#mps" title="Permanent link">¶</a></h3>
+<p>MPS 可以：</p>
+<ul>
+<li>提高多进程并发效率。</li>
+<li>降低上下文切换成本。</li>
+<li>让小 workload 更容易填满 GPU。</li>
+<li>支持一定程度的 GPU sharing。</li>
+</ul>
+<p>对于很多小任务，独占整卡浪费，MPS 能提高利用率。</p>
+<h3 id="mps_1">MPS 的风险<a class="headerlink" href="#mps_1" title="Permanent link">¶</a></h3>
+<p>MPS 不是硬隔离。</p>
+<p>多个进程仍然共享：</p>
+<ul>
+<li>HBM 容量。</li>
+<li>HBM 带宽。</li>
+<li>L2/cache。</li>
+<li>copy engine。</li>
+<li>power / thermal headroom。</li>
+<li>kernel scheduling。</li>
+</ul>
+<p>风险包括：</p>
+<ul>
+<li>一个进程占用过多显存，影响其他进程。</li>
+<li>一个重 IO kernel 影响另一个 latency-sensitive 任务。</li>
+<li>故障影响范围比 MIG 更大。</li>
+<li>p99 latency 不稳定。</li>
+<li>资源记账和调试更复杂。</li>
+</ul>
+<p>所以 MPS 更适合可信、可控、低风险的共享场景，不应把它当作强多租户隔离边界。</p>
+<h2 id="time-slicing-oversubscription">Time Slicing 与 Oversubscription<a class="headerlink" href="#time-slicing-oversubscription" title="Permanent link">¶</a></h2>
+<p>有些调度系统或 device plugin 支持 GPU time slicing / oversubscription。</p>
+<p>这类方式通常表示：</p>
+<div class="highlight"><pre><span></span><code>调度层允许多个 workload 共享同一张 GPU
+但不一定提供硬件级资源保证
+</code></pre></div>
+<p>适合：</p>
+<ul>
+<li>轻量 notebook。</li>
+<li>教学实验。</li>
+<li>偶发 GPU 使用。</li>
+<li>低优先级任务。</li>
+</ul>
+<p>不适合：</p>
+<ul>
+<li>性能 benchmark。</li>
+<li>生产推理 SLO。</li>
+<li>大训练。</li>
+<li>强隔离多租户。</li>
+</ul>
+<p>Time slicing 提高的是表面可分配性，不一定提高可预测性能。</p>
+<h2 id="gpu">共享 GPU 的治理边界<a class="headerlink" href="#gpu" title="Permanent link">¶</a></h2>
+<p>MIG、MPS、time slicing 都能提高“可分配性”，但它们代表的隔离语义完全不同。</p>
+<p>平台需要把共享 GPU 设计成显式资源等级，而不是让用户自己猜。</p>
+<p>可以按下面方式治理：</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>典型实现</th>
+<th>适合 workload</th>
+<th>平台承诺</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>独占整卡</td>
+<td><code>nvidia.com/gpu</code>、Slurm GRES</td>
+<td>训练、benchmark、关键推理</td>
+<td>性能最可预测，故障边界清晰</td>
+</tr>
+<tr>
+<td>硬分片</td>
+<td>MIG profile</td>
+<td>小推理、多租户固定规格</td>
+<td>显存和计算资源有硬边界</td>
+</tr>
+<tr>
+<td>可信共享</td>
+<td>MPS</td>
+<td>同团队小进程、开发、低风险推理</td>
+<td>提高并发，不承诺强隔离</td>
+</tr>
+<tr>
+<td>机会共享</td>
+<td>time slicing / oversubscription</td>
+<td>Notebook、教学、低优任务</td>
+<td>只承诺可运行，不承诺稳定性能</td>
+</tr>
+</tbody>
+</table>
+<p>用户提交任务时，应该能看到自己使用的是哪一级资源。调度、计费、SLO、告警也要跟着变化：</p>
+<ul>
+<li>生产 SLO 不应默认落到机会共享资源。</li>
+<li>benchmark 不应落到共享资源。</li>
+<li>多租户安全边界不应只靠 MPS。</li>
+<li>低优 notebook 不应占用整卡训练池。</li>
+<li>计费应区分整卡小时、MIG profile 小时、共享 GPU 时间。</li>
+</ul>
+<p>如果平台没有明确这些边界，GPU sharing 会很快变成性能投诉来源：用户看到“申请到了 GPU”，但没有意识到它和别人共享 HBM、copy engine、power headroom 或 runtime。</p>
+<h2 id="exclusive-gpumigmps">Exclusive GPU、MIG、MPS 怎么选<a class="headerlink" href="#exclusive-gpumigmps" title="Permanent link">¶</a></h2>
+<p>可以粗略按下面判断。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>适合场景</th>
+<th>隔离</th>
+<th>利用率</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exclusive GPU</td>
+<td>大训练、benchmark、关键推理、TP/PP</td>
+<td>强</td>
+<td>可能浪费小任务</td>
+<td>成本高</td>
+</tr>
+<tr>
+<td>MIG</td>
+<td>小推理、多租户、小实验、固定 profile</td>
+<td>较强</td>
+<td>好</td>
+<td>profile 碎片</td>
+</tr>
+<tr>
+<td>MPS</td>
+<td>多小进程、可信共享、开发实验</td>
+<td>较弱</td>
+<td>好</td>
+<td>性能干扰</td>
+</tr>
+<tr>
+<td>Time slicing</td>
+<td>低优先级轻量任务</td>
+<td>弱</td>
+<td>表面高</td>
+<td>抖动大</td>
+</tr>
+</tbody>
+</table>
+<p>实践建议：</p>
+<ul>
+<li>训练和 benchmark 默认整卡独占。</li>
+<li>生产推理如果要求稳定 p99，优先整卡或 MIG，不要随意 MPS 混部。</li>
+<li>小模型推理和 notebook 可以用 MIG 提高利用率。</li>
+<li>MPS 适合可信 workload 的并发利用率优化。</li>
+<li>Time slicing 用于低风险场景。</li>
+</ul>
+<h2 id="kubernetes-gpu">Kubernetes 中的 GPU 资源表达<a class="headerlink" href="#kubernetes-gpu" title="Permanent link">¶</a></h2>
+<p>Kubernetes 原生不知道 GPU 细节，它通过 device plugin 暴露 GPU 这类扩展资源。</p>
+<p>常见资源表达：</p>
+<ul>
+<li><code>nvidia.com/gpu</code>：整卡 GPU。</li>
+<li>MIG 相关资源：不同 device plugin 配置下可暴露不同 MIG profile。</li>
+<li>node label：GPU 型号、显存、拓扑、MIG 能力等。</li>
+</ul>
+<p>Kubernetes scheduler 会根据资源请求和节点标签做调度。但要做到 AI 需要的拓扑感知，还需要额外能力：</p>
+<ul>
+<li>NVIDIA device plugin。</li>
+<li>GPU Feature Discovery。</li>
+<li>GPU Operator。</li>
+<li>node labels。</li>
+<li>topology manager。</li>
+<li>自定义 scheduler / scheduler plugin。</li>
+<li>Volcano / Kueue 等 batch 层。</li>
+</ul>
+<p>需要注意：</p>
+<div class="highlight"><pre><span></span><code>Kubernetes 能调度 GPU resource
+不等于它天然理解 NVLink、GPU/NIC affinity、NCCL topology
+</code></pre></div>
+<p>这些通常要靠标签、插件、调度扩展和运行时配置配合。</p>
+<h3 id="kubernetes">Kubernetes 里的拓扑相关组件<a class="headerlink" href="#kubernetes" title="Permanent link">¶</a></h3>
+<p>Kubernetes 中和 GPU 拓扑相关的能力通常来自多个层次：</p>
+<table>
+<thead>
+<tr>
+<th>组件 / 能力</th>
+<th>作用</th>
+<th>和 AI 拓扑的关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Device Plugin</td>
+<td>把 GPU、MIG instance 等设备作为扩展资源暴露</td>
+<td>决定 scheduler 能看到哪些设备资源</td>
+</tr>
+<tr>
+<td>GPU Feature Discovery</td>
+<td>给节点打 GPU 型号、数量、MIG 等标签</td>
+<td>让调度器和用户能按资源特征选择节点</td>
+</tr>
+<tr>
+<td>GPU Operator</td>
+<td>部署 driver、device plugin、DCGM exporter、MIG manager 等</td>
+<td>统一 GPU 软件栈和运维组件</td>
+</tr>
+<tr>
+<td>Topology Manager</td>
+<td>让 CPU、device、hugepage 等资源尽量按 NUMA 对齐</td>
+<td>改善 GPU/CPU/NIC 局部性</td>
+</tr>
+<tr>
+<td>CPU Manager</td>
+<td>给 Guaranteed Pod 分配独占 CPU core</td>
+<td>让 serving frontend、DataLoader、通信线程更稳定</td>
+</tr>
+<tr>
+<td>Node labels / affinity</td>
+<td>表达 GPU 型号、rack、pool、拓扑能力</td>
+<td>做粗粒度 topology-aware placement</td>
+</tr>
+<tr>
+<td>Scheduler plugin / batch layer</td>
+<td>扩展调度策略</td>
+<td>表达 gang、资源池、拓扑优先级和队列语义</td>
+</tr>
+</tbody>
+</table>
+<p>一个常见误区是认为 device plugin 已经解决 GPU 调度。实际上 device plugin 解决的是“把设备作为资源暴露出来”，而不是“理解这个设备和 CPU/NIC/NVMe/NVLink 的关系”。</p>
+<p>如果要让 Kubernetes 更适合 AI 拓扑调度，通常需要：</p>
+<ul>
+<li>节点侧准确发现 GPU、MIG、NUMA、NIC、NVLink/NVSwitch 状态。</li>
+<li>标签或自定义资源描述这些拓扑能力。</li>
+<li>Pod spec 明确资源 shape、node affinity、topology spread、priority 和 queue。</li>
+<li>Topology Manager / CPU Manager 尽量保证本地性。</li>
+<li>运行时或 launcher 生成正确的 <code>CUDA_VISIBLE_DEVICES</code>、rank mapping 和通信环境变量。</li>
+<li>监控侧确认实际放置和性能符合预期。</li>
+</ul>
+<p>Kubernetes 能提供控制面，但 AI 拓扑正确性需要 device plugin、标签、调度扩展、运行时和监控共同完成。</p>
+<h2 id="slurm-gpu">Slurm 中的 GPU 资源表达<a class="headerlink" href="#slurm-gpu" title="Permanent link">¶</a></h2>
+<p>Slurm 常通过 GRES/TRES 表达 GPU 资源。</p>
+<p>可以管理：</p>
+<ul>
+<li>GPU 数量。</li>
+<li>GPU 类型。</li>
+<li>分区。</li>
+<li>account / QOS。</li>
+<li>GPU 绑定。</li>
+<li>job step。</li>
+<li>拓扑和节点选择策略。</li>
+</ul>
+<p>HPC 训练中，Slurm 常与 NCCL、MPI、hostfile、rank mapping 配合。用户或平台需要确保：</p>
+<ul>
+<li>rank 与 GPU 对应正确。</li>
+<li>CPU affinity 正确。</li>
+<li>NIC 选择正确。</li>
+<li>多节点拓扑符合预期。</li>
+<li>环境变量一致。</li>
+</ul>
+<p>Slurm 能给你一组节点，但高性能 rank mapping 仍然需要训练框架、通信库和启动脚本配合。</p>
+<h2 id="_4">拓扑感知调度契约<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<p>不管底层是 Kubernetes 还是 Slurm，平台都需要把拓扑需求变成一种调度契约。</p>
+<p>这个契约至少包含四部分：</p>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用户意图</td>
+<td>workload 需要什么资源形状</td>
+<td><code>8 GPU same-node</code>、<code>H100 80G</code>、<code>MIG 1g.10gb</code></td>
+</tr>
+<tr>
+<td>平台解释</td>
+<td>平台如何把意图映射到资源池和拓扑</td>
+<td>训练整卡池、MIG 推理池、IB 节点池</td>
+</tr>
+<tr>
+<td>放置结果</td>
+<td>实际分到了哪些节点、GPU、NIC、NUMA</td>
+<td>node、GPU UUID、PCI bus id、NIC、CPU set</td>
+</tr>
+<tr>
+<td>运行验证</td>
+<td>实际性能是否符合预期</td>
+<td>NCCL log、profiler、GPU/NIC counters、p99</td>
+</tr>
+</tbody>
+</table>
+<p>如果只有用户意图，没有放置结果，用户无法排查性能问题。如果只有放置结果，没有运行验证，平台不知道拓扑策略是否真的有效。</p>
+<p>建议每个重要 job 都保存拓扑相关 run manifest：</p>
+<ul>
+<li>allocated node list。</li>
+<li>GPU UUID 和 PCI bus id。</li>
+<li><code>CUDA_VISIBLE_DEVICES</code> 映射。</li>
+<li>rank-to-GPU 映射。</li>
+<li>rank-to-NIC 或通信接口选择。</li>
+<li>CPU set / NUMA node。</li>
+<li>MIG profile 或共享模式。</li>
+<li>driver、CUDA、NCCL/RCCL、fabric manager 版本。</li>
+<li>topology hash 或采集时间。</li>
+</ul>
+<p>有了这些信息，才能回答“这次训练慢，是代码变了，还是调度到了不同拓扑，还是某个 NIC/rail 出问题”。</p>
+<h2 id="_5">资源隔离维度<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<p>GPU 隔离不是单一维度。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>显存容量</td>
+<td>一个任务能否占满 HBM，是否影响其他任务</td>
+</tr>
+<tr>
+<td>显存带宽</td>
+<td>多任务是否争用 HBM bandwidth</td>
+</tr>
+<tr>
+<td>计算单元</td>
+<td>SM/Tensor Core 是否可预测分配</td>
+</tr>
+<tr>
+<td>cache / L2</td>
+<td>任务间是否污染 cache</td>
+</tr>
+<tr>
+<td>copy engine</td>
+<td>H2D/D2H 是否互相影响</td>
+</tr>
+<tr>
+<td>PCIe / NVLink</td>
+<td>通信是否被其他任务抢占</td>
+</tr>
+<tr>
+<td>power / thermal</td>
+<td>一个任务高功耗是否让整卡降频</td>
+</tr>
+<tr>
+<td>fault domain</td>
+<td>一个任务崩溃是否影响其他任务</td>
+</tr>
+<tr>
+<td>security</td>
+<td>数据是否可能跨租户泄漏</td>
+</tr>
+<tr>
+<td>accounting</td>
+<td>资源用量是否能准确归因</td>
+</tr>
+</tbody>
+</table>
+<p>MIG、MPS、time slicing 对这些维度的隔离能力不同。设计多租户 GPU 平台时，必须逐项判断，而不是简单说“支持共享 GPU”。</p>
+<h2 id="rank-mapping">Rank Mapping 与拓扑<a class="headerlink" href="#rank-mapping" title="Permanent link">¶</a></h2>
+<p>多 GPU 任务启动后，还要把 rank 映射到 GPU 和 NIC。</p>
+<p>常见目标：</p>
+<ul>
+<li>同一个 TP group 放在同一 NVLink/NVSwitch domain。</li>
+<li>PP stage 相邻 rank 放在通信路径较近的位置。</li>
+<li>DP group 可以跨节点，但要均匀分布网络压力。</li>
+<li>EP/MoE group 避免跨越过差 bisection bandwidth。</li>
+<li>每个 GPU 使用邻近 NIC。</li>
+<li>CPU worker 绑定到邻近 NUMA。</li>
+</ul>
+<p>错误 rank mapping 的表现：</p>
+<ul>
+<li>NCCL collective 时间异常高。</li>
+<li>某些 rank 长时间等待。</li>
+<li>GPU utilization 呈周期性掉零。</li>
+<li>多节点扩展效率低。</li>
+<li>p99 latency 变差。</li>
+</ul>
+<p>排查时要结合：</p>
+<ul>
+<li>调度分配结果。</li>
+<li><code>nvidia-smi topo -m</code>。</li>
+<li>NCCL topology / debug log。</li>
+<li>profiler timeline。</li>
+<li>网络端口流量。</li>
+<li>rank-to-device mapping。</li>
+</ul>
+<h2 id="_6">可观测性与故障归因<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>GPU 拓扑和隔离问题经常不会直接报错，而是表现为“慢、抖、偶发失败”。因此监控要能覆盖设备、进程、拓扑和共享状态。</p>
+<p>建议至少采集：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>关键指标 / 事件</th>
+<th>能解释的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU</td>
+<td>utilization、HBM usage、SM occupancy、power、clock、temperature</td>
+<td>是否算力不足、降频、功耗受限</td>
+</tr>
+<tr>
+<td>显存</td>
+<td>allocated、reserved、OOM、fragmentation</td>
+<td>是否显存不足或多进程互相影响</td>
+</tr>
+<tr>
+<td>互连</td>
+<td>NVLink throughput、PCIe replay、link error、P2P bandwidth</td>
+<td>是否 GPU-to-GPU 路径异常</td>
+</tr>
+<tr>
+<td>NIC</td>
+<td>RDMA bandwidth、retry、packet loss、rail imbalance</td>
+<td>是否 GPU/NIC 或网络路径异常</td>
+</tr>
+<tr>
+<td>NUMA</td>
+<td>CPU set、memory node、remote memory access</td>
+<td>是否 CPU/DataLoader 远端访问</td>
+</tr>
+<tr>
+<td>MIG</td>
+<td>profile、instance utilization、ECC/Xid、profile 碎片</td>
+<td>是否 MIG profile 不匹配或实例异常</td>
+</tr>
+<tr>
+<td>MPS / 共享</td>
+<td>进程列表、显存占用、上下文、p99 抖动</td>
+<td>是否共享任务互相干扰</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>allocated GPU UUID、rank mapping、node labels</td>
+<td>是否调度到了错误拓扑</td>
+</tr>
+</tbody>
+</table>
+<p>故障归因时，可以按下面顺序缩小范围：</p>
+<div class="highlight"><pre><span></span><code>workload 变慢
+  -&gt; 是否换了节点 / GPU / 拓扑
+  -&gt; 是否 GPU/NIC/NUMA mapping 改变
+  -&gt; 是否共享模式改变：exclusive / MIG / MPS / time slicing
+  -&gt; 是否有新邻居任务或共享资源争用
+  -&gt; 是否出现硬件错误、降频、链路错误
+  -&gt; 是否通信库选择了不同路径或接口
+  -&gt; 是否数据路径或本地 NVMe locality 改变
+</code></pre></div>
+<p>这类问题不能只看模型日志。模型日志通常只能看到 step time 或 latency 变差，真正原因可能在 PCIe、NUMA、NIC、共享 GPU 或调度放置。</p>
+<h2 id="benchmark">Benchmark 方法<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>拓扑和隔离相关 benchmark 要分层做。</p>
+<h3 id="benchmark_1">单机拓扑 benchmark<a class="headerlink" href="#benchmark_1" title="Permanent link">¶</a></h3>
+<p>测：</p>
+<ul>
+<li>GPU-to-GPU P2P bandwidth。</li>
+<li>GPU-to-GPU latency。</li>
+<li>GPU-to-NIC RDMA bandwidth。</li>
+<li>GPU-to-NVMe read/write。</li>
+<li>CPU NUMA 到 GPU copy。</li>
+<li>同机多 GPU collective。</li>
+</ul>
+<h3 id="benchmark_2">多租户共享 benchmark<a class="headerlink" href="#benchmark_2" title="Permanent link">¶</a></h3>
+<p>比较：</p>
+<ul>
+<li>exclusive vs MIG。</li>
+<li>exclusive vs MPS。</li>
+<li>MIG profile A vs profile B。</li>
+<li>MPS 并发数量。</li>
+<li>time slicing 下 p99。</li>
+<li>多任务干扰下 HBM、SM、copy engine、power。</li>
+</ul>
+<h3 id="workload-benchmark">端到端 workload benchmark<a class="headerlink" href="#workload-benchmark" title="Permanent link">¶</a></h3>
+<p>看：</p>
+<ul>
+<li>training step time。</li>
+<li>inference TTFT / TPOT / p99。</li>
+<li>tokens/s/GPU。</li>
+<li>GPU utilization。</li>
+<li>HBM utilization。</li>
+<li>NCCL/RCCL time。</li>
+<li>power / temperature。</li>
+<li>job failure。</li>
+</ul>
+<p>只测空闲单任务不够。资源隔离的价值要在多租户压力下验证。</p>
+<h2 id="_7">常见优化方向<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<h3 id="_8">标准化资源池<a class="headerlink" href="#_8" title="Permanent link">¶</a></h3>
+<p>把节点分成清晰资源池：</p>
+<ul>
+<li>训练整卡池。</li>
+<li>推理整卡池。</li>
+<li>MIG 推理池。</li>
+<li>notebook / dev 池。</li>
+<li>benchmark 独占池。</li>
+<li>高网络能力池。</li>
+</ul>
+<p>资源池清晰后，调度策略和用户预期都更稳定。</p>
+<h3 id="_9">给拓扑打标签<a class="headerlink" href="#_9" title="Permanent link">¶</a></h3>
+<p>在 Kubernetes 或 Slurm 中记录：</p>
+<ul>
+<li>GPU 型号。</li>
+<li>显存容量。</li>
+<li>NVLink/NVSwitch domain。</li>
+<li>NIC 数量。</li>
+<li>RDMA 能力。</li>
+<li>NUMA 信息。</li>
+<li>MIG profile。</li>
+<li>是否适合整节点训练。</li>
+</ul>
+<p>让用户和调度器能表达正确需求。</p>
+<h3 id="_10">让小任务不要打碎大节点<a class="headerlink" href="#_10" title="Permanent link">¶</a></h3>
+<p>小 notebook 或小推理如果随机占用训练节点上的一两张 GPU，会让整节点训练难以启动。</p>
+<p>策略：</p>
+<ul>
+<li>小任务进入共享池。</li>
+<li>用 MIG 承载小任务。</li>
+<li>给大训练保留整节点池。</li>
+<li>对交互任务设置时间限制。</li>
+<li>空闲会话回收。</li>
+</ul>
+<h3 id="cpu-gpu-nic">绑定 CPU / GPU / NIC<a class="headerlink" href="#cpu-gpu-nic" title="Permanent link">¶</a></h3>
+<p>多机训练和高性能推理中，要同时考虑：</p>
+<ul>
+<li>rank -&gt; GPU。</li>
+<li>GPU -&gt; NIC。</li>
+<li>CPU worker -&gt; NUMA。</li>
+<li>DataLoader -&gt; local memory。</li>
+<li>NCCL interface。</li>
+</ul>
+<p>不要只设置 <code>CUDA_VISIBLE_DEVICES</code>，还要确认 CPU 和 NIC 是否匹配。</p>
+<h3 id="_11">区分性能隔离和安全隔离<a class="headerlink" href="#_11" title="Permanent link">¶</a></h3>
+<p>性能隔离关注干扰，安全隔离关注边界。</p>
+<p>MPS 可以改善利用率，但不代表强安全隔离。MIG 隔离更强，但也要结合容器、权限、驱动、日志、存储、网络等整体安全边界。</p>
+<h2 id="_12">常见误区<a class="headerlink" href="#_12" title="Permanent link">¶</a></h2>
+<h3 id="gpu_1">误区一：同型号 GPU 完全等价<a class="headerlink" href="#gpu_1" title="Permanent link">¶</a></h3>
+<p>同型号 GPU 如果拓扑位置不同，通信和数据路径也可能不同。调度必须看位置。</p>
+<h3 id="mig-gpu_1">误区二：MIG 可以替代所有 GPU 共享方案<a class="headerlink" href="#mig-gpu_1" title="Permanent link">¶</a></h3>
+<p>MIG 适合固定 profile 的小任务和推理，但不适合所有训练、整卡任务和动态资源需求。</p>
+<h3 id="mps_2">误区三：MPS 等于强隔离<a class="headerlink" href="#mps_2" title="Permanent link">¶</a></h3>
+<p>MPS 是共享执行优化，不是强隔离边界。任务之间仍然可能互相影响。</p>
+<h3 id="gpu_2">误区四：GPU 分片一定提高利用率<a class="headerlink" href="#gpu_2" title="Permanent link">¶</a></h3>
+<p>分片会引入 profile 碎片、运维复杂度和调度约束。利用率要看真实 workload 分布。</p>
+<h3 id="gpu-utilization">误区五：只看 GPU utilization<a class="headerlink" href="#gpu-utilization" title="Permanent link">¶</a></h3>
+<p>拓扑问题可能表现为网络等待、CPU 等待、HBM 等待或 p99 抖动。GPU utilization 只是一个指标。</p>
+<h3 id="_13">误区六：拓扑靠用户手工处理<a class="headerlink" href="#_13" title="Permanent link">¶</a></h3>
+<p>用户不应该每次手工研究节点拓扑。平台要把拓扑抽象成资源标签、调度策略和启动模板。</p>
+<h2 id="_14">设计检查清单<a class="headerlink" href="#_14" title="Permanent link">¶</a></h2>
+<p>设计 GPU 资源管理时，可以检查：</p>
+<ul>
+<li>是否知道每台节点的 GPU-to-GPU 拓扑。</li>
+<li>是否知道 GPU-to-NIC affinity。</li>
+<li>是否记录 CPU NUMA 和 PCIe root complex。</li>
+<li>是否区分整卡、MIG、MPS、time slicing。</li>
+<li>哪些 workload 必须整卡独占。</li>
+<li>哪些 workload 可以 MIG。</li>
+<li>哪些 workload 可以 MPS。</li>
+<li>MIG profile 是否会造成碎片。</li>
+<li>小任务是否会打碎训练节点。</li>
+<li>rank mapping 是否和拓扑匹配。</li>
+<li>DataLoader / tokenizer 是否绑定到近端 CPU。</li>
+<li>多机训练是否使用邻近 NIC。</li>
+<li>Benchmark 是否覆盖多租户干扰。</li>
+<li>监控是否能看到 GPU、MIG、MPS、进程、功耗、温度、错误。</li>
+<li>故障是否能定位到整卡、MIG instance、进程或节点。</li>
+<li>是否保存 allocated GPU UUID、PCI bus id、rank mapping 和 topology manifest。</li>
+<li>Kubernetes 是否区分 device plugin、node label、Topology Manager、CPU Manager 和 batch queue 的职责。</li>
+<li>Slurm 作业是否记录 GRES/TRES、CPU affinity、GPU binding 和 rank mapping。</li>
+<li>共享 GPU 是否明确标注资源等级和平台承诺。</li>
+<li>性能回归是否能区分代码变化、拓扑变化、共享干扰和硬件健康问题。</li>
+</ul>
+<h2 id="_15">小结<a class="headerlink" href="#_15" title="Permanent link">¶</a></h2>
+<p>GPU 资源管理的核心不是“把 GPU 数量报给调度器”，而是：</p>
+<div class="highlight"><pre><span></span><code>GPU 在哪里
+  -&gt; 和谁通信
+  -&gt; 靠近哪个 CPU / NIC / NVMe
+  -&gt; 是否整卡独占
+  -&gt; 是否 MIG 分片
+  -&gt; 是否 MPS 共享
+  -&gt; 是否满足 workload 的性能和隔离要求
+</code></pre></div>
+<p>当平台能表达这些信息时，调度系统才能减少碎片、避免慢拓扑、提高利用率，并给训练和推理提供更稳定的性能。</p>
+<h2 id="_16">延伸阅读<a class="headerlink" href="#_16" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://docs.nvidia.com/datacenter/tesla/mig-user-guide/">NVIDIA MIG User Guide</a></li>
+<li><a href="https://docs.nvidia.com/deploy/mps/index.html">NVIDIA CUDA Multi-Process Service Documentation</a></li>
+<li><a href="https://docs.nvidia.com/deploy/nvidia-smi/index.html">NVIDIA System Management Interface Documentation</a></li>
+<li><a href="https://github.com/NVIDIA/k8s-device-plugin">NVIDIA Kubernetes Device Plugin</a></li>
+<li><a href="https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/index.html">NVIDIA GPU Operator Documentation</a></li>
+<li><a href="https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/gpu-operator-mig.html">NVIDIA GPU Operator MIG Support</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/">Kubernetes Device Plugins</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/administer-cluster/topology-manager/">Kubernetes Topology Manager</a></li>
+<li><a href="https://slurm.schedmd.com/gres.html">Slurm GRES Guide</a></li>
+<li><a href="https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/index.html">NVIDIA NCCL Documentation</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

@@ -1,0 +1,3280 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/07-cluster-infra/node-lifecycle-health-maintenance/" rel="canonical"/>
+<link href="../resource-utilization-fragmentation-capacity/" rel="prev"/>
+<link href="../../08-benchmark-capacity/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>节点生命周期与集群运维：交付、验收、入池、维护与下线 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#_1">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              节点生命周期与集群运维：交付、验收、入池、维护与下线
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai">
+<span class="md-ellipsis">
+      为什么 AI 节点生命周期更复杂
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#node-manifest">
+<span class="md-ellipsis">
+      节点事实源：Node Manifest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      生命周期阶段
+    </span>
+</a>
+<nav aria-label="生命周期阶段" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1">
+<span class="md-ellipsis">
+      1. 到货与资产登记
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2">
+<span class="md-ellipsis">
+      2. 物理验收
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3">
+<span class="md-ellipsis">
+      3. 软件基线安装
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      基线即代码
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-burn-in">
+<span class="md-ellipsis">
+      4. Burn-in 与验收测试
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      验收报告与入池门禁
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5">
+<span class="md-ellipsis">
+      5. 分类、打标签与入池
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6">
+<span class="md-ellipsis">
+      6. 运行期健康管理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      健康分级与自动动作
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-cordondrain">
+<span class="md-ellipsis">
+      7. Cordon、Drain 与维护
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      维护窗口契约
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8">
+<span class="md-ellipsis">
+      8. 维护后验证
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9">
+<span class="md-ellipsis">
+      9. 下线与退役
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      节点状态模型
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      入池验收清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      健康检查设计
+    </span>
+</a>
+<nav aria-label="健康检查设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#liveness">
+<span class="md-ellipsis">
+      Liveness
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#readiness">
+<span class="md-ellipsis">
+      Readiness
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-health">
+<span class="md-ellipsis">
+      Performance Health
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload-health">
+<span class="md-ellipsis">
+      Workload Health
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      故障隔离策略
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      升级策略
+    </span>
+</a>
+<nav aria-label="升级策略" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      批次发布与回滚
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      配置漂移
+    </span>
+</a>
+<nav aria-label="配置漂移" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      漂移处理流程
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      自动扩缩容与电源管理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rma">
+<span class="md-ellipsis">
+      备件、RMA 与容量回补
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      数据与缓存清理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      安全、凭据与数据擦除
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      运维证据链
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runbook">
+<span class="md-ellipsis">
+      Runbook
+    </span>
+</a>
+<nav aria-label="Runbook" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      新节点入池
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      计划维护
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      异常节点隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      节点退役
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_24">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ready-ai">
+<span class="md-ellipsis">
+      误区一：节点 Ready 就能跑 AI 任务
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_25">
+<span class="md-ellipsis">
+      误区二：维护就是重启
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_26">
+<span class="md-ellipsis">
+      误区三：坏节点让用户重试就行
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_27">
+<span class="md-ellipsis">
+      误区四：驱动升级可以全量推
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_28">
+<span class="md-ellipsis">
+      误区五：本地缓存不需要管
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_29">
+<span class="md-ellipsis">
+      误区六：资产系统和调度系统无关
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_30">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_31">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_32">
+<span class="md-ellipsis">
+      延伸阅读
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai">
+<span class="md-ellipsis">
+      为什么 AI 节点生命周期更复杂
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#node-manifest">
+<span class="md-ellipsis">
+      节点事实源：Node Manifest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      生命周期阶段
+    </span>
+</a>
+<nav aria-label="生命周期阶段" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1">
+<span class="md-ellipsis">
+      1. 到货与资产登记
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2">
+<span class="md-ellipsis">
+      2. 物理验收
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3">
+<span class="md-ellipsis">
+      3. 软件基线安装
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      基线即代码
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-burn-in">
+<span class="md-ellipsis">
+      4. Burn-in 与验收测试
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      验收报告与入池门禁
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5">
+<span class="md-ellipsis">
+      5. 分类、打标签与入池
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6">
+<span class="md-ellipsis">
+      6. 运行期健康管理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      健康分级与自动动作
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-cordondrain">
+<span class="md-ellipsis">
+      7. Cordon、Drain 与维护
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      维护窗口契约
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8">
+<span class="md-ellipsis">
+      8. 维护后验证
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9">
+<span class="md-ellipsis">
+      9. 下线与退役
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      节点状态模型
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      入池验收清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      健康检查设计
+    </span>
+</a>
+<nav aria-label="健康检查设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#liveness">
+<span class="md-ellipsis">
+      Liveness
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#readiness">
+<span class="md-ellipsis">
+      Readiness
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-health">
+<span class="md-ellipsis">
+      Performance Health
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#workload-health">
+<span class="md-ellipsis">
+      Workload Health
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      故障隔离策略
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      升级策略
+    </span>
+</a>
+<nav aria-label="升级策略" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      批次发布与回滚
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      配置漂移
+    </span>
+</a>
+<nav aria-label="配置漂移" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      漂移处理流程
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      自动扩缩容与电源管理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rma">
+<span class="md-ellipsis">
+      备件、RMA 与容量回补
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      数据与缓存清理
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      安全、凭据与数据擦除
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      运维证据链
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runbook">
+<span class="md-ellipsis">
+      Runbook
+    </span>
+</a>
+<nav aria-label="Runbook" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      新节点入池
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      计划维护
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      异常节点隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      节点退役
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_24">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ready-ai">
+<span class="md-ellipsis">
+      误区一：节点 Ready 就能跑 AI 任务
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_25">
+<span class="md-ellipsis">
+      误区二：维护就是重启
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_26">
+<span class="md-ellipsis">
+      误区三：坏节点让用户重试就行
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_27">
+<span class="md-ellipsis">
+      误区四：驱动升级可以全量推
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_28">
+<span class="md-ellipsis">
+      误区五：本地缓存不需要管
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_29">
+<span class="md-ellipsis">
+      误区六：资产系统和调度系统无关
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_30">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_31">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_32">
+<span class="md-ellipsis">
+      延伸阅读
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="_1">节点生命周期与集群运维：交付、验收、入池、维护与下线<a class="headerlink" href="#_1" title="Permanent link">¶</a></h1>
+<p>AI 集群不是把 GPU 服务器上架、装好驱动、加入调度器就结束了。一个计算节点从进入机房到退出生产，会经历交付、验收、基线安装、压力测试、入池、运行、维护、升级、故障隔离、归还资源和下线。</p>
+<p>如果这个生命周期没有被设计清楚，集群会出现很多“看似偶发”的问题：</p>
+<ul>
+<li>新节点刚入池就出现 NCCL timeout。</li>
+<li>GPU 型号一样，但某批节点吞吐低。</li>
+<li>训练任务随机 OOM 或 Xid error。</li>
+<li>维护时任务被粗暴杀掉，checkpoint 不完整。</li>
+<li>驱动和 CUDA 组合漂移，某些镜像突然不可用。</li>
+<li>节点已经有硬件错误，却还在被调度。</li>
+<li>下线节点仍保留数据、secret、缓存或监控噪声。</li>
+</ul>
+<p>节点生命周期治理的目标是：</p>
+<blockquote>
+<p>让每一台 AI 计算节点在可验证、可追溯、可维护、可回滚的状态下进入和退出资源池。</p>
+</blockquote>
+<p>这篇文章关注集群运维流程，不深入故障复盘和可观测性体系。后者更适合放在可靠性章节展开。</p>
+<h2 id="_2">一张总图<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TB
+    Arrival["Arrival<br/>rack / cable / asset"]
+    Inventory["Inventory<br/>serial / GPU / NIC / disk / firmware"]
+    Baseline["Baseline Install<br/>OS / kernel / driver / runtime"]
+    BurnIn["Burn-in &amp; Acceptance<br/>GPU / RDMA / NVMe / thermal / power"]
+    Label["Classify &amp; Label<br/>node pool / topology / flavor"]
+    Join["Join Scheduler<br/>Kubernetes / Slurm / Ray"]
+    Serve["Serve Workloads<br/>train / infer / dev / batch"]
+    Monitor["Health Monitoring<br/>node / GPU / network / storage"]
+    Drain["Cordon &amp; Drain<br/>stop new work / evict safely"]
+    Maintain["Maintenance<br/>repair / upgrade / config change"]
+    Validate["Post-maint Validation<br/>smoke / benchmark / compare"]
+    Return["Return to Pool<br/>un-drain / enable scheduling"]
+    Retire["Retire<br/>wipe / de-register / asset close"]
+
+    Arrival --&gt; Inventory
+    Inventory --&gt; Baseline
+    Baseline --&gt; BurnIn
+    BurnIn --&gt; Label
+    Label --&gt; Join
+    Join --&gt; Serve
+    Serve --&gt; Monitor
+    Monitor --&gt; Drain
+    Drain --&gt; Maintain
+    Maintain --&gt; Validate
+    Validate --&gt; Return
+    Return --&gt; Serve
+    Monitor --&gt; Retire
+</div>
+<p>这张图表达一个基本原则：节点不是“可用/不可用”两个状态，而是一组受控阶段。</p>
+<p>每个阶段都应该有：</p>
+<ul>
+<li>进入条件。</li>
+<li>验证命令或指标。</li>
+<li>失败处理。</li>
+<li>责任人。</li>
+<li>记录位置。</li>
+<li>回滚方式。</li>
+</ul>
+<h2 id="ai">为什么 AI 节点生命周期更复杂<a class="headerlink" href="#ai" title="Permanent link">¶</a></h2>
+<p>普通计算节点关注 CPU、内存、磁盘、网络和操作系统。AI 节点还要额外关注：</p>
+<ul>
+<li>GPU 型号、显存、SM 架构。</li>
+<li>GPU firmware、NVSwitch firmware。</li>
+<li>NVIDIA driver 和 CUDA compatibility。</li>
+<li>NCCL/RCCL、RDMA、GPUDirect RDMA。</li>
+<li>PCIe、NUMA、NVLink、NVSwitch 拓扑。</li>
+<li>HBM ECC、Xid、retired pages、thermal throttling。</li>
+<li>本地 NVMe cache。</li>
+<li>大功耗、大热量和供电冗余。</li>
+<li>大模型加载和 checkpoint 流量。</li>
+<li>节点间拓扑对训练性能的影响。</li>
+</ul>
+<p>这意味着 AI 节点不能只通过“能 SSH、能看到 GPU”就入池。它必须通过面向 AI workload 的验收。</p>
+<h2 id="node-manifest">节点事实源：Node Manifest<a class="headerlink" href="#node-manifest" title="Permanent link">¶</a></h2>
+<p>节点生命周期治理首先要有一个事实源。不能只靠 Kubernetes Node 对象、Slurm node list、资产表或监控标签中的任意一个，因为它们分别只覆盖一部分事实。</p>
+<p>建议为每台节点维护 Node Manifest：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">node_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-h100-042</span>
+<span class="nt">asset</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">vendor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example</span>
+<span class="w">  </span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SN123456</span>
+<span class="w">  </span><span class="nt">rack</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">R12</span>
+<span class="w">  </span><span class="nt">position</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">U18</span>
+<span class="w">  </span><span class="nt">pdu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pdu-r12-a</span>
+
+<span class="nt">hardware</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">gpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">H100-SXM-80GB</span>
+<span class="w">  </span><span class="nt">gpu_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">  </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2x example-cpu</span>
+<span class="w">  </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2048Gi</span>
+<span class="w">  </span><span class="nt">nic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8x 400G IB</span>
+<span class="w">  </span><span class="nt">local_nvme</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8x 3.84TB</span>
+
+<span class="nt">topology</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">fabric_domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ib-fabric-a</span>
+<span class="w">  </span><span class="nt">rack_group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">island-03</span>
+<span class="w">  </span><span class="nt">switch_ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">leaf-12/1</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">leaf-12/2</span>
+
+<span class="nt">profile</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">node_profile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">h100-sxm-cu12-train</span>
+<span class="w">  </span><span class="nt">os_image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ai-node-ubuntu2204-v7</span>
+<span class="w">  </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">550.x</span>
+<span class="w">  </span><span class="nt">ofed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24.x</span>
+<span class="w">  </span><span class="nt">container_runtime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">containerd</span>
+
+<span class="nt">state</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lifecycle_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">active</span>
+<span class="w">  </span><span class="nt">scheduler</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
+<span class="w">  </span><span class="nt">node_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">training</span>
+<span class="w">  </span><span class="nt">last_validated_at</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2026-06-12T09:00:00Z</span>
+</code></pre></div>
+<p>Node Manifest 的作用是把几类系统对齐：</p>
+<ul>
+<li>资产系统知道它是哪台物理机器。</li>
+<li>调度系统知道它属于哪个节点池和资源 flavor。</li>
+<li>监控系统知道它应上报哪些指标。</li>
+<li>成本系统知道它属于哪类容量。</li>
+<li>运维系统知道它当前生命周期状态。</li>
+<li>故障分析能按批次、机柜、fabric、profile 做聚合。</li>
+</ul>
+<p>没有统一事实源时，经常会出现：</p>
+<ul>
+<li>调度器里节点叫 <code>gpu-node-42</code>，资产系统里叫另一个名字。</li>
+<li>监控标签缺少 rack 或 GPU flavor，无法定位批量故障。</li>
+<li>节点换过 NIC 或 GPU，但 manifest 没更新。</li>
+<li>节点从训练池改到推理池，但成本和告警还按旧池统计。</li>
+</ul>
+<p>Node Manifest 不一定是单独文件，也可以存在 CMDB、GitOps 仓库或资产平台里。关键是它要可查询、可变更审计、可被自动化系统消费。</p>
+<h2 id="_3">生命周期阶段<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<h3 id="1">1. 到货与资产登记<a class="headerlink" href="#1" title="Permanent link">¶</a></h3>
+<p>节点进入机房后，首先要把物理世界的信息变成平台可查询的资产记录。</p>
+<p>至少记录：</p>
+<ul>
+<li>资产编号。</li>
+<li>厂商、型号、序列号。</li>
+<li>GPU 型号、数量、显存。</li>
+<li>CPU 型号、内存容量。</li>
+<li>NIC/HCA 型号、端口速率。</li>
+<li>本地磁盘和 NVMe。</li>
+<li>电源、PDU、机柜、U 位。</li>
+<li>交换机端口、线缆编号。</li>
+<li>保修和支持信息。</li>
+<li>计划归属的 node pool。</li>
+</ul>
+<p>资产记录不是财务表格而已。后续排查“某批节点性能异常”时，往往要按服务器批次、GPU 批次、NIC firmware、机柜、交换机端口做关联分析。</p>
+<h3 id="2">2. 物理验收<a class="headerlink" href="#2" title="Permanent link">¶</a></h3>
+<p>物理验收关注硬件和布线是否符合设计。</p>
+<p>检查项包括：</p>
+<ul>
+<li>GPU 数量是否正确。</li>
+<li>NIC 是否插在预期 PCIe slot。</li>
+<li>NVLink/NVSwitch 是否识别。</li>
+<li>RDMA 网口是否连到正确网络。</li>
+<li>管理网、业务网、存储网是否分离。</li>
+<li>电源是否双路或符合冗余要求。</li>
+<li>风道、温度、功耗是否正常。</li>
+<li>BIOS/UEFI 设置是否符合集群基线。</li>
+</ul>
+<p>很多性能问题来自物理层：</p>
+<ul>
+<li>网线插错交换机。</li>
+<li>NIC 插在带宽不足的 PCIe slot。</li>
+<li>NUMA 亲和性不符合预期。</li>
+<li>BIOS 省电策略导致频率异常。</li>
+<li>风道问题导致 GPU 降频。</li>
+</ul>
+<p>这些问题如果在入池后才发现，排查成本会高很多。</p>
+<h3 id="3">3. 软件基线安装<a class="headerlink" href="#3" title="Permanent link">¶</a></h3>
+<p>软件基线包括：</p>
+<ul>
+<li>OS image。</li>
+<li>kernel version。</li>
+<li>kernel 参数。</li>
+<li>NVIDIA driver。</li>
+<li>container runtime。</li>
+<li>NVIDIA Container Toolkit。</li>
+<li>RDMA/OFED stack。</li>
+<li>文件系统和挂载参数。</li>
+<li>安全 agent。</li>
+<li>监控 agent。</li>
+<li>GPU device plugin 或 Slurm GRES 配置。</li>
+</ul>
+<p>关键是基线要可声明、可重建、可比较。</p>
+<p>不建议把节点变成“手工调出来的状态”。更好的方式是：</p>
+<div class="highlight"><pre><span></span><code>node profile
+  -&gt; base image
+  -&gt; driver bundle
+  -&gt; runtime config
+  -&gt; health checks
+  -&gt; labels / taints
+</code></pre></div>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>Node Profile</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>h100-sxm-cu12-train</code></td>
+<td>H100 训练节点，RDMA 和 NCCL 优化</td>
+</tr>
+<tr>
+<td><code>a100-cu11-legacy</code></td>
+<td>旧 CUDA 11 任务兼容池</td>
+</tr>
+<tr>
+<td><code>l40s-infer</code></td>
+<td>推理节点，强调模型 cache 和服务稳定性</td>
+</tr>
+<tr>
+<td><code>cpu-storage-etl</code></td>
+<td>数据预处理节点，强调 CPU、内存和存储吞吐</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">基线即代码<a class="headerlink" href="#_4" title="Permanent link">¶</a></h3>
+<p>软件基线应当像应用版本一样被管理，而不是散落在运维命令里。</p>
+<p>一个 node profile 至少应该声明：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OS</td>
+<td>distribution、image id、kernel version</td>
+</tr>
+<tr>
+<td>Driver</td>
+<td>NVIDIA driver、GPU firmware、NVSwitch firmware</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>OFED/RDMA stack、NIC firmware、RoCE/IB 配置</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>containerd、NVIDIA Container Toolkit、GPU Operator/device plugin</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>filesystem、mount options、local NVMe layout</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>SSH/agent、cert、audit、kernel hardening</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>DCGM exporter、node exporter、log agent</td>
+</tr>
+<tr>
+<td>Scheduler</td>
+<td>Kubernetes labels/taints 或 Slurm GRES/features</td>
+</tr>
+</tbody>
+</table>
+<p>推荐把 profile、安装脚本、配置模板和验证脚本放在版本控制里：</p>
+<div class="highlight"><pre><span></span><code>node-profiles/
+  h100-sxm-cu12-train/
+    manifest.yaml
+    kernel-args.conf
+    containerd.toml
+    rdma.conf
+    labels.yaml
+    validation/
+      smoke.sh
+      nccl.sh
+      nvme.sh
+</code></pre></div>
+<p>这样升级或回滚时，平台能明确回答：</p>
+<ul>
+<li>哪些节点运行哪个 profile 版本。</li>
+<li>本次维护改了哪些字段。</li>
+<li>维护后应该跑哪些验证。</li>
+<li>出问题时要退回哪个 profile。</li>
+</ul>
+<p>“基线即代码”的价值不是形式化，而是减少手工漂移。</p>
+<h3 id="4-burn-in">4. Burn-in 与验收测试<a class="headerlink" href="#4-burn-in" title="Permanent link">¶</a></h3>
+<p>Burn-in 是节点入池前的压力测试。它的目标不是跑一个 demo，而是尽早暴露硬件、散热、供电、网络和驱动问题。</p>
+<p>建议分层测试。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>测什么</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基础识别</td>
+<td>设备是否完整</td>
+<td>GPU/NIC/NVMe/NUMA</td>
+</tr>
+<tr>
+<td>GPU 健康</td>
+<td>显存、ECC、温度、功耗</td>
+<td>DCGM diagnostics、压力测试</td>
+</tr>
+<tr>
+<td>计算性能</td>
+<td>矩阵乘、Tensor Core</td>
+<td>GEMM、框架 smoke test</td>
+</tr>
+<tr>
+<td>GPU 拓扑</td>
+<td>NVLink/NVSwitch/PCIe</td>
+<td>topo matrix、bandwidth</td>
+</tr>
+<tr>
+<td>网络</td>
+<td>RDMA、带宽、延迟</td>
+<td>ib_write_bw、NCCL all-reduce</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>本地 NVMe、共享 FS</td>
+<td>fio、dataset read、checkpoint</td>
+</tr>
+<tr>
+<td>长稳</td>
+<td>长时间运行</td>
+<td>多小时训练/通信压力</td>
+</tr>
+</tbody>
+</table>
+<p>AI 节点至少应通过：</p>
+<ul>
+<li>单卡计算 smoke test。</li>
+<li>多卡 collective test。</li>
+<li>多节点 NCCL/RCCL test。</li>
+<li>本地 NVMe 读写测试。</li>
+<li>共享存储读写测试。</li>
+<li>监控指标上报测试。</li>
+<li>温度和功耗稳定性测试。</li>
+</ul>
+<p>如果节点是训练池，还要验证多节点拓扑；如果节点是推理池，还要验证模型加载、服务启动、冷启动和 p99 latency。</p>
+<h3 id="_5">验收报告与入池门禁<a class="headerlink" href="#_5" title="Permanent link">¶</a></h3>
+<p>Burn-in 结束后要产出验收报告，而不是只看命令是否通过。验收报告应包含：</p>
+<ul>
+<li>node manifest 版本。</li>
+<li>node profile 版本。</li>
+<li>测试开始和结束时间。</li>
+<li>GPU、NIC、NVMe、拓扑识别结果。</li>
+<li>DCGM diagnostics 结果。</li>
+<li>单机和多机 NCCL/RCCL 结果。</li>
+<li>RDMA bandwidth/latency 结果。</li>
+<li>NVMe 和共享存储测试结果。</li>
+<li>温度、功耗、频率曲线。</li>
+<li>与同类节点的性能对比。</li>
+<li>失败项、豁免项和责任人。</li>
+</ul>
+<p>入池门禁可以分三档：</p>
+<table>
+<thead>
+<tr>
+<th>结果</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pass</td>
+<td>允许进入目标 node pool</td>
+</tr>
+<tr>
+<td>pass with warning</td>
+<td>进入 suspect 或 canary pool，限制承载关键 workload</td>
+</tr>
+<tr>
+<td>fail</td>
+<td>不入池，进入 repair/RMA 流程</td>
+</tr>
+</tbody>
+</table>
+<p>不要让“有个测试失败但先用着”变成常态。AI 集群里的坏节点会制造大量二次浪费：训练失败、排队重试、性能抖动、用户自行绕过平台。</p>
+<h3 id="5">5. 分类、打标签与入池<a class="headerlink" href="#5" title="Permanent link">¶</a></h3>
+<p>节点验收通过后，才应该加入可调度资源池。</p>
+<p>Kubernetes 中通常会使用：</p>
+<ul>
+<li>labels 表达 GPU 型号、节点池、拓扑、zone。</li>
+<li>taints 限制哪些 workload 能调度上来。</li>
+<li>device plugin 暴露 GPU。</li>
+<li>Node Feature Discovery 暴露硬件特征。</li>
+<li>ResourceQuota/queue 系统控制谁能使用。</li>
+</ul>
+<p>Slurm 中通常会使用：</p>
+<ul>
+<li>partition。</li>
+<li>node features。</li>
+<li>GRES。</li>
+<li>account/QoS。</li>
+<li>reservation。</li>
+</ul>
+<p>节点标签不能随意命名。建议统一资源 flavor：</p>
+<div class="highlight"><pre><span></span><code>gpu.vendor=nvidia
+gpu.product=h100
+gpu.memory=80gb
+gpu.interconnect=nvswitch
+node.pool=training
+network.rdma=true
+storage.local-nvme=true
+</code></pre></div>
+<p>标签是调度、可观测性、成本归因和故障分析的共同语言。</p>
+<h3 id="6">6. 运行期健康管理<a class="headerlink" href="#6" title="Permanent link">¶</a></h3>
+<p>节点入池后，要持续判断它是否仍适合承载 workload。</p>
+<p>Kubernetes Node Status 包含 conditions、addresses、capacity/allocatable、info 等信息。常见 condition 包括 Ready、DiskPressure、MemoryPressure、PIDPressure、NetworkUnavailable。</p>
+<p>AI 集群还需要额外健康信号：</p>
+<ul>
+<li>GPU Xid error。</li>
+<li>ECC 错误。</li>
+<li>retired pages。</li>
+<li>GPU 温度和降频。</li>
+<li>NVLink/NVSwitch 错误。</li>
+<li>RDMA port error。</li>
+<li>NCCL test 异常。</li>
+<li>本地 NVMe wear、IO error、容量满。</li>
+<li>共享存储 mount 异常。</li>
+<li>driver/device plugin 异常。</li>
+<li>container runtime 异常。</li>
+</ul>
+<p>健康管理不是“看到问题报警”就够。平台要能根据严重程度采取动作：</p>
+<table>
+<thead>
+<tr>
+<th>严重程度</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>轻微指标异常</td>
+<td>告警、标记观察</td>
+</tr>
+<tr>
+<td>可疑性能下降</td>
+<td>降低调度优先级、进入 suspect</td>
+</tr>
+<tr>
+<td>单次可恢复错误</td>
+<td>自动恢复、记录事件</td>
+</tr>
+<tr>
+<td>反复错误</td>
+<td>cordon、drain、人工检查</td>
+</tr>
+<tr>
+<td>明确硬件故障</td>
+<td>下线、报修、替换</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_6">健康分级与自动动作<a class="headerlink" href="#_6" title="Permanent link">¶</a></h3>
+<p>健康信号要转成可执行状态，而不是只出现在告警里。</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>典型信号</th>
+<th>调度动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>healthy</td>
+<td>指标正常，验证通过</td>
+<td>正常调度</td>
+</tr>
+<tr>
+<td>watch</td>
+<td>单次可恢复错误、轻微性能波动</td>
+<td>保持调度，增加观察</td>
+</tr>
+<tr>
+<td>suspect</td>
+<td>多次错误、性能低于同类节点、监控缺口</td>
+<td>限制新任务，优先跑低风险 workload</td>
+</tr>
+<tr>
+<td>cordon-required</td>
+<td>反复 Xid、RDMA 错误、NVMe 异常</td>
+<td>停止新调度，准备 drain</td>
+</tr>
+<tr>
+<td>maintenance</td>
+<td>已确认需要维护</td>
+<td>不承载 workload</td>
+</tr>
+<tr>
+<td>retire-required</td>
+<td>无法修复或成本过高</td>
+<td>退役或 RMA</td>
+</tr>
+</tbody>
+</table>
+<p>自动动作要保守：</p>
+<ul>
+<li>单次指标异常可以先进入 <code>watch</code>。</li>
+<li>重复错误才进入 <code>suspect</code> 或 <code>cordon-required</code>。</li>
+<li>对长训练和在线推理，自动 drain 前要检查 checkpoint、副本、PDB 或等价保护。</li>
+<li>严重硬件错误可以立即 cordon，但是否驱逐要结合 workload 安全性。</li>
+</ul>
+<p>健康分级的关键是避免两个极端：</p>
+<ul>
+<li>每个小波动都把节点踢出池子，造成容量抖动。</li>
+<li>已知坏节点长期继续接任务，造成用户任务反复失败。</li>
+</ul>
+<h3 id="7-cordondrain">7. Cordon、Drain 与维护<a class="headerlink" href="#7-cordondrain" title="Permanent link">¶</a></h3>
+<p>维护节点前，不能直接杀进程或关机。</p>
+<p>Kubernetes 里常见动作：</p>
+<div class="highlight"><pre><span></span><code>cordon: 不再调度新 Pod
+drain: 驱逐已有 Pod
+maintenance: 做维护动作
+uncordon: 恢复调度
+</code></pre></div>
+<p>Kubernetes 官方文档提供 <code>kubectl drain</code> 用于安全地从节点驱逐 Pod，并把节点标记为不可调度。AI 任务使用 drain 时要特别注意：</p>
+<ul>
+<li>训练任务是否有 checkpoint。</li>
+<li>推理服务是否有足够副本。</li>
+<li>PodDisruptionBudget 是否允许驱逐。</li>
+<li>eviction grace period 是否足够。</li>
+<li>local storage 是否需要保留或清理。</li>
+<li>job controller 是否会重试。</li>
+<li>checkpoint 是否已经完成。</li>
+</ul>
+<p>Slurm 中类似动作包括：</p>
+<ul>
+<li>drain node。</li>
+<li>resume node。</li>
+<li>设置 node reason。</li>
+<li>停止新 job。</li>
+<li>等待已有 job 结束或主动 requeue。</li>
+</ul>
+<p>对 AI workload 来说，安全 drain 的难点是“任务状态大”。一个大训练任务可能需要几分钟甚至更久才能保存 checkpoint；一个推理节点可能需要先把流量摘除、等待请求清空、再停止服务。</p>
+<h3 id="_7">维护窗口契约<a class="headerlink" href="#_7" title="Permanent link">¶</a></h3>
+<p>计划维护需要提前声明维护窗口契约，让调度器、用户和服务知道会发生什么。</p>
+<p>维护窗口至少包含：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">maintenance</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">node</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-h100-042</span>
+<span class="w">  </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">driver upgrade</span>
+<span class="w">  </span><span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2026-06-12T18:00:00Z/2026-06-12T22:00:00Z</span>
+<span class="w">  </span><span class="nt">impact</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">node_pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">training</span>
+<span class="w">    </span><span class="nt">gpu_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">  </span><span class="nt">drain_policy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">stop_new_work</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">wait_for_completion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">preferred</span>
+<span class="w">    </span><span class="nt">checkpoint_grace_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30m</span>
+<span class="w">    </span><span class="nt">force_after</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2h</span>
+<span class="w">  </span><span class="nt">validation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">smoke</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">required</span>
+<span class="w">    </span><span class="nt">performance_compare</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">required</span>
+<span class="w">  </span><span class="nt">rollback</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">target_profile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">h100-sxm-cu12-train-v6</span>
+</code></pre></div>
+<p>不同 workload 的维护策略不同：</p>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>维护前动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>在线推理</td>
+<td>摘流、等待请求 drain、确认副本容量充足</td>
+</tr>
+<tr>
+<td>大训练</td>
+<td>等待 checkpoint、requeue 或迁移到可恢复队列</td>
+</tr>
+<tr>
+<td>Notebook</td>
+<td>通知用户、保存 session、超时回收</td>
+</tr>
+<tr>
+<td>数据任务</td>
+<td>完成当前 shard，避免半成品提交</td>
+</tr>
+<tr>
+<td>Benchmark</td>
+<td>直接禁止维护窗口内运行，保持结果可比</td>
+</tr>
+</tbody>
+</table>
+<p>维护窗口结束后要有明确结论：</p>
+<ul>
+<li>已恢复调度。</li>
+<li>验证失败，继续 cordon。</li>
+<li>回滚到旧 profile。</li>
+<li>转 repair/RMA。</li>
+</ul>
+<p>没有结论的维护会造成“节点看似回来了，但没人知道是否可靠”。</p>
+<h3 id="8">8. 维护后验证<a class="headerlink" href="#8" title="Permanent link">¶</a></h3>
+<p>维护后不要直接恢复调度。需要先验证：</p>
+<ul>
+<li>节点是否 Ready。</li>
+<li>GPU 是否全部识别。</li>
+<li>driver/CUDA/NCCL 版本是否符合 profile。</li>
+<li>device plugin 是否正常上报。</li>
+<li>RDMA 是否可用。</li>
+<li>本地 NVMe 和共享存储是否正常。</li>
+<li>基础 smoke test 是否通过。</li>
+<li>与同类节点相比性能是否异常。</li>
+<li>监控和日志是否恢复。</li>
+</ul>
+<p>建议把维护后验证分成两类：</p>
+<div class="highlight"><pre><span></span><code>smoke validation: 快速判断能不能回池
+performance validation: 判断是否和同类节点一致
+</code></pre></div>
+<p>前者适合每次维护后都跑；后者适合驱动、firmware、kernel、网络、存储变更后跑。</p>
+<h3 id="9">9. 下线与退役<a class="headerlink" href="#9" title="Permanent link">¶</a></h3>
+<p>节点下线不是简单从调度器删除。</p>
+<p>需要处理：</p>
+<ul>
+<li>从调度器移除。</li>
+<li>从监控和告警中移除。</li>
+<li>清理本地 NVMe cache。</li>
+<li>清理镜像缓存。</li>
+<li>清理临时数据。</li>
+<li>撤销节点证书和凭据。</li>
+<li>更新资产系统。</li>
+<li>回收或销毁磁盘。</li>
+<li>关闭保修/维修工单。</li>
+<li>记录下线原因。</li>
+</ul>
+<p>如果下线流程不完整，会留下：</p>
+<ul>
+<li>噪声告警。</li>
+<li>失效节点仍显示在 dashboard。</li>
+<li>数据残留。</li>
+<li>证书和 secret 残留。</li>
+<li>成本和资产统计错误。</li>
+</ul>
+<h2 id="_8">节点状态模型<a class="headerlink" href="#_8" title="Permanent link">¶</a></h2>
+<p>建议为 AI 节点定义比 Ready/NotReady 更细的状态。</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>new</code></td>
+<td>新到货，未验收</td>
+</tr>
+<tr>
+<td><code>installing</code></td>
+<td>正在装系统或配置</td>
+</tr>
+<tr>
+<td><code>burn-in</code></td>
+<td>正在压力测试</td>
+</tr>
+<tr>
+<td><code>ready-to-join</code></td>
+<td>验收通过，待入池</td>
+</tr>
+<tr>
+<td><code>active</code></td>
+<td>正常承载 workload</td>
+</tr>
+<tr>
+<td><code>suspect</code></td>
+<td>有异常信号，限制调度</td>
+</tr>
+<tr>
+<td><code>cordoned</code></td>
+<td>不接收新任务</td>
+</tr>
+<tr>
+<td><code>draining</code></td>
+<td>正在迁出任务</td>
+</tr>
+<tr>
+<td><code>maintenance</code></td>
+<td>正在维护</td>
+</tr>
+<tr>
+<td><code>validating</code></td>
+<td>维护后验证</td>
+</tr>
+<tr>
+<td><code>retired</code></td>
+<td>已下线</td>
+</tr>
+</tbody>
+</table>
+<p>这个状态模型可以映射到：</p>
+<ul>
+<li>Kubernetes labels/taints。</li>
+<li>Slurm node state/reason。</li>
+<li>资产系统状态。</li>
+<li>CMDB。</li>
+<li>运维工单。</li>
+<li>监控告警抑制规则。</li>
+</ul>
+<p>核心是让系统、用户和运维看到同一事实。</p>
+<h2 id="_9">入池验收清单<a class="headerlink" href="#_9" title="Permanent link">¶</a></h2>
+<p>新节点入池前建议至少检查：</p>
+<ul>
+<li>资产信息完整。</li>
+<li>机柜、端口、线缆记录完整。</li>
+<li>OS/kernel/driver 符合 node profile。</li>
+<li>GPU 数量、型号、显存正确。</li>
+<li>GPU ECC/Xid/retired pages 正常。</li>
+<li>GPU 拓扑符合设计。</li>
+<li>CPU NUMA 与 GPU/NIC 亲和性符合设计。</li>
+<li>NIC/RDMA link up，速率正确。</li>
+<li>RDMA bandwidth/latency 通过。</li>
+<li>NCCL/RCCL 单机和多机测试通过。</li>
+<li>本地 NVMe 性能和容量正常。</li>
+<li>共享存储挂载正常。</li>
+<li>container runtime 正常。</li>
+<li>GPU device plugin 或 Slurm GRES 正常。</li>
+<li>监控 agent 正常上报。</li>
+<li>日志 agent 正常上报。</li>
+<li>温度、功耗、风扇稳定。</li>
+<li>长稳测试通过。</li>
+<li>节点 labels/taints/features 正确。</li>
+<li>入池记录和验收报告归档。</li>
+</ul>
+<h2 id="_10">健康检查设计<a class="headerlink" href="#_10" title="Permanent link">¶</a></h2>
+<p>健康检查要区分“节点是否存活”和“节点是否适合跑 AI 任务”。</p>
+<h3 id="liveness">Liveness<a class="headerlink" href="#liveness" title="Permanent link">¶</a></h3>
+<p>节点是否还活着：</p>
+<ul>
+<li>kubelet 或 slurmd 是否在线。</li>
+<li>SSH/管理面是否可达。</li>
+<li>心跳是否正常。</li>
+<li>container runtime 是否可用。</li>
+</ul>
+<h3 id="readiness">Readiness<a class="headerlink" href="#readiness" title="Permanent link">¶</a></h3>
+<p>节点是否能接任务：</p>
+<ul>
+<li>GPU 是否可见。</li>
+<li>device plugin 是否正常。</li>
+<li>driver 是否匹配。</li>
+<li>本地存储是否可写。</li>
+<li>网络是否可用。</li>
+<li>必要 daemon 是否运行。</li>
+</ul>
+<h3 id="performance-health">Performance Health<a class="headerlink" href="#performance-health" title="Permanent link">¶</a></h3>
+<p>节点性能是否正常：</p>
+<ul>
+<li>GPU clock 是否异常。</li>
+<li>HBM 带宽是否异常。</li>
+<li>NCCL bandwidth 是否异常。</li>
+<li>RDMA error counter 是否异常。</li>
+<li>NVMe latency 是否异常。</li>
+<li>温度/功耗是否触发 throttle。</li>
+</ul>
+<h3 id="workload-health">Workload Health<a class="headerlink" href="#workload-health" title="Permanent link">¶</a></h3>
+<p>节点上的 workload 是否正常：</p>
+<ul>
+<li>训练 step time 是否异常。</li>
+<li>推理 p99 是否异常。</li>
+<li>DataLoader wait 是否异常。</li>
+<li>checkpoint duration 是否异常。</li>
+<li>失败和重启是否集中在某些节点。</li>
+</ul>
+<p>如果多个 job 在同一节点上表现异常，节点应进入 suspect，而不是让用户反复踩坑。</p>
+<h2 id="_11">故障隔离策略<a class="headerlink" href="#_11" title="Permanent link">¶</a></h2>
+<p>节点异常时，不同故障要有不同策略。</p>
+<table>
+<thead>
+<tr>
+<th>故障</th>
+<th>典型动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kubelet/slurmd 短暂异常</td>
+<td>自动恢复、记录事件</td>
+</tr>
+<tr>
+<td>单次 GPU Xid</td>
+<td>标记观察，必要时重启 GPU/节点</td>
+</tr>
+<tr>
+<td>反复 GPU Xid</td>
+<td>cordon/drain，硬件检查</td>
+</tr>
+<tr>
+<td>ECC 错误增加</td>
+<td>降级或下线检查</td>
+</tr>
+<tr>
+<td>RDMA 错误</td>
+<td>排查 NIC、线缆、交换机、PFC/ECN</td>
+</tr>
+<tr>
+<td>NVMe 错误</td>
+<td>停止使用本地 cache，维护更换</td>
+</tr>
+<tr>
+<td>温度异常</td>
+<td>降载、检查风道和功耗</td>
+</tr>
+<tr>
+<td>性能异常但无硬错误</td>
+<td>suspect、跑 benchmark 对比</td>
+</tr>
+</tbody>
+</table>
+<p>故障隔离的关键不是“一出错就重启”，而是避免坏节点反复进入生产队列。</p>
+<h2 id="_12">升级策略<a class="headerlink" href="#_12" title="Permanent link">¶</a></h2>
+<p>节点升级包括：</p>
+<ul>
+<li>OS。</li>
+<li>kernel。</li>
+<li>NVIDIA driver。</li>
+<li>CUDA userspace。</li>
+<li>NCCL/RCCL。</li>
+<li>container runtime。</li>
+<li>GPU Operator/device plugin。</li>
+<li>OFED/RDMA stack。</li>
+<li>firmware。</li>
+<li>BIOS。</li>
+<li>监控 agent。</li>
+</ul>
+<p>升级风险很高，因为 AI workload 依赖复杂。</p>
+<p>推荐流程：</p>
+<div class="highlight"><pre><span></span><code>candidate profile
+  -&gt; canary node
+  -&gt; smoke test
+  -&gt; representative benchmark
+  -&gt; small canary workload
+  -&gt; limited node pool rollout
+  -&gt; full rollout
+  -&gt; old profile deprecation
+</code></pre></div>
+<p>不要直接全量升级训练池。先选择少量 canary 节点，跑：</p>
+<ul>
+<li>GPU smoke test。</li>
+<li>NCCL/RDMA test。</li>
+<li>数据读取测试。</li>
+<li>checkpoint save/restore。</li>
+<li>典型训练 step。</li>
+<li>推理服务启动和压测。</li>
+<li>自定义 CUDA/Triton kernel 编译。</li>
+</ul>
+<p>升级完成后要能比较：</p>
+<ul>
+<li>step time 是否变化。</li>
+<li>NCCL bandwidth 是否变化。</li>
+<li>推理 p99 是否变化。</li>
+<li>错误率是否变化。</li>
+<li>功耗和温度是否变化。</li>
+</ul>
+<h3 id="_13">批次发布与回滚<a class="headerlink" href="#_13" title="Permanent link">¶</a></h3>
+<p>节点升级最好按批次推进，并限制故障半径。</p>
+<p>一个常见 rollout：</p>
+<div class="highlight"><pre><span></span><code>1 node canary
+  -&gt; 1 rack canary
+  -&gt; 5% node pool
+  -&gt; 25% node pool
+  -&gt; 50% node pool
+  -&gt; full rollout
+</code></pre></div>
+<p>每个批次都要设置停止条件：</p>
+<ul>
+<li>Xid/ECC/RDMA 错误高于基线。</li>
+<li>NCCL bandwidth 下降超过阈值。</li>
+<li>训练 step time 回退超过阈值。</li>
+<li>推理 p99 或错误率恶化。</li>
+<li>节点 Ready/device plugin 异常增加。</li>
+<li>用户 workload 失败率升高。</li>
+</ul>
+<p>回滚不只是重新装旧 driver。还要恢复：</p>
+<ul>
+<li>node profile。</li>
+<li>kernel 参数。</li>
+<li>container runtime 配置。</li>
+<li>RDMA/OFED 配置。</li>
+<li>labels/taints/features。</li>
+<li>GPU Operator 或 device plugin 版本。</li>
+<li>监控 agent 和告警规则。</li>
+</ul>
+<p>因此，升级计划必须记录 rollback target，而不是只记录“升级到新版本”。</p>
+<h2 id="_14">配置漂移<a class="headerlink" href="#_14" title="Permanent link">¶</a></h2>
+<p>配置漂移是长期运维的大敌。</p>
+<p>常见漂移：</p>
+<ul>
+<li>某批节点 driver 版本不同。</li>
+<li>某些节点 kernel 参数不同。</li>
+<li>手工安装了调试包。</li>
+<li>RDMA 配置不同。</li>
+<li>BIOS 设置不同。</li>
+<li>容器运行时配置不同。</li>
+<li>节点 label 被临时修改后没有恢复。</li>
+<li>监控 agent 版本不一致。</li>
+</ul>
+<p>治理方法：</p>
+<ul>
+<li>节点 profile 声明化。</li>
+<li>定期配置审计。</li>
+<li>drift detection。</li>
+<li>immutable node image。</li>
+<li>禁止手工修复不留记录。</li>
+<li>所有临时变更必须有过期时间。</li>
+<li>维护后自动验证并更新资产状态。</li>
+</ul>
+<p>AI 集群里，配置漂移经常表现为“只有某些节点慢”。这类问题很难靠用户自己定位。</p>
+<h3 id="_15">漂移处理流程<a class="headerlink" href="#_15" title="Permanent link">¶</a></h3>
+<p>发现漂移后，不要只在节点上手工修一下。建议流程：</p>
+<div class="highlight"><pre><span></span><code>detect drift
+  -&gt; classify severity
+  -&gt; compare against node profile
+  -&gt; decide repair / cordon / tolerate
+  -&gt; apply change through managed path
+  -&gt; validate
+  -&gt; update manifest and audit log
+</code></pre></div>
+<p>漂移分级：</p>
+<table>
+<thead>
+<tr>
+<th>漂移</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>监控 agent 小版本不同</td>
+<td>计划修复，低风险</td>
+</tr>
+<tr>
+<td>label/taint 缺失</td>
+<td>立即修复，否则影响调度</td>
+</tr>
+<tr>
+<td>driver/kernel/RDMA 不一致</td>
+<td>cordon 后修复并验证</td>
+</tr>
+<tr>
+<td>BIOS/firmware 不一致</td>
+<td>进入维护窗口，跑性能验证</td>
+</tr>
+<tr>
+<td>手工安装未知包或改配置</td>
+<td>视为不可解释状态，重装或隔离</td>
+</tr>
+</tbody>
+</table>
+<p>漂移治理的目标不是“所有节点永远完全一样”，而是让差异有声明、有原因、有过期时间。</p>
+<h2 id="_16">自动扩缩容与电源管理<a class="headerlink" href="#_16" title="Permanent link">¶</a></h2>
+<p>部分集群会使用弹性节点、云上实例、spot/preemptible 资源，或者 Slurm power saving。</p>
+<p>自动扩缩容要处理：</p>
+<ul>
+<li>节点启动时间。</li>
+<li>镜像预热。</li>
+<li>驱动和 device plugin 准备。</li>
+<li>模型权重和数据 cache 预热。</li>
+<li>节点入池前健康检查。</li>
+<li>空闲多久后缩容。</li>
+<li>缩容前如何 drain。</li>
+<li>spot/preemptible 中断通知。</li>
+</ul>
+<p>AI 节点启动慢，尤其是推理节点。模型权重很大，冷启动会显著影响 SLA。所以扩容不能只看“节点 Ready”，还要看：</p>
+<ul>
+<li>GPU device ready。</li>
+<li>模型 cache ready。</li>
+<li>服务 warmup ready。</li>
+<li>网络和存储 ready。</li>
+</ul>
+<h2 id="rma">备件、RMA 与容量回补<a class="headerlink" href="#rma" title="Permanent link">¶</a></h2>
+<p>节点故障不是生命周期的例外，而是生命周期的一部分。AI 节点硬件密度高，GPU、NIC、NVMe、风扇、电源和线缆都会产生故障。</p>
+<p>故障管理要回答：</p>
+<ul>
+<li>这台节点是否还能承载低风险 workload。</li>
+<li>是否需要立刻 cordon/drain。</li>
+<li>是现场维修、整机替换还是 RMA。</li>
+<li>维修期间容量缺口如何回补。</li>
+<li>维修后是否要重新 burn-in。</li>
+<li>历史故障是否影响后续调度信任度。</li>
+</ul>
+<p>建议保留 spare capacity：</p>
+<div class="highlight"><pre><span></span><code>production inference: spare for failover
+large training pool: spare for bad node replacement
+benchmark pool: no degraded replacement without validation
+dev pool: can absorb repaired or lower-trust nodes
+</code></pre></div>
+<p>维修节点重新入池时，不应直接回到 <code>active</code>。至少要经过：</p>
+<div class="highlight"><pre><span></span><code>repaired
+  -&gt; validating
+  -&gt; canary
+  -&gt; active
+</code></pre></div>
+<p>如果同一节点反复 RMA，或同一批次节点故障率异常，应按资产批次和供应链维度复盘。</p>
+<h2 id="_17">数据与缓存清理<a class="headerlink" href="#_17" title="Permanent link">¶</a></h2>
+<p>节点维护和下线时必须处理本地数据。</p>
+<p>常见本地数据：</p>
+<ul>
+<li>dataset cache。</li>
+<li>model cache。</li>
+<li>compiled kernel cache。</li>
+<li>TensorRT engine。</li>
+<li>checkpoint staging。</li>
+<li>temporary shard。</li>
+<li>logs。</li>
+<li>core dump。</li>
+<li>用户手工文件。</li>
+</ul>
+<p>清理策略要区分：</p>
+<ul>
+<li>正常维护：保留可复用 cache，提高回池速度。</li>
+<li>故障排查：保留现场，避免覆盖证据。</li>
+<li>租户切换：清理敏感数据。</li>
+<li>下线退役：彻底清除数据和凭据。</li>
+</ul>
+<p>不要让本地 NVMe 变成无人管理的共享垃圾场。容量满会导致节点看似 Ready，但任务启动失败或性能下降。</p>
+<h2 id="_18">安全、凭据与数据擦除<a class="headerlink" href="#_18" title="Permanent link">¶</a></h2>
+<p>节点生命周期也包括安全边界。节点上可能残留：</p>
+<ul>
+<li>kubelet 证书。</li>
+<li>container registry 凭据。</li>
+<li>monitoring token。</li>
+<li>SSH key。</li>
+<li>workload secret mount。</li>
+<li>模型权重和 tokenizer。</li>
+<li>数据集 cache。</li>
+<li>用户临时文件。</li>
+<li>core dump 和日志。</li>
+</ul>
+<p>因此，维护和退役要区分：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通重启</td>
+<td>保留凭据和 cache，验证 agent 恢复</td>
+</tr>
+<tr>
+<td>租户切换</td>
+<td>清理本地用户数据和敏感 cache</td>
+</tr>
+<tr>
+<td>安全事件</td>
+<td>隔离节点，保留取证，暂停自动清理</td>
+</tr>
+<tr>
+<td>退役/返修</td>
+<td>撤销证书，擦除本地盘，移除监控和调度身份</td>
+</tr>
+</tbody>
+</table>
+<p>退役节点尤其要保证：</p>
+<ul>
+<li>从 Kubernetes/Slurm/Ray 等调度系统注销。</li>
+<li>从 registry、监控、日志系统撤销身份。</li>
+<li>本地磁盘按策略擦除或销毁。</li>
+<li>资产系统状态关闭。</li>
+<li>容量报表不再计入可用资源。</li>
+</ul>
+<p>否则节点虽然物理离开，逻辑身份仍可能残留在系统里。</p>
+<h2 id="_19">运维证据链<a class="headerlink" href="#_19" title="Permanent link">¶</a></h2>
+<p>节点生命周期的每个关键动作都应该留下证据。</p>
+<p>建议记录：</p>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>到货</td>
+<td>asset record、机柜/端口记录、照片或验收单</td>
+</tr>
+<tr>
+<td>安装</td>
+<td>node profile 版本、安装日志、配置 hash</td>
+</tr>
+<tr>
+<td>burn-in</td>
+<td>测试报告、指标曲线、失败项</td>
+</tr>
+<tr>
+<td>入池</td>
+<td>labels/taints、scheduler state、验收批准人</td>
+</tr>
+<tr>
+<td>健康异常</td>
+<td>告警、DCGM/NCCL/RDMA/NVMe 诊断结果</td>
+</tr>
+<tr>
+<td>维护</td>
+<td>工单、维护窗口、drain 记录、变更内容</td>
+</tr>
+<tr>
+<td>升级</td>
+<td>canary 结果、benchmark 对比、rollback target</td>
+</tr>
+<tr>
+<td>回池</td>
+<td>post-maint validation、观察窗口结果</td>
+</tr>
+<tr>
+<td>退役</td>
+<td>wipe 记录、证书撤销、资产关闭</td>
+</tr>
+</tbody>
+</table>
+<p>证据链的价值是：</p>
+<ul>
+<li>用户问“为什么这个节点被下线”时有依据。</li>
+<li>平台做容量规划时知道真实可用资源。</li>
+<li>出现批量故障时能按 profile、批次、rack、fabric 聚合。</li>
+<li>AI agent 查阅知识库时能理解节点状态和历史。</li>
+</ul>
+<h2 id="runbook">Runbook<a class="headerlink" href="#runbook" title="Permanent link">¶</a></h2>
+<p>节点运维需要标准 runbook。</p>
+<h3 id="_20">新节点入池<a class="headerlink" href="#_20" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>register asset
+install baseline
+run burn-in
+apply labels/taints
+join scheduler
+run smoke test
+enable scheduling
+archive acceptance report
+</code></pre></div>
+<h3 id="_21">计划维护<a class="headerlink" href="#_21" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>announce maintenance
+cordon node
+drain workloads
+confirm checkpoint/service handoff
+apply maintenance
+run validation
+uncordon node
+watch metrics
+close ticket
+</code></pre></div>
+<h3 id="_22">异常节点隔离<a class="headerlink" href="#_22" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>detect anomaly
+mark suspect
+collect diagnostics
+cordon if needed
+drain if workload-safe
+run hardware/software checks
+repair or retire
+post-maint validation
+return or replace
+</code></pre></div>
+<h3 id="_23">节点退役<a class="headerlink" href="#_23" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>cordon and drain
+remove from scheduler
+wipe local data
+revoke credentials
+remove monitoring targets
+update asset system
+close capacity record
+</code></pre></div>
+<h2 id="_24">常见误区<a class="headerlink" href="#_24" title="Permanent link">¶</a></h2>
+<h3 id="ready-ai">误区一：节点 Ready 就能跑 AI 任务<a class="headerlink" href="#ready-ai" title="Permanent link">¶</a></h3>
+<p>Ready 只说明节点达到调度系统的基本条件。GPU、RDMA、NCCL、NVMe、热稳定性和应用性能还需要额外验证。</p>
+<h3 id="_25">误区二：维护就是重启<a class="headerlink" href="#_25" title="Permanent link">¶</a></h3>
+<p>重启可能暂时掩盖问题，但不会解释根因，也不会保证节点适合回池。</p>
+<h3 id="_26">误区三：坏节点让用户重试就行<a class="headerlink" href="#_26" title="Permanent link">¶</a></h3>
+<p>如果节点持续异常，重试只会浪费更多 GPU hour，并污染用户对平台的信任。</p>
+<h3 id="_27">误区四：驱动升级可以全量推<a class="headerlink" href="#_27" title="Permanent link">¶</a></h3>
+<p>AI stack 对 driver/CUDA/NCCL/框架组合敏感。升级必须有 canary、benchmark 和回滚。</p>
+<h3 id="_28">误区五：本地缓存不需要管<a class="headerlink" href="#_28" title="Permanent link">¶</a></h3>
+<p>本地 NVMe cache 会影响启动、数据读取、checkpoint staging 和隐私边界。必须有容量和清理策略。</p>
+<h3 id="_29">误区六：资产系统和调度系统无关<a class="headerlink" href="#_29" title="Permanent link">¶</a></h3>
+<p>资产、拓扑、故障、成本和容量规划都依赖节点身份一致。</p>
+<h2 id="_30">设计检查清单<a class="headerlink" href="#_30" title="Permanent link">¶</a></h2>
+<ul>
+<li>是否有统一的节点 profile。</li>
+<li>是否有 Node Manifest 作为节点事实源。</li>
+<li>资产、调度、监控、成本和运维状态是否使用一致节点身份。</li>
+<li>新节点是否必须 burn-in 后才能入池。</li>
+<li>是否有 GPU、RDMA、NVMe、NCCL、温度、功耗验收测试。</li>
+<li>burn-in 是否产出验收报告和入池门禁结论。</li>
+<li>节点 labels/taints/features 是否标准化。</li>
+<li>是否能从节点追溯到资产、机柜、交换机端口和硬件批次。</li>
+<li>是否区分 Ready、suspect、maintenance、retired 等状态。</li>
+<li>是否有健康分级和自动动作策略。</li>
+<li>是否有自动健康检查和异常隔离策略。</li>
+<li>是否记录 GPU Xid、ECC、retired pages、thermal throttling。</li>
+<li>是否能发现某节点上的 workload 性能持续异常。</li>
+<li>是否有安全的 cordon/drain 流程。</li>
+<li>计划维护是否有维护窗口契约。</li>
+<li>维护前是否考虑 checkpoint、PDB、grace period、服务摘流。</li>
+<li>维护后是否有 smoke validation 和 performance validation。</li>
+<li>驱动、firmware、kernel 升级是否有 canary。</li>
+<li>升级是否按批次推进，并定义停止条件和 rollback target。</li>
+<li>是否有配置漂移检测。</li>
+<li>漂移是否通过受控路径修复并更新审计记录。</li>
+<li>是否有 spare/RMA/维修后 canary 流程。</li>
+<li>本地 NVMe cache 是否有容量、保留和清理策略。</li>
+<li>维护、租户切换、安全事件、退役是否有不同的数据清理策略。</li>
+<li>节点退役是否清理数据、证书、监控和资产记录。</li>
+<li>是否保留完整运维证据链。</li>
+<li>是否有新节点入池、计划维护、异常隔离、退役 runbook。</li>
+</ul>
+<h2 id="_31">小结<a class="headerlink" href="#_31" title="Permanent link">¶</a></h2>
+<p>AI 节点生命周期可以概括为：</p>
+<div class="highlight"><pre><span></span><code>asset
+  -&gt; baseline
+  -&gt; burn-in
+  -&gt; classify
+  -&gt; join pool
+  -&gt; serve workload
+  -&gt; monitor health
+  -&gt; isolate / maintain
+  -&gt; validate
+  -&gt; return or retire
+</code></pre></div>
+<p>节点治理的关键是把“节点能不能跑”变成可验证的工程事实。只有当入池、维护、升级和下线都有标准流程，集群才不会被少数坏节点、漂移配置和粗暴维护拖慢。</p>
+<p>这也是后续可靠性、可观测性和故障复盘章节的基础。</p>
+<h2 id="_32">延伸阅读<a class="headerlink" href="#_32" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://kubernetes.io/docs/reference/node/node-status/">Kubernetes Node Status</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/">Kubernetes Safely Drain a Node</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/cluster-administration/node-shutdown/">Kubernetes Node Shutdown</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/debug/debug-cluster/monitor-node-health/">Kubernetes Monitor Node Health</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/upgrading-linux-nodes/">Kubernetes Upgrade Nodes</a></li>
+<li><a href="https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html">NVIDIA GPU Operator Overview</a></li>
+<li><a href="https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/feature-overview.html#diagnostics">NVIDIA DCGM Diagnostics</a></li>
+<li><a href="https://slurm.schedmd.com/scontrol.html">Slurm scontrol</a></li>
+<li><a href="https://slurm.schedmd.com/power_save.html">Slurm Power Saving Guide</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

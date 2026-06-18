@@ -1,0 +1,6268 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <meta name="description" content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents">
+
+
+
+        <link rel="canonical" href="https://amoursec.github.io/06-accelerators-architecture/precision-formats-low-bit-compute/">
+
+
+        <link rel="prev" href="../memory-hierarchy-data-reuse/">
+
+
+        <link rel="next" href="../interconnect-communication-architecture/">
+
+
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
+
+
+
+        <title>精度格式：FP16、BF16、FP8 与量化计算 - AI Knowledge Graph</title>
+
+
+
+      <link rel="stylesheet" href="../../assets/stylesheets/main.a40c8224.min.css">
+
+
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+
+
+
+
+
+
+
+
+
+
+
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+
+
+
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+
+
+
+
+
+
+  </head>
+
+
+
+
+
+
+
+
+
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue">
+
+
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+
+
+        <a href="#fp16bf16fp8" class="md-skip">
+          跳转至
+        </a>
+
+    </div>
+    <div data-md-component="announce">
+
+    </div>
+
+
+
+
+
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="AI Knowledge Graph" class="md-header__button md-logo" aria-label="AI Knowledge Graph" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+
+              精度格式：FP16、BF16、FP8 与量化计算
+
+          </span>
+        </div>
+      </div>
+    </div>
+
+
+        <form class="md-header__option" data-md-component="palette">
+
+
+
+
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+
+
+</form>
+
+
+
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+
+
+
+      <label class="md-header__button md-icon" for="__search">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+      <div class="md-header__source">
+        <a href="https://github.com/AmourSec/aikg" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+      </div>
+
+  </nav>
+
+</header>
+
+    <div class="md-container" data-md-component="container">
+
+
+
+
+
+
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+
+
+
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="AI Knowledge Graph" class="md-nav__button md-logo" aria-label="AI Knowledge Graph" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    AI Knowledge Graph
+  </label>
+
+    <div class="md-nav__source">
+      <a href="https://github.com/AmourSec/aikg" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+    </div>
+
+  <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    首页
+  </span>
+
+
+
+
+    <span class="md-status md-status--reviewed"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../knowledge-map/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    知识地图
+  </span>
+
+
+
+
+    <span class="md-status md-status--reviewed"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+
+
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    入门导读
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../01-getting-started/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+
+
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../02-ai-workloads/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../02-ai-workloads/ai-fundamentals/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    AI 基础概念
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../02-ai-workloads/transformer/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../02-ai-workloads/training-primer/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    训练过程与原理
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../02-ai-workloads/inference-primer/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    推理过程与原理
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../02-ai-workloads/multimodal-primer/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    多模态原理
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+
+
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    推理系统与优化
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/request-lifecycle/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/prefill-decode/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/metrics/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    指标体系
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/batching/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Batching
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/kv-cache/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    KV Cache
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/paged-attention/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    PagedAttention
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/prefix-cache/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Prefix Cache
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/scheduling/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    调度策略
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/quantization/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    量化推理
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/speculative-decoding/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/prefill-decode-disaggregation/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/moe-inference-optimization/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/ep-size-large-small-ep/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/single-node-serving-architecture/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/distributed-inference/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    多机分布式推理
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/cache-system/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    缓存体系
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/benchmark-methodology/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/vllm/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    vLLM
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/tensorrt-llm/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/sglang/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    SGLang
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/rag-agent-workloads/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../03-inference-systems/benchmark-profiling/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+
+
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    训练系统与优化
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/training-lifecycle/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/data-pipeline/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/batch-gradient-accumulation/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/vocab-output-cross-entropy/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/memory-composition-optimization/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/backward-autograd-gradient-lifecycle/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/distributed-training-runtime/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/collective-communication-primitives/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/data-parallel-gradient-sync/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/zero-fsdp/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/tensor-parallel/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/sequence-context-parallel/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/pipeline-parallel/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/expert-parallel-moe-training/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/hybrid-parallelism-composition/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/activation-checkpointing/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/mixed-precision-training/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    混合精度训练
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/training-stability-numerical-debugging/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/communication-computation-overlap/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/flux-kernel-fusion/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/optimizer-scheduler-cost/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/muon-optimizer/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Muon 优化器
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/evaluation-validation-checkpoint-selection/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/training-reproducibility-randomness-run-manifest/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/checkpoint-resume-fault-tolerance/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/training-performance-metrics-scaling/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/training-benchmark-profiling/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../04-training-systems/deepspeed-megatron-fsdp/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+
+
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../05-kernels-compilers/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../05-kernels-compilers/attention-computation-patterns/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../05-kernels-compilers/triton/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../05-kernels-compilers/torchinductor/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+
+
+
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+
+
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../performance-model-roofline/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../compute-units-simt-tensorcore/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../memory-hierarchy-data-reuse/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active">
+
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+
+
+
+
+
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+
+
+  <span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+
+      <a href="./" class="md-nav__link md-nav__link--active">
+
+
+  <span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+
+
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      精度格式在系统里的位置
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      精度格式影响什么
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      位宽省下来的不只是容量
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      先区分存储、计算和累积
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      浮点格式的三个部分
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      常见格式速查
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp32" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP32
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#tf32" class="md-nav__link">
+    <span class="md-ellipsis">
+      TF32
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp16" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP16
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#bf16" class="md-nav__link">
+    <span class="md-ellipsis">
+      BF16
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp16-bf16" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP16 与 BF16 怎么选
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp8-e4m3-e5m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8 E4M3 与 E5M2 怎么理解
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp8-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8 Scale 的粒度
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp8-scale_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8 为什么需要 Scale
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#amax-delayed-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Amax 与 Delayed Scaling
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp8-fp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8 不等于全模型 FP8
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      端到端低精度数据流
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      量化方法类型
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#int8" class="md-nav__link">
+    <span class="md-ellipsis">
+      INT8
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#int4-fp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      INT4 / FP4
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="INT4 / FP4">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#nf4-qlora" class="md-nav__link">
+    <span class="md-ellipsis">
+      NF4 与 QLoRA 的直觉
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#accumulator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accumulator 精度
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#master-weight" class="md-nav__link">
+    <span class="md-ellipsis">
+      Master Weight
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#outlier" class="md-nav__link">
+    <span class="md-ellipsis">
+      Outlier 问题
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#scale-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scale Metadata 也是系统成本
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      低精度和硬件路径
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      精度格式和硬件选型
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      低精度和并行策略
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      训练中的低精度策略
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="训练中的低精度策略">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#bf16-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      BF16 Baseline
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#fp16-amp" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP16 AMP
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#fp8-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8 Training
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      推理中的低精度策略
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      KV Cache 量化
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      通信中的低精度
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#checkpoint-artifact-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Checkpoint 与 Artifact Metadata
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      数值监控指标
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmark 应该怎么做
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Benchmark 应该怎么做">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      性能
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      显存
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      质量
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      稳定性
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      常见误区
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="常见误区">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      误区一：位数减半，速度就翻倍
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#fp8-bf16" class="md-nav__link">
+    <span class="md-ellipsis">
+      误区二：FP8 比 BF16 一定更好
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#int4" class="md-nav__link">
+    <span class="md-ellipsis">
+      误区三：INT4 权重小，所以推理一定快
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      误区四：低精度只影响模型质量
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#dtype-op" class="md-nav__link">
+    <span class="md-ellipsis">
+      误区五：硬件支持某 dtype，所有 op 都能高效用
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      设计检查清单
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      小结
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考资料
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../interconnect-communication-architecture/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../power-thermal-reliability/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../accelerator-architecture-tradeoffs/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../workload-mapping-compiler-runtime-interface/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+
+
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../07-cluster-infra/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../07-cluster-infra/ai-cluster-architecture-overview/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../07-cluster-infra/scheduling-queues-resource-management/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../07-cluster-infra/storage-data-cache-checkpoint/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../07-cluster-infra/environment-reproducibility-containers/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../07-cluster-infra/node-lifecycle-health-maintenance/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+
+
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/inference-capacity-modeling/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/queueing-model-tail-latency/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/energy-power-thermal-benchmark/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/cost-model-unit-economics/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../08-benchmark-capacity/benchmark-data-governance-run-records/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_11" >
+
+
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../09-reliability-observability/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../09-reliability-observability/observability-overview-signals/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../09-reliability-observability/slo-sli-error-budget-alerting/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../09-reliability-observability/incident-response-runbook-postmortem/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_12" >
+
+
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../10-papers-cases/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../10-papers-cases/ai-system-architecture/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../10-papers-cases/adr/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../10-papers-cases/failure-cases/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_13" >
+
+
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../11-knowledge-index/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_14" >
+
+
+          <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+
+
+  <span class="md-ellipsis">
+    模板
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_14">
+            <span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../99-templates/knowledge-note/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+
+
+
+
+    <span class="md-status md-status--reviewed"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../99-templates/adr/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+
+
+
+
+    <span class="md-status md-status--reviewed"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../99-templates/benchmark-report/" class="md-nav__link">
+
+
+  <span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+
+
+
+
+    <span class="md-status md-status--reviewed"></span>
+
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      精度格式在系统里的位置
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      精度格式影响什么
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      位宽省下来的不只是容量
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      先区分存储、计算和累积
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      浮点格式的三个部分
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      常见格式速查
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp32" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP32
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#tf32" class="md-nav__link">
+    <span class="md-ellipsis">
+      TF32
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp16" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP16
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#bf16" class="md-nav__link">
+    <span class="md-ellipsis">
+      BF16
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp16-bf16" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP16 与 BF16 怎么选
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp8-e4m3-e5m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8 E4M3 与 E5M2 怎么理解
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp8-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8 Scale 的粒度
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp8-scale_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8 为什么需要 Scale
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#amax-delayed-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Amax 与 Delayed Scaling
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#fp8-fp8" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8 不等于全模型 FP8
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      端到端低精度数据流
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      量化方法类型
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#int8" class="md-nav__link">
+    <span class="md-ellipsis">
+      INT8
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#int4-fp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      INT4 / FP4
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="INT4 / FP4">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#nf4-qlora" class="md-nav__link">
+    <span class="md-ellipsis">
+      NF4 与 QLoRA 的直觉
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#accumulator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Accumulator 精度
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#master-weight" class="md-nav__link">
+    <span class="md-ellipsis">
+      Master Weight
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#outlier" class="md-nav__link">
+    <span class="md-ellipsis">
+      Outlier 问题
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#scale-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scale Metadata 也是系统成本
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      低精度和硬件路径
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      精度格式和硬件选型
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      低精度和并行策略
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      训练中的低精度策略
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="训练中的低精度策略">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#bf16-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      BF16 Baseline
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#fp16-amp" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP16 AMP
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#fp8-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      FP8 Training
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      推理中的低精度策略
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#kv-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      KV Cache 量化
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      通信中的低精度
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#checkpoint-artifact-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Checkpoint 与 Artifact Metadata
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      数值监控指标
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmark 应该怎么做
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Benchmark 应该怎么做">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      性能
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      显存
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      质量
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      稳定性
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      常见误区
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="常见误区">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      误区一：位数减半，速度就翻倍
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#fp8-bf16" class="md-nav__link">
+    <span class="md-ellipsis">
+      误区二：FP8 比 BF16 一定更好
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#int4" class="md-nav__link">
+    <span class="md-ellipsis">
+      误区三：INT4 权重小，所以推理一定快
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      误区四：低精度只影响模型质量
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#dtype-op" class="md-nav__link">
+    <span class="md-ellipsis">
+      误区五：硬件支持某 dtype，所有 op 都能高效用
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      设计检查清单
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      小结
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考资料
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+
+
+
+
+
+
+
+<h1 id="fp16bf16fp8">精度格式：FP16、BF16、FP8 与量化计算<a class="headerlink" href="#fp16bf16fp8" title="Permanent link">&para;</a></h1>
+<p>AI 加速器性能和精度格式强相关。很多芯片的峰值算力会按 FP32、TF32、FP16、BF16、FP8、INT8、INT4 分开标注。低精度通常更快、更省显存、更省带宽，但也更容易带来数值误差、溢出、下溢和模型质量下降。</p>
+<p>核心问题不是“精度越低越好”，而是：</p>
+<blockquote>
+<p>哪些 tensor 可以低精度存储？哪些计算可以低精度执行？哪些累积必须高精度？scale 如何管理？硬件是否真的走到了对应低精度高吞吐路径？</p>
+</blockquote>
+<p>这篇从硬件和系统角度解释常见精度格式。</p>
+<h2 id="_1">精度格式在系统里的位置<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>精度格式不是一个孤立的模型参数。它会同时进入五条路径：</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>典型问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型数学</td>
+<td>attention、MLP、normalization、loss、optimizer 对误差是否敏感</td>
+</tr>
+<tr>
+<td>Kernel dispatch</td>
+<td>框架是否选择 Tensor Core、Matrix Engine、INT dot product 等高吞吐 kernel</td>
+</tr>
+<tr>
+<td>存储与搬运</td>
+<td>权重、activation、gradient、KV Cache、temporary buffer 占多少 HBM 和带宽</td>
+</tr>
+<tr>
+<td>分布式通信</td>
+<td>AllReduce、ReduceScatter、AllGather、AllToAll、KV transfer 用什么 dtype</td>
+</tr>
+<tr>
+<td>Artifact 管理</td>
+<td>checkpoint、量化 scale、amax history、calibration 数据和部署配置如何保存</td>
+</tr>
+</tbody>
+</table>
+<p>所以一个成熟的低精度方案应该写成协议，而不是一句“用 FP8”：</p>
+<div class="highlight"><pre><span></span><code>storage dtype
+compute input dtype
+accumulation dtype
+output dtype
+communication dtype
+scale metadata
+fallback op policy
+checkpoint metadata
+</code></pre></div>
+<p>只有这些都明确，才知道系统是否真的在省显存、省带宽、提吞吐，并且没有把数值风险转移到不可观测的位置。</p>
+<h2 id="_2">精度格式影响什么<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>精度格式会影响四类成本：</p>
+<table>
+<thead>
+<tr>
+<th>成本</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>计算吞吐</td>
+<td>低精度矩阵单元通常峰值更高</td>
+</tr>
+<tr>
+<td>HBM 容量</td>
+<td>每个元素 bytes 更少，能放更多权重、activation、KV Cache</td>
+</tr>
+<tr>
+<td>HBM 带宽</td>
+<td>同样 bandwidth 下能搬更多元素</td>
+</tr>
+<tr>
+<td>网络通信</td>
+<td>gradients、activations、KV transfer 更小</td>
+</tr>
+</tbody>
+</table>
+<p>也会影响四类风险：</p>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>precision loss</td>
+<td>有效数字太少，误差变大</td>
+</tr>
+<tr>
+<td>overflow</td>
+<td>数值超过最大可表示范围</td>
+</tr>
+<tr>
+<td>underflow</td>
+<td>小数太小，被冲成 0 或 subnormal</td>
+</tr>
+<tr>
+<td>quantization error</td>
+<td>映射到低比特时产生离散误差</td>
+</tr>
+</tbody>
+</table>
+<p>所以低精度是系统优化，也是数值工程。</p>
+<h2 id="_3">位宽省下来的不只是容量<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>把元素从 16 bit 降到 8 bit，直观上是同样数量的值只占一半空间。但系统收益不止容量：</p>
+<ul>
+<li>HBM 同一时间能搬更多元素。</li>
+<li>L2/cache/SRAM 能容纳更多有效 tile。</li>
+<li>KV Cache、activation、temporary buffer 的驻留压力下降。</li>
+<li>网络通信 payload 变小。</li>
+<li>某些硬件矩阵单元对低精度提供更高峰值吞吐。</li>
+<li>同样显存下可以放更大 batch、更多并发请求或更长上下文。</li>
+</ul>
+<p>但位宽下降也会引入额外成本：</p>
+<ul>
+<li>scale、zero point、amax history 也要存。</li>
+<li>量化和反量化会消耗 kernel 时间。</li>
+<li>packing/unpacking 会影响访存对齐。</li>
+<li>某些 op 需要 cast 回 BF16/FP32。</li>
+<li>更细粒度 scale 会让 kernel 更复杂。</li>
+</ul>
+<p>因此低精度的收益要看端到端关键路径，而不是只看元素 bytes。</p>
+<h2 id="_4">先区分存储、计算和累积<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>很多人说“用 FP16 训练”或“用 FP8 推理”，但这句话不够精确。</p>
+<p>应该区分：</p>
+<ul>
+<li>权重用什么 dtype 存。</li>
+<li>activation 用什么 dtype 存。</li>
+<li>GEMM 输入用什么 dtype。</li>
+<li>GEMM accumulator 用什么 dtype。</li>
+<li>reduction 用什么 dtype。</li>
+<li>gradient 用什么 dtype。</li>
+<li>optimizer state 用什么 dtype。</li>
+<li>master weight 是否保留 FP32。</li>
+<li>通信时用什么 dtype。</li>
+<li>checkpoint 保存什么 dtype。</li>
+</ul>
+<p>例如一个常见混合精度训练路径：</p>
+<div class="highlight"><pre><span></span><code>weights: BF16
+activations: BF16
+matmul input: BF16
+matmul accumulation: FP32 or higher internal precision
+optimizer states: FP32
+master weights: maybe FP32
+</code></pre></div>
+<p>这不是“全 BF16”。它是混合精度。</p>
+<h2 id="_5">浮点格式的三个部分<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<p>浮点数通常由三部分组成：</p>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>作用</th>
+<th>直觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sign</td>
+<td>正负号</td>
+<td>这个数是正还是负</td>
+</tr>
+<tr>
+<td>exponent</td>
+<td>指数</td>
+<td>能表示多大或多小的数，也就是动态范围</td>
+</tr>
+<tr>
+<td>mantissa / significand</td>
+<td>尾数</td>
+<td>在某个数量级附近能分多细，也就是有效精度</td>
+</tr>
+</tbody>
+</table>
+<p>动态范围和有效精度不是一回事。</p>
+<p>BF16 和 FP16 都是 16 bit，但设计取舍不同：</p>
+<ul>
+<li>BF16 保留了接近 FP32 的 exponent 位数，所以范围大，不容易 overflow。</li>
+<li>FP16 给 mantissa 更多位，所以在可表示范围内更细，但范围小，训练更容易遇到 overflow/underflow。</li>
+</ul>
+<p>这也是为什么大模型训练常偏向 BF16：训练过程里梯度、activation、loss scale 的数值范围变化很大，范围不够会比尾数少几位更麻烦。</p>
+<h2 id="_6">常见格式速查<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>大致位宽</th>
+<th>类型</th>
+<th>常见位置</th>
+<th>主要优势</th>
+<th>主要风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FP32</td>
+<td>32 bit</td>
+<td>浮点</td>
+<td>baseline、optimizer state、敏感 reduction</td>
+<td>稳定、范围和精度都较好</td>
+<td>成本高、矩阵吞吐低</td>
+</tr>
+<tr>
+<td>TF32</td>
+<td>约 FP32 输入路径</td>
+<td>Tensor Core 计算路径</td>
+<td>FP32 matmul 加速</td>
+<td>少改代码获得 Tensor Core 加速</td>
+<td>不是通用存储格式，精度低于 FP32</td>
+</tr>
+<tr>
+<td>FP16</td>
+<td>16 bit</td>
+<td>浮点</td>
+<td>训练/推理 GEMM、activation</td>
+<td>吞吐高、支持广</td>
+<td>动态范围小，训练常需 loss scaling</td>
+</tr>
+<tr>
+<td>BF16</td>
+<td>16 bit</td>
+<td>浮点</td>
+<td>大模型训练默认低精度</td>
+<td>范围接近 FP32，训练稳定</td>
+<td>尾数少，敏感 op 仍需高精度</td>
+</tr>
+<tr>
+<td>FP8 E4M3</td>
+<td>8 bit</td>
+<td>浮点</td>
+<td>weight/activation GEMM 输入</td>
+<td>比 FP16 更省带宽，精度相对 E5M2 更好</td>
+<td>范围较小，需要 scale</td>
+</tr>
+<tr>
+<td>FP8 E5M2</td>
+<td>8 bit</td>
+<td>浮点</td>
+<td>gradient 或范围更大的值</td>
+<td>范围比 E4M3 大</td>
+<td>有效精度更低</td>
+</tr>
+<tr>
+<td>INT8</td>
+<td>8 bit</td>
+<td>整数</td>
+<td>推理 weight/activation</td>
+<td>成熟、吞吐高、容量低</td>
+<td>calibration、outlier、dequant 开销</td>
+</tr>
+<tr>
+<td>INT4 / NF4 / FP4</td>
+<td>4 bit</td>
+<td>整数或低比特浮点</td>
+<td>weight-only、QLoRA、实验性训练/推理</td>
+<td>权重容量大幅下降</td>
+<td>误差大，scale 和 kernel 成本高</td>
+</tr>
+</tbody>
+</table>
+<p>这张表只给直觉。实际性能取决于硬件、kernel、shape、layout、scale 粒度和端到端瓶颈。</p>
+<h2 id="fp32">FP32<a class="headerlink" href="#fp32" title="Permanent link">&para;</a></h2>
+<p>FP32 是经典单精度浮点。</p>
+<p>特点：</p>
+<ul>
+<li>动态范围大。</li>
+<li>精度较高。</li>
+<li>数值稳定。</li>
+<li>存储和带宽成本高。</li>
+<li>AI 矩阵吞吐通常低于低精度路径。</li>
+</ul>
+<p>FP32 常用于：</p>
+<ul>
+<li>参考 baseline。</li>
+<li>某些敏感 reduction。</li>
+<li>optimizer master weight。</li>
+<li>optimizer state。</li>
+<li>loss / metric。</li>
+<li>调试数值问题。</li>
+</ul>
+<p>现代 AI 训练通常不会全 FP32，因为成本太高。但 FP32 仍然是很多关键状态和累积的稳定锚点。</p>
+<h2 id="tf32">TF32<a class="headerlink" href="#tf32" title="Permanent link">&para;</a></h2>
+<p>TF32 是 NVIDIA Ampere 以后常见的 Tensor Core 格式路径，用来加速 FP32 风格矩阵计算。</p>
+<p>直觉：</p>
+<ul>
+<li>输入动态范围接近 FP32。</li>
+<li>mantissa 精度少于 FP32。</li>
+<li>使用 Tensor Core 加速。</li>
+</ul>
+<p>TF32 常用于：</p>
+<ul>
+<li>不想改代码但希望 FP32 matmul 更快。</li>
+<li>训练早期基线。</li>
+<li>对精度要求高但又想获得部分 Tensor Core 加速的场景。</li>
+</ul>
+<p>它不是存储格式的主线，更多是计算路径。</p>
+<h2 id="fp16">FP16<a class="headerlink" href="#fp16" title="Permanent link">&para;</a></h2>
+<p>FP16 是半精度浮点，16 bit。</p>
+<p>优点：</p>
+<ul>
+<li>存储减半。</li>
+<li>带宽需求减半。</li>
+<li>矩阵单元吞吐高。</li>
+<li>推理和训练都广泛支持。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>动态范围小。</li>
+<li>容易 overflow/underflow。</li>
+<li>训练常需要 loss scaling。</li>
+<li>某些 reduction 和 normalization 不稳定。</li>
+</ul>
+<p>FP16 训练经常配合：</p>
+<ul>
+<li>autocast。</li>
+<li>GradScaler。</li>
+<li>FP32 master weights。</li>
+<li>FP32 optimizer states。</li>
+<li>敏感 op 保持 FP32。</li>
+</ul>
+<p>PyTorch AMP 文档也强调 <code>autocast</code> 会为不同 op 选择合适 dtype，而 <code>GradScaler</code> 负责缓解 FP16 gradient underflow。</p>
+<h2 id="bf16">BF16<a class="headerlink" href="#bf16" title="Permanent link">&para;</a></h2>
+<p>BF16 也是 16 bit，但设计重点和 FP16 不同。</p>
+<p>直觉：</p>
+<div class="highlight"><pre><span></span><code>BF16: 动态范围接近 FP32，但有效精度更低
+FP16: 有效精度比 BF16 多一些，但动态范围小很多
+</code></pre></div>
+<p>BF16 的优势：</p>
+<ul>
+<li>动态范围大，不太需要 loss scaling。</li>
+<li>训练稳定性通常好于 FP16。</li>
+<li>存储和带宽仍然是 16 bit。</li>
+<li>现代 GPU/TPU/NPU 支持成熟。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>mantissa 少，精度有限。</li>
+<li>某些数值敏感计算仍需 FP32。</li>
+<li>不同硬件 BF16 路径性能不同。</li>
+</ul>
+<p>大模型训练中，BF16 常作为默认训练精度，因为它比 FP16 更省心。</p>
+<h2 id="fp16-bf16">FP16 与 BF16 怎么选<a class="headerlink" href="#fp16-bf16" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>FP16</th>
+<th>BF16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>动态范围</td>
+<td>小</td>
+<td>接近 FP32</td>
+</tr>
+<tr>
+<td>有效精度</td>
+<td>比 BF16 多</td>
+<td>比 FP16 少</td>
+</tr>
+<tr>
+<td>loss scaling</td>
+<td>常需要</td>
+<td>通常不需要</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>更敏感</td>
+<td>更稳</td>
+</tr>
+<tr>
+<td>硬件支持</td>
+<td>很广</td>
+<td>新硬件更好</td>
+</tr>
+<tr>
+<td>常见训练</td>
+<td>可以，但要调 scaler</td>
+<td>LLM 训练常用</td>
+</tr>
+</tbody>
+</table>
+<p>经验上：</p>
+<ul>
+<li>现代大模型训练优先 BF16。</li>
+<li>老硬件或特定推理路径可能用 FP16。</li>
+<li>FP16 需要更认真处理 overflow/underflow。</li>
+<li>无论 FP16/BF16，reduction、optimizer、loss 仍要关注高精度。</li>
+</ul>
+<h2 id="fp8">FP8<a class="headerlink" href="#fp8" title="Permanent link">&para;</a></h2>
+<p>FP8 是 8 bit 浮点。它比 FP16/BF16 更省带宽和显存，也可能获得更高矩阵吞吐。</p>
+<p>常见 FP8 格式包括：</p>
+<ul>
+<li>E4M3：更多 mantissa，范围较小。</li>
+<li>E5M2：范围更大，精度较低。</li>
+</ul>
+<p>直觉：</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E4M3</td>
+<td>更适合 activation/weight 等需要精度的值</td>
+</tr>
+<tr>
+<td>E5M2</td>
+<td>更适合 gradient 等范围更大的值</td>
+</tr>
+</tbody>
+</table>
+<p>实际选择依赖硬件和框架。</p>
+<p>NVIDIA Transformer Engine 文档把 FP8 训练作为低精度训练能力之一，并提供 delayed scaling、current scaling、block scaling、MXFP8、NVFP4 等 recipe。重点不是“把 tensor cast 成 FP8”，而是整个训练路径要管理 scale、amax、transpose、分布式通信和 checkpoint。</p>
+<p>更具体地看，FP8 的难点在三件事：</p>
+<ol>
+<li>格式本身太小，必须把数值分布压到可表示范围内。</li>
+<li>不同 tensor 的分布差异很大，不能指望一个全局 scale 解决所有问题。</li>
+<li>训练会不断改变分布，scale 也要随时间更新。</li>
+</ol>
+<p>所以 FP8 更像“低精度计算体系”，而不是一个简单 dtype。</p>
+<h2 id="fp8-e4m3-e5m2">FP8 E4M3 与 E5M2 怎么理解<a class="headerlink" href="#fp8-e4m3-e5m2" title="Permanent link">&para;</a></h2>
+<p>E4M3 和 E5M2 的名字可以拆开看：</p>
+<div class="highlight"><pre><span></span><code>E4M3 = 4 bit exponent + 3 bit mantissa
+E5M2 = 5 bit exponent + 2 bit mantissa
+</code></pre></div>
+<p>直觉是：</p>
+<ul>
+<li>exponent 多，能表示的数值范围更大。</li>
+<li>mantissa 多，在同一数量级附近分得更细。</li>
+</ul>
+<p>因此：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>更常见选择</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>weight</td>
+<td>E4M3</td>
+<td>权重分布相对可控，更需要有效精度</td>
+</tr>
+<tr>
+<td>activation</td>
+<td>E4M3 或按 recipe 选择</td>
+<td>activation 有 outlier，但也需要精度</td>
+</tr>
+<tr>
+<td>gradient</td>
+<td>E5M2 更常见</td>
+<td>gradient 范围变化更大</td>
+</tr>
+<tr>
+<td>中间敏感 op</td>
+<td>BF16/FP32</td>
+<td>FP8 误差可能影响稳定性</td>
+</tr>
+</tbody>
+</table>
+<p>这不是固定规则。真正的规则来自 recipe、硬件实现和质量验证。</p>
+<h2 id="fp8-scale">FP8 Scale 的粒度<a class="headerlink" href="#fp8-scale" title="Permanent link">&para;</a></h2>
+<p>Scale 粒度决定一个 scale 覆盖多少元素。</p>
+<table>
+<thead>
+<tr>
+<th>粒度</th>
+<th>优点</th>
+<th>缺点</th>
+<th>常见理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>per tensor</td>
+<td>metadata 最少，简单</td>
+<td>容易被一个 outlier 影响整个 tensor</td>
+<td>粗粒度、便宜但误差大</td>
+</tr>
+<tr>
+<td>per channel</td>
+<td>对通道分布更友好</td>
+<td>scale 数量增加</td>
+<td>权重/activation 常见</td>
+</tr>
+<tr>
+<td>per group</td>
+<td>在精度和成本之间折中</td>
+<td>需要 group 设计和 kernel 支持</td>
+<td>低比特权重量化常见</td>
+</tr>
+<tr>
+<td>per block</td>
+<td>更局部，能处理分布不均</td>
+<td>metadata 和访存更复杂</td>
+<td>FP8 block scaling、MX 类格式常见</td>
+</tr>
+</tbody>
+</table>
+<p>粒度越细，量化误差通常越小，但系统成本越高：</p>
+<ul>
+<li>scale metadata 更多。</li>
+<li>scale 读取会占 cache 和 bandwidth。</li>
+<li>kernel 要在计算中加载、广播或应用 scale。</li>
+<li>checkpoint 和通信要保存更多附加状态。</li>
+<li>编译器和 runtime 更难 fusion。</li>
+</ul>
+<p>所以 scale 粒度不是越细越好，要和硬件访存、kernel layout、质量目标一起选。</p>
+<h2 id="fp8-scale_1">FP8 为什么需要 Scale<a class="headerlink" href="#fp8-scale_1" title="Permanent link">&para;</a></h2>
+<p>FP8 只有 8 bit，表示范围和精度都有限。</p>
+<p>为了让 tensor 的数值落入可表示范围，通常需要 scale：</p>
+<div class="highlight"><pre><span></span><code>real_value ~= fp8_value * scale
+</code></pre></div>
+<p>或者：</p>
+<div class="highlight"><pre><span></span><code>fp8_value ~= real_value / scale
+</code></pre></div>
+<p>Scale 可以按不同粒度管理：</p>
+<ul>
+<li>per tensor。</li>
+<li>per channel。</li>
+<li>per block。</li>
+<li>per group。</li>
+</ul>
+<p>粒度越细：</p>
+<ul>
+<li>表示更准确。</li>
+<li>metadata 更多。</li>
+<li>kernel 更复杂。</li>
+<li>通信和存储更麻烦。</li>
+</ul>
+<p>粒度越粗：</p>
+<ul>
+<li>简单。</li>
+<li>但容易被 outlier 影响。</li>
+</ul>
+<h2 id="amax-delayed-scaling">Amax 与 Delayed Scaling<a class="headerlink" href="#amax-delayed-scaling" title="Permanent link">&para;</a></h2>
+<p>FP8 训练常用 amax 统计：</p>
+<div class="highlight"><pre><span></span><code>amax = max(abs(tensor))
+</code></pre></div>
+<p>通过历史 amax 估计 scale。</p>
+<p>Delayed scaling 的思路是：</p>
+<ul>
+<li>记录一段历史 amax。</li>
+<li>根据历史最大值或策略选择 scale。</li>
+<li>下一次或后续使用这个 scale 量化。</li>
+</ul>
+<p>好处：</p>
+<ul>
+<li>scale 比较稳定。</li>
+<li>不需要每次立即精确同步所有统计。</li>
+</ul>
+<p>风险：</p>
+<ul>
+<li>分布变化快时 scale 滞后。</li>
+<li>outlier 可能拉大 scale，降低有效精度。</li>
+<li>分布式训练中 amax 同步和一致性要处理。</li>
+</ul>
+<p>除了 delayed scaling，实际系统还可能使用 current scaling 或 block scaling。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>思路</th>
+<th>优点</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>current scaling</td>
+<td>用当前 tensor 统计直接决定 scale</td>
+<td>适应快</td>
+<td>统计和同步成本更高</td>
+</tr>
+<tr>
+<td>delayed scaling</td>
+<td>用历史 amax 决定下一次 scale</td>
+<td>稳定、工程上常用</td>
+<td>分布突变时滞后</td>
+</tr>
+<tr>
+<td>block scaling</td>
+<td>每个 block 使用局部 scale</td>
+<td>精度更好，抗 outlier</td>
+<td>metadata 和 kernel 更复杂</td>
+</tr>
+</tbody>
+</table>
+<p>如果分布式训练里每个 rank 的 scale 不一致，还会引入更隐蔽的问题：同一个逻辑 tensor 在不同 rank 上被不同规则量化，后续 collective、checkpoint resume 和数值排查都会变复杂。</p>
+<h2 id="fp8-fp8">FP8 不等于全模型 FP8<a class="headerlink" href="#fp8-fp8" title="Permanent link">&para;</a></h2>
+<p>实际 FP8 训练/推理通常是混合的。</p>
+<p>可能：</p>
+<ul>
+<li>GEMM 输入 FP8。</li>
+<li>accumulation 更高精度。</li>
+<li>某些 activation BF16。</li>
+<li>normalization BF16/FP32。</li>
+<li>softmax BF16/FP32。</li>
+<li>optimizer state FP32/BF16。</li>
+<li>master weight BF16/FP32。</li>
+</ul>
+<p>敏感部分不一定适合 FP8：</p>
+<ul>
+<li>LayerNorm / RMSNorm。</li>
+<li>Softmax。</li>
+<li>loss。</li>
+<li>small reduction。</li>
+<li>optimizer state。</li>
+<li>某些 attention projection。</li>
+<li>logits。</li>
+</ul>
+<p>所以评估 FP8 要看：</p>
+<div class="highlight"><pre><span></span><code>哪些 GEMM 真的 FP8？
+哪些 op 回退 BF16/FP32？
+回退是否成为瓶颈？
+质量是否稳定？
+</code></pre></div>
+<h2 id="_7">端到端低精度数据流<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<p>低精度 GEMM 的端到端路径通常长这样：</p>
+<div class="highlight"><pre><span></span><code>低精度存储
+  -&gt; 读取 packed / quantized tensor
+  -&gt; 读取 scale / zero point / metadata
+  -&gt; dequant 或在矩阵单元内部应用 scale
+  -&gt; 低精度输入执行 matmul
+  -&gt; 高精度 accumulator 累积
+  -&gt; epilogue: bias / activation / residual / requant / cast
+  -&gt; 以目标 dtype 写回 HBM 或 cache
+</code></pre></div>
+<p>每一步都可能成为瓶颈：</p>
+<ul>
+<li>如果读取 scale 打乱连续访存，带宽收益会下降。</li>
+<li>如果 dequant 单独占一个 kernel，launch 和 HBM 往返会抵消收益。</li>
+<li>如果 epilogue 不能 fusion，低精度 GEMM 后还要多次读写。</li>
+<li>如果输出又马上 cast 回高精度，显存节省可能只发生在一小段生命周期。</li>
+<li>如果 shape 不满足 Tensor Core 或矩阵引擎对齐要求，硬件峰值用不上。</li>
+</ul>
+<p>因此低精度优化要画真实数据流，而不是只比较 dtype 位宽。</p>
+<h2 id="_8">量化方法类型<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<p>量化不只有一种。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>含义</th>
+<th>常见场景</th>
+<th>风险点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PTQ</td>
+<td>Post-Training Quantization，训练后量化</td>
+<td>已有模型转 INT8/INT4 推理</td>
+<td>calibration 数据不匹配会掉质量</td>
+</tr>
+<tr>
+<td>QAT</td>
+<td>Quantization-Aware Training，训练中模拟量化误差</td>
+<td>对质量敏感的部署</td>
+<td>训练成本更高，工程链路更复杂</td>
+</tr>
+<tr>
+<td>Dynamic Quantization</td>
+<td>运行时按输入动态决定量化参数</td>
+<td>activation 分布变化大时</td>
+<td>运行时统计和量化开销</td>
+</tr>
+<tr>
+<td>Weight-only Quantization</td>
+<td>只量化权重，activation 保持 FP16/BF16</td>
+<td>LLM 推理常见 INT4/INT8 权重</td>
+<td>Decode 可能仍受 KV Cache 限制</td>
+</tr>
+<tr>
+<td>W8A8</td>
+<td>weight 和 activation 都 INT8</td>
+<td>高吞吐推理</td>
+<td>activation outlier 和 calibration 更关键</td>
+</tr>
+<tr>
+<td>W4A16 / W4A8</td>
+<td>权重 4 bit，activation 16/8 bit</td>
+<td>大模型压显存</td>
+<td>kernel、scale、质量折中明显</td>
+</tr>
+<tr>
+<td>KV Cache Quantization</td>
+<td>量化 K/V cache</td>
+<td>长上下文和高并发推理</td>
+<td>长程 attention 质量和 dequant 开销</td>
+</tr>
+</tbody>
+</table>
+<p>训练、推理、微调、KV Cache 的量化目标不同，不能把一个 recipe 直接搬到另一个场景。</p>
+<h2 id="int8">INT8<a class="headerlink" href="#int8" title="Permanent link">&para;</a></h2>
+<p>INT8 是推理量化中非常常见的格式。</p>
+<p>它不是浮点，而是整数。</p>
+<p>基本思想：</p>
+<div class="highlight"><pre><span></span><code>real_value ~= scale * (int8_value - zero_point)
+</code></pre></div>
+<p>常见量化粒度：</p>
+<ul>
+<li>per tensor。</li>
+<li>per channel。</li>
+<li>per group。</li>
+</ul>
+<p>INT8 的收益：</p>
+<ul>
+<li>权重更小。</li>
+<li>带宽更低。</li>
+<li>矩阵乘吞吐高。</li>
+<li>推理成本低。</li>
+</ul>
+<p>风险：</p>
+<ul>
+<li>calibration 不好会掉质量。</li>
+<li>activation outlier 影响大。</li>
+<li>某些 op 不适合 INT8。</li>
+<li>dequant/quant overhead 可能抵消收益。</li>
+<li>kernel 支持和 layout 很重要。</li>
+</ul>
+<p>INT8 还要区分对称量化和非对称量化：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>公式直觉</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对称量化</td>
+<td><code>real_value ~= scale * int_value</code></td>
+<td>简单，硬件友好，常用于权重</td>
+</tr>
+<tr>
+<td>非对称量化</td>
+<td><code>real_value ~= scale * (int_value - zero_point)</code></td>
+<td>能处理分布偏移，但多一个 zero point</td>
+</tr>
+</tbody>
+</table>
+<p>对 LLM 来说，activation outlier 很常见。一个小比例的大值就可能拉大 scale，让多数普通值的有效刻度变少。很多 INT8 方案的核心都不是“怎么把数变成 int8”，而是“怎么让 outlier 不毁掉大多数值的表示精度”。</p>
+<h2 id="int4-fp4">INT4 / FP4<a class="headerlink" href="#int4-fp4" title="Permanent link">&para;</a></h2>
+<p>INT4、FP4、NF4、NVFP4 等 4 bit 格式更激进。</p>
+<p>收益：</p>
+<ul>
+<li>权重容量大幅降低。</li>
+<li>HBM 带宽压力降低。</li>
+<li>可支持更大模型或更高并发。</li>
+</ul>
+<p>风险：</p>
+<ul>
+<li>精度损失更明显。</li>
+<li>需要更细粒度 scale。</li>
+<li>activation 量化更难。</li>
+<li>kernel 更复杂。</li>
+<li>metadata 和 packing/unpacking 成本更高。</li>
+</ul>
+<p>4 bit 常见于：</p>
+<ul>
+<li>权重量化推理。</li>
+<li>LoRA / QLoRA 类训练或微调。</li>
+<li>KV Cache 或 activation 的实验性低比特路径。</li>
+<li>新一代硬件支持的 FP4/NVFP4 训练探索。</li>
+</ul>
+<p>需要区分：</p>
+<div class="highlight"><pre><span></span><code>weight-only quantization
+weight + activation quantization
+training with low-bit compute
+low-bit storage but higher precision compute
+</code></pre></div>
+<p>这些不是同一个问题。</p>
+<h3 id="nf4-qlora">NF4 与 QLoRA 的直觉<a class="headerlink" href="#nf4-qlora" title="Permanent link">&para;</a></h3>
+<p>NF4 常和 QLoRA 一起出现。它的直觉不是“用普通整数均匀切分数轴”，而是用更适合神经网络权重分布的 4 bit 表示来存基础模型权重；计算时再反量化到更高精度参与前向和反向。</p>
+<p>QLoRA 这类方法通常关注微调成本：</p>
+<ul>
+<li>冻结大部分基础模型权重。</li>
+<li>基础权重以 4 bit 形式存储。</li>
+<li>训练 LoRA adapter。</li>
+<li>optimizer state 主要落在小量 adapter 参数上。</li>
+</ul>
+<p>所以它主要解决“低成本微调和显存占用”，不等价于“全模型 4 bit 训练”。</p>
+<h2 id="accumulator">Accumulator 精度<a class="headerlink" href="#accumulator" title="Permanent link">&para;</a></h2>
+<p>矩阵乘通常不是用输入 dtype 累积到底。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>FP16 input * FP16 input -&gt; FP32 accumulation
+BF16 input * BF16 input -&gt; FP32 accumulation
+FP8 input * FP8 input -&gt; higher precision accumulation
+INT8 input * INT8 input -&gt; INT32 accumulation
+</code></pre></div>
+<p>Accumulator 决定误差是否会在长 reduction 中积累。</p>
+<p>对大矩阵乘：</p>
+<div class="highlight"><pre><span></span><code>C[i, j] = sum_k A[i, k] * B[k, j]
+</code></pre></div>
+<p>如果 <code>K</code> 很大，累积误差很重要。</p>
+<p>所以精度配置要写清楚：</p>
+<ul>
+<li>input dtype。</li>
+<li>output dtype。</li>
+<li>accumulation dtype。</li>
+<li>reduction dtype。</li>
+<li>storage dtype。</li>
+</ul>
+<p>只写“FP8 GEMM”不够。</p>
+<h2 id="master-weight">Master Weight<a class="headerlink" href="#master-weight" title="Permanent link">&para;</a></h2>
+<p>训练中常见 master weight：</p>
+<div class="highlight"><pre><span></span><code>forward/backward 用低精度 weight
+optimizer 更新高精度 master weight
+再 cast 回低精度 weight
+</code></pre></div>
+<p>这样做的原因：</p>
+<ul>
+<li>参数更新可能很小。</li>
+<li>低精度权重可能无法表达微小更新。</li>
+<li>高精度 master weight 保存长期累积信息。</li>
+</ul>
+<p>FP16 训练中，FP32 master weight 很常见。</p>
+<p>BF16 训练中，是否保留 master weight 取决于框架和策略。</p>
+<p>FP8/低比特训练中，通常更需要明确 master weight 或高精度权重副本的设计。</p>
+<h2 id="outlier">Outlier 问题<a class="headerlink" href="#outlier" title="Permanent link">&para;</a></h2>
+<p>低精度量化最怕 outlier。</p>
+<p>假设一个 tensor 大部分值在：</p>
+<div class="highlight"><pre><span></span><code>-1 到 1
+</code></pre></div>
+<p>但有少数值是：</p>
+<div class="highlight"><pre><span></span><code>100
+</code></pre></div>
+<p>如果 per-tensor scale 被 100 决定，大部分小值会分到很少的有效刻度，误差变大。</p>
+<p>解决方向：</p>
+<ul>
+<li>per-channel scale。</li>
+<li>per-block scale。</li>
+<li>outlier-aware quantization。</li>
+<li>保留 outlier channel 高精度。</li>
+<li>activation clipping。</li>
+<li>smooth quant。</li>
+<li>改模型结构降低 outlier。</li>
+</ul>
+<p>FP8、INT8、INT4 都会遇到这个问题，只是严重程度不同。</p>
+<h2 id="scale-metadata">Scale Metadata 也是系统成本<a class="headerlink" href="#scale-metadata" title="Permanent link">&para;</a></h2>
+<p>低比特格式本身很小，但 scale metadata 不是免费的。</p>
+<p>例如 4 bit 权重量化时，如果每 64 个元素共享一个 scale，那么除了 packed weight 之外，还要保存每组 scale。若还需要 zero point、group index、outlier map 或 double quantization metadata，实际显存节省会小于理论值。</p>
+<p>Scale metadata 会影响：</p>
+<ul>
+<li>HBM 占用。</li>
+<li>HBM 读取带宽。</li>
+<li>L2/cache 命中。</li>
+<li>kernel register 和 shared memory 使用。</li>
+<li>checkpoint 大小。</li>
+<li>分布式通信 payload。</li>
+<li>resume 后数值一致性。</li>
+</ul>
+<p>因此评估低比特方案时，显存表要把这些都列出来：</p>
+<div class="highlight"><pre><span></span><code>quantized weights
+scales
+zero points
+amax history
+outlier buffers
+temporary dequant buffers
+kernel workspace
+checkpoint metadata
+</code></pre></div>
+<p>如果只统计 quantized weights，很容易高估收益。</p>
+<h2 id="_9">低精度和硬件路径<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<p>低精度是否快，取决于是否真的走硬件高吞吐路径。</p>
+<p>需要确认：</p>
+<ul>
+<li>硬件支持该 dtype。</li>
+<li>library/kernel 支持该 dtype。</li>
+<li>shape 满足对齐要求。</li>
+<li>tensor layout 正确。</li>
+<li>没有额外 cast/transpose。</li>
+<li>dequant/quant 开销可控。</li>
+<li>accumulator 路径高效。</li>
+<li>fallback op 不成为瓶颈。</li>
+</ul>
+<p>例如 INT8 权重很小，但如果每次 GEMM 前都要昂贵 dequant，或者 shape 不支持高效 INT8 Tensor Core，端到端未必快。</p>
+<h2 id="_10">精度格式和硬件选型<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<p>看一块 AI 加速器是否适合低精度 workload，不能只看产品页上的峰值算力。需要逐项确认：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>要问的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dtype 覆盖</td>
+<td>是否支持 FP16、BF16、FP8、INT8、INT4、FP4，分别支持训练还是推理</td>
+</tr>
+<tr>
+<td>accumulator</td>
+<td>低精度 GEMM 用什么精度累积，是否可配置</td>
+</tr>
+<tr>
+<td>shape 约束</td>
+<td>M/N/K、batch、head_dim 是否要满足 tile 对齐</td>
+</tr>
+<tr>
+<td>layout 约束</td>
+<td>是否要求特定 memory layout、packing 或 transpose</td>
+</tr>
+<tr>
+<td>op 覆盖</td>
+<td>matmul 之外的 attention、normalization、softmax、MoE、embedding 是否高效</td>
+</tr>
+<tr>
+<td>scale 支持</td>
+<td>scale 应用是在矩阵单元内完成，还是需要额外 kernel</td>
+</tr>
+<tr>
+<td>compiler/library</td>
+<td>cuBLASLt、CUTLASS、Triton、TensorRT-LLM、vLLM、框架后端是否支持</td>
+</tr>
+<tr>
+<td>profiler 可见性</td>
+<td>能否看到实际 kernel dtype、Tensor Core 利用率、fallback 和 cast</td>
+</tr>
+</tbody>
+</table>
+<p>对硬件研发或选型来说，真正重要的是目标模型的有效吞吐：</p>
+<div class="highlight"><pre><span></span><code>effective throughput = 真实端到端 tokens/s 或 step/s
+</code></pre></div>
+<p>而不是某个 dtype 的孤立峰值。</p>
+<h2 id="_11">低精度和并行策略<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<p>低精度会影响并行系统的边界。</p>
+<p>在 Tensor Parallel 中：</p>
+<ul>
+<li>Column/Row Parallel 的通信 tensor 是否低精度。</li>
+<li>AllReduce / ReduceScatter 前后是否要 cast。</li>
+<li>不同 TP rank 是否共享相同 scale 规则。</li>
+</ul>
+<p>在 FSDP / ZeRO 中：</p>
+<ul>
+<li>parameter shard 存储 dtype 和 all-gather dtype 是否一致。</li>
+<li>optimizer state 是否保持 FP32。</li>
+<li>mixed precision policy 是否和 checkpoint/resume 对齐。</li>
+</ul>
+<p>在 MoE / Expert Parallel 中：</p>
+<ul>
+<li>token dispatch 的 activation 是否量化。</li>
+<li>expert grouped GEMM 是否支持目标 dtype。</li>
+<li>router logits 和 load balancing loss 是否保持高精度。</li>
+<li>AllToAll 中 scale 是否随 token payload 一起传递。</li>
+</ul>
+<p>这些问题决定低精度优化能否和并行策略组合，而不是只在单卡 microbenchmark 中成立。</p>
+<h2 id="_12">训练中的低精度策略<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<p>训练比推理难，因为 backward 和 optimizer 对数值更敏感。</p>
+<p>训练状态包括：</p>
+<ul>
+<li>weights。</li>
+<li>activations。</li>
+<li>gradients。</li>
+<li>optimizer states。</li>
+<li>master weights。</li>
+<li>loss scaler。</li>
+<li>amax/scale history。</li>
+</ul>
+<p>常见路线：</p>
+<h3 id="bf16-baseline">BF16 Baseline<a class="headerlink" href="#bf16-baseline" title="Permanent link">&para;</a></h3>
+<p>大模型训练常用：</p>
+<div class="highlight"><pre><span></span><code>BF16 forward/backward
+FP32 optimizer state
+selected FP32 reductions
+</code></pre></div>
+<p>优点是稳定、简单、硬件支持成熟。</p>
+<h3 id="fp16-amp">FP16 AMP<a class="headerlink" href="#fp16-amp" title="Permanent link">&para;</a></h3>
+<p>常用：</p>
+<div class="highlight"><pre><span></span><code>FP16 autocast
+GradScaler
+FP32 master weights
+FP32 optimizer state
+</code></pre></div>
+<p>适合硬件或框架 FP16 路径成熟，但要处理 loss scaling。</p>
+<h3 id="fp8-training">FP8 Training<a class="headerlink" href="#fp8-training" title="Permanent link">&para;</a></h3>
+<p>常见：</p>
+<div class="highlight"><pre><span></span><code>部分 GEMM FP8
+scale/amax 管理
+敏感 op BF16/FP32
+higher precision accumulation
+framework recipe
+</code></pre></div>
+<p>关键是稳定性和覆盖率。</p>
+<p>如果只有少数 GEMM FP8，收益有限。</p>
+<p>如果太多 op FP8，可能不稳定。</p>
+<h2 id="_13">推理中的低精度策略<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h2>
+<p>推理更常用量化，因为没有 backward 和 optimizer。</p>
+<p>常见：</p>
+<ul>
+<li>FP16/BF16 weights。</li>
+<li>FP8 weights/activations。</li>
+<li>INT8 weight + activation。</li>
+<li>INT4 weight-only。</li>
+<li>KV Cache quantization。</li>
+<li>logits / sampling 保持较高精度。</li>
+</ul>
+<p>推理需要同时看：</p>
+<ul>
+<li>TTFT。</li>
+<li>TPOT。</li>
+<li>throughput。</li>
+<li>p99 latency。</li>
+<li>quality。</li>
+<li>memory footprint。</li>
+<li>dequant overhead。</li>
+<li>batching。</li>
+</ul>
+<p>Weight-only INT4 可以显著降低模型权重占用，但 Decode 阶段如果瓶颈在 KV Cache 读取，单纯压权重不一定显著改善 TPOT。</p>
+<h2 id="kv-cache">KV Cache 量化<a class="headerlink" href="#kv-cache" title="Permanent link">&para;</a></h2>
+<p>KV Cache 可能是长上下文推理的主要 HBM 消耗。</p>
+<p>量化 KV Cache 可以：</p>
+<ul>
+<li>增加并发。</li>
+<li>支持更长上下文。</li>
+<li>降低 HBM bandwidth。</li>
+<li>降低 P/D 分离的 KV 传输成本。</li>
+</ul>
+<p>风险：</p>
+<ul>
+<li>attention quality 下降。</li>
+<li>长上下文误差积累。</li>
+<li>scale metadata 增加。</li>
+<li>decode kernel 更复杂。</li>
+<li>quant/dequant overhead。</li>
+</ul>
+<p>KV Cache 量化要按端到端推理指标评估，而不是只看显存下降。</p>
+<h2 id="_14">通信中的低精度<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h2>
+<p>分布式训练/推理中，通信也可以低精度：</p>
+<ul>
+<li>gradient compression。</li>
+<li>activation communication。</li>
+<li>expert dispatch。</li>
+<li>KV transfer。</li>
+<li>parameter all-gather。</li>
+</ul>
+<p>低精度通信收益：</p>
+<ul>
+<li>减少网络带宽。</li>
+<li>降低通信时间。</li>
+<li>更容易 overlap。</li>
+</ul>
+<p>风险：</p>
+<ul>
+<li>训练收敛变化。</li>
+<li>all-reduce 数值误差。</li>
+<li>scale 同步成本。</li>
+<li>不同 rank scale 不一致。</li>
+<li>debug 难度提高。</li>
+</ul>
+<p>通信低精度不是简单 cast，需要协议和数值策略配合。</p>
+<h2 id="checkpoint-artifact-metadata">Checkpoint 与 Artifact Metadata<a class="headerlink" href="#checkpoint-artifact-metadata" title="Permanent link">&para;</a></h2>
+<p>低精度方案必须能被恢复和复现。Checkpoint 不能只保存权重文件。</p>
+<p>训练场景通常要保存：</p>
+<ul>
+<li>model weight dtype。</li>
+<li>master weight dtype 和内容。</li>
+<li>optimizer state dtype。</li>
+<li>GradScaler 或 loss scale 状态。</li>
+<li>FP8 scale、amax history、recipe 配置。</li>
+<li>quantization group size、block size、zero point。</li>
+<li>mixed precision policy。</li>
+<li>kernel/library 版本。</li>
+<li>分布式 parallel group 和 shard metadata。</li>
+</ul>
+<p>推理场景通常要保存：</p>
+<ul>
+<li>权重量化格式。</li>
+<li>每层、每 group 或每 block 的 scale。</li>
+<li>calibration 数据版本。</li>
+<li>outlier 处理策略。</li>
+<li>KV Cache dtype 和 scale 策略。</li>
+<li>推理引擎版本。</li>
+<li>tokenizer、模型 config、rope scaling 等部署配置。</li>
+</ul>
+<p>如果 artifact metadata 不完整，模型可能“能加载”，但数值行为已经不是原来的模型。这类问题很难从报错中看出来，只会表现为质量下降、长上下文退化或少数请求异常。</p>
+<h2 id="_15">数值监控指标<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h2>
+<p>低精度上线后，需要持续看数值健康度。</p>
+<p>训练中建议观察：</p>
+<ul>
+<li>loss 是否出现 spike。</li>
+<li>NaN / Inf 的数量和首次出现 step。</li>
+<li>gradient norm、parameter norm、update norm。</li>
+<li>FP16 loss scale 的增长、下降和 skipped step。</li>
+<li>FP8 amax、scale history、saturation 比例。</li>
+<li>activation 的 max、min、mean、zero ratio。</li>
+<li>optimizer state 是否异常膨胀或变成 NaN。</li>
+<li>resume 后前几个 step 是否和预期一致。</li>
+</ul>
+<p>推理中建议观察：</p>
+<ul>
+<li>logits 是否出现 NaN / Inf。</li>
+<li>sampling 前的 logits 范围。</li>
+<li>长上下文回答质量。</li>
+<li>量化前后 perplexity 或任务指标差异。</li>
+<li>不同 batch size、context length 下的误差变化。</li>
+<li>p99 latency 是否因为 dequant/cast 抖动。</li>
+<li>低精度 kernel 覆盖率和 fallback 比例。</li>
+</ul>
+<p>低精度问题通常不是一开始就崩溃，而是在特定长度、特定 batch、特定 rank、特定 outlier 输入上暴露。监控要覆盖这些边界条件。</p>
+<h2 id="benchmark">Benchmark 应该怎么做<a class="headerlink" href="#benchmark" title="Permanent link">&para;</a></h2>
+<p>低精度 benchmark 不能只看 kernel TFLOPS。</p>
+<p>至少看四类。</p>
+<h3 id="_16">性能<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<ul>
+<li>GEMM throughput。</li>
+<li>end-to-end step time。</li>
+<li>tokens/s。</li>
+<li>TTFT / TPOT。</li>
+<li>p99 latency。</li>
+<li>memory bandwidth。</li>
+<li>communication time。</li>
+<li>low-precision kernel coverage。</li>
+<li>cast / dequant / quant time。</li>
+<li>fallback op time。</li>
+</ul>
+<h3 id="_17">显存<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<ul>
+<li>model weights。</li>
+<li>activations。</li>
+<li>gradients。</li>
+<li>optimizer states。</li>
+<li>KV Cache。</li>
+<li>scale metadata。</li>
+<li>temporary buffers。</li>
+<li>packed weight layout。</li>
+<li>calibration / quantization artifacts。</li>
+</ul>
+<h3 id="_18">质量<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<ul>
+<li>training loss。</li>
+<li>validation loss。</li>
+<li>downstream eval。</li>
+<li>perplexity。</li>
+<li>task accuracy。</li>
+<li>long context quality。</li>
+<li>generation stability。</li>
+<li>quantized vs baseline 差异。</li>
+<li>不同 context length、batch size、prompt 类型下的误差。</li>
+</ul>
+<h3 id="_19">稳定性<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<ul>
+<li>NaN/Inf。</li>
+<li>overflow。</li>
+<li>loss spike。</li>
+<li>gradient norm。</li>
+<li>amax/scale history。</li>
+<li>saturation ratio。</li>
+<li>zero ratio。</li>
+<li>outlier statistics。</li>
+<li>resume 后是否稳定。</li>
+</ul>
+<p>低精度优化最终要看：</p>
+<div class="highlight"><pre><span></span><code>达到同等质量所需真实时间和成本是否下降
+</code></pre></div>
+<p>而不只是单步更快。</p>
+<h2 id="_20">常见误区<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h2>
+<h3 id="_21">误区一：位数减半，速度就翻倍<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
+<p>不一定。可能瓶颈在通信、KV Cache、kernel launch、dequant 或非量化 op。</p>
+<h3 id="fp8-bf16">误区二：FP8 比 BF16 一定更好<a class="headerlink" href="#fp8-bf16" title="Permanent link">&para;</a></h3>
+<p>不一定。FP8 需要 scale 管理和硬件支持，敏感 op 回退后收益可能有限。</p>
+<h3 id="int4">误区三：INT4 权重小，所以推理一定快<a class="headerlink" href="#int4" title="Permanent link">&para;</a></h3>
+<p>不一定。如果 decode 瓶颈是 KV Cache bandwidth 或 dequant overhead，weight-only INT4 的收益会受限。</p>
+<h3 id="_22">误区四：低精度只影响模型质量<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h3>
+<p>不只。它还影响 kernel 选择、layout、metadata、通信、checkpoint 和恢复。</p>
+<h3 id="dtype-op">误区五：硬件支持某 dtype，所有 op 都能高效用<a class="headerlink" href="#dtype-op" title="Permanent link">&para;</a></h3>
+<p>不一定。很多 op 仍可能回退到高精度或通用 kernel。</p>
+<h2 id="_23">设计检查清单<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h2>
+<p>设计低精度方案时，逐项确认：</p>
+<ul>
+<li>目标是训练还是推理？</li>
+<li>低精度用于 weights、activations、gradients、KV Cache 还是 optimizer state？</li>
+<li>input dtype 是什么？</li>
+<li>accumulator dtype 是什么？</li>
+<li>output dtype 是什么？</li>
+<li>scale 粒度是什么？</li>
+<li>amax/scale 如何更新？</li>
+<li>scale metadata 占多少显存和带宽？</li>
+<li>outlier 如何处理？</li>
+<li>哪些 op 必须保持 BF16/FP32？</li>
+<li>硬件是否支持该 dtype 高吞吐路径？</li>
+<li>kernel/library 是否支持真实 shape？</li>
+<li>是否有额外 quant/dequant/cast/transpose？</li>
+<li>显存节省是否包含 scale metadata？</li>
+<li>profiler 能否证明低精度 kernel 覆盖率？</li>
+<li>分布式并行中 scale 是否跨 rank 一致？</li>
+<li>benchmark 是否看端到端时间？</li>
+<li>质量是否达到目标？</li>
+<li>checkpoint 是否保存必要 scale 和 metadata？</li>
+<li>多卡通信是否需要同步 scale？</li>
+<li>resume、回滚和模型导出是否能复现同一套量化配置？</li>
+</ul>
+<h2 id="_24">小结<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h2>
+<p>精度格式是硬件性能、显存容量、带宽、通信和数值稳定性的交汇点。</p>
+<p>关键结论：</p>
+<ul>
+<li>FP32 稳定但成本高，常作为累积、optimizer 或 baseline。</li>
+<li>FP16 快但动态范围小，训练常需要 loss scaling。</li>
+<li>BF16 动态范围大，是大模型训练的常见默认低精度。</li>
+<li>FP8 可以进一步提高吞吐、降低带宽，但需要 scale/amax/recipe。</li>
+<li>INT8/INT4 常用于推理量化，但收益取决于 kernel、dequant、质量和真实瓶颈。</li>
+<li>Accumulator、master weight、sensitive op、scale metadata、checkpoint metadata 必须单独设计。</li>
+<li>低精度和 TP/FSDP/ZeRO/MoE 等并行策略会相互影响，尤其是通信 dtype 和 scale 一致性。</li>
+<li>低精度收益必须用端到端性能和质量共同验证。</li>
+</ul>
+<p>真正成熟的低精度方案，不是把所有 tensor 强行变小，而是知道哪些值可以粗略表示，哪些计算必须保留精度，以及硬件是否真的因此减少了关键路径成本。</p>
+<h2 id="_25">参考资料<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://docs.pytorch.org/docs/2.12/amp.html">PyTorch: Automatic Mixed Precision package</a></li>
+<li><a href="https://docs.nvidia.com/deeplearning/transformer-engine/user-guide/index.html">NVIDIA Transformer Engine Documentation</a></li>
+<li><a href="https://developer.nvidia.com/blog/nvidia-hopper-architecture-in-depth/">NVIDIA: Hopper Architecture In-Depth</a></li>
+<li><a href="https://docs.pytorch.org/docs/2.12/quantization.html">PyTorch: Quantization</a></li>
+<li><a href="https://arxiv.org/abs/2209.05433">FP8 Formats for Deep Learning</a></li>
+<li><a href="https://arxiv.org/abs/2310.18313">FP8-LM: Training FP8 Large Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2305.14314">QLoRA: Efficient Finetuning of Quantized LLMs</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </article>
+            </div>
+
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+
+      </main>
+
+        <footer class="md-footer">
+
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+
+</div>
+
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+
+
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+
+
+      <script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+
+
+  </body>
+</html>

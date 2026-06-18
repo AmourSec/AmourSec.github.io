@@ -1,0 +1,2062 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/03-inference-systems/scheduling/" rel="canonical"/>
+<link href="../prefix-cache/" rel="prev"/>
+<link href="../quantization/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>调度策略 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#_1">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              调度策略
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      调度发生在哪里
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      调度到底在调什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step">
+<span class="md-ellipsis">
+      请求级调度与 step 级调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fcfs">
+<span class="md-ellipsis">
+      FCFS：先来先服务
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priority-scheduling">
+<span class="md-ellipsis">
+      Priority Scheduling：优先级调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo-aware-scheduling">
+<span class="md-ellipsis">
+      SLO-aware Scheduling：面向目标延迟调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#length-aware-scheduling">
+<span class="md-ellipsis">
+      Length-aware Scheduling：长度感知调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cache-aware-scheduling">
+<span class="md-ellipsis">
+      Cache-aware Scheduling：缓存感知调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prefill-decode">
+<span class="md-ellipsis">
+      Prefill 与 Decode 的调度冲突
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#admission-control">
+<span class="md-ellipsis">
+      Admission Control：准入控制
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#backpressure">
+<span class="md-ellipsis">
+      Backpressure：反压
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#preemption">
+<span class="md-ellipsis">
+      Preemption：抢占
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fairness">
+<span class="md-ellipsis">
+      Fairness：公平性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#routing-scheduling">
+<span class="md-ellipsis">
+      Routing 与 Scheduling 的区别
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1">
+<span class="md-ellipsis">
+      1. 限制队列长度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-prefill">
+<span class="md-ellipsis">
+      2. 控制 Prefill 插入量
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3">
+<span class="md-ellipsis">
+      3. 按任务类型分队列
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4">
+<span class="md-ellipsis">
+      4. 做长度与显存预测
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5">
+<span class="md-ellipsis">
+      5. 利用缓存信息
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6">
+<span class="md-ellipsis">
+      6. 保护低优先级请求
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7">
+<span class="md-ellipsis">
+      7. 把调度指标暴露出来
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      该观察哪些指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      一个最小例子
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      调度发生在哪里
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      调度到底在调什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step">
+<span class="md-ellipsis">
+      请求级调度与 step 级调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fcfs">
+<span class="md-ellipsis">
+      FCFS：先来先服务
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priority-scheduling">
+<span class="md-ellipsis">
+      Priority Scheduling：优先级调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#slo-aware-scheduling">
+<span class="md-ellipsis">
+      SLO-aware Scheduling：面向目标延迟调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#length-aware-scheduling">
+<span class="md-ellipsis">
+      Length-aware Scheduling：长度感知调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cache-aware-scheduling">
+<span class="md-ellipsis">
+      Cache-aware Scheduling：缓存感知调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prefill-decode">
+<span class="md-ellipsis">
+      Prefill 与 Decode 的调度冲突
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#admission-control">
+<span class="md-ellipsis">
+      Admission Control：准入控制
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#backpressure">
+<span class="md-ellipsis">
+      Backpressure：反压
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#preemption">
+<span class="md-ellipsis">
+      Preemption：抢占
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fairness">
+<span class="md-ellipsis">
+      Fairness：公平性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#routing-scheduling">
+<span class="md-ellipsis">
+      Routing 与 Scheduling 的区别
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1">
+<span class="md-ellipsis">
+      1. 限制队列长度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-prefill">
+<span class="md-ellipsis">
+      2. 控制 Prefill 插入量
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3">
+<span class="md-ellipsis">
+      3. 按任务类型分队列
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4">
+<span class="md-ellipsis">
+      4. 做长度与显存预测
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5">
+<span class="md-ellipsis">
+      5. 利用缓存信息
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6">
+<span class="md-ellipsis">
+      6. 保护低优先级请求
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7">
+<span class="md-ellipsis">
+      7. 把调度指标暴露出来
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      该观察哪些指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      一个最小例子
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="_1">调度策略<a class="headerlink" href="#_1" title="Permanent link">¶</a></h1>
+<p>推理系统里的调度策略，决定请求什么时候进入 GPU、和谁一起执行、占用多少显存、是否需要等待、是否应该被拒绝，以及是否应该从一个 worker 迁移到另一个 worker。</p>
+<p>一句话理解：</p>
+<blockquote>
+<p>调度是在有限 GPU 计算、显存和服务时间之间做分配，让系统尽量同时满足吞吐、延迟、公平性和稳定性。</p>
+</blockquote>
+<p>如果没有调度，推理服务很容易出现几类问题：</p>
+<ul>
+<li>短请求被长请求拖慢。</li>
+<li>高优先级请求和普通请求混在一起排队。</li>
+<li>GPU 显存被少数长上下文请求占满。</li>
+<li>Prefill 请求突然增多，Decode 请求的流式输出变慢。</li>
+<li>系统过载后仍然继续接请求，最后所有请求一起变慢。</li>
+</ul>
+<p>所以调度不是“把请求排成队”这么简单。它是推理系统的交通控制层。</p>
+<h2 id="_2">调度发生在哪里<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>一个请求进入推理服务后，通常会先经过 API 接入、鉴权、限流、tokenization，然后进入队列。调度器从队列中选择请求，组成 batch，分配 GPU 执行资源，并在每一步 Decode 后继续决定下一轮执行哪些请求。</p>
+<div class="mermaid">flowchart TB
+    A["请求进入服务"] --&gt; B["限流 / 鉴权 / Tokenization"]
+    B --&gt; C["请求队列"]
+    C --&gt; D["调度器"]
+    D --&gt; E["选择可执行请求"]
+    E --&gt; F["组成 batch"]
+    F --&gt; G["Prefill / Decode 执行"]
+    G --&gt; H["流式返回 token"]
+    G --&gt; I{"请求是否完成"}
+    I -- "否" --&gt; D
+    I -- "是" --&gt; J["释放 KV Cache 和资源"]
+</div>
+<p>注意这个循环：Decode 不是只调度一次。LLM 每生成一个 token，系统都可能重新考虑 batch 组成、请求优先级、显存占用和是否插入新请求。</p>
+<p>这就是为什么现代推理系统常常使用 iteration-level scheduling 或 continuous batching。调度的粒度从“整个请求”变成了“每一轮生成步骤”。</p>
+<h2 id="_3">调度到底在调什么<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>推理调度器关心的不只是计算顺序。它至少要同时管理几类资源和约束。</p>
+<table>
+<thead>
+<tr>
+<th>调度对象</th>
+<th>需要决定什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>请求队列</td>
+<td>哪些请求先等，哪些请求先执行</td>
+</tr>
+<tr>
+<td>GPU 计算</td>
+<td>当前 step 执行哪些请求</td>
+</tr>
+<tr>
+<td>显存</td>
+<td>谁可以占用 KV Cache，谁需要等待</td>
+</tr>
+<tr>
+<td>batch 形态</td>
+<td>batch 多大，输入输出长度是否合适</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>重要请求是否插队，低优先级请求是否被延后</td>
+</tr>
+<tr>
+<td>SLO</td>
+<td>请求是否还能在目标延迟内完成</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>是否优先执行能命中 Prefix Cache / KV Cache 的请求</td>
+</tr>
+<tr>
+<td>过载保护</td>
+<td>系统满了以后是排队、降级还是拒绝</td>
+</tr>
+</tbody>
+</table>
+<p>所以一个好的调度策略不是只追求 GPU utilization。GPU 很忙不等于服务体验好。如果 GPU 一直满载，但 p99 latency 很差、流式输出卡顿、请求大量超时，这不是好的调度。</p>
+<h2 id="step">请求级调度与 step 级调度<a class="headerlink" href="#step" title="Permanent link">¶</a></h2>
+<p>最容易理解的是请求级调度：一个请求来了，排队，轮到它后执行，执行完释放资源。</p>
+<p>这种方式简单，但对 LLM 不够友好。原因是 LLM 推理有两个特点：</p>
+<ul>
+<li>请求输入长度不同，Prefill 成本不同。</li>
+<li>输出长度不可预知，Decode 会持续很多轮。</li>
+</ul>
+<p>如果一个 batch 里有请求很快结束，传统 batch 可能要等其他请求继续跑，GPU 利用率会下降。现代推理系统更常见的是 step 级调度：</p>
+<ol>
+<li>每一轮 Decode 前，调度器选择一组活跃请求。</li>
+<li>已完成请求退出 batch。</li>
+<li>新请求可以插入 batch。</li>
+<li>每轮只生成一个或少量 token。</li>
+<li>下一轮重新调度。</li>
+</ol>
+<p>这种方式能让 batch 持续保持较高利用率，也能让新请求更快进入系统。</p>
+<h2 id="fcfs">FCFS：先来先服务<a class="headerlink" href="#fcfs" title="Permanent link">¶</a></h2>
+<p>FCFS 是最直观的策略：谁先到，谁先执行。</p>
+<p>它的优点是简单、公平、容易解释：</p>
+<ul>
+<li>不需要复杂优先级。</li>
+<li>用户很容易理解等待顺序。</li>
+<li>实现和调试都比较直接。</li>
+</ul>
+<p>但 FCFS 在 LLM 推理中有明显问题：</p>
+<ul>
+<li>长 prompt 的 Prefill 可能挡住后面的短请求。</li>
+<li>长输出请求会持续占用 KV Cache。</li>
+<li>高优先级请求无法自然插队。</li>
+<li>过载时队列会越来越长，尾延迟快速恶化。</li>
+</ul>
+<p>FCFS 可以作为基础策略，但通常不能单独支撑复杂在线服务。</p>
+<h2 id="priority-scheduling">Priority Scheduling：优先级调度<a class="headerlink" href="#priority-scheduling" title="Permanent link">¶</a></h2>
+<p>优先级调度会给请求分等级，例如交互式请求优先于离线批处理请求，付费用户优先于免费用户，内部调试请求低于线上生产请求。</p>
+<p>它解决的是“请求价值不同”的问题。</p>
+<p>常见优先级来源包括：</p>
+<ul>
+<li>用户套餐或租户等级。</li>
+<li>API 路由类型。</li>
+<li>交互式任务或后台任务。</li>
+<li>是否有明确 deadline。</li>
+<li>是否来自系统内部关键链路。</li>
+</ul>
+<p>优先级调度的问题是容易造成低优先级请求饥饿。如果高优先级请求持续很多，低优先级请求可能一直等不到执行。</p>
+<p>所以实际系统里通常会加入保护：</p>
+<ul>
+<li>每类优先级保留最低资源份额。</li>
+<li>等待时间越久，优先级逐渐提高。</li>
+<li>对高优先级流量也设置配额。</li>
+<li>分租户或分队列做公平调度。</li>
+</ul>
+<p>优先级不是越多越好。优先级层级太复杂，会让系统行为难以预测。</p>
+<h2 id="slo-aware-scheduling">SLO-aware Scheduling：面向目标延迟调度<a class="headerlink" href="#slo-aware-scheduling" title="Permanent link">¶</a></h2>
+<p>SLO-aware scheduling 会把延迟目标纳入调度决策。</p>
+<p>例如一个请求要求 2 秒内返回首 token，另一个请求是后台总结任务，可以等待 30 秒。它们不应该用完全相同的排队策略。</p>
+<p>这种策略通常关注：</p>
+<ul>
+<li>请求已经等待多久。</li>
+<li>TTFT 是否即将超标。</li>
+<li>当前队列长度。</li>
+<li>估计 Prefill 成本。</li>
+<li>估计 Decode 输出长度。</li>
+<li>当前 GPU 是否还有显存和计算余量。</li>
+</ul>
+<p>SLO-aware 的核心不是“永远优先最急的请求”，而是尽量让更多请求在目标内完成。</p>
+<p>这会带来一个重要概念：goodput。吞吐只是系统处理了多少 token，goodput 更关注“有多少请求在 SLO 内完成”。当系统过载时，盲目追求吞吐可能让所有请求都变慢；SLO-aware 调度可能会拒绝一部分请求，从而保护剩余请求的体验。</p>
+<h2 id="length-aware-scheduling">Length-aware Scheduling：长度感知调度<a class="headerlink" href="#length-aware-scheduling" title="Permanent link">¶</a></h2>
+<p>LLM 请求的成本和长度强相关。输入 token 越多，Prefill 越重；输出 token 越多，Decode 占用时间和 KV Cache 越久。</p>
+<p>长度感知调度会考虑：</p>
+<ul>
+<li>prompt token 数。</li>
+<li>max_tokens 设置。</li>
+<li>已生成 token 数。</li>
+<li>预计剩余输出长度。</li>
+<li>KV Cache 当前占用。</li>
+</ul>
+<p>一个常见目标是避免少数长请求拖慢大量短请求。比如可以把长上下文请求放入独立队列，或限制一个 batch 里长请求的比例。</p>
+<p>但长度感知调度也有风险：如果总是优先短请求，长请求会饥饿。所以它通常需要和公平性策略一起使用。</p>
+<h2 id="cache-aware-scheduling">Cache-aware Scheduling：缓存感知调度<a class="headerlink" href="#cache-aware-scheduling" title="Permanent link">¶</a></h2>
+<p>Prefix Cache、PagedAttention 和 KV Cache 让推理系统的调度不再只看请求长度，还要看缓存状态。</p>
+<p>Cache-aware scheduling 会考虑：</p>
+<ul>
+<li>请求是否能命中 Prefix Cache。</li>
+<li>命中的前缀有多长。</li>
+<li>当前 worker 上是否已有可复用 KV block。</li>
+<li>把请求路由到某个 worker 是否能减少重复 Prefill。</li>
+<li>迁移请求是否会带来 KV Cache 复制成本。</li>
+</ul>
+<p>例如两个 worker 都能处理新请求，但只有其中一个 worker 已经缓存了相同 system prompt 和工具说明。把请求调度到这个 worker，可能明显降低 TTFT。</p>
+<p>这类策略的收益来自减少重复计算，但也有代价：</p>
+<ul>
+<li>调度器需要知道缓存状态。</li>
+<li>请求可能为了命中缓存而等待更久。</li>
+<li>热门前缀可能集中到少数 worker，造成负载不均。</li>
+<li>多租户隔离会限制缓存共享范围。</li>
+</ul>
+<p>所以 cache-aware 不应该只追求命中率，还要同时看负载均衡和尾延迟。</p>
+<h2 id="prefill-decode">Prefill 与 Decode 的调度冲突<a class="headerlink" href="#prefill-decode" title="Permanent link">¶</a></h2>
+<p>Prefill 和 Decode 的资源特征不同。</p>
+<p>Prefill 通常计算密集，一次处理大量输入 token；Decode 通常每轮只生成少量 token，但需要反复读取 KV Cache，对延迟和带宽更敏感。</p>
+<p>如果调度不当，会出现两类问题：</p>
+<ul>
+<li>大量 Prefill 请求插入，导致正在 Decode 的流式输出变慢。</li>
+<li>一直保护 Decode，请求迟迟不能 Prefill，TTFT 变差。</li>
+</ul>
+<p>因此推理系统常常需要在 Prefill 和 Decode 之间做平衡。</p>
+<p>常见做法包括：</p>
+<ul>
+<li>限制每轮可插入的 Prefill token 数。</li>
+<li>给 Decode step 保留固定时间片。</li>
+<li>把 Prefill-heavy 和 Decode-heavy 请求分开调度。</li>
+<li>使用 Prefill/Decode 分离部署。</li>
+<li>根据 TTFT 和 TPOT 目标动态调整 Prefill 插入量。</li>
+</ul>
+<p>这里的关键不是让某一类阶段永远优先，而是避免两类阶段互相挤压到不可接受。</p>
+<h2 id="admission-control">Admission Control：准入控制<a class="headerlink" href="#admission-control" title="Permanent link">¶</a></h2>
+<p>准入控制决定一个请求能不能进入系统。</p>
+<p>很多人会误以为请求来了就应该先进队列。但在过载时，无限制排队会让体验更差：</p>
+<ul>
+<li>队列越来越长。</li>
+<li>用户等很久后仍然超时。</li>
+<li>GPU 一直忙，但有效完成请求变少。</li>
+<li>系统无法快速恢复。</li>
+</ul>
+<p>准入控制会根据当前负载决定：</p>
+<ul>
+<li>接受请求。</li>
+<li>让请求排队。</li>
+<li>返回繁忙错误。</li>
+<li>降级到较小模型。</li>
+<li>限制 max_tokens 或上下文长度。</li>
+<li>引导客户端稍后重试。</li>
+</ul>
+<p>它保护的是系统整体稳定性。一个健康的推理服务应该能在过载时清楚地拒绝部分请求，而不是让所有请求一起变慢。</p>
+<h2 id="backpressure">Backpressure：反压<a class="headerlink" href="#backpressure" title="Permanent link">¶</a></h2>
+<p>Backpressure 是把系统压力向上游传递。</p>
+<p>如果 GPU 队列已经很长，API 层还继续无限接请求，压力会越积越多。反压机制会告诉上游：“现在处理能力不足，请慢一点、少发一点或重试。”</p>
+<p>常见反压方式包括：</p>
+<ul>
+<li>返回 429 / 503。</li>
+<li>在响应中携带 retry-after。</li>
+<li>降低客户端并发。</li>
+<li>对特定租户限速。</li>
+<li>暂停低优先级任务。</li>
+<li>动态调小请求的 max_tokens。</li>
+</ul>
+<p>反压不是失败，而是控制系统不失控的一种手段。</p>
+<h2 id="preemption">Preemption：抢占<a class="headerlink" href="#preemption" title="Permanent link">¶</a></h2>
+<p>抢占是指一个请求已经占用了资源，但系统决定暂停它，把资源让给另一个更重要或更紧急的请求。</p>
+<p>在 LLM 推理里，抢占比普通服务更复杂，因为请求可能已经生成了一部分 token，并且占用了 KV Cache。</p>
+<p>抢占时需要考虑：</p>
+<ul>
+<li>被抢占请求的 KV Cache 是否保留。</li>
+<li>如果释放 KV Cache，后续是否需要重算。</li>
+<li>抢占是否会破坏流式输出体验。</li>
+<li>哪些请求允许被抢占。</li>
+<li>抢占频率是否过高。</li>
+</ul>
+<p>抢占可以改善高优先级请求延迟，但也可能降低整体效率。因为被抢占请求恢复时，可能需要重新排队、重新加载上下文，甚至重新 Prefill。</p>
+<p>所以抢占通常只用于明确需要保护的场景，例如高优先级交互请求、即将超 SLO 的请求，或资源紧急回收。</p>
+<h2 id="fairness">Fairness：公平性<a class="headerlink" href="#fairness" title="Permanent link">¶</a></h2>
+<p>公平性关注不同用户、租户、业务或任务类型之间是否被合理对待。</p>
+<p>没有公平性时，一个大客户或一个高并发任务可能占满所有 GPU，让其他请求无法服务。</p>
+<p>常见公平性目标包括：</p>
+<ul>
+<li>每个租户有独立配额。</li>
+<li>每类任务有最低资源保障。</li>
+<li>单个用户不能占满队列。</li>
+<li>长请求不能永久压制短请求。</li>
+<li>高优先级请求不能让低优先级请求永远饥饿。</li>
+</ul>
+<p>公平性和效率经常冲突。最有效率的调度可能会把资源集中给最容易处理、最能提高吞吐的请求；但公平的系统必须保留隔离和配额。</p>
+<p>在线服务通常宁愿牺牲一部分峰值吞吐，也要保证行为可预测。</p>
+<h2 id="routing-scheduling">Routing 与 Scheduling 的区别<a class="headerlink" href="#routing-scheduling" title="Permanent link">¶</a></h2>
+<p>Routing 和 scheduling 经常一起出现，但它们不是同一件事。</p>
+<ul>
+<li>Routing 决定请求去哪个实例、哪个节点、哪个 GPU worker。</li>
+<li>Scheduling 决定请求在某个 worker 内什么时候执行、和哪些请求一起执行。</li>
+</ul>
+<p>例如 cache-aware routing 会把请求路由到有 Prefix Cache 的 worker；worker 内部的 scheduler 再决定它何时进入 Prefill 或 Decode。</p>
+<p>在多机推理系统中，两者会互相影响：</p>
+<ul>
+<li>路由影响缓存命中率。</li>
+<li>路由影响每台机器负载。</li>
+<li>调度影响队列长度。</li>
+<li>队列长度又会影响后续路由选择。</li>
+</ul>
+<p>所以大型推理服务通常需要全局路由策略和本地调度策略协同工作。</p>
+<h2 id="_4">常见优化方向<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<p>调度策略的优化，通常不是换一个算法名，而是围绕业务目标和系统瓶颈做取舍。</p>
+<h3 id="1">1. 限制队列长度<a class="headerlink" href="#1" title="Permanent link">¶</a></h3>
+<p>无限队列会隐藏过载。更好的方式是设置最大队列长度、最大等待时间和明确的拒绝策略。</p>
+<p>当请求已经不可能在 SLO 内完成时，继续排队意义不大。及时拒绝能保护系统，也能让客户端更快重试或降级。</p>
+<h3 id="2-prefill">2. 控制 Prefill 插入量<a class="headerlink" href="#2-prefill" title="Permanent link">¶</a></h3>
+<p>Prefill 请求太多会影响 Decode 流式输出。可以限制每轮调度中 Prefill token 的总量，或给 Decode 保留执行窗口。</p>
+<p>这类策略通常需要同时观察 TTFT 和 TPOT。如果 TTFT 很好但 TPOT 很差，说明 Decode 可能被干扰；如果 TPOT 很好但 TTFT 很差，说明 Prefill 进入太慢。</p>
+<h3 id="3">3. 按任务类型分队列<a class="headerlink" href="#3" title="Permanent link">¶</a></h3>
+<p>交互式问答、批量摘要、Agent 工具调用、长文档分析，负载形态不同。把所有请求放在一个队列里，容易互相影响。</p>
+<p>可以按任务类型、租户、优先级或长度范围拆队列，然后给不同队列配置权重和资源份额。</p>
+<h3 id="4">4. 做长度与显存预测<a class="headerlink" href="#4" title="Permanent link">¶</a></h3>
+<p>调度器如果不知道请求大概会占多少 KV Cache，就很难做准入控制。</p>
+<p>可以用 prompt length、max_tokens、历史输出长度分布来估算显存需求。估算不需要完美，但要能避免明显超卖。</p>
+<h3 id="5">5. 利用缓存信息<a class="headerlink" href="#5" title="Permanent link">¶</a></h3>
+<p>如果系统支持 Prefix Cache 或 KV block 复用，调度器可以优先安排高收益命中的请求，或把请求路由到更容易命中缓存的 worker。</p>
+<p>但要避免缓存热点导致负载倾斜。缓存收益和负载均衡要一起看。</p>
+<h3 id="6">6. 保护低优先级请求<a class="headerlink" href="#6" title="Permanent link">¶</a></h3>
+<p>优先级调度需要防止低优先级请求饥饿。可以给低优先级队列保留少量资源，或让等待时间逐渐提升请求优先级。</p>
+<p>否则系统在高峰期可能看起来高优先级体验很好，但后台任务永远无法完成。</p>
+<h3 id="7">7. 把调度指标暴露出来<a class="headerlink" href="#7" title="Permanent link">¶</a></h3>
+<p>调度问题很难只靠端到端延迟定位。需要把队列长度、等待时间、准入拒绝数、抢占次数、每类队列资源占比、Prefill/Decode token 调度量暴露出来。</p>
+<p>没有这些指标，就很难判断问题是 GPU 算慢了、排队太久、显存不足，还是调度策略不合理。</p>
+<h2 id="_5">该观察哪些指标<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<p>评估调度策略时，建议至少观察：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>queue length</td>
+<td>当前等待请求数</td>
+</tr>
+<tr>
+<td>queue wait time</td>
+<td>请求进入执行前等待了多久</td>
+</tr>
+<tr>
+<td>admission reject count</td>
+<td>准入控制拒绝了多少请求</td>
+</tr>
+<tr>
+<td>TTFT</td>
+<td>首 token 是否被排队和 Prefill 影响</td>
+</tr>
+<tr>
+<td>TPOT</td>
+<td>Decode 流式输出是否平稳</td>
+</tr>
+<tr>
+<td>p95 / p99 latency</td>
+<td>尾延迟是否恶化</td>
+</tr>
+<tr>
+<td>GPU utilization</td>
+<td>GPU 是否空闲或过载</td>
+</tr>
+<tr>
+<td>KV Cache usage</td>
+<td>显存是否被上下文占满</td>
+</tr>
+<tr>
+<td>prefill tokens per step</td>
+<td>每轮插入多少 Prefill 工作</td>
+</tr>
+<tr>
+<td>decode tokens per step</td>
+<td>每轮服务多少 Decode token</td>
+</tr>
+<tr>
+<td>preemption count</td>
+<td>抢占是否过于频繁</td>
+</tr>
+<tr>
+<td>per-tenant throughput</td>
+<td>不同租户是否公平</td>
+</tr>
+<tr>
+<td>timeout count</td>
+<td>请求是否在队列或执行中超时</td>
+</tr>
+</tbody>
+</table>
+<p>这些指标要按请求类型、租户、模型、输入长度和输出长度分组看。全局平均值经常会掩盖问题。</p>
+<h2 id="_6">一个最小例子<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>假设一个推理服务同时接收两类请求：</p>
+<ul>
+<li>A 类：在线聊天，请求短，希望 1 秒内返回首 token。</li>
+<li>B 类：批量文档总结，prompt 长，可以等待 20 秒。</li>
+</ul>
+<p>如果使用简单 FCFS，B 类请求一旦排在前面，就可能让 A 类请求等待很久。</p>
+<p>更合理的策略可以是：</p>
+<ol>
+<li>A 类和 B 类分队列。</li>
+<li>A 类优先进入 Prefill。</li>
+<li>B 类使用较低优先级，但保留最低资源份额。</li>
+<li>每轮限制 B 类 Prefill token 数，避免影响 A 类 Decode。</li>
+<li>当队列太长时，优先拒绝或延后 B 类请求。</li>
+</ol>
+<p>这样系统不是简单地追求最大吞吐，而是让不同任务按不同目标被服务。</p>
+<h2 id="_7">常见误区<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<ul>
+<li>
+<p><strong>误区一：GPU 利用率越高越好。</strong>
+  GPU 忙不代表用户体验好。如果排队时间和尾延迟很差，高利用率可能只是过载的表现。</p>
+</li>
+<li>
+<p><strong>误区二：FCFS 最公平。</strong>
+  FCFS 在到达顺序上公平，但可能让短请求、高优先级请求或即将超时的请求受到不合理影响。</p>
+</li>
+<li>
+<p><strong>误区三：优先级越多越精细。</strong>
+  优先级太多会让系统行为难以预测，也容易造成低优先级饥饿。</p>
+</li>
+<li>
+<p><strong>误区四：缓存命中率越高越好。</strong>
+  为了命中缓存而把请求集中到少数 worker，可能导致负载不均和尾延迟恶化。</p>
+</li>
+<li>
+<p><strong>误区五：过载时多排队就能扛住。</strong>
+  无限排队只会把失败延后。准入控制和反压是稳定系统的一部分。</p>
+</li>
+</ul>
+<p>读完这一节，应该能回答五个问题：</p>
+<ul>
+<li>推理调度为什么不是简单排队。</li>
+<li>请求级调度和 step 级调度有什么区别。</li>
+<li>FCFS、优先级、SLO-aware、length-aware、cache-aware 分别解决什么问题。</li>
+<li>准入控制、反压和抢占为什么能保护系统。</li>
+<li>调度策略应该用哪些指标来判断效果。</li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

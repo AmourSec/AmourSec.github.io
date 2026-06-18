@@ -1,0 +1,3850 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/04-training-systems/training-reproducibility-randomness-run-manifest/" rel="canonical"/>
+<link href="../evaluation-validation-checkpoint-selection/" rel="prev"/>
+<link href="../checkpoint-resume-fault-tolerance/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>训练可复现性、随机性与 Run Manifest - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#run-manifest">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              训练可复现性、随机性与 Run Manifest
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      先给结论
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#seed">
+<span class="md-ellipsis">
+      为什么只设 Seed 不够
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      在训练生命周期中的位置
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      三种常见目标
+    </span>
+</a>
+<nav aria-label="三种常见目标" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-debug-reproduction">
+<span class="md-ellipsis">
+      1. Debug Reproduction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-experiment-comparison">
+<span class="md-ellipsis">
+      2. Experiment Comparison
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-production-training-audit">
+<span class="md-ellipsis">
+      3. Production Training Audit
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      可复现性边界
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      复现目标协议
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      实验比较协议
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-manifest_1">
+<span class="md-ellipsis">
+      Run Manifest 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-manifest_2">
+<span class="md-ellipsis">
+      Run Manifest 的核心字段
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest">
+<span class="md-ellipsis">
+      Manifest 生命周期
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest-schema-version">
+<span class="md-ellipsis">
+      Manifest Schema Version
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-manifest_3">
+<span class="md-ellipsis">
+      Run Manifest 示例
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#code-config">
+<span class="md-ellipsis">
+      Code 与 Config
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tokenizer">
+<span class="md-ellipsis">
+      Tokenizer 与模型配置
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      数据版本与数据顺序
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#streaming-dataset-data-cursor">
+<span class="md-ellipsis">
+      Streaming Dataset 与 Data Cursor
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest-hash">
+<span class="md-ellipsis">
+      数据 Manifest 的 Hash 语义
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dataloader-worker-seed">
+<span class="md-ellipsis">
+      DataLoader Worker Seed
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank-seed-policy">
+<span class="md-ellipsis">
+      Rank Seed Policy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rng-state-checkpoint">
+<span class="md-ellipsis">
+      RNG State 与 Checkpoint
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rng-state-inventory">
+<span class="md-ellipsis">
+      RNG State Inventory
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      随机流命名
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deterministic-algorithms">
+<span class="md-ellipsis">
+      Deterministic Algorithms
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#determinism-budget">
+<span class="md-ellipsis">
+      Determinism Budget
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#floating-point">
+<span class="md-ellipsis">
+      Floating Point 非结合性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mixed-precision-tf32">
+<span class="md-ellipsis">
+      Mixed Precision 与 TF32
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      环境锁定
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#activation-checkpointing-rng">
+<span class="md-ellipsis">
+      Activation Checkpointing 与 RNG
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe">
+<span class="md-ellipsis">
+      MoE 训练中的随机性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank-mapping">
+<span class="md-ellipsis">
+      分布式拓扑与 Rank Mapping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest_1">
+<span class="md-ellipsis">
+      通信与拓扑 Manifest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint-resume">
+<span class="md-ellipsis">
+      Checkpoint Resume 的语义
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#eval">
+<span class="md-ellipsis">
+      Eval 可复现性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 可复现性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-manifest_4">
+<span class="md-ellipsis">
+      Run Manifest 与日志的区别
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      推荐落地流程
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest-quality-gate">
+<span class="md-ellipsis">
+      Manifest Quality Gate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      启动前检查
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#resume">
+<span class="md-ellipsis">
+      Resume 后检查
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      常见失败案例
+    </span>
+</a>
+<nav aria-label="常见失败案例" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-seed">
+<span class="md-ellipsis">
+      1. 同一个 Seed，不同数据顺序
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-resume-loss">
+<span class="md-ellipsis">
+      2. Resume 后 Loss 跳变
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-eval">
+<span class="md-ellipsis">
+      3. Eval 分数不可比
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-benchmark">
+<span class="md-ellipsis">
+      4. Benchmark 数字漂移
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-rank-0">
+<span class="md-ellipsis">
+      5. 只保存 Rank 0 日志
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      可复现性等级
+    </span>
+</a>
+<nav aria-label="可复现性等级" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      自动评级
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checklist">
+<span class="md-ellipsis">
+      推荐 Checklist
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      与其他训练主题的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      一个实用判断标准
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      先给结论
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#seed">
+<span class="md-ellipsis">
+      为什么只设 Seed 不够
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      在训练生命周期中的位置
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      三种常见目标
+    </span>
+</a>
+<nav aria-label="三种常见目标" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-debug-reproduction">
+<span class="md-ellipsis">
+      1. Debug Reproduction
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-experiment-comparison">
+<span class="md-ellipsis">
+      2. Experiment Comparison
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-production-training-audit">
+<span class="md-ellipsis">
+      3. Production Training Audit
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      可复现性边界
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      复现目标协议
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      实验比较协议
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-manifest_1">
+<span class="md-ellipsis">
+      Run Manifest 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-manifest_2">
+<span class="md-ellipsis">
+      Run Manifest 的核心字段
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest">
+<span class="md-ellipsis">
+      Manifest 生命周期
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest-schema-version">
+<span class="md-ellipsis">
+      Manifest Schema Version
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-manifest_3">
+<span class="md-ellipsis">
+      Run Manifest 示例
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#code-config">
+<span class="md-ellipsis">
+      Code 与 Config
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tokenizer">
+<span class="md-ellipsis">
+      Tokenizer 与模型配置
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      数据版本与数据顺序
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#streaming-dataset-data-cursor">
+<span class="md-ellipsis">
+      Streaming Dataset 与 Data Cursor
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest-hash">
+<span class="md-ellipsis">
+      数据 Manifest 的 Hash 语义
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dataloader-worker-seed">
+<span class="md-ellipsis">
+      DataLoader Worker Seed
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank-seed-policy">
+<span class="md-ellipsis">
+      Rank Seed Policy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rng-state-checkpoint">
+<span class="md-ellipsis">
+      RNG State 与 Checkpoint
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rng-state-inventory">
+<span class="md-ellipsis">
+      RNG State Inventory
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      随机流命名
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deterministic-algorithms">
+<span class="md-ellipsis">
+      Deterministic Algorithms
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#determinism-budget">
+<span class="md-ellipsis">
+      Determinism Budget
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#floating-point">
+<span class="md-ellipsis">
+      Floating Point 非结合性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mixed-precision-tf32">
+<span class="md-ellipsis">
+      Mixed Precision 与 TF32
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      环境锁定
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#activation-checkpointing-rng">
+<span class="md-ellipsis">
+      Activation Checkpointing 与 RNG
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe">
+<span class="md-ellipsis">
+      MoE 训练中的随机性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank-mapping">
+<span class="md-ellipsis">
+      分布式拓扑与 Rank Mapping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest_1">
+<span class="md-ellipsis">
+      通信与拓扑 Manifest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint-resume">
+<span class="md-ellipsis">
+      Checkpoint Resume 的语义
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#eval">
+<span class="md-ellipsis">
+      Eval 可复现性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 可复现性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#run-manifest_4">
+<span class="md-ellipsis">
+      Run Manifest 与日志的区别
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      推荐落地流程
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#manifest-quality-gate">
+<span class="md-ellipsis">
+      Manifest Quality Gate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      启动前检查
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#resume">
+<span class="md-ellipsis">
+      Resume 后检查
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      常见失败案例
+    </span>
+</a>
+<nav aria-label="常见失败案例" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-seed">
+<span class="md-ellipsis">
+      1. 同一个 Seed，不同数据顺序
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-resume-loss">
+<span class="md-ellipsis">
+      2. Resume 后 Loss 跳变
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-eval">
+<span class="md-ellipsis">
+      3. Eval 分数不可比
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-benchmark">
+<span class="md-ellipsis">
+      4. Benchmark 数字漂移
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-rank-0">
+<span class="md-ellipsis">
+      5. 只保存 Rank 0 日志
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      可复现性等级
+    </span>
+</a>
+<nav aria-label="可复现性等级" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      自动评级
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checklist">
+<span class="md-ellipsis">
+      推荐 Checklist
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      与其他训练主题的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      一个实用判断标准
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="run-manifest">训练可复现性、随机性与 Run Manifest<a class="headerlink" href="#run-manifest" title="Permanent link">¶</a></h1>
+<p>训练可复现性经常被简化成一句话：</p>
+<div class="highlight"><pre><span></span><code>set random seed
+</code></pre></div>
+<p>但真实训练系统里，这远远不够。</p>
+<p>一次训练结果会受到很多东西影响：</p>
+<ul>
+<li>代码版本。</li>
+<li>模型配置。</li>
+<li>tokenizer。</li>
+<li>数据版本。</li>
+<li>数据顺序。</li>
+<li>batch 组成。</li>
+<li>dropout 随机性。</li>
+<li>MoE router 随机性。</li>
+<li>mixed precision 配置。</li>
+<li>fused kernel。</li>
+<li>collective 通信算法。</li>
+<li>rank mapping。</li>
+<li>checkpoint resume 位置。</li>
+<li>eval 数据和 prompt 模板。</li>
+<li>benchmark workload。</li>
+</ul>
+<p>如果这些信息没有记录清楚，同一个实验很难重跑，两个实验很难比较，训练中断后也很难判断恢复是否正确。</p>
+<p>本篇关注训练系统里的可复现性：随机性来自哪里，为什么同一个 seed 仍然可能跑出不同结果，以及如何用 Run Manifest 把一次训练运行完整记录下来。</p>
+<h2 id="_1">先给结论<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>训练可复现性不是一个开关，而是一套工程治理。</p>
+<p>它至少分成四层：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>目标</th>
+<th>典型要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bitwise reproducibility</td>
+<td>每个数值尽量逐 bit 一样</td>
+<td>固定 seed、固定算法、固定硬件/软件版本、禁用非确定性 kernel。</td>
+</tr>
+<tr>
+<td>step-level reproducibility</td>
+<td>关键曲线在每个 step 上基本对齐</td>
+<td>固定数据顺序、RNG state、resume state 和分布式拓扑。</td>
+</tr>
+<tr>
+<td>statistical reproducibility</td>
+<td>最终趋势和指标在合理波动内一致</td>
+<td>多 seed 实验、均值/方差、固定 eval 流程。</td>
+</tr>
+<tr>
+<td>auditable reproducibility</td>
+<td>即使不能完全重跑，也能解释一次运行</td>
+<td>完整 Run Manifest、artifact、checkpoint、日志和指标留档。</td>
+</tr>
+</tbody>
+</table>
+<p>大模型训练里，很多场景并不追求绝对逐 bit 一致。因为逐 bit 一致可能需要牺牲性能，也可能被硬件、库版本和通信算法限制。</p>
+<p>但训练系统必须做到：</p>
+<ol>
+<li><strong>知道一次训练到底用了什么。</strong></li>
+<li><strong>知道两个实验是否真的可比。</strong></li>
+<li><strong>知道中断恢复后训练状态是否连续。</strong></li>
+<li><strong>知道评估和 benchmark 结果能不能追溯。</strong></li>
+</ol>
+<p>最小可用方案是：</p>
+<div class="highlight"><pre><span></span><code>fixed code + fixed config + fixed data manifest + fixed tokenizer
++ fixed seed/RNG policy + recorded checkpoint state
++ recorded distributed topology + recorded eval/benchmark setup
+= auditable run
+</code></pre></div>
+<h2 id="seed">为什么只设 Seed 不够<a class="headerlink" href="#seed" title="Permanent link">¶</a></h2>
+<p>seed 只是随机数生成器的起点。</p>
+<p>训练里常见的随机来源包括：</p>
+<table>
+<thead>
+<tr>
+<th>随机来源</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dataset shuffle</td>
+<td>改变样本进入训练的顺序。</td>
+</tr>
+<tr>
+<td>distributed sampler</td>
+<td>改变不同 rank 看到的数据切片。</td>
+</tr>
+<tr>
+<td>DataLoader worker</td>
+<td>多进程读取时每个 worker 有自己的随机状态。</td>
+</tr>
+<tr>
+<td>sequence packing</td>
+<td>改变多个样本如何拼成固定长度序列。</td>
+</tr>
+<tr>
+<td>dropout</td>
+<td>forward 中随机丢弃 activation。</td>
+</tr>
+<tr>
+<td>activation checkpointing</td>
+<td>backward 重算 forward 时需要正确恢复 RNG。</td>
+</tr>
+<tr>
+<td>MoE routing</td>
+<td>router 抖动、tie-breaking 或 token dropping 可能带来随机性。</td>
+</tr>
+<tr>
+<td>data augmentation</td>
+<td>图像、音频、多模态数据增强会改变输入。</td>
+</tr>
+<tr>
+<td>generation eval</td>
+<td>sampling、temperature、top-p 会影响生成结果。</td>
+</tr>
+<tr>
+<td>kernel / collective</td>
+<td>某些 GPU kernel 或通信规约顺序可能不是确定的。</td>
+</tr>
+</tbody>
+</table>
+<p>即使所有地方都用同一个初始 seed，也可能因为下面这些变化导致结果不同：</p>
+<ul>
+<li>world size 变了，数据切分和梯度规约顺序变了。</li>
+<li>DataLoader worker 数量变了，样本预取顺序变了。</li>
+<li>checkpoint resume 时没有恢复 RNG state。</li>
+<li>activation checkpointing 重算时没有 preserve RNG。</li>
+<li>开启了不同 fused kernel。</li>
+<li>PyTorch、CUDA、cuDNN、NCCL 版本变了。</li>
+<li>TF32、FP8 或 mixed precision 策略变了。</li>
+<li>tokenizer 或 chat template 变了。</li>
+</ul>
+<p>因此，训练可复现性要记录的是一组状态，而不是一个数字。</p>
+<h2 id="_2">在训练生命周期中的位置<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>训练可复现性贯穿整个生命周期：</p>
+<div class="mermaid">flowchart TB
+    A["Run Manifest<br/>code / config / data / environment"] --&gt; B["Initialize<br/>model / tokenizer / optimizer / scheduler"]
+    A --&gt; C["Seed &amp; RNG policy<br/>Python / NumPy / PyTorch / CUDA / workers / ranks"]
+    B --&gt; D["Data pipeline<br/>shard / shuffle / packing / sampler cursor"]
+    C --&gt; D
+    D --&gt; E["Training step<br/>forward / loss / backward / optimizer"]
+    E --&gt; F["Checkpoint<br/>model / optimizer / scheduler / RNG / data state"]
+    F --&gt; G{"Resume or eval?"}
+    G -- "resume" --&gt; H["Restore state<br/>same semantics, not just same weights"]
+    H --&gt; D
+    G -- "eval" --&gt; I["Evaluation / benchmark<br/>dataset / prompts / decoding / metrics"]
+    I --&gt; J["Run report<br/>metrics / artifacts / selected checkpoint"]
+</div>
+<p>如果只记录训练脚本和超参数，缺失了数据顺序、RNG、checkpoint state、eval 配置，就很难解释一次运行。</p>
+<h2 id="_3">三种常见目标<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>不同任务对可复现性的要求不同。</p>
+<h3 id="1-debug-reproduction">1. Debug Reproduction<a class="headerlink" href="#1-debug-reproduction" title="Permanent link">¶</a></h3>
+<p>目标是复现一个 bug。</p>
+<p>例如：</p>
+<ul>
+<li>某个 step 出现 NaN。</li>
+<li>resume 后 loss 突然跳变。</li>
+<li>某个 rank hang 住。</li>
+<li>某个 batch 触发 OOM。</li>
+</ul>
+<p>这时需要尽量接近 step-level reproducibility。</p>
+<p>至少要保存：</p>
+<ul>
+<li>代码 commit。</li>
+<li>完整 config。</li>
+<li>数据 shard 和 sampler position。</li>
+<li>触发异常的 batch 标识。</li>
+<li>所有 rank 的 RNG state。</li>
+<li>rank mapping。</li>
+<li>mixed precision / loss scale / FP8 amax state。</li>
+<li>checkpoint 路径。</li>
+<li>环境版本。</li>
+</ul>
+<h3 id="2-experiment-comparison">2. Experiment Comparison<a class="headerlink" href="#2-experiment-comparison" title="Permanent link">¶</a></h3>
+<p>目标是比较两个训练配置。</p>
+<p>例如：</p>
+<ul>
+<li>batch size A 和 B 哪个更快。</li>
+<li>FSDP 和 ZeRO 哪个扩展效率更好。</li>
+<li>FP8 是否损伤 eval 指标。</li>
+<li>Muon 和 AdamW 在某个训练预算下是否可比。</li>
+</ul>
+<p>这时最重要的是固定变量。</p>
+<p>至少要保证：</p>
+<ul>
+<li>数据版本一致。</li>
+<li>tokenizer 一致。</li>
+<li>global batch、sequence length、训练 token budget 可比。</li>
+<li>eval 数据和 prompt 一致。</li>
+<li>benchmark workload 一致。</li>
+<li>代码差异可解释。</li>
+<li>运行环境有记录。</li>
+</ul>
+<p>如果目标是模型质量比较，还要多 seed 或多次运行，避免把随机波动误认为优化收益。</p>
+<h3 id="3-production-training-audit">3. Production Training Audit<a class="headerlink" href="#3-production-training-audit" title="Permanent link">¶</a></h3>
+<p>目标是让长期训练可以被审计。</p>
+<p>例如：</p>
+<ul>
+<li>哪个 checkpoint 进入了后训练。</li>
+<li>这个 checkpoint 来自哪次训练。</li>
+<li>它用过哪些数据版本。</li>
+<li>中途是否 resume 过。</li>
+<li>eval 分数来自哪个评估脚本。</li>
+<li>benchmark 是否可重跑。</li>
+</ul>
+<p>这时不一定要求逐 bit 复现，但必须要求链路可追溯。</p>
+<p>Run Manifest 就是为这个目标服务的。</p>
+<h2 id="_4">可复现性边界<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<p>需要先承认一个现实：深度学习训练不总是能跨环境逐 bit 复现。</p>
+<p>PyTorch 官方文档也提醒，完全可复现并不保证跨 PyTorch 版本、不同 commit、不同平台，甚至 CPU/GPU 之间都一致；同时，确定性算法可能比非确定性算法慢。</p>
+<p>这意味着工程上要明确目标：</p>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>是否现实</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>同一机器、同一环境、同一配置逐 bit 对齐</td>
+<td>有机会做到</td>
+<td>可能要禁用高性能非确定性路径。</td>
+</tr>
+<tr>
+<td>同一集群、同一镜像、同一拓扑 loss 曲线对齐</td>
+<td>比较现实</td>
+<td>需要保存完整状态和数据 cursor。</td>
+</tr>
+<tr>
+<td>不同 GPU 代际、不同库版本逐 bit 对齐</td>
+<td>通常不现实</td>
+<td>成本高，也不一定值得。</td>
+</tr>
+<tr>
+<td>指标趋势可解释、实验可比较</td>
+<td>必须做到</td>
+<td>依赖 manifest、数据治理和评估治理。</td>
+</tr>
+</tbody>
+</table>
+<p>训练系统不要把“无法逐 bit 复现”当成不记录的理由。</p>
+<p>越是不能逐 bit 复现，越需要把影响因素记录清楚。</p>
+<h2 id="_5">复现目标协议<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<p>每次训练开始前，最好先声明这次 run 追求哪种复现目标。不同目标需要的成本不同。</p>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>适用场景</th>
+<th>必须记录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>debug-exact</td>
+<td>排查 NaN、loss spike、resume 跳变</td>
+<td>RNG state、data cursor、rank mapping、deterministic mode、异常 batch。</td>
+</tr>
+<tr>
+<td>experiment-comparable</td>
+<td>比较两个训练配置</td>
+<td>数据版本、tokenizer、global batch tokens、eval/benchmark manifest。</td>
+</tr>
+<tr>
+<td>audit-ready</td>
+<td>长期训练、重要 baseline、上线候选</td>
+<td>完整 Run Manifest、checkpoint lineage、eval report、环境和 artifact。</td>
+</tr>
+<tr>
+<td>statistical</td>
+<td>多 seed 质量比较</td>
+<td>seed 列表、均值/方差、置信区间、固定 eval 流程。</td>
+</tr>
+</tbody>
+</table>
+<p>一个 run 可以这样记录：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">reproducibility</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="s">"audit-ready"</span>
+<span class="w">  </span><span class="nt">expected_level</span><span class="p">:</span><span class="w"> </span><span class="s">"L3"</span>
+<span class="w">  </span><span class="nt">bitwise_required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">comparable_to</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run_id</span><span class="p">:</span><span class="w"> </span><span class="s">"baseline-7b-bf16-001"</span>
+<span class="w">      </span><span class="nt">comparison_goal</span><span class="p">:</span><span class="w"> </span><span class="s">"optimizer_ablation"</span>
+</code></pre></div>
+<p>这个字段的意义是提前约束期望。大规模预训练不一定追求逐 bit 一致，但至少应该 audit-ready；bug 复现任务则应临时提高到 debug-exact。</p>
+<h2 id="_6">实验比较协议<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>很多“优化有效”的结论其实来自不可比实验。比较两个 run 前，要明确哪些变量必须固定，哪些变量允许变化。</p>
+<p>例如比较 AdamW 和 Muon：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">comparison</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">changed</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">optimizer</span>
+<span class="w">  </span><span class="nt">fixed</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model_architecture</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tokenizer</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data_manifest</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train_token_budget</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">global_batch_tokens</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">precision_policy</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eval_manifest</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hardware_pool</span>
+</code></pre></div>
+<p>如果比较 FP8 和 BF16，precision 是允许变化项，但其他项要尽量固定。如果比较 FSDP 和 ZeRO，parallelism/runtime 是允许变化项，但数据、模型、token budget、eval 应保持一致。</p>
+<p>推荐给每个对比实验生成 comparison manifest：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">comparison_manifest</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">baseline_run</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">candidate_run</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">hypothesis</span><span class="p">:</span><span class="w"> </span><span class="s">"Muon</span><span class="nv"> </span><span class="s">reaches</span><span class="nv"> </span><span class="s">target</span><span class="nv"> </span><span class="s">validation</span><span class="nv"> </span><span class="s">loss</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">lower</span><span class="nv"> </span><span class="s">wall-clock</span><span class="nv"> </span><span class="s">cost"</span>
+<span class="w">  </span><span class="nt">controlled_variables</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">changed_variables</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">primary_metrics</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"wall_clock_to_target_loss"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"tokens_to_target_loss"</span>
+<span class="w">  </span><span class="nt">secondary_metrics</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"peak_memory"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"optimizer_step_time"</span>
+</code></pre></div>
+<p>这能避免事后只看一张 loss 曲线就下结论。</p>
+<h2 id="run-manifest_1">Run Manifest 是什么<a class="headerlink" href="#run-manifest_1" title="Permanent link">¶</a></h2>
+<p>Run Manifest 是一次训练运行的身份证。</p>
+<p>它不是训练日志，也不是 TensorBoard 曲线，而是一份结构化记录，说明：</p>
+<div class="highlight"><pre><span></span><code>这次训练是谁
+从哪里来
+用了什么代码
+用了什么数据
+用了什么环境
+用了什么并行配置
+随机性如何初始化和保存
+产生了哪些 checkpoint
+做过哪些 eval / benchmark
+结果在哪里
+</code></pre></div>
+<p>Run Manifest 最好是机器可读的，例如 YAML、JSON 或数据库记录。</p>
+<p>Markdown 文档可以解释原则，真正落地时应有结构化字段。</p>
+<h2 id="run-manifest_2">Run Manifest 的核心字段<a class="headerlink" href="#run-manifest_2" title="Permanent link">¶</a></h2>
+<p>一个训练运行至少应该记录下面这些字段：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>run identity</td>
+<td>run id、experiment name、owner、start/end time、description。</td>
+</tr>
+<tr>
+<td>code</td>
+<td>git repo、commit、branch、dirty diff、训练入口脚本。</td>
+</tr>
+<tr>
+<td>config</td>
+<td>原始 config、展开后的 resolved config、config hash。</td>
+</tr>
+<tr>
+<td>model</td>
+<td>architecture、hidden size、layers、heads、MoE 配置、RoPE/context 配置。</td>
+</tr>
+<tr>
+<td>tokenizer</td>
+<td>tokenizer 名称、版本、hash、special tokens、chat template。</td>
+</tr>
+<tr>
+<td>data</td>
+<td>dataset manifest、shard list、采样比例、filter 规则、packing 策略。</td>
+</tr>
+<tr>
+<td>optimization</td>
+<td>optimizer、scheduler、learning rate、global batch、grad accumulation。</td>
+</tr>
+<tr>
+<td>precision</td>
+<td>FP32/TF32/BF16/FP16/FP8、loss scaling、amax/scale 策略。</td>
+</tr>
+<tr>
+<td>parallelism</td>
+<td>DP/FSDP/ZeRO/TP/PP/EP/SP/CP size、rank mapping、process group。</td>
+</tr>
+<tr>
+<td>randomness</td>
+<td>global seed、rank seed policy、worker seed policy、RNG state checkpoint。</td>
+</tr>
+<tr>
+<td>environment</td>
+<td>container image、Python、PyTorch、CUDA、cuDNN、NCCL、driver、硬件。</td>
+</tr>
+<tr>
+<td>checkpoint</td>
+<td>checkpoint cadence、format、latest/best 路径、resume lineage。</td>
+</tr>
+<tr>
+<td>evaluation</td>
+<td>eval dataset、prompt、decoding、metric、judge model、report path。</td>
+</tr>
+<tr>
+<td>benchmark</td>
+<td>workload、seq length、batch、warmup、metrics、profiler trace。</td>
+</tr>
+<tr>
+<td>artifacts</td>
+<td>logs、metrics、trace、checkpoint、config、manifest 路径。</td>
+</tr>
+</tbody>
+</table>
+<p>关键原则是：只记录“人看得懂的摘要”不够，必须保留可以重跑的结构化配置。</p>
+<h2 id="manifest">Manifest 生命周期<a class="headerlink" href="#manifest" title="Permanent link">¶</a></h2>
+<p>Run Manifest 不应该只在训练结束后生成。它应当伴随 run 生命周期不断更新。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>Manifest 内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>create</td>
+<td>run id、owner、目标、初始 config。</td>
+</tr>
+<tr>
+<td>resolved</td>
+<td>展开后的 config、代码 commit、数据 manifest、环境。</td>
+</tr>
+<tr>
+<td>launched</td>
+<td>rank mapping、资源分配、seed policy、启动时间。</td>
+</tr>
+<tr>
+<td>running</td>
+<td>checkpoint 事件、eval 事件、resume 事件、failure 事件。</td>
+</tr>
+<tr>
+<td>finalized</td>
+<td>final checkpoint、best checkpoint、完整 eval report、结束状态。</td>
+</tr>
+</tbody>
+</table>
+<p>可以把 manifest 看成两部分：</p>
+<div class="highlight"><pre><span></span><code>run_manifest.yaml       # 当前状态快照
+run_events.jsonl        # 追加式事件日志
+</code></pre></div>
+<p><code>run_manifest.yaml</code> 方便人和 AI 快速查看当前 run 状态；<code>run_events.jsonl</code> 方便追踪历史变化。</p>
+<p>事件示例：</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"checkpoint_saved"</span><span class="p">,</span><span class="nt">"step"</span><span class="p">:</span><span class="mi">120000</span><span class="p">,</span><span class="nt">"train_tokens"</span><span class="p">:</span><span class="mi">245760000000</span><span class="p">,</span><span class="nt">"path"</span><span class="p">:</span><span class="s2">"s3://..."</span><span class="p">,</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"complete"</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"eval_completed"</span><span class="p">,</span><span class="nt">"checkpoint"</span><span class="p">:</span><span class="s2">"step-120000"</span><span class="p">,</span><span class="nt">"suite"</span><span class="p">:</span><span class="s2">"validation-lite"</span><span class="p">,</span><span class="nt">"report"</span><span class="p">:</span><span class="s2">"s3://..."</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"resume"</span><span class="p">,</span><span class="nt">"from_checkpoint"</span><span class="p">:</span><span class="s2">"step-120000"</span><span class="p">,</span><span class="nt">"restored_rng"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nt">"restored_data_state"</span><span class="p">:</span><span class="kc">true</span><span class="p">}</span>
+</code></pre></div>
+<p>这比在日志里搜索字符串可靠得多。</p>
+<h2 id="manifest-schema-version">Manifest Schema Version<a class="headerlink" href="#manifest-schema-version" title="Permanent link">¶</a></h2>
+<p>Manifest 自身也要有版本。</p>
+<div class="highlight"><pre><span></span><code><span class="nt">manifest</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">schema_version</span><span class="p">:</span><span class="w"> </span><span class="s">"training-run-manifest/v1"</span>
+<span class="w">  </span><span class="nt">created_by</span><span class="p">:</span><span class="w"> </span><span class="s">"train-platform"</span>
+<span class="w">  </span><span class="nt">created_by_version</span><span class="p">:</span><span class="w"> </span><span class="s">"2026.06.12"</span>
+</code></pre></div>
+<p>原因很简单：训练平台会演进。今天没有 FP8 字段，明天可能有；今天没有 Muon 参数分组，后天可能需要。</p>
+<p>有 schema version 后，系统可以：</p>
+<ul>
+<li>知道旧 run 缺少哪些字段。</li>
+<li>做 manifest migration。</li>
+<li>在 dashboard 中区分字段语义。</li>
+<li>避免把不同版本 manifest 混在一起比较。</li>
+</ul>
+<p>重要 baseline 的 manifest schema 不应随意修改；如果修改，应保留迁移规则。</p>
+<h2 id="run-manifest_3">Run Manifest 示例<a class="headerlink" href="#run-manifest_3" title="Permanent link">¶</a></h2>
+<p>下面是一个简化示例。</p>
+<p>真实系统可以更细，但不应该比这个少太多。</p>
+<div class="highlight"><pre><span></span><code><span class="nt">run</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pretrain-llm-2026-06-12-001</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm-7b-baseline-bf16</span>
+<span class="w">  </span><span class="nt">created_at</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-06-12T09:00:00+08:00"</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"7B</span><span class="nv"> </span><span class="s">baseline</span><span class="nv"> </span><span class="s">pretraining</span><span class="nv"> </span><span class="s">run"</span>
+
+<span class="nt">code</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">git@github.com:example/train-stack.git</span>
+<span class="w">  </span><span class="nt">commit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8f3a9c2</span>
+<span class="w">  </span><span class="nt">branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+<span class="w">  </span><span class="nt">dirty</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">entrypoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train.py</span>
+
+<span class="nt">config</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">configs/llm_7b.yaml</span>
+<span class="w">  </span><span class="nt">resolved_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">artifacts/config.resolved.yaml</span>
+<span class="w">  </span><span class="nt">hash</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sha256:...</span>
+
+<span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">architecture</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">decoder-only-transformer</span>
+<span class="w">  </span><span class="nt">hidden_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4096</span>
+<span class="w">  </span><span class="nt">num_layers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">  </span><span class="nt">num_attention_heads</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">  </span><span class="nt">context_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8192</span>
+<span class="w">  </span><span class="nt">rope_scaling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+
+<span class="nt">tokenizer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-tokenizer</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v3</span>
+<span class="w">  </span><span class="nt">hash</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sha256:...</span>
+<span class="w">  </span><span class="nt">special_tokens</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">bos</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;s&gt;"</span>
+<span class="w">    </span><span class="nt">eos</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;/s&gt;"</span>
+<span class="w">  </span><span class="nt">chat_template</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">manifest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/manifests/pretrain_mix_v12.yaml</span>
+<span class="w">  </span><span class="nt">tokenizer_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v3</span>
+<span class="w">  </span><span class="nt">mixture</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">web</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.70</span>
+<span class="w">    </span><span class="nt">code</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.20</span>
+<span class="w">    </span><span class="nt">math</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.10</span>
+<span class="w">  </span><span class="nt">shuffle_seed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1234</span>
+<span class="w">  </span><span class="nt">packing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sequence_packing_v2</span>
+
+<span class="nt">optimization</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">optimizer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AdamW</span>
+<span class="w">  </span><span class="nt">lr_schedule</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cosine</span>
+<span class="w">  </span><span class="nt">global_batch_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4194304</span>
+<span class="w">  </span><span class="nt">micro_batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">gradient_accumulation_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">  </span><span class="nt">max_train_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000000000000</span>
+
+<span class="nt">precision</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">compute_dtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bf16</span>
+<span class="w">  </span><span class="nt">enable_tf32</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">fp8</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">loss_scaling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+
+<span class="nt">parallelism</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">world_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">  </span><span class="nt">gpus_per_node</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">  </span><span class="nt">data_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">  </span><span class="nt">tensor_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="w">  </span><span class="nt">pipeline_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">expert_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">sequence_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">rank_mapping</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">topology-aware-v1</span>
+
+<span class="nt">randomness</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">base_seed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1234</span>
+<span class="w">  </span><span class="nt">rank_seed_policy</span><span class="p">:</span><span class="w"> </span><span class="s">"base_seed</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">global_rank"</span>
+<span class="w">  </span><span class="nt">dataloader_worker_seed_policy</span><span class="p">:</span><span class="w"> </span><span class="s">"base_seed</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">global_rank</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">1000</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">worker_id"</span>
+<span class="w">  </span><span class="nt">save_rng_state_in_checkpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">deterministic_algorithms</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="nt">environment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">container</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">registry.example.com/train:2026-06-01</span>
+<span class="w">  </span><span class="nt">python</span><span class="p">:</span><span class="w"> </span><span class="s">"3.11"</span>
+<span class="w">  </span><span class="nt">pytorch</span><span class="p">:</span><span class="w"> </span><span class="s">"2.x"</span>
+<span class="w">  </span><span class="nt">cuda</span><span class="p">:</span><span class="w"> </span><span class="s">"12.x"</span>
+<span class="w">  </span><span class="nt">nccl</span><span class="p">:</span><span class="w"> </span><span class="s">"2.x"</span>
+<span class="w">  </span><span class="nt">gpu</span><span class="p">:</span><span class="w"> </span><span class="s">"NVIDIA</span><span class="nv"> </span><span class="s">H100"</span>
+<span class="w">  </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+
+<span class="nt">checkpoint</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sharded</span>
+<span class="w">  </span><span class="nt">cadence_train_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10000000000</span>
+<span class="w">  </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">s3://bucket/runs/pretrain-llm-001/checkpoints/latest</span>
+<span class="w">  </span><span class="nt">resume_from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="nt">evaluation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">validation_manifest</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eval/validation_v4.yaml</span>
+<span class="w">  </span><span class="nt">eval_cadence_train_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10000000000</span>
+<span class="w">  </span><span class="nt">generation_decoding</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">    </span><span class="nt">top_p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="w">  </span><span class="nt">reports</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">s3://bucket/runs/pretrain-llm-001/eval/</span>
+
+<span class="nt">artifacts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">logs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">s3://bucket/runs/pretrain-llm-001/logs/</span>
+<span class="w">  </span><span class="nt">metrics</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">s3://bucket/runs/pretrain-llm-001/metrics.jsonl</span>
+<span class="w">  </span><span class="nt">traces</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">s3://bucket/runs/pretrain-llm-001/traces/</span>
+</code></pre></div>
+<p>这个例子里，最重要的不是字段名字，而是思想：</p>
+<div class="highlight"><pre><span></span><code>一次 run 的所有关键输入和关键产物都要有名字、有版本、有路径、有 hash。
+</code></pre></div>
+<h2 id="code-config">Code 与 Config<a class="headerlink" href="#code-config" title="Permanent link">¶</a></h2>
+<p>代码和配置是最基本的可复现来源。</p>
+<p>至少要记录：</p>
+<ul>
+<li>git commit。</li>
+<li>branch。</li>
+<li>是否有 dirty diff。</li>
+<li>训练入口脚本。</li>
+<li>config 文件路径。</li>
+<li>resolved config。</li>
+<li>config hash。</li>
+<li>依赖版本。</li>
+</ul>
+<p>为什么需要 resolved config？</p>
+<p>因为训练配置经常不是一个静态 YAML。</p>
+<p>真实配置可能来自：</p>
+<ul>
+<li>默认参数。</li>
+<li>命令行参数。</li>
+<li>环境变量。</li>
+<li>launcher 注入。</li>
+<li>集群调度参数。</li>
+<li>自动调参系统。</li>
+<li>框架内部默认值。</li>
+</ul>
+<p>如果只保存原始 config，后续可能不知道某个参数最终到底是多少。</p>
+<p>因此建议在训练启动时输出一份完整展开后的配置：</p>
+<div class="highlight"><pre><span></span><code>config.yaml          # 人写的配置
+config.resolved.yaml # 程序真正使用的配置
+config.hash          # 用于比较两个 run 是否配置一致
+</code></pre></div>
+<h2 id="tokenizer">Tokenizer 与模型配置<a class="headerlink" href="#tokenizer" title="Permanent link">¶</a></h2>
+<p>很多训练差异不是来自模型权重，而是来自 tokenizer 和模型配置。</p>
+<p>Tokenizer 要记录：</p>
+<ul>
+<li>tokenizer 文件或仓库版本。</li>
+<li>vocab hash。</li>
+<li>merge 文件 hash，如果使用 BPE。</li>
+<li>special tokens。</li>
+<li>padding / truncation 策略。</li>
+<li>chat template。</li>
+<li>normalization 规则。</li>
+</ul>
+<p>模型配置要记录：</p>
+<ul>
+<li>architecture。</li>
+<li>hidden size。</li>
+<li>num layers。</li>
+<li>num heads。</li>
+<li>GQA/MQA 配置。</li>
+<li>MoE expert 数量。</li>
+<li>top-k routing。</li>
+<li>context length。</li>
+<li>RoPE base / scaling。</li>
+<li>vocab size。</li>
+<li>tie embeddings 设置。</li>
+</ul>
+<p>两个实验即使代码和数据相同，只要 tokenizer 变了，token 数、sequence packing、loss mask、validation loss 都可能不可比。</p>
+<p>chat template 也非常关键。</p>
+<p>同一条指令数据，用不同模板包起来，模型看到的 token 序列就不同。</p>
+<h2 id="_7">数据版本与数据顺序<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<p>数据可复现性包括两件事：</p>
+<ol>
+<li>数据内容是否一样。</li>
+<li>数据进入训练的顺序是否一样。</li>
+</ol>
+<p>数据内容要记录：</p>
+<ul>
+<li>dataset name。</li>
+<li>dataset version。</li>
+<li>shard list。</li>
+<li>shard hash。</li>
+<li>filtering rules。</li>
+<li>dedup rules。</li>
+<li>language/domain 标签。</li>
+<li>train/validation split。</li>
+<li>mixture ratio。</li>
+</ul>
+<p>数据顺序要记录：</p>
+<ul>
+<li>shuffle seed。</li>
+<li>sampler epoch。</li>
+<li>sampler position。</li>
+<li>consumed samples。</li>
+<li>consumed tokens。</li>
+<li>DataLoader worker 数量。</li>
+<li>drop_last 策略。</li>
+<li>sequence packing buffer 状态。</li>
+<li>streaming dataset cursor。</li>
+</ul>
+<p>很多训练系统会记录 <code>global_step</code>，但不记录 <code>consumed_tokens</code>。</p>
+<p>这在大模型训练里不够。</p>
+<p>因为改变下面任意一项，都可能让同样的 <code>global_step</code> 对应不同 token 数：</p>
+<ul>
+<li>sequence length。</li>
+<li>global batch tokens。</li>
+<li>gradient accumulation。</li>
+<li>padding 比例。</li>
+<li>loss mask。</li>
+<li>multi-modal sample 组成。</li>
+</ul>
+<p>建议同时记录：</p>
+<div class="highlight"><pre><span></span><code>global_step
+optimizer_step
+micro_step
+consumed_samples
+consumed_input_tokens
+consumed_loss_tokens
+</code></pre></div>
+<p>其中 <code>consumed_loss_tokens</code> 对语言模型尤其重要，因为不是所有 input token 都参与 loss。</p>
+<h2 id="streaming-dataset-data-cursor">Streaming Dataset 与 Data Cursor<a class="headerlink" href="#streaming-dataset-data-cursor" title="Permanent link">¶</a></h2>
+<p>很多大模型训练使用 streaming dataset。数据并不是一个固定本地文件列表，而是从对象存储、远端数据服务或 shard 流中读取。</p>
+<p>这时要记录的不只是 <code>dataset_version</code>，还要记录 cursor。</p>
+<p>常见字段：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">data_state</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dataset_manifest</span><span class="p">:</span><span class="w"> </span><span class="s">"pretrain_mix_v12.yaml"</span>
+<span class="w">  </span><span class="nt">shard_epoch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">current_shard</span><span class="p">:</span><span class="w"> </span><span class="s">"s3://bucket/shard-00123.jsonl.zst"</span>
+<span class="w">  </span><span class="nt">offset_in_shard</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">91827364</span>
+<span class="w">  </span><span class="nt">shuffle_buffer_seed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1234</span>
+<span class="w">  </span><span class="nt">shuffle_buffer_position</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5521</span>
+<span class="w">  </span><span class="nt">consumed_samples</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">987654321</span>
+<span class="w">  </span><span class="nt">consumed_input_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">123456789012</span>
+<span class="w">  </span><span class="nt">consumed_loss_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120000000000</span>
+</code></pre></div>
+<p>如果使用 sequence packing，还要记录 packing buffer 状态：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">packing_state</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="s">"sequence_packing_v2"</span>
+<span class="w">  </span><span class="nt">buffer_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4096</span>
+<span class="w">  </span><span class="nt">pending_sample_ids</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">pending_token_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+</code></pre></div>
+<p>否则 resume 后即使从同一个 shard 开始，也可能因为 packing buffer 不同，batch 组成发生变化。</p>
+<h2 id="manifest-hash">数据 Manifest 的 Hash 语义<a class="headerlink" href="#manifest-hash" title="Permanent link">¶</a></h2>
+<p>数据 hash 也要说明 hash 的对象是什么。</p>
+<table>
+<thead>
+<tr>
+<th>Hash</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>raw shard hash</td>
+<td>原始数据文件内容。</td>
+</tr>
+<tr>
+<td>normalized text hash</td>
+<td>清洗和规范化后的文本。</td>
+</tr>
+<tr>
+<td>tokenized shard hash</td>
+<td>tokenization 后的 token 序列。</td>
+</tr>
+<tr>
+<td>packed sample hash</td>
+<td>packing 后的训练样本序列。</td>
+</tr>
+<tr>
+<td>manifest hash</td>
+<td>shard 列表、比例和规则的整体配置。</td>
+</tr>
+</tbody>
+</table>
+<p>如果只写 <code>data_hash</code>，后面可能不知道它指的是 raw text 还是 tokenized data。</p>
+<p>对训练可复现最有用的是 tokenized/packed 层级的 hash，因为模型真正看到的是 token 序列和 loss mask。</p>
+<h2 id="dataloader-worker-seed">DataLoader Worker Seed<a class="headerlink" href="#dataloader-worker-seed" title="Permanent link">¶</a></h2>
+<p>训练数据读取经常用多 worker。</p>
+<p>这会带来一个容易忽略的问题：每个 worker 都有自己的随机状态。</p>
+<p>如果 worker seed 没有固定，可能出现：</p>
+<ul>
+<li>augmentation 不同。</li>
+<li>packing 不同。</li>
+<li>shuffle buffer 抽样不同。</li>
+<li>多模态 crop / resize / mask 不同。</li>
+</ul>
+<p>常见做法是定义明确的 worker seed policy：</p>
+<div class="highlight"><pre><span></span><code>worker_seed = base_seed + global_rank * 1000 + worker_id
+</code></pre></div>
+<p>这只是示意，真实系统要避免不同 rank、不同 worker、不同 epoch 的 seed 冲突。</p>
+<p>更稳的做法是把 seed policy 写进 Run Manifest。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">randomness</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">base_seed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1234</span>
+<span class="w">  </span><span class="nt">rank_seed_policy</span><span class="p">:</span><span class="w"> </span><span class="s">"base_seed</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">global_rank"</span>
+<span class="w">  </span><span class="nt">dataloader_worker_seed_policy</span><span class="p">:</span><span class="w"> </span><span class="s">"base_seed</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">global_rank</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">1000</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">worker_id"</span>
+<span class="w">  </span><span class="nt">epoch_seed_policy</span><span class="p">:</span><span class="w"> </span><span class="s">"base_seed</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">epoch"</span>
+</code></pre></div>
+<p>不要只在日志里打印：</p>
+<div class="highlight"><pre><span></span><code>seed = 1234
+</code></pre></div>
+<p>这不足以说明每个 rank 和 worker 实际用了什么随机流。</p>
+<h2 id="rank-seed-policy">Rank Seed Policy<a class="headerlink" href="#rank-seed-policy" title="Permanent link">¶</a></h2>
+<p>分布式训练里，每个 rank 是否使用相同 seed，要看随机行为的含义。</p>
+<p>有些随机行为希望各 rank 一致。</p>
+<p>例如：</p>
+<ul>
+<li>某些 tensor parallel 层里需要一致的 dropout mask。</li>
+<li>某些模型并行 RNG tracker 需要保证切分前后语义一致。</li>
+</ul>
+<p>有些随机行为希望各 rank 不同。</p>
+<p>例如：</p>
+<ul>
+<li>data parallel 各 rank 读取不同样本。</li>
+<li>data augmentation 不应每张卡完全一样。</li>
+<li>MoE token routing 不能因 seed 设计导致 rank 间异常同步。</li>
+</ul>
+<p>因此不要简单说：</p>
+<div class="highlight"><pre><span></span><code>all ranks use the same seed
+</code></pre></div>
+<p>也不要简单说：</p>
+<div class="highlight"><pre><span></span><code>seed = base_seed + rank
+</code></pre></div>
+<p>更好的方式是按随机流分类：</p>
+<table>
+<thead>
+<tr>
+<th>随机流</th>
+<th>是否 rank-specific</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data shuffle</td>
+<td>通常和 rank/world size 相关</td>
+<td>要保证不同 rank 覆盖不同数据。</td>
+</tr>
+<tr>
+<td>dropout</td>
+<td>依赖并行策略</td>
+<td>DP、TP、activation checkpointing 下语义不同。</td>
+</tr>
+<tr>
+<td>augmentation</td>
+<td>通常 rank-specific</td>
+<td>避免各 rank 产生完全相同增强。</td>
+</tr>
+<tr>
+<td>model initialization</td>
+<td>依赖并行策略</td>
+<td>TP/FSDP 初始化要保证切分后等价。</td>
+</tr>
+<tr>
+<td>generation eval</td>
+<td>通常固定或关闭采样</td>
+<td>temperature=0 时更可比。</td>
+</tr>
+</tbody>
+</table>
+<p>大型训练框架通常会维护不同 RNG tracker。</p>
+<p>Run Manifest 至少要记录 seed policy，而不是只记录一个全局 seed。</p>
+<h2 id="rng-state-checkpoint">RNG State 与 Checkpoint<a class="headerlink" href="#rng-state-checkpoint" title="Permanent link">¶</a></h2>
+<p>如果训练从头开始，seed 决定初始随机状态。</p>
+<p>如果训练从 checkpoint 恢复，seed 已经不够了。</p>
+<p>恢复时需要的是中断那一刻的 RNG state。</p>
+<p>常见 RNG state 包括：</p>
+<ul>
+<li>Python <code>random</code>。</li>
+<li>NumPy RNG。</li>
+<li>PyTorch CPU RNG。</li>
+<li>PyTorch CUDA RNG。</li>
+<li>每个 GPU / rank 的 CUDA RNG。</li>
+<li>DataLoader / sampler state。</li>
+<li>模型并行 RNG tracker。</li>
+</ul>
+<p>如果 checkpoint 只保存 model weights 和 optimizer state，没有保存 RNG state，resume 后可能出现：</p>
+<ul>
+<li>dropout mask 不连续。</li>
+<li>data augmentation 不连续。</li>
+<li>sequence packing 不连续。</li>
+<li>MoE routing 行为变化。</li>
+<li>loss 曲线在 resume 点轻微或明显跳变。</li>
+</ul>
+<p>这不一定会毁掉训练，但会让“恢复是否正确”难以判断。</p>
+<p>因此 checkpoint 至少要标明：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">checkpoint</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">includes_rng_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">includes_data_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">includes_scheduler_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">includes_precision_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<p>如果没有保存，也要如实记录。</p>
+<h2 id="rng-state-inventory">RNG State Inventory<a class="headerlink" href="#rng-state-inventory" title="Permanent link">¶</a></h2>
+<p>建议把随机状态列成 inventory，而不是只写 <code>rng_saved: true</code>。</p>
+<div class="highlight"><pre><span></span><code><span class="nt">rng_state</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python_random</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">numpy_global</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">numpy_generators</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">torch_cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">torch_cuda_all_devices</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">model_parallel_rng_tracker</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">dataloader_workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">sampler</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">augmentation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<p>如果某些状态没有保存，要写明原因：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">rng_state_warnings</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"augmentation</span><span class="nv"> </span><span class="s">RNG</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">owned</span><span class="nv"> </span><span class="s">by</span><span class="nv"> </span><span class="s">external</span><span class="nv"> </span><span class="s">data</span><span class="nv"> </span><span class="s">service</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">checkpointed"</span>
+</code></pre></div>
+<p>这样 resume 后如果出现轻微差异，至少知道差异可能来自哪里。</p>
+<h2 id="_8">随机流命名<a class="headerlink" href="#_8" title="Permanent link">¶</a></h2>
+<p>大型训练系统最好不要只有一个全局随机流。可以给不同用途命名：</p>
+<table>
+<thead>
+<tr>
+<th>随机流</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>init_rng</code></td>
+<td>参数初始化。</td>
+</tr>
+<tr>
+<td><code>data_rng</code></td>
+<td>shuffle、sampling、packing。</td>
+</tr>
+<tr>
+<td><code>model_rng</code></td>
+<td>dropout、stochastic depth。</td>
+</tr>
+<tr>
+<td><code>mp_rng</code></td>
+<td>tensor/model parallel 相关随机性。</td>
+</tr>
+<tr>
+<td><code>eval_rng</code></td>
+<td>generation eval sampling。</td>
+</tr>
+<tr>
+<td><code>aug_rng</code></td>
+<td>多模态增强。</td>
+</tr>
+</tbody>
+</table>
+<p>Run Manifest 可以记录：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">random_streams</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">init_rng</span><span class="p">:</span><span class="w"> </span><span class="s">"base_seed"</span>
+<span class="w">  </span><span class="nt">data_rng</span><span class="p">:</span><span class="w"> </span><span class="s">"base_seed</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">100000"</span>
+<span class="w">  </span><span class="nt">model_rng</span><span class="p">:</span><span class="w"> </span><span class="s">"base_seed</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">rank"</span>
+<span class="w">  </span><span class="nt">eval_rng</span><span class="p">:</span><span class="w"> </span><span class="s">"fixed_eval_seed"</span>
+</code></pre></div>
+<p>这样比“所有地方 seed=1234”更清晰，也更容易发现 seed 冲突。</p>
+<h2 id="deterministic-algorithms">Deterministic Algorithms<a class="headerlink" href="#deterministic-algorithms" title="Permanent link">¶</a></h2>
+<p>许多深度学习框架提供确定性算法开关。</p>
+<p>在 PyTorch 中，可以使用 <code>torch.use_deterministic_algorithms(True)</code> 要求某些操作使用确定性算法。如果某个操作没有确定性实现，可能会报错或回退到受限行为。</p>
+<p>但确定性算法不是免费午餐。</p>
+<p>常见代价包括：</p>
+<ul>
+<li>kernel 选择变少。</li>
+<li>不能使用某些最快实现。</li>
+<li>benchmark 数字下降。</li>
+<li>某些操作直接不可用。</li>
+<li>跨硬件和跨版本仍然不能保证完全一致。</li>
+</ul>
+<p>因此建议分场景使用：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>调试 NaN / loss spike</td>
+<td>可以开启确定性模式缩小变量。</td>
+</tr>
+<tr>
+<td>小规模 ablation</td>
+<td>可以追求更强确定性。</td>
+</tr>
+<tr>
+<td>大规模预训练</td>
+<td>通常优先 auditable reproducibility 和统计可复现。</td>
+</tr>
+<tr>
+<td>性能 benchmark</td>
+<td>必须记录是否开启确定性模式。</td>
+</tr>
+</tbody>
+</table>
+<p>如果开启 deterministic mode，要写进 manifest：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">randomness</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">deterministic_algorithms</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">cudnn_benchmark</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">cublas_workspace_config</span><span class="p">:</span><span class="w"> </span><span class="s">":4096:8"</span>
+</code></pre></div>
+<p>具体开关应以所用框架和版本文档为准。</p>
+<h2 id="determinism-budget">Determinism Budget<a class="headerlink" href="#determinism-budget" title="Permanent link">¶</a></h2>
+<p>确定性会消耗性能预算。可以把它当成一个可配置的 budget：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>用途</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>performance</td>
+<td>默认大规模训练</td>
+<td>速度优先，记录完整上下文。</td>
+</tr>
+<tr>
+<td>audit</td>
+<td>重要 baseline</td>
+<td>尽量固定环境、数据和 eval，允许非 bitwise。</td>
+</tr>
+<tr>
+<td>debug</td>
+<td>排查问题</td>
+<td>尽量启用确定性，减少变量。</td>
+</tr>
+<tr>
+<td>strict</td>
+<td>小规模精确复现</td>
+<td>禁用非确定性路径，接受性能下降。</td>
+</tr>
+</tbody>
+</table>
+<p>示例：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">determinism</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="s">"audit"</span>
+<span class="w">  </span><span class="nt">deterministic_algorithms</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">cudnn_benchmark</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">fixed_rank_mapping</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">fixed_eval_seeds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<p>这比单个布尔值更贴近工程现实。</p>
+<h2 id="floating-point">Floating Point 非结合性<a class="headerlink" href="#floating-point" title="Permanent link">¶</a></h2>
+<p>浮点加法不是严格结合的。</p>
+<p>也就是说：</p>
+<div class="highlight"><pre><span></span><code>(a + b) + c
+</code></pre></div>
+<p>和：</p>
+<div class="highlight"><pre><span></span><code>a + (b + c)
+</code></pre></div>
+<p>在浮点数里可能得到不同低位结果。</p>
+<p>分布式训练里，这个问题很常见。</p>
+<p>例如：</p>
+<ul>
+<li>AllReduce 用 ring、tree 或 hierarchical 算法，规约顺序不同。</li>
+<li>bucket 划分不同，梯度聚合顺序不同。</li>
+<li>TP/PP/FSDP 切分不同，矩阵运算和通信顺序不同。</li>
+<li>kernel fusion 改变中间结果舍入位置。</li>
+<li>TF32/BF16/FP16/FP8 改变有效精度。</li>
+</ul>
+<p>低位差异通常会在长训练中逐渐放大。</p>
+<p>这不一定代表训练错了。</p>
+<p>但如果你要求两个实验逐 step 对齐，就必须尽量固定：</p>
+<ul>
+<li>parallelism size。</li>
+<li>rank mapping。</li>
+<li>NCCL algorithm / protocol，如果有必要。</li>
+<li>precision policy。</li>
+<li>fused kernel 开关。</li>
+<li>bucket size。</li>
+<li>gradient accumulation。</li>
+</ul>
+<p>否则同一个 seed 也可能跑出不同曲线。</p>
+<h2 id="mixed-precision-tf32">Mixed Precision 与 TF32<a class="headerlink" href="#mixed-precision-tf32" title="Permanent link">¶</a></h2>
+<p>混合精度会明显影响可复现性。</p>
+<p>需要记录：</p>
+<ul>
+<li>compute dtype。</li>
+<li>parameter dtype。</li>
+<li>optimizer state dtype。</li>
+<li>master weight dtype。</li>
+<li>gradient communication dtype。</li>
+<li>loss scaling 策略。</li>
+<li>FP8 scale / amax history。</li>
+<li>TF32 是否开启。</li>
+<li>stochastic rounding 是否开启。</li>
+</ul>
+<p>TF32 是一个典型例子。</p>
+<p>在支持的 NVIDIA GPU 上，TF32 可以让 FP32 矩阵乘更快，但数值精度不同于完整 FP32。</p>
+<p>如果一个实验开启 TF32，另一个关闭 TF32，性能和数值都可能不同。</p>
+<p>这不一定是错误，但必须记录。</p>
+<h2 id="_9">环境锁定<a class="headerlink" href="#_9" title="Permanent link">¶</a></h2>
+<p>环境可复现不仅是 Python 包版本。训练系统至少要记录：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OS / image</td>
+<td>container image digest、base OS、glibc。</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Python 版本、pip/conda lock、关键包版本。</td>
+</tr>
+<tr>
+<td>Framework</td>
+<td>PyTorch、Triton、DeepSpeed/Megatron/FSDP 版本。</td>
+</tr>
+<tr>
+<td>CUDA stack</td>
+<td>CUDA runtime、driver、cuDNN、NCCL、cutlass/flash-attn。</td>
+</tr>
+<tr>
+<td>Hardware</td>
+<td>GPU 型号、HBM 容量、CPU、内存、NVMe。</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>IB/RoCE、NIC、NCCL topo、交换机/拓扑信息。</td>
+</tr>
+<tr>
+<td>Kernel/runtime flags</td>
+<td>TF32、deterministic、allocator、NCCL env。</td>
+</tr>
+</tbody>
+</table>
+<p>示例：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">container_digest</span><span class="p">:</span><span class="w"> </span><span class="s">"sha256:..."</span>
+<span class="w">  </span><span class="nt">pytorch</span><span class="p">:</span><span class="w"> </span><span class="s">"2.12.0"</span>
+<span class="w">  </span><span class="nt">cuda_runtime</span><span class="p">:</span><span class="w"> </span><span class="s">"12.x"</span>
+<span class="w">  </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">nccl</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">flash_attention</span><span class="p">:</span><span class="w"> </span><span class="s">"..."</span>
+<span class="w">  </span><span class="nt">gpu_type</span><span class="p">:</span><span class="w"> </span><span class="s">"H100-SXM"</span>
+<span class="w">  </span><span class="nt">nccl_env</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">NCCL_ALGO</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">    </span><span class="nt">NCCL_PROTO</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+</code></pre></div>
+<p>如果只记录 <code>image: latest</code>，这个 run 的长期可复现性很弱。</p>
+<h2 id="activation-checkpointing-rng">Activation Checkpointing 与 RNG<a class="headerlink" href="#activation-checkpointing-rng" title="Permanent link">¶</a></h2>
+<p>Activation checkpointing 会在 forward 时少存 activation，在 backward 时重算部分 forward。</p>
+<p>如果被重算的 forward 中包含随机操作，例如 dropout，就必须处理 RNG。</p>
+<p>否则：</p>
+<div class="highlight"><pre><span></span><code>original forward dropout mask != recomputed forward dropout mask
+</code></pre></div>
+<p>这会让 backward 对应的计算不是原始 forward 的梯度。</p>
+<p>很多框架有 preserve RNG state 的机制，但它可能带来额外开销，也可能在复杂并行策略下需要特别处理。</p>
+<p>因此 activation checkpointing 配置里要记录：</p>
+<ul>
+<li>checkpoint 粒度。</li>
+<li>是否 preserve RNG state。</li>
+<li>是否使用 selective recomputation。</li>
+<li>与 TP/FSDP/PP 的组合方式。</li>
+</ul>
+<p>相关内容见：<a href="../activation-checkpointing/">Activation Checkpointing</a></p>
+<h2 id="moe">MoE 训练中的随机性<a class="headerlink" href="#moe" title="Permanent link">¶</a></h2>
+<p>MoE 模型还有额外的可复现性问题。</p>
+<p>需要关注：</p>
+<ul>
+<li>router logits 是否确定。</li>
+<li>top-k tie-breaking 是否稳定。</li>
+<li>jitter noise 是否开启。</li>
+<li>token dropping 是否确定。</li>
+<li>capacity overflow 如何处理。</li>
+<li>load balance loss 统计是否跨 rank 一致。</li>
+<li>AllToAll token dispatch 顺序是否稳定。</li>
+</ul>
+<p>MoE 的训练曲线对路由和负载均衡非常敏感。</p>
+<p>如果一个 run 的 expert load 和另一个 run 差异很大，不能只看总 loss。</p>
+<p>建议额外记录：</p>
+<ul>
+<li>per-expert token count。</li>
+<li>dropped token count。</li>
+<li>router entropy。</li>
+<li>load balance loss。</li>
+<li>AllToAll latency。</li>
+<li>EP size。</li>
+<li>大 EP / 小 EP 配置。</li>
+</ul>
+<p>相关内容见：<a href="../expert-parallel-moe-training/">Expert Parallel 与 MoE 训练</a></p>
+<h2 id="rank-mapping">分布式拓扑与 Rank Mapping<a class="headerlink" href="#rank-mapping" title="Permanent link">¶</a></h2>
+<p>分布式训练的可复现性离不开 rank mapping。</p>
+<p>同样是 64 张 GPU，下面两种布局可能完全不同：</p>
+<div class="highlight"><pre><span></span><code>TP 在节点内，DP 跨节点
+TP 跨节点，DP 在节点内
+</code></pre></div>
+<p>它们会改变：</p>
+<ul>
+<li>通信路径。</li>
+<li>collective 算法。</li>
+<li>网络拥塞。</li>
+<li>step time。</li>
+<li>bucket ready 顺序。</li>
+<li>MoE expert 放置。</li>
+<li>pipeline stage 通信。</li>
+</ul>
+<p>Run Manifest 要记录：</p>
+<ul>
+<li>world size。</li>
+<li>node 数。</li>
+<li>每节点 GPU 数。</li>
+<li>global rank 到 hostname / local rank 的映射。</li>
+<li>DP/TP/PP/EP/SP/CP group 划分。</li>
+<li>rank mapping 策略。</li>
+<li>NCCL 相关关键环境变量。</li>
+<li>网络和拓扑信息。</li>
+</ul>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">parallelism</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">world_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<span class="w">  </span><span class="nt">node_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">  </span><span class="nt">gpus_per_node</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="w">  </span><span class="nt">tensor_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="w">  </span><span class="nt">pipeline_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">data_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">  </span><span class="nt">rank_mapping</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">topology-aware-v1</span>
+<span class="w">  </span><span class="nt">mapping_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">artifacts/rank_mapping.json</span>
+</code></pre></div>
+<p>如果不记录 rank mapping，就很难解释某次训练为什么比另一次慢，或者为什么某个通信 hang 只在某种部署方式下出现。</p>
+<h2 id="manifest_1">通信与拓扑 Manifest<a class="headerlink" href="#manifest_1" title="Permanent link">¶</a></h2>
+<p>对于大规模训练，rank mapping 还不够。通信环境也要记录。</p>
+<p>建议记录：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">communication</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="s">"nccl"</span>
+<span class="w">  </span><span class="nt">process_groups</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">dp</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">tp</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">pp</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">ep</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">nccl</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">    </span><span class="nt">algo</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">    </span><span class="nt">proto</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">    </span><span class="nt">env</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">topology</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mapping_file</span><span class="p">:</span><span class="w"> </span><span class="s">"artifacts/rank_mapping.json"</span>
+<span class="w">    </span><span class="nt">nccl_topo_file</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">    </span><span class="nt">intra_node_link</span><span class="p">:</span><span class="w"> </span><span class="s">"nvlink"</span>
+<span class="w">    </span><span class="nt">inter_node_link</span><span class="p">:</span><span class="w"> </span><span class="s">"infiniband"</span>
+</code></pre></div>
+<p>这些字段对性能复现尤其重要。两个 run loss 曲线相近，但 step time 差很多时，往往要查：</p>
+<ul>
+<li>rank mapping 是否变了。</li>
+<li>NCCL 算法是否变了。</li>
+<li>网络拓扑是否变了。</li>
+<li>TP/EP 是否跨节点。</li>
+<li>同节点是否有其他作业干扰。</li>
+</ul>
+<p>训练系统里“质量可复现”和“性能可复现”是两件事，后者更依赖拓扑和运行时环境。</p>
+<h2 id="checkpoint-resume">Checkpoint Resume 的语义<a class="headerlink" href="#checkpoint-resume" title="Permanent link">¶</a></h2>
+<p>Resume 有两种语义：</p>
+<ol>
+<li><strong>继续训练</strong>：从中断位置继续，目标是像没有中断一样。</li>
+<li><strong>热启动 / 微调</strong>：加载某个权重作为初始化，允许 optimizer、scheduler、数据顺序重新开始。</li>
+</ol>
+<p>这两者必须区分。</p>
+<p>继续训练需要恢复：</p>
+<ul>
+<li>model weights。</li>
+<li>optimizer state。</li>
+<li>scheduler state。</li>
+<li>gradient scaler state。</li>
+<li>FP8 scale / amax state。</li>
+<li>RNG state。</li>
+<li>data sampler state。</li>
+<li>consumed tokens。</li>
+<li>parallelism metadata。</li>
+</ul>
+<p>热启动可能只需要：</p>
+<ul>
+<li>model weights。</li>
+<li>tokenizer。</li>
+<li>model config。</li>
+</ul>
+<p>如果把热启动伪装成 resume，loss 曲线不连续是正常的，但系统可能误判为训练故障。</p>
+<p>Run Manifest 里要明确：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">resume</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exact_resume</span>
+<span class="w">  </span><span class="nt">from_run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pretrain-llm-2026-06-10-001</span>
+<span class="w">  </span><span class="nt">checkpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">s3://bucket/...</span>
+<span class="w">  </span><span class="nt">restored</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">optimizer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">scheduler</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">rng</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">data_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">precision_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<p>相关内容见：<a href="../checkpoint-resume-fault-tolerance/">Checkpoint、Resume 与容错</a></p>
+<h2 id="eval">Eval 可复现性<a class="headerlink" href="#eval" title="Permanent link">¶</a></h2>
+<p>训练结果是否可比，很大程度取决于 eval 是否可复现。</p>
+<p>Eval 要记录：</p>
+<ul>
+<li>eval dataset name/version/hash。</li>
+<li>split。</li>
+<li>sample count。</li>
+<li>prompt template。</li>
+<li>chat template。</li>
+<li>tokenizer。</li>
+<li>max input length。</li>
+<li>max output length。</li>
+<li>decoding 参数。</li>
+<li>metric 实现版本。</li>
+<li>judge model 版本，如果使用 LLM judge。</li>
+<li>scoring script commit。</li>
+<li>raw predictions。</li>
+<li>per-sample result。</li>
+</ul>
+<p>生成式 eval 特别容易出问题。</p>
+<p>如果 temperature 不为 0，或者 top-p/top-k 没固定，生成结果可能有随机波动。</p>
+<p>如果使用 LLM-as-a-judge，judge model 版本、prompt、解码参数也必须记录。</p>
+<p>否则分数变化可能来自评估系统，而不是训练系统。</p>
+<p>相关内容见：<a href="../evaluation-validation-checkpoint-selection/">Evaluation、Validation 与 Checkpoint Selection</a></p>
+<h2 id="benchmark">Benchmark 可复现性<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>Benchmark 的可复现性和训练质量可复现性类似，但更关注 workload 和测量口径。</p>
+<p>训练 benchmark 要记录：</p>
+<ul>
+<li>model size。</li>
+<li>sequence length。</li>
+<li>global batch tokens。</li>
+<li>micro-batch。</li>
+<li>gradient accumulation。</li>
+<li>parallelism 配置。</li>
+<li>precision。</li>
+<li>optimizer。</li>
+<li>data pipeline 是否真实启用。</li>
+<li>checkpoint 是否启用。</li>
+<li>eval 是否并行运行。</li>
+<li>warmup step 数。</li>
+<li>measurement window。</li>
+<li>profiler 工具和版本。</li>
+<li>是否包含编译预热。</li>
+<li>是否包含 dataloader warmup。</li>
+</ul>
+<p>常见问题是只报告：</p>
+<div class="highlight"><pre><span></span><code>tokens/s = 123456
+</code></pre></div>
+<p>但不说明这个数字是否包含：</p>
+<ul>
+<li>数据读取。</li>
+<li>tokenizer。</li>
+<li>checkpoint 保存。</li>
+<li>eval 干扰。</li>
+<li>第一次编译。</li>
+<li>loss spike 回滚。</li>
+<li>通信 hang 重试。</li>
+</ul>
+<p>这样的 benchmark 不可比较。</p>
+<p>相关内容见：<a href="../training-benchmark-profiling/">训练性能剖析与 Benchmark</a></p>
+<h2 id="run-manifest_4">Run Manifest 与日志的区别<a class="headerlink" href="#run-manifest_4" title="Permanent link">¶</a></h2>
+<p>日志记录发生了什么。</p>
+<p>Manifest 记录这次运行是什么。</p>
+<p>两者都需要，但作用不同。</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>典型内容</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>log</td>
+<td>step loss、tokens/s、warning、error、rank 输出</td>
+<td>观察过程和排障。</td>
+</tr>
+<tr>
+<td>metric store</td>
+<td>loss 曲线、grad norm、eval score、吞吐</td>
+<td>趋势分析和 dashboard。</td>
+</tr>
+<tr>
+<td>trace</td>
+<td>GPU kernel、CPU timeline、通信 timeline</td>
+<td>性能剖析。</td>
+</tr>
+<tr>
+<td>checkpoint</td>
+<td>训练状态快照</td>
+<td>恢复和模型产物。</td>
+</tr>
+<tr>
+<td>run manifest</td>
+<td>输入、配置、环境、artifact 关系</td>
+<td>审计、复现、比较、知识库索引。</td>
+</tr>
+</tbody>
+</table>
+<p>不要试图从海量日志里反推 manifest。</p>
+<p>训练启动时就应该生成 manifest。</p>
+<p>训练结束时再补充产物路径和最终状态。</p>
+<h2 id="_10">推荐落地流程<a class="headerlink" href="#_10" title="Permanent link">¶</a></h2>
+<p>一个实用流程如下：</p>
+<div class="mermaid">flowchart TB
+    A["Create run id"] --&gt; B["Resolve config"]
+    B --&gt; C["Write initial manifest"]
+    C --&gt; D["Initialize environment and seeds"]
+    D --&gt; E["Start training"]
+    E --&gt; F["Periodically update manifest<br/>checkpoint / eval / artifacts"]
+    F --&gt; G{"Failure?"}
+    G -- "yes" --&gt; H["Record failure context<br/>rank / step / batch / checkpoint"]
+    G -- "no" --&gt; I{"Finished?"}
+    I -- "no" --&gt; E
+    I -- "yes" --&gt; J["Finalize manifest<br/>final checkpoint / best checkpoint / reports"]
+</div>
+<p>关键是 manifest 不是训练结束后靠人手写。</p>
+<p>它应该由训练系统自动生成。</p>
+<p>建议分三次写：</p>
+<ol>
+<li><strong>启动前</strong>：记录 code/config/data/environment/seed policy。</li>
+<li><strong>运行中</strong>：追加 checkpoint、eval、failure、resume 事件。</li>
+<li><strong>结束后</strong>：记录 final status、best checkpoint、report、artifact。</li>
+</ol>
+<h2 id="manifest-quality-gate">Manifest Quality Gate<a class="headerlink" href="#manifest-quality-gate" title="Permanent link">¶</a></h2>
+<p>训练平台可以给 manifest 加质量门禁。不是所有缺失字段都要阻止训练，但重要 run 应该有最低要求。</p>
+<p>示例：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>普通实验</th>
+<th>重要 baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>git commit</td>
+<td>必填</td>
+<td>必填</td>
+</tr>
+<tr>
+<td>dirty diff</td>
+<td>允许但标记</td>
+<td>禁止或保存 patch</td>
+</tr>
+<tr>
+<td>data manifest</td>
+<td>必填</td>
+<td>必填且有 hash</td>
+</tr>
+<tr>
+<td>tokenizer hash</td>
+<td>必填</td>
+<td>必填</td>
+</tr>
+<tr>
+<td>seed policy</td>
+<td>必填</td>
+<td>必填</td>
+</tr>
+<tr>
+<td>RNG checkpoint</td>
+<td>可选</td>
+<td>必填</td>
+</tr>
+<tr>
+<td>rank mapping</td>
+<td>推荐</td>
+<td>必填</td>
+</tr>
+<tr>
+<td>eval manifest</td>
+<td>推荐</td>
+<td>必填</td>
+</tr>
+<tr>
+<td>environment digest</td>
+<td>推荐</td>
+<td>必填</td>
+</tr>
+</tbody>
+</table>
+<p>可以在启动前输出：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">manifest_quality</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="s">"L3"</span>
+<span class="w">  </span><span class="nt">blocking_errors</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">warnings</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"dirty</span><span class="nv"> </span><span class="s">diff</span><span class="nv"> </span><span class="s">saved</span><span class="nv"> </span><span class="s">as</span><span class="nv"> </span><span class="s">artifacts/dirty.patch"</span>
+</code></pre></div>
+<p>这样系统可以允许探索性实验快速运行，同时保证关键 baseline 不会缺少复现信息。</p>
+<h2 id="_11">启动前检查<a class="headerlink" href="#_11" title="Permanent link">¶</a></h2>
+<p>训练启动前可以做一个 reproducibility preflight。</p>
+<p>检查项包括：</p>
+<ul>
+<li>git commit 是否存在。</li>
+<li>是否有 dirty diff。</li>
+<li>config 是否已 resolved。</li>
+<li>tokenizer hash 是否记录。</li>
+<li>data manifest 是否存在。</li>
+<li>data shard hash 是否可读。</li>
+<li>base seed 是否设置。</li>
+<li>rank seed policy 是否明确。</li>
+<li>worker seed policy 是否明确。</li>
+<li>deterministic mode 是否明确。</li>
+<li>precision policy 是否明确。</li>
+<li>parallelism group 是否可导出。</li>
+<li>container image digest 是否记录。</li>
+<li>checkpoint 输出路径是否唯一。</li>
+<li>eval manifest 是否固定。</li>
+</ul>
+<p>如果这些检查失败，不一定要阻止训练，但应该在 manifest 中标记：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">reproducibility</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">partial</span>
+<span class="w">  </span><span class="nt">warnings</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dirty_git_tree</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">missing_dataset_hash</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rng_state_not_saved</span>
+</code></pre></div>
+<p>这样后续比较实验时不会误以为所有 run 都同等可信。</p>
+<h2 id="resume">Resume 后检查<a class="headerlink" href="#resume" title="Permanent link">¶</a></h2>
+<p>Resume 后需要验证训练状态是否连续。</p>
+<p>建议检查：</p>
+<ul>
+<li>loaded checkpoint id 是否和 manifest 匹配。</li>
+<li>global step 是否连续。</li>
+<li>consumed tokens 是否连续。</li>
+<li>scheduler lr 是否连续。</li>
+<li>optimizer state 是否恢复。</li>
+<li>loss scale / FP8 state 是否恢复。</li>
+<li>RNG state 是否恢复。</li>
+<li>data cursor 是否恢复。</li>
+<li>前几个 step 的 loss 是否在合理范围。</li>
+<li>tokens/s 是否恢复到正常水平。</li>
+</ul>
+<p>最简单的 resume sanity check 是：</p>
+<div class="highlight"><pre><span></span><code>恢复后跑 N 个 step
+比较 resume 前后的 loss、lr、grad norm、tokens/s、data cursor
+确认没有突变
+</code></pre></div>
+<p>如果 loss 有小幅波动，不一定是错误。</p>
+<p>但如果同时出现：</p>
+<ul>
+<li>lr 跳变。</li>
+<li>grad norm 跳变。</li>
+<li>data cursor 回退。</li>
+<li>loss scale 重置。</li>
+<li>eval score 明显下降。</li>
+</ul>
+<p>就需要排查 checkpoint 是否完整。</p>
+<h2 id="_12">常见失败案例<a class="headerlink" href="#_12" title="Permanent link">¶</a></h2>
+<h3 id="1-seed">1. 同一个 Seed，不同数据顺序<a class="headerlink" href="#1-seed" title="Permanent link">¶</a></h3>
+<p>现象：</p>
+<ul>
+<li>两次 run 都显示 seed=1234。</li>
+<li>loss 曲线早期就不一致。</li>
+</ul>
+<p>可能原因：</p>
+<ul>
+<li>DataLoader worker 数量不同。</li>
+<li>world size 不同。</li>
+<li>sampler epoch/position 不同。</li>
+<li>shuffle buffer 状态没有保存。</li>
+<li>sequence packing buffer 不同。</li>
+</ul>
+<p>解决方向：</p>
+<ul>
+<li>记录 data manifest 和 sampler state。</li>
+<li>固定 worker seed policy。</li>
+<li>resume 时恢复 data cursor。</li>
+<li>用 consumed tokens 对齐，而不是只看 global step。</li>
+</ul>
+<h3 id="2-resume-loss">2. Resume 后 Loss 跳变<a class="headerlink" href="#2-resume-loss" title="Permanent link">¶</a></h3>
+<p>现象：</p>
+<ul>
+<li>从 checkpoint 恢复后，loss 突然升高或下降。</li>
+</ul>
+<p>可能原因：</p>
+<ul>
+<li>optimizer state 没恢复。</li>
+<li>scheduler state 没恢复。</li>
+<li>loss scale 或 FP8 scale 没恢复。</li>
+<li>RNG state 没恢复。</li>
+<li>数据位置变了。</li>
+<li>模型处于 train/eval mode 错误状态。</li>
+</ul>
+<p>解决方向：</p>
+<ul>
+<li>检查 checkpoint manifest。</li>
+<li>检查 restore 字段。</li>
+<li>对比 resume 前后 lr、grad norm、loss scale、data cursor。</li>
+</ul>
+<h3 id="3-eval">3. Eval 分数不可比<a class="headerlink" href="#3-eval" title="Permanent link">¶</a></h3>
+<p>现象：</p>
+<ul>
+<li>checkpoint A 分数比 B 高，但无法解释。</li>
+</ul>
+<p>可能原因：</p>
+<ul>
+<li>eval dataset 版本不同。</li>
+<li>prompt template 不同。</li>
+<li>decoding 参数不同。</li>
+<li>judge model 版本不同。</li>
+<li>tokenizer 不同。</li>
+<li>metric 脚本变了。</li>
+</ul>
+<p>解决方向：</p>
+<ul>
+<li>固定 eval manifest。</li>
+<li>保存 raw predictions。</li>
+<li>保存 per-sample score。</li>
+<li>eval report 里引用 run manifest 和 checkpoint id。</li>
+</ul>
+<h3 id="4-benchmark">4. Benchmark 数字漂移<a class="headerlink" href="#4-benchmark" title="Permanent link">¶</a></h3>
+<p>现象：</p>
+<ul>
+<li>同样模型、同样 GPU，tokens/s 波动很大。</li>
+</ul>
+<p>可能原因：</p>
+<ul>
+<li>checkpoint 保存和 eval 干扰。</li>
+<li>数据 pipeline 不同。</li>
+<li>编译预热没有排除。</li>
+<li>GPU 频率、功耗、温度不同。</li>
+<li>NCCL 算法或 rank mapping 变了。</li>
+<li>同节点有其他任务。</li>
+</ul>
+<p>解决方向：</p>
+<ul>
+<li>记录 benchmark manifest。</li>
+<li>记录 warmup 和测量窗口。</li>
+<li>固定 workload。</li>
+<li>采集 GPU power/clock/network 指标。</li>
+</ul>
+<h3 id="5-rank-0">5. 只保存 Rank 0 日志<a class="headerlink" href="#5-rank-0" title="Permanent link">¶</a></h3>
+<p>现象：</p>
+<ul>
+<li>训练失败后，rank 0 看起来正常，但其他 rank 已经异常。</li>
+</ul>
+<p>可能原因：</p>
+<ul>
+<li>非 rank 0 的 NaN、OOM、通信错误没有记录。</li>
+<li>DataLoader worker error 被吞掉。</li>
+<li>某个 expert 或 pipeline stage 局部异常。</li>
+</ul>
+<p>解决方向：</p>
+<ul>
+<li>关键 health metric 按 rank 汇总。</li>
+<li>每个 rank 保存必要错误上下文。</li>
+<li>manifest 记录 failure rank 和 local rank。</li>
+<li>checkpoint 记录是否所有 rank 完整写入。</li>
+</ul>
+<h2 id="_13">可复现性等级<a class="headerlink" href="#_13" title="Permanent link">¶</a></h2>
+<p>可以给每次 run 打一个可复现性等级，方便后续筛选。</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L0</td>
+<td>只有日志和少量参数，不能可靠复现。</td>
+</tr>
+<tr>
+<td>L1</td>
+<td>有代码 commit 和 config，但数据、环境、随机性不完整。</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>有数据 manifest、环境、seed policy，可做基本实验比较。</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>checkpoint 包含 optimizer/scheduler/RNG/data state，可较好 resume。</td>
+</tr>
+<tr>
+<td>L4</td>
+<td>固定确定性策略、完整 rank mapping、完整 eval/benchmark artifact，可用于严格 debug。</td>
+</tr>
+</tbody>
+</table>
+<p>不是所有训练都要达到 L4。</p>
+<p>但重要 baseline、长期训练、性能 benchmark 和论文/报告使用的结果至少应该达到 L2 或 L3。</p>
+<h3 id="_14">自动评级<a class="headerlink" href="#_14" title="Permanent link">¶</a></h3>
+<p>可复现性等级最好由系统自动计算，而不是靠人主观填写。</p>
+<p>示例规则：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">reproducibility_level_rules</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">L1</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requires</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">code.commit</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config.resolved_file</span>
+<span class="w">  </span><span class="nt">L2</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requires</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data.manifest</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tokenizer.hash</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">environment.container_digest</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">randomness.base_seed</span>
+<span class="w">  </span><span class="nt">L3</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requires</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">checkpoint.includes_optimizer_state</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">checkpoint.includes_rng_state</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">checkpoint.includes_data_state</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">parallelism.rank_mapping</span>
+<span class="w">  </span><span class="nt">L4</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requires</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deterministic.mode</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eval.raw_predictions</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">benchmark.trace</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">communication.topology</span>
+</code></pre></div>
+<p>自动评级的好处是 dashboard 可以筛选：</p>
+<ul>
+<li>哪些 run 可以作为 baseline。</li>
+<li>哪些 run 只适合临时探索。</li>
+<li>哪些 benchmark 可以用于正式报告。</li>
+<li>哪些 checkpoint 可以安全 resume。</li>
+</ul>
+<h2 id="checklist">推荐 Checklist<a class="headerlink" href="#checklist" title="Permanent link">¶</a></h2>
+<p>训练启动前：</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 固定 git commit。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 保存 dirty diff 或禁止 dirty run。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 保存 resolved config。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 保存 tokenizer hash。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 保存 data manifest 和 shard hash。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 保存 seed policy。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 保存 precision policy。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 保存 parallelism 和 rank mapping。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 保存 environment/container digest。</li>
+</ul>
+<p>训练运行中：</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录 global step、optimizer step、consumed tokens。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录 checkpoint id 和保存状态。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录 eval job 和 eval report。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录异常 rank、batch、step。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录 resume lineage。</li>
+</ul>
+<p>checkpoint：</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> model weights。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> optimizer state。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> scheduler state。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> precision state。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> RNG state。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> data cursor。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> parallelism metadata。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> manifest snapshot。</li>
+</ul>
+<p>eval / benchmark：</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> eval dataset version。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> prompt/chat template。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> decoding 参数。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> metric 脚本版本。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> raw predictions。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> benchmark workload。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> warmup/measurement window。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> profiler/trace 路径。</li>
+</ul>
+<h2 id="_15">与其他训练主题的关系<a class="headerlink" href="#_15" title="Permanent link">¶</a></h2>
+<p>训练可复现性不是独立模块，它连接很多系统主题：</p>
+<ul>
+<li><a href="../training-data-mixing-sampling-effective-tokens/">训练数据混合、采样与有效 Token</a>：决定数据版本、采样比例、shuffle、packing 和 consumed tokens 如何记录。</li>
+<li><a href="../activation-checkpointing/">Activation Checkpointing</a>：涉及 backward 重算时的 RNG 正确性。</li>
+<li><a href="../mixed-precision-training/">混合精度训练</a>：涉及 dtype、loss scaling、FP8 scale 和 TF32 配置。</li>
+<li><a href="../training-stability-numerical-debugging/">训练稳定性与数值异常</a>：需要可复现上下文来排查 NaN、Inf 和 loss spike。</li>
+<li><a href="../evaluation-validation-checkpoint-selection/">Evaluation、Validation 与 Checkpoint Selection</a>：决定 eval 数据、prompt、metric 和 checkpoint selection 是否可追溯。</li>
+<li><a href="../checkpoint-resume-fault-tolerance/">Checkpoint、Resume 与容错</a>：决定训练状态能否完整恢复。</li>
+<li><a href="../training-benchmark-profiling/">训练性能剖析与 Benchmark</a>：决定性能数字是否可比较。</li>
+<li><a href="../../07-cluster-infra/environment-reproducibility-containers/">环境可复现性、容器与依赖治理</a>：提供 container、driver、runtime 和依赖层面的复现基础。</li>
+<li><a href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">Benchmark 数据治理与 Run Records</a>：提供 benchmark 记录和结果治理方法。</li>
+</ul>
+<h2 id="_16">一个实用判断标准<a class="headerlink" href="#_16" title="Permanent link">¶</a></h2>
+<p>判断一次训练是否可复现，可以问下面几个问题：</p>
+<ol>
+<li>换一个人，能否找到这次 run 的代码、配置、数据和 checkpoint？</li>
+<li>三个月后，能否知道 tokenizer 和 data manifest 是否变过？</li>
+<li>训练中断后，能否恢复到同一个 consumed token 位置？</li>
+<li>两个实验的 eval 分数，能否确认来自同一套 eval 流程？</li>
+<li>性能 benchmark，能否知道是否包含 checkpoint、eval、data pipeline 和 warmup？</li>
+<li>出现 NaN 时，能否定位到 step、rank、batch、precision state 和 checkpoint？</li>
+<li>模型进入下一阶段时，能否追溯它来自哪个 run、哪个 checkpoint、哪个 eval report？</li>
+</ol>
+<p>如果这些问题答不上来，说明可复现性治理还不够。</p>
+<h2 id="_17">参考资料<a class="headerlink" href="#_17" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://docs.pytorch.org/docs/stable/notes/randomness.html">PyTorch: Reproducibility</a></li>
+<li><a href="https://docs.pytorch.org/docs/stable/generated/torch.use_deterministic_algorithms.html">PyTorch: torch.use_deterministic_algorithms</a></li>
+<li><a href="https://docs.pytorch.org/docs/stable/notes/cuda.html">PyTorch: CUDA semantics</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

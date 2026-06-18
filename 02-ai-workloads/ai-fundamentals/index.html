@@ -1,0 +1,2374 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/02-ai-workloads/ai-fundamentals/" rel="canonical"/>
+<link href="../" rel="prev"/>
+<link href="../transformer/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>AI 基础概念 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#ai">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              AI 基础概念
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai_1">
+<span class="md-ellipsis">
+      AI、机器学习和深度学习
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      模型是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      参数是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      数据是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      样本、特征和标签
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#token">
+<span class="md-ellipsis">
+      Token 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#embedding">
+<span class="md-ellipsis">
+      向量和 Embedding 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor">
+<span class="md-ellipsis">
+      Tensor 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#logits">
+<span class="md-ellipsis">
+      Logits 和概率是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss">
+<span class="md-ellipsis">
+      Loss 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      梯度是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      训练、推理和评估
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prompt">
+<span class="md-ellipsis">
+      Prompt 和上下文
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#batch">
+<span class="md-ellipsis">
+      Batch、并发和吞吐
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      模型“知道”什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      模型能力和系统能力
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      从基础概念到后续章节
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      常见误解
+    </span>
+</a>
+<nav aria-label="常见误解" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      误解一：模型直接理解文字
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      误解二：参数就是知识库条目
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#token_1">
+<span class="md-ellipsis">
+      误解三：token 等于单词
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss_1">
+<span class="md-ellipsis">
+      误解四：loss 低就一定好
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      误解五：推理只是“查答案”
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      误解六：模型大就一定更适合
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      最小检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai_1">
+<span class="md-ellipsis">
+      AI、机器学习和深度学习
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      模型是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      参数是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      数据是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      样本、特征和标签
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#token">
+<span class="md-ellipsis">
+      Token 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#embedding">
+<span class="md-ellipsis">
+      向量和 Embedding 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor">
+<span class="md-ellipsis">
+      Tensor 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#logits">
+<span class="md-ellipsis">
+      Logits 和概率是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss">
+<span class="md-ellipsis">
+      Loss 是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      梯度是什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      训练、推理和评估
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prompt">
+<span class="md-ellipsis">
+      Prompt 和上下文
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#batch">
+<span class="md-ellipsis">
+      Batch、并发和吞吐
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      模型“知道”什么
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      模型能力和系统能力
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      从基础概念到后续章节
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      常见误解
+    </span>
+</a>
+<nav aria-label="常见误解" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      误解一：模型直接理解文字
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      误解二：参数就是知识库条目
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#token_1">
+<span class="md-ellipsis">
+      误解三：token 等于单词
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss_1">
+<span class="md-ellipsis">
+      误解四：loss 低就一定好
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      误解五：推理只是“查答案”
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      误解六：模型大就一定更适合
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      最小检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="ai">AI 基础概念<a class="headerlink" href="#ai" title="Permanent link">¶</a></h1>
+<p>学习 AI 时最容易被一堆术语吓住。</p>
+<p>可以先不要急着学公式，也不要急着区分各种模型家族。先抓住一个最小主线：</p>
+<blockquote>
+<p>AI 模型把现实世界里的输入变成数字，在数字上做很多次计算，再把计算结果变成我们能理解的输出。</p>
+</blockquote>
+<p>对大语言模型来说，这条主线可以再具体一点：</p>
+<blockquote>
+<p>模型读入一段文本，把文本切成 token，把 token 变成向量，在向量上做计算，最后预测“下一个 token 更可能是什么”。</p>
+</blockquote>
+<p>本页只讲后面必须用到的基础概念。</p>
+<p>目标不是把 AI 理论讲完，而是让新手能看懂后面的 Transformer、训练、推理、Benchmark 和系统优化章节。</p>
+<h2 id="_1">一张总图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TD
+    A["现实输入<br/>文本 / 图片 / 音频 / 代码"] --&gt; B["数据表示<br/>token / patch / frame / feature"]
+    B --&gt; C["数字化<br/>id / vector / tensor"]
+    C --&gt; D["模型计算<br/>很多层参数化变换"]
+    D --&gt; E["输出分数<br/>logits / scores"]
+    E --&gt; F["解释为结果<br/>概率 / token / label / action"]
+    F --&gt; G["训练或推理"]
+    G --&gt; H["训练：计算 loss 并更新参数"]
+    G --&gt; I["推理：固定参数并生成输出"]
+</div>
+<p>这张图里最重要的不是每个名词，而是方向：</p>
+<div class="highlight"><pre><span></span><code>输入 -&gt; 表示 -&gt; 计算 -&gt; 分数 -&gt; 输出
+</code></pre></div>
+<p>AI 系统优化关心的很多问题，都来自这条链路：</p>
+<ul>
+<li>输入越长，计算和显存越多；</li>
+<li>模型越大，参数和计算量越多；</li>
+<li>输出越长，推理时间越长；</li>
+<li>batch 越大，吞吐可能更高，但延迟和显存压力也可能变化；</li>
+<li>precision 越低，计算可能更快，但数值和质量需要验证。</li>
+</ul>
+<h2 id="ai_1">AI、机器学习和深度学习<a class="headerlink" href="#ai_1" title="Permanent link">¶</a></h2>
+<p>先区分三个常见词。</p>
+<table>
+<thead>
+<tr>
+<th>词</th>
+<th>可以怎么理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI</td>
+<td>让机器表现出某种智能行为的总称。</td>
+</tr>
+<tr>
+<td>Machine Learning</td>
+<td>让系统从数据里学规律，而不是人工写死规则。</td>
+</tr>
+<tr>
+<td>Deep Learning</td>
+<td>用很多层神经网络从数据里学复杂表示。</td>
+</tr>
+</tbody>
+</table>
+<p>这三个词不是完全并列的。</p>
+<p>可以粗略理解成：</p>
+<div class="highlight"><pre><span></span><code>AI 包含 Machine Learning，Machine Learning 里有 Deep Learning。
+</code></pre></div>
+<p>现在的大语言模型、视觉模型、多模态模型，大多属于 deep learning。</p>
+<p>它们不是靠人工写一堆 if/else 工作，而是靠大量数据和大量计算把参数训练出来。</p>
+<h2 id="_2">模型是什么<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>模型可以先理解成一个函数：</p>
+<div class="highlight"><pre><span></span><code>输入 -&gt; 模型 -&gt; 输出
+</code></pre></div>
+<p>普通函数的规则通常由人写死。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>温度 &gt; 30 度 -&gt; 提醒天气炎热
+</code></pre></div>
+<p>AI 模型的规则不是人一条条写出来的，而是从数据里学出来的。</p>
+<p>例如它看过很多句子、代码和问答后，会慢慢学到：</p>
+<ul>
+<li>问句后面通常需要回答；</li>
+<li>“北京是中国的”后面很可能接“首都”；</li>
+<li><code>for i in range</code> 后面经常接循环体；</li>
+<li>翻译、总结、推理、代码补全有不同的输出格式；</li>
+<li>一段图片描述和一张图片之间有对应关系。</li>
+</ul>
+<p>所以模型不是一个普通数据库。</p>
+<p>它通常不是在查“固定答案”，而是在根据输入和训练中学到的规律计算一个输出。</p>
+<h2 id="_3">参数是什么<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>参数就是模型内部可以被训练过程调整的数字。</p>
+<p>可以把模型想象成一台有很多旋钮的机器。</p>
+<p>刚开始这些旋钮位置不合适，模型经常猜错。</p>
+<p>训练时，系统会根据错误一点点调整旋钮。</p>
+<p>调整很多次以后，模型的预测会越来越符合训练数据里的规律。</p>
+<p>这些“旋钮”就是参数。</p>
+<p>参数有几个重要特点：</p>
+<ul>
+<li>参数不是人工写的知识点；</li>
+<li>参数是训练过程自动学出来的数字；</li>
+<li>参数越多，模型容量通常越大；</li>
+<li>参数多不一定代表一定更好，还要看数据、训练方法、架构和推理方式；</li>
+<li>参数越多，通常也意味着存储、显存、带宽和计算成本更高。</li>
+</ul>
+<p>从 AI Infra 视角看，参数直接影响：</p>
+<table>
+<thead>
+<tr>
+<th>影响项</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型文件大小</td>
+<td>参数需要保存到磁盘或对象存储。</td>
+</tr>
+<tr>
+<td>加载时间</td>
+<td>参数需要从存储读入内存或显存。</td>
+</tr>
+<tr>
+<td>显存占用</td>
+<td>推理和训练时参数通常要放在加速器可访问的位置。</td>
+</tr>
+<tr>
+<td>计算量</td>
+<td>每次前向计算都会使用大量参数。</td>
+</tr>
+<tr>
+<td>分布式策略</td>
+<td>参数太大时，可能需要切分到多张卡或多个节点。</td>
+</tr>
+</tbody>
+</table>
+<p>入门时不用记住所有系统细节，只要先记住：</p>
+<blockquote>
+<p>参数是模型学到的数字，也是模型成本的重要来源。</p>
+</blockquote>
+<h2 id="_4">数据是什么<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<p>模型不是凭空学会能力的。</p>
+<p>训练数据给模型提供例子。</p>
+<p>对语言模型来说，训练数据可以是：</p>
+<ul>
+<li>普通文本；</li>
+<li>代码；</li>
+<li>问答；</li>
+<li>数学推导；</li>
+<li>表格；</li>
+<li>网页；</li>
+<li>文档；</li>
+<li>多轮对话。</li>
+</ul>
+<p>对多模态模型来说，训练数据还可以包括：</p>
+<ul>
+<li>图片和文字描述；</li>
+<li>视频帧和字幕；</li>
+<li>音频和转写；</li>
+<li>图文问答；</li>
+<li>传感器数据。</li>
+</ul>
+<p>数据决定模型能接触到什么规律。</p>
+<p>例如：</p>
+<ul>
+<li>没见过某类语言，模型就很难熟练处理；</li>
+<li>代码数据少，代码能力通常会受影响；</li>
+<li>数据质量差，模型可能学到错误格式、噪声或偏见；</li>
+<li>数据重复太多，模型可能更容易记忆而不是泛化。</li>
+</ul>
+<p>这里先不展开数据治理。</p>
+<p>入门时只要知道：</p>
+<blockquote>
+<p>数据提供学习材料，参数保存学习结果。</p>
+</blockquote>
+<h2 id="_5">样本、特征和标签<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<p>在很多传统机器学习任务里，我们会说：</p>
+<div class="highlight"><pre><span></span><code>样本 -&gt; 特征 -&gt; 标签
+</code></pre></div>
+<p>例如预测房价：</p>
+<table>
+<thead>
+<tr>
+<th>样本</th>
+<th>特征</th>
+<th>标签</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一套房子</td>
+<td>面积、位置、楼层、房龄</td>
+<td>价格</td>
+</tr>
+</tbody>
+</table>
+<p>模型学习的是：</p>
+<div class="highlight"><pre><span></span><code>特征 -&gt; 标签
+</code></pre></div>
+<p>大语言模型看起来不太一样，但仍然可以用类似思路理解。</p>
+<p>语言模型的一个训练样本可以是：</p>
+<div class="highlight"><pre><span></span><code>前面的 token -&gt; 下一个 token
+</code></pre></div>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>输入：北京 是 中国 的
+标签：首都
+</code></pre></div>
+<p>真实训练会一次处理很多 token。</p>
+<p>一个长句子可以被拆成很多个“根据前文预测下一个 token”的小任务。</p>
+<p>这就是为什么后面会反复看到：</p>
+<div class="highlight"><pre><span></span><code>next-token prediction
+</code></pre></div>
+<h2 id="token">Token 是什么<a class="headerlink" href="#token" title="Permanent link">¶</a></h2>
+<p>模型不能直接读“文字”。</p>
+<p>它只能处理数字。</p>
+<p>所以第一步通常是把文本切成 token。</p>
+<p>token 可以粗略理解成模型眼里的“文字小块”。</p>
+<p>它可能是：</p>
+<ul>
+<li>一个汉字；</li>
+<li>一个词；</li>
+<li>一个词的一部分；</li>
+<li>一个标点；</li>
+<li>一个空格；</li>
+<li>一段常见字符组合；</li>
+<li>一个特殊控制符号。</li>
+</ul>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>原文：我喜欢 AI
+token：我 / 喜欢 / AI
+token id：128 / 5632 / 9021
+</code></pre></div>
+<p>真实 tokenizer 会更复杂。</p>
+<p>不同模型的 tokenizer 也不一定相同。</p>
+<p>同一句话，在不同 tokenizer 下可能切成不同数量的 token。</p>
+<p>这件事非常重要，因为很多系统成本按 token 计算。</p>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>系统影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入 token 多</td>
+<td>Prefill 计算更多，KV Cache 更大。</td>
+</tr>
+<tr>
+<td>输出 token 多</td>
+<td>Decode 轮数更多，用户等待更久。</td>
+</tr>
+<tr>
+<td>同样文字在某语言下 token 更多</td>
+<td>该语言的计算成本可能更高。</td>
+</tr>
+<tr>
+<td>tokenizer 不一致</td>
+<td>prompt 长度、截断、缓存命中和成本估算都可能变化。</td>
+</tr>
+</tbody>
+</table>
+<p>入门时先记住：</p>
+<blockquote>
+<p>文本先被切成 token，再映射成 token id；模型处理的是这些编号，而不是原始文字。</p>
+</blockquote>
+<h2 id="embedding">向量和 Embedding 是什么<a class="headerlink" href="#embedding" title="Permanent link">¶</a></h2>
+<p>token id 只是编号，本身没有语义。</p>
+<p>比如 <code>9021</code> 并不天然表示“AI”。</p>
+<p>所以模型会把 token id 转成一串数字，这串数字叫向量。</p>
+<p>这个转换过程叫 embedding。</p>
+<p>可以这样理解：</p>
+<div class="highlight"><pre><span></span><code>token id -&gt; embedding -&gt; vector
+</code></pre></div>
+<p>向量的作用是让模型能用数字表示“含义”和“用法”。</p>
+<p>训练之后，意思相近或用法相近的 token，向量关系往往会变得更有规律。</p>
+<p>例如模型可能学到：</p>
+<ul>
+<li>“猫”和“狗”都和动物有关；</li>
+<li>“北京”和“上海”都和城市有关；</li>
+<li><code>def</code>、<code>return</code>、<code>class</code> 都和代码结构有关。</li>
+</ul>
+<p>这不是人手工告诉模型的。</p>
+<p>它是在训练中通过大量上下文逐渐学到的。</p>
+<p>入门时不用关心向量有多少维，只要知道：</p>
+<blockquote>
+<p>embedding 是把离散 token 编号变成模型可以继续计算的数字表示。</p>
+</blockquote>
+<h2 id="tensor">Tensor 是什么<a class="headerlink" href="#tensor" title="Permanent link">¶</a></h2>
+<p>后面会经常看到 tensor。</p>
+<p>可以先把 tensor 理解成“一组有形状的数字”。</p>
+<table>
+<thead>
+<tr>
+<th>名字</th>
+<th>直觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>标量</td>
+<td>一个数字，例如 <code>3.14</code></td>
+</tr>
+<tr>
+<td>向量</td>
+<td>一排数字，例如一个 token 的 embedding</td>
+</tr>
+<tr>
+<td>矩阵</td>
+<td>二维数字表，例如一批 token 的表示</td>
+</tr>
+<tr>
+<td>高维 tensor</td>
+<td>更多维度的数字块，例如 batch、sequence、hidden dimension 组合</td>
+</tr>
+</tbody>
+</table>
+<p>语言模型里常见形状是：</p>
+<div class="highlight"><pre><span></span><code>batch_size x sequence_length x hidden_size
+</code></pre></div>
+<p>含义可以理解成：</p>
+<ul>
+<li>batch_size：一次处理多少条样本或请求；</li>
+<li>sequence_length：每条样本有多少 token；</li>
+<li>hidden_size：每个 token 用多长的向量表示。</li>
+</ul>
+<p>很多性能问题其实都和 tensor shape 有关。</p>
+<p>shape 一变，计算量、显存、带宽、kernel 行为都可能变化。</p>
+<h2 id="logits">Logits 和概率是什么<a class="headerlink" href="#logits" title="Permanent link">¶</a></h2>
+<p>模型最终会给很多候选 token 打分。</p>
+<p>例如前文是：</p>
+<div class="highlight"><pre><span></span><code>北京是中国的
+</code></pre></div>
+<p>模型可能给下面几个 token 打分：</p>
+<div class="highlight"><pre><span></span><code>首都：很高
+城市：较高
+苹果：很低
+</code></pre></div>
+<p>这些原始分数常叫 logits。</p>
+<p>logits 不是概率。</p>
+<p>它们只是未归一化的分数。</p>
+<p>系统通常会把 logits 转成概率，模型就能知道哪些 token 更可能成为下一个 token。</p>
+<p>可以粗略理解成：</p>
+<div class="highlight"><pre><span></span><code>最终向量 -&gt; logits -&gt; 概率 -&gt; 选择 token
+</code></pre></div>
+<p>推理时，模型会根据这些概率选择一个 token。</p>
+<p>最简单的方式是永远选概率最高的 token。</p>
+<p>也可以带一点随机性，让回答不那么死板。</p>
+<p>这就是后面推理章节会讲的 temperature、top-k、top-p 等采样策略。</p>
+<h2 id="loss">Loss 是什么<a class="headerlink" href="#loss" title="Permanent link">¶</a></h2>
+<p>训练时模型会先猜，然后和标准答案比较。</p>
+<p>例如训练样本是：</p>
+<div class="highlight"><pre><span></span><code>输入：北京是中国的
+正确下一个 token：首都
+</code></pre></div>
+<p>如果模型给“首都”的概率很高，loss 就小。</p>
+<p>如果模型给“苹果”的概率很高，loss 就大。</p>
+<p>可以把 loss 理解成“错误程度”：</p>
+<div class="highlight"><pre><span></span><code>猜得越离谱 -&gt; loss 越大
+猜得越接近 -&gt; loss 越小
+</code></pre></div>
+<p>训练的目标就是让 loss 逐渐变小。</p>
+<p>这里有一个常见误解：</p>
+<blockquote>
+<p>loss 变小不等于模型在所有真实任务上都更好。</p>
+</blockquote>
+<p>loss 只是在某个数据和目标函数上衡量错误。</p>
+<p>所以训练过程中还需要验证集、评估集和真实任务指标。</p>
+<h2 id="_6">梯度是什么<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>知道 loss 还不够。</p>
+<p>训练还要知道：</p>
+<blockquote>
+<p>哪些参数应该往哪个方向改，才能让 loss 更小？</p>
+</blockquote>
+<p>这个方向信息叫梯度。</p>
+<p>可以用非常简单的直觉理解：</p>
+<div class="highlight"><pre><span></span><code>loss 告诉你错得多严重
+gradient 告诉你参数应该往哪里调
+optimizer 真正更新参数
+</code></pre></div>
+<p>如果把参数想象成旋钮：</p>
+<ul>
+<li>loss 告诉你当前声音很刺耳；</li>
+<li>梯度告诉你哪个旋钮应该往左还是往右；</li>
+<li>优化器决定每次拧多大。</li>
+</ul>
+<p>后面的训练章节会继续解释反向传播和优化器。</p>
+<p>本页只需要先记住：</p>
+<blockquote>
+<p>梯度是训练时用于调整参数的方向信息。</p>
+</blockquote>
+<h2 id="_7">训练、推理和评估<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<p>训练、推理、评估是三个不同阶段。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>参数会变吗</th>
+<th>主要问题</th>
+<th>典型输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>训练</td>
+<td>会变</td>
+<td>怎么让模型学到规律</td>
+<td>新的模型参数</td>
+</tr>
+<tr>
+<td>推理</td>
+<td>不变</td>
+<td>怎么用固定参数生成结果</td>
+<td>文本、图片、分类、动作</td>
+</tr>
+<tr>
+<td>评估</td>
+<td>不变</td>
+<td>怎么判断模型好不好</td>
+<td>指标、报告、错误样本</td>
+</tr>
+</tbody>
+</table>
+<p>训练像学习：</p>
+<div class="highlight"><pre><span></span><code>看题 -&gt; 答题 -&gt; 对答案 -&gt; 修改参数
+</code></pre></div>
+<p>推理像考试或使用：</p>
+<div class="highlight"><pre><span></span><code>读 prompt -&gt; 生成输出 -&gt; 返回结果
+</code></pre></div>
+<p>评估像测验和验收：</p>
+<div class="highlight"><pre><span></span><code>固定模型 -&gt; 跑测试集或任务 -&gt; 计算指标
+</code></pre></div>
+<p>这三件事在系统上差别很大。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>训练</th>
+<th>推理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否需要反向传播</td>
+<td>需要</td>
+<td>通常不需要</td>
+</tr>
+<tr>
+<td>是否保存梯度</td>
+<td>需要</td>
+<td>通常不需要</td>
+</tr>
+<tr>
+<td>是否更新参数</td>
+<td>会</td>
+<td>不会</td>
+</tr>
+<tr>
+<td>主要瓶颈</td>
+<td>计算、通信、显存、数据输入</td>
+<td>延迟、吞吐、KV Cache、调度</td>
+</tr>
+<tr>
+<td>输出目标</td>
+<td>模型变好</td>
+<td>用户得到结果</td>
+</tr>
+</tbody>
+</table>
+<p>这就是为什么本知识库后面把训练系统和推理系统分开讲。</p>
+<h2 id="prompt">Prompt 和上下文<a class="headerlink" href="#prompt" title="Permanent link">¶</a></h2>
+<p>prompt 是用户给模型的输入。</p>
+<p>对语言模型来说，prompt 会变成一串 token，进入模型计算。</p>
+<p>模型生成时会参考上下文：</p>
+<div class="highlight"><pre><span></span><code>系统提示 + 用户问题 + 历史对话 + 已生成 token
+</code></pre></div>
+<p>上下文越长，模型能看到的信息越多。</p>
+<p>但上下文变长也会带来成本：</p>
+<ul>
+<li>输入 token 更多；</li>
+<li>attention 计算更多；</li>
+<li>KV Cache 更大；</li>
+<li>延迟可能上升；</li>
+<li>单个请求占用的显存更多；</li>
+<li>可同时服务的请求数可能下降。</li>
+</ul>
+<p>所以“更长上下文”不是免费的。</p>
+<p>它既是能力问题，也是系统问题。</p>
+<h2 id="batch">Batch、并发和吞吐<a class="headerlink" href="#batch" title="Permanent link">¶</a></h2>
+<p>AI 模型计算通常很适合并行。</p>
+<p>系统常常会把多个样本或多个请求放在一起处理，这叫 batch。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>直觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>batch</td>
+<td>一次放进模型的一组样本或请求</td>
+</tr>
+<tr>
+<td>latency</td>
+<td>单个请求等多久</td>
+</tr>
+<tr>
+<td>throughput</td>
+<td>单位时间处理多少请求或 token</td>
+</tr>
+<tr>
+<td>concurrency</td>
+<td>同时有多少请求在系统中</td>
+</tr>
+</tbody>
+</table>
+<p>batch 变大时，硬件利用率可能更高，吞吐可能上升。</p>
+<p>但 batch 也可能带来：</p>
+<ul>
+<li>单个请求等待更久；</li>
+<li>显存占用更高；</li>
+<li>不同长度请求互相拖累；</li>
+<li>调度更复杂。</li>
+</ul>
+<p>所以 AI Infra 经常要在 latency 和 throughput 之间做取舍。</p>
+<p>后面的推理系统章节会专门讲 batching、调度和指标体系。</p>
+<h2 id="_8">模型“知道”什么<a class="headerlink" href="#_8" title="Permanent link">¶</a></h2>
+<p>新手常问：</p>
+<blockquote>
+<p>模型是不是把所有知识都存起来了？</p>
+</blockquote>
+<p>更准确的说法是：</p>
+<blockquote>
+<p>模型参数中保存的是从训练数据中学到的统计规律和表示方式，不是一个可以精确查询的数据库。</p>
+</blockquote>
+<p>这有几个后果：</p>
+<ul>
+<li>模型可能回答正确；</li>
+<li>模型也可能编造；</li>
+<li>模型可能记住某些训练样本片段；</li>
+<li>模型可能不知道训练后发生的新事实；</li>
+<li>模型可能在不同问法下给出不同答案；</li>
+<li>模型可能对罕见事实、长尾知识或精确数字不可靠。</li>
+</ul>
+<p>因此，很多应用会把模型和外部系统结合：</p>
+<ul>
+<li>搜索；</li>
+<li>数据库；</li>
+<li>文档检索；</li>
+<li>工具调用；</li>
+<li>RAG；</li>
+<li>Agent。</li>
+</ul>
+<p>这些不是因为模型“没用”，而是因为语言模型本身更像概率生成器，不是强一致的事实存储系统。</p>
+<h2 id="_9">模型能力和系统能力<a class="headerlink" href="#_9" title="Permanent link">¶</a></h2>
+<p>一个模型“聪明”不等于系统就好用。</p>
+<p>实际应用里至少有两层能力：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>关注点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型能力</td>
+<td>知识、推理、语言、代码、视觉、工具使用等能力。</td>
+</tr>
+<tr>
+<td>系统能力</td>
+<td>延迟、吞吐、成本、稳定性、可观测性、安全、扩展性。</td>
+</tr>
+</tbody>
+</table>
+<p>例如一个模型回答质量很好，但如果：</p>
+<ul>
+<li>首 token 要等 20 秒；</li>
+<li>一并发就 OOM；</li>
+<li>p99 延迟不可控；</li>
+<li>成本太高；</li>
+<li>出错无法定位；</li>
+<li>版本升级后性能回退；</li>
+</ul>
+<p>那它仍然不是一个可用的工程系统。</p>
+<p>本知识库更关注第二层：</p>
+<blockquote>
+<p>如何让 AI workload 在硬件、编译器、runtime、网络、存储和调度系统上更快、更稳、更高效。</p>
+</blockquote>
+<h2 id="_10">从基础概念到后续章节<a class="headerlink" href="#_10" title="Permanent link">¶</a></h2>
+<p>下面是本页概念和后续章节的关系。</p>
+<table>
+<thead>
+<tr>
+<th>基础概念</th>
+<th>后续会在哪里继续展开</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>token</td>
+<td>Transformer、推理、训练、Benchmark、容量建模</td>
+</tr>
+<tr>
+<td>embedding</td>
+<td>Transformer、多模态、模型结构</td>
+</tr>
+<tr>
+<td>logits</td>
+<td>推理采样、输出层、Cross Entropy</td>
+</tr>
+<tr>
+<td>loss</td>
+<td>训练过程、稳定性、评估</td>
+</tr>
+<tr>
+<td>gradient</td>
+<td>反向传播、优化器、分布式训练</td>
+</tr>
+<tr>
+<td>tensor shape</td>
+<td>Kernel、Compiler、Benchmark、硬件架构</td>
+</tr>
+<tr>
+<td>batch</td>
+<td>推理 batching、训练 batch、吞吐和延迟</td>
+</tr>
+<tr>
+<td>context length</td>
+<td>Attention、KV Cache、长上下文推理</td>
+</tr>
+<tr>
+<td>parameter</td>
+<td>显存、并行策略、加载、存储</td>
+</tr>
+<tr>
+<td>evaluation</td>
+<td>Benchmark、ADR、质量门禁</td>
+</tr>
+</tbody>
+</table>
+<p>入门时不需要一次掌握所有细节。</p>
+<p>建议先建立下面这条链路：</p>
+<div class="highlight"><pre><span></span><code>文字 -&gt; token -&gt; 向量 -&gt; 模型计算 -&gt; logits -&gt; 概率 -&gt; 输出
+</code></pre></div>
+<p>再理解训练和推理的区别：</p>
+<div class="highlight"><pre><span></span><code>训练：用 loss 和梯度更新参数
+推理：用固定参数逐步生成输出
+</code></pre></div>
+<h2 id="_11">常见误解<a class="headerlink" href="#_11" title="Permanent link">¶</a></h2>
+<h3 id="_12">误解一：模型直接理解文字<a class="headerlink" href="#_12" title="Permanent link">¶</a></h3>
+<p>模型处理的是 token id、向量和 tensor。</p>
+<p>“理解”是训练后表现出来的能力，不是模型直接读取自然语言含义。</p>
+<h3 id="_13">误解二：参数就是知识库条目<a class="headerlink" href="#_13" title="Permanent link">¶</a></h3>
+<p>参数不是一条条知识。</p>
+<p>它们是大量数字，表示模型从数据中学到的规律。</p>
+<h3 id="token_1">误解三：token 等于单词<a class="headerlink" href="#token_1" title="Permanent link">¶</a></h3>
+<p>token 可能是词，也可能是词的一部分、符号、空格或特殊标记。</p>
+<p>不同 tokenizer 的切分结果可能不同。</p>
+<h3 id="loss_1">误解四：loss 低就一定好<a class="headerlink" href="#loss_1" title="Permanent link">¶</a></h3>
+<p>loss 低说明模型在某个训练或验证目标上表现更好。</p>
+<p>它不自动代表真实任务更好、事实更准确或用户体验更好。</p>
+<h3 id="_14">误解五：推理只是“查答案”<a class="headerlink" href="#_14" title="Permanent link">¶</a></h3>
+<p>推理通常是一次次预测下一个 token。</p>
+<p>它不是简单查表，也不是一次性吐出完整答案。</p>
+<h3 id="_15">误解六：模型大就一定更适合<a class="headerlink" href="#_15" title="Permanent link">¶</a></h3>
+<p>模型越大通常能力上限更高，但成本、延迟、显存、部署复杂度也更高。</p>
+<p>工程上要看 workload、SLO、成本和硬件约束。</p>
+<h2 id="_16">最小检查清单<a class="headerlink" href="#_16" title="Permanent link">¶</a></h2>
+<p>读完本页后，应该能用自己的话回答：</p>
+<ul>
+<li>模型为什么可以理解成一个从输入到输出的函数？</li>
+<li>参数为什么是模型训练出来的数字？</li>
+<li>数据和参数分别起什么作用？</li>
+<li>为什么文本要先切成 token？</li>
+<li>token id 为什么还要变成 embedding 向量？</li>
+<li>logits 和概率有什么关系？</li>
+<li>loss 为什么能表示训练时的错误程度？</li>
+<li>梯度在训练里做什么？</li>
+<li>训练、推理、评估有什么区别？</li>
+<li>为什么 token 数、batch、context length 会影响系统成本？</li>
+</ul>
+<h2 id="_17">参考资料<a class="headerlink" href="#_17" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://developers.google.com/machine-learning/crash-course">Google Machine Learning Crash Course</a></li>
+<li><a href="https://huggingface.co/learn/llm-course/chapter6/1">Hugging Face LLM Course: Tokenizers</a></li>
+<li><a href="https://docs.pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html">PyTorch: The Fundamentals of Autograd</a></li>
+<li><a href="https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken">OpenAI Cookbook: How to count tokens with tiktoken</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

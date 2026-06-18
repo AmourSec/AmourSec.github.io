@@ -1,429 +1,451 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
-  <url>
-    <loc>https://amoursec.github.io/about/index.html</loc>
-    
-    <lastmod>2026-06-16</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/support/index.html</loc>
-    
-    <lastmod>2026-06-16</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/blog-monetization-donation-vs-template-product/index.html</loc>
-    
-    <lastmod>2026-06-16</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/support-path-friction-audit/index.html</loc>
-    
-    <lastmod>2026-06-16</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/resource-navigator/index.html</loc>
-    
-    <lastmod>2026-06-16</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/markdown-template-pack-from-blog/index.html</loc>
-    
-    <lastmod>2026-05-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/content-opportunity-backlog/index.html</loc>
-    
-    <lastmod>2026-05-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/experiments/index.html</loc>
-    
-    <lastmod>2026-05-29</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/2026/04/13/github-hexo-blog-tutorial/</loc>
-    
-    <lastmod>2026-05-28</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/2026/04/13/ai-agent-skills-deep-dive/</loc>
-    
-    <lastmod>2026-05-28</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/hexo-error-organizer-copy-button/index.html</loc>
-    
-    <lastmod>2026-05-25</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/hexo-error-organizer/index.html</loc>
-    
-    <lastmod>2026-05-25</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/hexo-error-organizer-launch-copy/index.html</loc>
-    
-    <lastmod>2026-05-25</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/github-pages-deploy-key-checklist/index.html</loc>
-    
-    <lastmod>2026-05-25</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/risky-claims-editing-checklist/index.html</loc>
-    
-    <lastmod>2026-05-25</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/technical-intake-template-fields/index.html</loc>
-    
-    <lastmod>2026-05-25</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/ai-agent-money-case-copy-risk/index.html</loc>
-    
-    <lastmod>2026-05-25</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/data-cleaning-change-log-guide/index.html</loc>
-    
-    <lastmod>2026-05-25</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/csv-cleaning-rules-checklist/index.html</loc>
-    
-    <lastmod>2026-05-22</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/ai-draft-to-publishable-blog-checklist/index.html</loc>
-    
-    <lastmod>2026-05-22</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/codex-debugging-request-guide/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/hexo-front-matter-checklist/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/support-intake/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/support-request-triage/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/support-request-formatter/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/template-pack-files/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/codex-workflow-template-pack/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/template-pack-preview/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/template-pack-structure/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/marketplace-listing-draft/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/candidate-opportunities/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/opportunity-watchlist/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/data-cleaning-sample/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/editing-sample/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/templates/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/business-template/index.html</loc>
-    
-    <lastmod>2026-05-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/categories/index.html</loc>
-    
-    <lastmod>2026-04-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/tags/index.html</loc>
-    
-    <lastmod>2026-04-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/archives/index.html</loc>
-    
-    <lastmod>2026-04-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-
-  <url>
-    <loc>https://amoursec.github.io/</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-
-  
-  <url>
-    <loc>https://amoursec.github.io/tags/AI-Agent/</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/tags/Skills/</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/tags/LLM/</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/tags/Prompt-Engineering/</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/tags/Hexo/</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/tags/GitHub-Pages/</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-
-  
-  <url>
-    <loc>https://amoursec.github.io/categories/%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6/</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://amoursec.github.io/categories/%E6%95%99%E7%A8%8B/</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
+    <url>
+         <loc>https://amoursec.github.io/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/knowledge-map/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/01-getting-started/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/02-ai-workloads/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/02-ai-workloads/ai-fundamentals/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/02-ai-workloads/inference-primer/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/02-ai-workloads/multimodal-primer/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/02-ai-workloads/training-primer/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/02-ai-workloads/transformer/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/batching/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/benchmark-methodology/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/benchmark-profiling/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/cache-system/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/distributed-inference/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/ep-size-large-small-ep/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/kv-cache/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/metrics/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/moe-inference-optimization/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/paged-attention/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/prefill-decode-disaggregation/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/prefill-decode/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/prefix-cache/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/quantization/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/rag-agent-workloads/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/request-lifecycle/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/scheduling/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/sglang/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/single-node-serving-architecture/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/speculative-decoding/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/tensorrt-llm/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/03-inference-systems/vllm/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/activation-checkpointing/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/backward-autograd-gradient-lifecycle/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/batch-gradient-accumulation/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/checkpoint-resume-fault-tolerance/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/collective-communication-primitives/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/communication-computation-overlap/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/data-parallel-gradient-sync/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/data-pipeline/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/deepspeed-megatron-fsdp/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/distributed-training-runtime/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/evaluation-validation-checkpoint-selection/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/expert-parallel-moe-training/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/flux-kernel-fusion/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/hybrid-parallelism-composition/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/memory-composition-optimization/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/mixed-precision-training/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/muon-optimizer/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/optimizer-scheduler-cost/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/parameter-efficient-finetuning-lora-qlora/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/pipeline-parallel/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/sequence-context-parallel/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/tensor-parallel/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/training-benchmark-profiling/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/training-data-mixing-sampling-effective-tokens/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/training-lifecycle/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/training-performance-metrics-scaling/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/training-reproducibility-randomness-run-manifest/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/training-stability-numerical-debugging/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/vocab-output-cross-entropy/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/04-training-systems/zero-fsdp/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/05-kernels-compilers/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/05-kernels-compilers/attention-computation-patterns/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/05-kernels-compilers/torchinductor/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/05-kernels-compilers/triton/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/06-accelerators-architecture/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/06-accelerators-architecture/accelerator-architecture-tradeoffs/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/06-accelerators-architecture/compute-units-simt-tensorcore/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/06-accelerators-architecture/interconnect-communication-architecture/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/06-accelerators-architecture/memory-hierarchy-data-reuse/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/06-accelerators-architecture/performance-model-roofline/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/06-accelerators-architecture/power-thermal-reliability/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/06-accelerators-architecture/precision-formats-low-bit-compute/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/06-accelerators-architecture/workload-mapping-compiler-runtime-interface/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/07-cluster-infra/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/07-cluster-infra/ai-cluster-architecture-overview/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/07-cluster-infra/environment-reproducibility-containers/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/07-cluster-infra/gpu-topology-numa-mig-mps-isolation/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/07-cluster-infra/mixed-workload-multitenancy-isolation/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/07-cluster-infra/node-lifecycle-health-maintenance/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/07-cluster-infra/rdma-network-nccl-topology-congestion/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/07-cluster-infra/resource-utilization-fragmentation-capacity/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/07-cluster-infra/scheduling-queues-resource-management/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/07-cluster-infra/storage-data-cache-checkpoint/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/ab-testing-ablation-regression-detection/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/benchmark-data-governance-run-records/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/benchmark-workload-design-trace-replay/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/cost-model-unit-economics/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/energy-power-thermal-benchmark/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/inference-capacity-modeling/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/performance-analysis-benchmark-methodology/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/queueing-model-tail-latency/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/roofline-analysis-compute-bandwidth/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/08-benchmark-capacity/training-capacity-scaling-efficiency/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/09-reliability-observability/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/09-reliability-observability/incident-response-runbook-postmortem/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/09-reliability-observability/observability-overview-signals/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/09-reliability-observability/slo-sli-error-budget-alerting/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/10-papers-cases/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/10-papers-cases/adr/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/10-papers-cases/ai-system-architecture/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/10-papers-cases/failure-cases/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/11-knowledge-index/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/99-templates/adr/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/99-templates/benchmark-report/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
+    <url>
+         <loc>https://amoursec.github.io/99-templates/knowledge-note/</loc>
+         <lastmod>2026-06-18</lastmod>
+    </url>
 </urlset>

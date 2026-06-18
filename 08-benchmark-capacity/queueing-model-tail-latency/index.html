@@ -1,0 +1,4149 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/08-benchmark-capacity/queueing-model-tail-latency/" rel="canonical"/>
+<link href="../roofline-analysis-compute-bandwidth/" rel="prev"/>
+<link href="../energy-power-thermal-benchmark/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>排队模型与尾延迟：QPS、并发、利用率和 p99 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#qps-p99">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              排队模型与尾延迟：QPS、并发、利用率和 p99
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../04-training-systems/deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queueing-contract">
+<span class="md-ellipsis">
+      Queueing Contract
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      基本概念
+    </span>
+</a>
+<nav aria-label="基本概念" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#arrival-rate">
+<span class="md-ellipsis">
+      Arrival Rate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#offered-loadthroughput-goodput">
+<span class="md-ellipsis">
+      Offered Load、Throughput 与 Goodput
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#service-time">
+<span class="md-ellipsis">
+      Service Time
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#service-rate">
+<span class="md-ellipsis">
+      Service Rate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#utilization">
+<span class="md-ellipsis">
+      Utilization
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queueing-latency">
+<span class="md-ellipsis">
+      Queueing Latency
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tail-latency">
+<span class="md-ellipsis">
+      Tail Latency
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deadline-miss">
+<span class="md-ellipsis">
+      Deadline Miss
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#littles-lawqps">
+<span class="md-ellipsis">
+      Little's Law：并发、QPS 和延迟
+    </span>
+</a>
+<nav aria-label="Little's Law：并发、QPS 和延迟" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      并发不是独立指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      延迟变长会反过来放大资源压力
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#littles-law-sanity-check">
+<span class="md-ellipsis">
+      用 Little's Law 做 sanity check
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p99">
+<span class="md-ellipsis">
+      为什么接近满载时 p99 会爆
+    </span>
+</a>
+<nav aria-label="为什么接近满载时 p99 会爆" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p99_1">
+<span class="md-ellipsis">
+      p99 爆炸通常先有信号
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      稳态和过载态不同
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kingman">
+<span class="md-ellipsis">
+      Kingman 直觉：利用率、波动和服务时间
+    </span>
+</a>
+<nav aria-label="Kingman 直觉：利用率、波动和服务时间" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#utilization_1">
+<span class="md-ellipsis">
+      Utilization
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variability">
+<span class="md-ellipsis">
+      Variability
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#service-time_1">
+<span class="md-ellipsis">
+      Service Time
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#llm">
+<span class="md-ellipsis">
+      LLM 推理里的队列不止一个
+    </span>
+</a>
+<nav aria-label="LLM 推理里的队列不止一个" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ingress-queue">
+<span class="md-ellipsis">
+      Ingress Queue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scheduler-queue">
+<span class="md-ellipsis">
+      Scheduler Queue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prefill-queue">
+<span class="md-ellipsis">
+      Prefill Queue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decode-active-set">
+<span class="md-ellipsis">
+      Decode Active Set
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      多阶段队列模型
+    </span>
+</a>
+<nav aria-label="多阶段队列模型" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prefilldecode">
+<span class="md-ellipsis">
+      Prefill/Decode 资源冲突
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kv-cache">
+<span class="md-ellipsis">
+      KV Cache 是队列容量的一部分
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#batching">
+<span class="md-ellipsis">
+      Batching 的排队取舍
+    </span>
+</a>
+<nav aria-label="Batching 的排队取舍" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#batch-window">
+<span class="md-ellipsis">
+      Batch Window
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-batching">
+<span class="md-ellipsis">
+      Continuous Batching
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#head-of-line-blocking">
+<span class="md-ellipsis">
+      Head-of-Line Blocking
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      调度、优先级与分桶
+    </span>
+</a>
+<nav aria-label="调度、优先级与分桶" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      按长度分桶
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deadline-aware-scheduling">
+<span class="md-ellipsis">
+      Deadline-aware Scheduling
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priority-class">
+<span class="md-ellipsis">
+      Priority Class
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#work-conserving-sla-conserving">
+<span class="md-ellipsis">
+      Work-conserving 与 SLA-conserving
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#goodputsla">
+<span class="md-ellipsis">
+      Goodput：SLA 下的有效吞吐
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      过载、超时和重试
+    </span>
+</a>
+<nav aria-label="过载、超时和重试" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deadline-propagation">
+<span class="md-ellipsis">
+      Deadline Propagation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#load-shedding">
+<span class="md-ellipsis">
+      Load Shedding
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#backoff-and-jitter">
+<span class="md-ellipsis">
+      Backoff and Jitter
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retry-budget">
+<span class="md-ellipsis">
+      Retry Budget
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retry-amplification">
+<span class="md-ellipsis">
+      Retry Amplification
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#load-shedding_1">
+<span class="md-ellipsis">
+      Load Shedding 的目标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      过载状态机
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      多副本服务的排队问题
+    </span>
+</a>
+<nav aria-label="多副本服务的排队问题" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      负载不均
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      异构节点
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      冷启动
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 应该怎么设计
+    </span>
+</a>
+<nav aria-label="Benchmark 应该怎么设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#open-loop-vs-closed-loop">
+<span class="md-ellipsis">
+      Open-loop vs Closed-loop
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#coordinated-omission">
+<span class="md-ellipsis">
+      Coordinated Omission
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#qps">
+<span class="md-ellipsis">
+      到达过程不能只有平均 QPS
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#goodput">
+<span class="md-ellipsis">
+      阶梯压测与 Goodput 曲线
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      稳态窗口要足够长
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      请求长度分布必须真实
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      需要采集的指标
+    </span>
+</a>
+<nav aria-label="需要采集的指标" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      请求时间戳
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      队列指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      分桶指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      资源指标
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      容量规划怎么用排队模型
+    </span>
+</a>
+<nav aria-label="容量规划怎么用排队模型" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-sla">
+<span class="md-ellipsis">
+      1. 定义 SLA
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-workload">
+<span class="md-ellipsis">
+      2. 定义 workload 分布
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-replica-goodput">
+<span class="md-ellipsis">
+      3. 测单 replica goodput 曲线
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-headroom">
+<span class="md-ellipsis">
+      4. 加 headroom
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      队列上限怎么定
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_24">
+<span class="md-ellipsis">
+      单副本曲线不能直接线性外推
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5">
+<span class="md-ellipsis">
+      5. 做故障场景验证
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_25">
+<span class="md-ellipsis">
+      常见诊断模式
+    </span>
+</a>
+<nav aria-label="常见诊断模式" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#qps-p99_1">
+<span class="md-ellipsis">
+      QPS 增加一点，p99 大幅变差
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ttft-tpot">
+<span class="md-ellipsis">
+      TTFT 高，但 TPOT 正常
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tpot-ttft">
+<span class="md-ellipsis">
+      TPOT 高，但 TTFT 正常
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p99_2">
+<span class="md-ellipsis">
+      平均延迟正常，p99 抖动
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-utilization-goodput">
+<span class="md-ellipsis">
+      GPU utilization 高，但 goodput 不高
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_26">
+<span class="md-ellipsis">
+      设计建议
+    </span>
+</a>
+<nav aria-label="设计建议" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_27">
+<span class="md-ellipsis">
+      小队列优先
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_28">
+<span class="md-ellipsis">
+      明确区分请求类型
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#estimated-waiting-time-admission">
+<span class="md-ellipsis">
+      用 estimated waiting time 做 admission
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_29">
+<span class="md-ellipsis">
+      限制最大工作量
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_30">
+<span class="md-ellipsis">
+      对取消请求及时释放资源
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_31">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-utilization">
+<span class="md-ellipsis">
+      误区一：GPU utilization 没满，所以没有排队风险
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_32">
+<span class="md-ellipsis">
+      误区二：平均延迟正常就代表用户体验正常
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_33">
+<span class="md-ellipsis">
+      误区三：队列越长越能抗突发
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_34">
+<span class="md-ellipsis">
+      误区四：重试能自然提高成功率
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark-p99">
+<span class="md-ellipsis">
+      误区五：单请求 benchmark 可以代表线上 p99
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_35">
+<span class="md-ellipsis">
+      误区六：拒绝请求一定比排队差
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_36">
+<span class="md-ellipsis">
+      报告模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_37">
+<span class="md-ellipsis">
+      检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_38">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_39">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queueing-contract">
+<span class="md-ellipsis">
+      Queueing Contract
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      基本概念
+    </span>
+</a>
+<nav aria-label="基本概念" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#arrival-rate">
+<span class="md-ellipsis">
+      Arrival Rate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#offered-loadthroughput-goodput">
+<span class="md-ellipsis">
+      Offered Load、Throughput 与 Goodput
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#service-time">
+<span class="md-ellipsis">
+      Service Time
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#service-rate">
+<span class="md-ellipsis">
+      Service Rate
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#utilization">
+<span class="md-ellipsis">
+      Utilization
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#queueing-latency">
+<span class="md-ellipsis">
+      Queueing Latency
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tail-latency">
+<span class="md-ellipsis">
+      Tail Latency
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deadline-miss">
+<span class="md-ellipsis">
+      Deadline Miss
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#littles-lawqps">
+<span class="md-ellipsis">
+      Little's Law：并发、QPS 和延迟
+    </span>
+</a>
+<nav aria-label="Little's Law：并发、QPS 和延迟" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      并发不是独立指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      延迟变长会反过来放大资源压力
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#littles-law-sanity-check">
+<span class="md-ellipsis">
+      用 Little's Law 做 sanity check
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p99">
+<span class="md-ellipsis">
+      为什么接近满载时 p99 会爆
+    </span>
+</a>
+<nav aria-label="为什么接近满载时 p99 会爆" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p99_1">
+<span class="md-ellipsis">
+      p99 爆炸通常先有信号
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      稳态和过载态不同
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kingman">
+<span class="md-ellipsis">
+      Kingman 直觉：利用率、波动和服务时间
+    </span>
+</a>
+<nav aria-label="Kingman 直觉：利用率、波动和服务时间" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#utilization_1">
+<span class="md-ellipsis">
+      Utilization
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#variability">
+<span class="md-ellipsis">
+      Variability
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#service-time_1">
+<span class="md-ellipsis">
+      Service Time
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#llm">
+<span class="md-ellipsis">
+      LLM 推理里的队列不止一个
+    </span>
+</a>
+<nav aria-label="LLM 推理里的队列不止一个" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ingress-queue">
+<span class="md-ellipsis">
+      Ingress Queue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scheduler-queue">
+<span class="md-ellipsis">
+      Scheduler Queue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prefill-queue">
+<span class="md-ellipsis">
+      Prefill Queue
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#decode-active-set">
+<span class="md-ellipsis">
+      Decode Active Set
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      多阶段队列模型
+    </span>
+</a>
+<nav aria-label="多阶段队列模型" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#prefilldecode">
+<span class="md-ellipsis">
+      Prefill/Decode 资源冲突
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kv-cache">
+<span class="md-ellipsis">
+      KV Cache 是队列容量的一部分
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#batching">
+<span class="md-ellipsis">
+      Batching 的排队取舍
+    </span>
+</a>
+<nav aria-label="Batching 的排队取舍" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#batch-window">
+<span class="md-ellipsis">
+      Batch Window
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#continuous-batching">
+<span class="md-ellipsis">
+      Continuous Batching
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#head-of-line-blocking">
+<span class="md-ellipsis">
+      Head-of-Line Blocking
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      调度、优先级与分桶
+    </span>
+</a>
+<nav aria-label="调度、优先级与分桶" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      按长度分桶
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deadline-aware-scheduling">
+<span class="md-ellipsis">
+      Deadline-aware Scheduling
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#priority-class">
+<span class="md-ellipsis">
+      Priority Class
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#work-conserving-sla-conserving">
+<span class="md-ellipsis">
+      Work-conserving 与 SLA-conserving
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#goodputsla">
+<span class="md-ellipsis">
+      Goodput：SLA 下的有效吞吐
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      过载、超时和重试
+    </span>
+</a>
+<nav aria-label="过载、超时和重试" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deadline-propagation">
+<span class="md-ellipsis">
+      Deadline Propagation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#load-shedding">
+<span class="md-ellipsis">
+      Load Shedding
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#backoff-and-jitter">
+<span class="md-ellipsis">
+      Backoff and Jitter
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retry-budget">
+<span class="md-ellipsis">
+      Retry Budget
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retry-amplification">
+<span class="md-ellipsis">
+      Retry Amplification
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#load-shedding_1">
+<span class="md-ellipsis">
+      Load Shedding 的目标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      过载状态机
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      多副本服务的排队问题
+    </span>
+</a>
+<nav aria-label="多副本服务的排队问题" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      负载不均
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      异构节点
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      冷启动
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 应该怎么设计
+    </span>
+</a>
+<nav aria-label="Benchmark 应该怎么设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#open-loop-vs-closed-loop">
+<span class="md-ellipsis">
+      Open-loop vs Closed-loop
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#coordinated-omission">
+<span class="md-ellipsis">
+      Coordinated Omission
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#qps">
+<span class="md-ellipsis">
+      到达过程不能只有平均 QPS
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#goodput">
+<span class="md-ellipsis">
+      阶梯压测与 Goodput 曲线
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      稳态窗口要足够长
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      请求长度分布必须真实
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      需要采集的指标
+    </span>
+</a>
+<nav aria-label="需要采集的指标" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      请求时间戳
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      队列指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      分桶指标
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_21">
+<span class="md-ellipsis">
+      资源指标
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_22">
+<span class="md-ellipsis">
+      容量规划怎么用排队模型
+    </span>
+</a>
+<nav aria-label="容量规划怎么用排队模型" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-sla">
+<span class="md-ellipsis">
+      1. 定义 SLA
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-workload">
+<span class="md-ellipsis">
+      2. 定义 workload 分布
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-replica-goodput">
+<span class="md-ellipsis">
+      3. 测单 replica goodput 曲线
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-headroom">
+<span class="md-ellipsis">
+      4. 加 headroom
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_23">
+<span class="md-ellipsis">
+      队列上限怎么定
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_24">
+<span class="md-ellipsis">
+      单副本曲线不能直接线性外推
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5">
+<span class="md-ellipsis">
+      5. 做故障场景验证
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_25">
+<span class="md-ellipsis">
+      常见诊断模式
+    </span>
+</a>
+<nav aria-label="常见诊断模式" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#qps-p99_1">
+<span class="md-ellipsis">
+      QPS 增加一点，p99 大幅变差
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ttft-tpot">
+<span class="md-ellipsis">
+      TTFT 高，但 TPOT 正常
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tpot-ttft">
+<span class="md-ellipsis">
+      TPOT 高，但 TTFT 正常
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#p99_2">
+<span class="md-ellipsis">
+      平均延迟正常，p99 抖动
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-utilization-goodput">
+<span class="md-ellipsis">
+      GPU utilization 高，但 goodput 不高
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_26">
+<span class="md-ellipsis">
+      设计建议
+    </span>
+</a>
+<nav aria-label="设计建议" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_27">
+<span class="md-ellipsis">
+      小队列优先
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_28">
+<span class="md-ellipsis">
+      明确区分请求类型
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#estimated-waiting-time-admission">
+<span class="md-ellipsis">
+      用 estimated waiting time 做 admission
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_29">
+<span class="md-ellipsis">
+      限制最大工作量
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_30">
+<span class="md-ellipsis">
+      对取消请求及时释放资源
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_31">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gpu-utilization">
+<span class="md-ellipsis">
+      误区一：GPU utilization 没满，所以没有排队风险
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_32">
+<span class="md-ellipsis">
+      误区二：平均延迟正常就代表用户体验正常
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_33">
+<span class="md-ellipsis">
+      误区三：队列越长越能抗突发
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_34">
+<span class="md-ellipsis">
+      误区四：重试能自然提高成功率
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark-p99">
+<span class="md-ellipsis">
+      误区五：单请求 benchmark 可以代表线上 p99
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_35">
+<span class="md-ellipsis">
+      误区六：拒绝请求一定比排队差
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_36">
+<span class="md-ellipsis">
+      报告模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_37">
+<span class="md-ellipsis">
+      检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_38">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_39">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="qps-p99">排队模型与尾延迟：QPS、并发、利用率和 p99<a class="headerlink" href="#qps-p99" title="Permanent link">¶</a></h1>
+<p>AI 推理服务的性能问题，很多不是“单个请求算得慢”，而是“请求在系统里等得久”。</p>
+<p>常见现象包括：</p>
+<ul>
+<li>平均延迟不高，但 p99 很差。</li>
+<li>GPU utilization 还没到 100%，请求已经开始排队。</li>
+<li>QPS 只增加 10%，p99 却翻倍。</li>
+<li>batching 提高了吞吐，但 TTFT 变差。</li>
+<li>单请求测试很快，上并发后延迟突然失控。</li>
+<li>重试策略本来想提高成功率，却把服务打爆。</li>
+<li>replica 数量看似够，但流量峰值一来就开始超时。</li>
+</ul>
+<p>这些现象都和排队有关。</p>
+<p>本篇重点回答：</p>
+<blockquote>
+<p>如何用排队模型理解 AI 推理服务中的 QPS、并发、利用率、queueing latency、tail latency、batching、load shedding 和容量规划？</p>
+</blockquote>
+<p>这不是一篇严格的排队论教材，而是一篇工程入门：目标是让读者能用简单模型解释现象、设计 benchmark、设置 headroom，并避免把系统推到尾延迟失控区间。</p>
+<p>排队模型最重要的价值不是把线上服务精确算成一个公式，而是帮助团队回答：</p>
+<div class="highlight"><pre><span></span><code>当前 p99 是单请求慢，还是排队慢？
+队列为什么会增长？
+系统在哪个 QPS 附近开始进入失控区？
+应该扩容、限流、分桶、缩短队列，还是改变 batching？
+</code></pre></div>
+<p>如果没有排队视角，团队很容易只盯着 GPU utilization、平均 tokens/s 或单请求 latency，忽略真正导致 SLA 失败的等待时间。</p>
+<h2 id="queueing-contract">Queueing Contract<a class="headerlink" href="#queueing-contract" title="Permanent link">¶</a></h2>
+<p>做排队和尾延迟分析前，建议先写一个 Queueing Contract。它的作用是固定负载、SLA、队列边界和过载策略。</p>
+<p>示例：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">queueing_analysis</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chat-70b-p99-2026-06</span>
+
+<span class="nt">service</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llama-like-70b</span>
+<span class="w">  </span><span class="nt">engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm_like</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span>
+<span class="w">  </span><span class="nt">tensor_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+
+<span class="nt">traffic</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">arrival_process</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production_trace_replay</span>
+<span class="w">  </span><span class="nt">steady_qps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">  </span><span class="nt">peak_qps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">160</span>
+<span class="w">  </span><span class="nt">burst</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">qps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">240</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+<span class="w">  </span><span class="nt">retry_policy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">max_attempts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">    </span><span class="nt">exponential_backoff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">jitter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">request_mix</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">input_tokens</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">p50</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1024</span>
+<span class="w">    </span><span class="nt">p95</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8192</span>
+<span class="w">    </span><span class="nt">p99</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16384</span>
+<span class="w">  </span><span class="nt">output_tokens</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">p50</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">256</span>
+<span class="w">    </span><span class="nt">p95</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1024</span>
+<span class="w">    </span><span class="nt">p99</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2048</span>
+<span class="w">  </span><span class="nt">classes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">interactive</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80%</span>
+<span class="w">    </span><span class="nt">long_context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15%</span>
+<span class="w">    </span><span class="nt">batch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5%</span>
+
+<span class="nt">slo</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ttft_p95</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">800ms</span>
+<span class="w">  </span><span class="nt">ttft_p99</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1500ms</span>
+<span class="w">  </span><span class="nt">tpot_p95</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50ms</span>
+<span class="w">  </span><span class="nt">e2e_p99</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8s</span>
+<span class="w">  </span><span class="nt">error_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1%</span>
+
+<span class="nt">queues</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">max_ingress_queue_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500ms</span>
+<span class="w">  </span><span class="nt">max_scheduler_queue_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300ms</span>
+<span class="w">  </span><span class="nt">max_queue_length_per_replica</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128</span>
+<span class="w">  </span><span class="nt">max_active_sequences</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<span class="w">  </span><span class="nt">max_kv_cache_occupancy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">85%</span>
+
+<span class="nt">overload_policy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">admission_control</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deadline_aware</span>
+<span class="w">  </span><span class="nt">load_shedding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">cancel_expired_requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">retry_budget</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enforced</span>
+
+<span class="nt">validation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">benchmark_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">open_loop</span>
+<span class="w">  </span><span class="nt">report_goodput_at_sla</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">include_burst_and_failure</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<p>这个 contract 让排队讨论从“p99 怎么这么高”变成一组可验证问题：</p>
+<ul>
+<li>外部到达过程是什么，是否包含突发和 retry。</li>
+<li>请求长度分布是什么，是否有长上下文和长输出尾部。</li>
+<li>SLA 是 TTFT、TPOT、E2E 还是 error rate。</li>
+<li>每层队列的上限和 deadline 是多少。</li>
+<li>overload 时是继续排队、拒绝、降级还是取消。</li>
+<li>benchmark 是否用 open-loop 方式复现外部到达率。</li>
+</ul>
+<p>如果这些前提不固定，p99 曲线很难解释，容量结论也无法复现。</p>
+<h2 id="_1">一张总图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TB
+    Arrival["Arrivals<br/>QPS / burst / request mix"]
+    Queue["Queues<br/>ingress / scheduler / prefill / decode"]
+    Service["Service<br/>GPU time / CPU time / network / storage"]
+    Util["Utilization<br/>arrival rate / service capacity"]
+    Wait["Waiting<br/>queueing latency / head-of-line blocking"]
+    Tail["Tail Latency<br/>p95 / p99 / deadline miss"]
+    Control["Controls<br/>batching / routing / admission / shedding"]
+    Capacity["Capacity Plan<br/>replicas / headroom / SLA goodput"]
+    Benchmark["Benchmark<br/>open-loop load / percentiles / phase metrics"]
+
+    Arrival --&gt; Queue
+    Queue --&gt; Service
+    Service --&gt; Util
+    Util --&gt; Wait
+    Wait --&gt; Tail
+    Tail --&gt; Control
+    Control --&gt; Capacity
+    Capacity --&gt; Benchmark
+    Benchmark --&gt; Arrival
+</div>
+<p>这张图表达一个核心事实：</p>
+<div class="highlight"><pre><span></span><code>延迟 = 服务时间 + 排队时间
+</code></pre></div>
+<p>单请求 profile 只能看到服务时间的一部分。在线服务的 p95/p99 往往由排队、突发、长请求、调度和过载控制共同决定。</p>
+<h2 id="_2">基本概念<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<h3 id="arrival-rate">Arrival Rate<a class="headerlink" href="#arrival-rate" title="Permanent link">¶</a></h3>
+<p>Arrival rate 是请求到达速率，常写作：</p>
+<div class="highlight"><pre><span></span><code>lambda = requests per second
+</code></pre></div>
+<p>工程上常叫 QPS、RPS 或 request rate。</p>
+<p>要注意 arrival rate 有不同口径：</p>
+<ul>
+<li>外部请求到达服务的速率。</li>
+<li>通过 admission control 后真正进入队列的速率。</li>
+<li>成功完成请求的速率。</li>
+<li>retry 后放大的实际请求速率。</li>
+</ul>
+<p>如果系统发生过载，外部 QPS 和有效完成 QPS 可能差很多。</p>
+<h3 id="offered-loadthroughput-goodput">Offered Load、Throughput 与 Goodput<a class="headerlink" href="#offered-loadthroughput-goodput" title="Permanent link">¶</a></h3>
+<p>排队分析里要区分三种速率：</p>
+<table>
+<thead>
+<tr>
+<th>口径</th>
+<th>含义</th>
+<th>过载时会怎样</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>offered load</td>
+<td>外部试图送进系统的请求速率</td>
+<td>可能继续升高</td>
+</tr>
+<tr>
+<td>throughput</td>
+<td>系统实际完成请求的速率</td>
+<td>会受容量限制</td>
+</tr>
+<tr>
+<td>goodput</td>
+<td>在 SLA 内成功完成的有效请求速率</td>
+<td>可能先升后降</td>
+</tr>
+</tbody>
+</table>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>offered_load = 160 req/s
+throughput = 140 req/s
+goodput_at_SLA = 90 req/s
+</code></pre></div>
+<p>这说明系统虽然完成了不少请求，但其中很多已经超出 SLA。容量规划应该使用 <code>goodput_at_SLA</code>，而不是极限 throughput。</p>
+<p>如果只看 throughput，可能会误判：</p>
+<div class="highlight"><pre><span></span><code>系统还能处理请求，所以容量够。
+</code></pre></div>
+<p>但从用户体验看，正确结论可能是：</p>
+<div class="highlight"><pre><span></span><code>系统已经进入尾延迟失控区，需要限流、扩容或改变调度。
+</code></pre></div>
+<h3 id="service-time">Service Time<a class="headerlink" href="#service-time" title="Permanent link">¶</a></h3>
+<p>Service time 是请求真正被处理所需的时间。</p>
+<p>在 LLM 推理里，它可能包含：</p>
+<div class="highlight"><pre><span></span><code>tokenization
+  + scheduling
+  + prefill
+  + decode loop
+  + sampling
+  + detokenization
+  + response streaming
+</code></pre></div>
+<p>严格来说，scheduling 前的等待不属于 service time；但工程日志里经常混在一起。因此必须把阶段时间拆开记录。</p>
+<h3 id="service-rate">Service Rate<a class="headerlink" href="#service-rate" title="Permanent link">¶</a></h3>
+<p>Service rate 是系统处理请求的速率，常写作：</p>
+<div class="highlight"><pre><span></span><code>mu = requests per second
+</code></pre></div>
+<p>如果平均 service time 是 100 ms，那么单服务台的粗略 service rate 是：</p>
+<div class="highlight"><pre><span></span><code>mu = 1 / 0.1 = 10 requests/s
+</code></pre></div>
+<p>但 AI 推理不是简单单服务台：</p>
+<ul>
+<li>batching 会让多个请求一起服务。</li>
+<li>prefill 和 decode 的资源形态不同。</li>
+<li>不同请求输入/输出长度不同。</li>
+<li>连续 batching 会让服务时间随队列状态变化。</li>
+<li>多 GPU、多 replica、多模型共享资源。</li>
+</ul>
+<p>所以 <code>mu</code> 在实际系统中不是常数，而是 workload、batch、长度分布和调度策略共同决定的有效服务能力。</p>
+<h3 id="utilization">Utilization<a class="headerlink" href="#utilization" title="Permanent link">¶</a></h3>
+<p>利用率可以粗略理解为：</p>
+<div class="highlight"><pre><span></span><code>rho = arrival_rate / service_capacity
+</code></pre></div>
+<p>如果：</p>
+<div class="highlight"><pre><span></span><code>rho &lt; 1
+</code></pre></div>
+<p>系统平均上有能力处理到达请求。</p>
+<p>如果：</p>
+<div class="highlight"><pre><span></span><code>rho &gt;= 1
+</code></pre></div>
+<p>长期看队列会持续增长，除非请求被拒绝、超时、丢弃或服务降级。</p>
+<p>工程上最容易误判的是：</p>
+<blockquote>
+<p><code>rho &lt; 1</code> 只表示平均上能处理，不表示 p99 好。</p>
+</blockquote>
+<p>当 utilization 接近 1 时，即使平均服务能力略大于平均到达率，排队时间也会急剧增加。</p>
+<h3 id="queueing-latency">Queueing Latency<a class="headerlink" href="#queueing-latency" title="Permanent link">¶</a></h3>
+<p>Queueing latency 是请求等待被处理的时间。</p>
+<p>推理服务里可能有多段等待：</p>
+<ul>
+<li>网关或 load balancer 等待。</li>
+<li>服务进程 ingress queue 等待。</li>
+<li>scheduler 等待可用 batch slot。</li>
+<li>prefill queue 等待。</li>
+<li>decode queue 等待。</li>
+<li>KV Cache 资源等待。</li>
+<li>多模型共享 GPU 时等待模型上下文。</li>
+</ul>
+<p>如果只看 E2E latency，不拆 queueing latency，很难判断“模型慢”还是“排队慢”。</p>
+<h3 id="tail-latency">Tail Latency<a class="headerlink" href="#tail-latency" title="Permanent link">¶</a></h3>
+<p>Tail latency 是高分位延迟，例如：</p>
+<ul>
+<li>p90。</li>
+<li>p95。</li>
+<li>p99。</li>
+<li>p99.9。</li>
+</ul>
+<p>在线服务通常更关心 tail latency，而不是平均值。</p>
+<p>原因很简单：用户、上游服务或 agent workflow 感受到的是某次请求是否超时，而不是所有请求的平均体验。</p>
+<p>在多阶段系统中，尾延迟还会叠加。一个请求如果依赖多个子调用，只要其中一个子调用落在尾部，整体就可能变慢。</p>
+<h3 id="deadline-miss">Deadline Miss<a class="headerlink" href="#deadline-miss" title="Permanent link">¶</a></h3>
+<p>对在线推理服务来说，高分位延迟最终会表现为 deadline miss。</p>
+<p>如果 SLA 是：</p>
+<div class="highlight"><pre><span></span><code>E2E p99 &lt; 8s
+</code></pre></div>
+<p>那么请求在队列里等待 7s 后再开始处理，即使最终成功返回，也可能已经没有业务价值。</p>
+<p>因此排队系统要记录：</p>
+<ul>
+<li>deadline remaining。</li>
+<li>queue age。</li>
+<li>estimated service time。</li>
+<li>expired but still running requests。</li>
+<li>cancelled requests。</li>
+<li>rejected requests。</li>
+</ul>
+<p>这些指标能判断系统是在“努力处理有效请求”，还是在“消耗算力处理已经超时的无效请求”。</p>
+<h2 id="littles-lawqps">Little's Law：并发、QPS 和延迟<a class="headerlink" href="#littles-lawqps" title="Permanent link">¶</a></h2>
+<p>Little's Law 是排队系统里最实用的关系之一：</p>
+<div class="highlight"><pre><span></span><code>L = lambda * W
+</code></pre></div>
+<p>其中：</p>
+<ul>
+<li><code>L</code>：系统内平均同时存在的请求数。</li>
+<li><code>lambda</code>：有效到达率或完成率。</li>
+<li><code>W</code>：请求在系统内平均停留时间。</li>
+</ul>
+<p>在服务系统里，可以理解成：</p>
+<div class="highlight"><pre><span></span><code>in_flight_requests = throughput * average_latency
+</code></pre></div>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>throughput = 100 requests/s
+average_latency = 0.5 s
+in_flight ~= 50 requests
+</code></pre></div>
+<p>这能解释几个常见现象。</p>
+<h3 id="_3">并发不是独立指标<a class="headerlink" href="#_3" title="Permanent link">¶</a></h3>
+<p>并发、吞吐、延迟三者绑定在一起。</p>
+<p>如果 QPS 不变，但 latency 变长，in-flight requests 会增加。</p>
+<p>如果 in-flight requests 增加，会消耗更多：</p>
+<ul>
+<li>内存。</li>
+<li>KV Cache。</li>
+<li>socket。
+-线程/协程。</li>
+<li>scheduler 状态。</li>
+<li>batch slot。</li>
+</ul>
+<p>这就是过载时系统会“越慢越拥挤”的原因。</p>
+<h3 id="_4">延迟变长会反过来放大资源压力<a class="headerlink" href="#_4" title="Permanent link">¶</a></h3>
+<p>假设服务原来：</p>
+<div class="highlight"><pre><span></span><code>QPS = 100
+latency = 0.5s
+in-flight = 50
+</code></pre></div>
+<p>如果过载让 latency 变成 2s：</p>
+<div class="highlight"><pre><span></span><code>in-flight = 100 * 2 = 200
+</code></pre></div>
+<p>即使外部 QPS 没变，系统内部同时存在的请求数也变成 4 倍。</p>
+<p>对 LLM 推理来说，这意味着：</p>
+<ul>
+<li>更多请求占用 KV Cache。</li>
+<li>更多请求占用 scheduler 状态。</li>
+<li>更多 streaming connection。</li>
+<li>更多超时和取消。</li>
+<li>更多 retry 可能进一步放大到达率。</li>
+</ul>
+<p>所以延迟不是一个被动结果，它会反过来影响系统容量。</p>
+<h3 id="littles-law-sanity-check">用 Little's Law 做 sanity check<a class="headerlink" href="#littles-law-sanity-check" title="Permanent link">¶</a></h3>
+<p>Little's Law 很适合做监控 sanity check。</p>
+<p>例如监控显示：</p>
+<div class="highlight"><pre><span></span><code>throughput = 80 req/s
+average_e2e_latency = 2s
+</code></pre></div>
+<p>那么系统内平均 in-flight 应该接近：</p>
+<div class="highlight"><pre><span></span><code>80 * 2 = 160 requests
+</code></pre></div>
+<p>如果实际 active + queued 请求远高于 160，可能说明：</p>
+<ul>
+<li>请求统计口径不一致。</li>
+<li>有大量挂起、超时或未清理请求。</li>
+<li>streaming 连接结束时间记录不准。</li>
+<li>retry 或取消请求没有正确计入。</li>
+<li>某些内部队列没有暴露指标。</li>
+</ul>
+<p>反过来，如果实际 in-flight 远低于估计值，也要检查 latency、throughput 和时间窗口口径是否对齐。</p>
+<p>这个 sanity check 不需要很精确，但能快速发现指标体系是否可信。</p>
+<h2 id="p99">为什么接近满载时 p99 会爆<a class="headerlink" href="#p99" title="Permanent link">¶</a></h2>
+<p>最简单的直觉：</p>
+<div class="highlight"><pre><span></span><code>服务台越忙，新来的请求越可能遇到前面还有活没做完。
+</code></pre></div>
+<p>当 utilization 很低时，请求到达时服务台经常是空的，排队很少。</p>
+<p>当 utilization 很高时，请求到达时服务台大概率正在忙，稍微有一点抖动就会排队。</p>
+<p>在 M/M/1 这类简化模型中，平均响应时间会随着 <code>lambda</code> 接近 <code>mu</code> 急剧上升：</p>
+<div class="highlight"><pre><span></span><code>response_time ~= 1 / (mu - lambda)
+</code></pre></div>
+<p>不需要把这个公式当作真实推理服务的精确预测。它的工程意义是：</p>
+<blockquote>
+<p>不要把线上服务长期推到理论最大吞吐附近。越接近饱和，排队时间越敏感，尾延迟越容易失控。</p>
+</blockquote>
+<h3 id="p99_1">p99 爆炸通常先有信号<a class="headerlink" href="#p99_1" title="Permanent link">¶</a></h3>
+<p>p99 失控前，系统通常会先出现一些早期信号：</p>
+<ul>
+<li>queue length 开始持续抬升，而不是围绕低值波动。</li>
+<li>queue age 的 p95/p99 上升。</li>
+<li>active sequence count 接近上限。</li>
+<li>KV Cache occupancy 接近上限。</li>
+<li>rejected / timeout / cancelled 开始出现。</li>
+<li>TTFT 比 TPOT 更早恶化。</li>
+<li>slow replica 的队列明显长于其他 replica。</li>
+<li>retry QPS 占比上升。</li>
+</ul>
+<p>这些信号比 GPU utilization 更早反映排队风险。GPU utilization 可能还没到 100%，p99 已经因为队列和调度而恶化。</p>
+<h3 id="_5">稳态和过载态不同<a class="headerlink" href="#_5" title="Permanent link">¶</a></h3>
+<p>稳态下：</p>
+<div class="highlight"><pre><span></span><code>arrival_rate &lt;= sustainable_goodput
+queue_length 在可控范围内波动
+</code></pre></div>
+<p>过载态下：</p>
+<div class="highlight"><pre><span></span><code>arrival_rate &gt; sustainable_goodput
+queue_length 随时间持续增长
+</code></pre></div>
+<p>如果队列长度有上限，增长会转化成 reject、timeout 或 load shedding。如果队列没有上限，增长会转化成越来越高的 latency，最终可能拖垮服务进程。</p>
+<h2 id="kingman">Kingman 直觉：利用率、波动和服务时间<a class="headerlink" href="#kingman" title="Permanent link">¶</a></h2>
+<p>实际系统不是理想 M/M/1。请求到达会突发，服务时间也会变化。</p>
+<p>Kingman 近似常被概括成 VUT 直觉：</p>
+<div class="highlight"><pre><span></span><code>waiting time
+  ~= utilization effect
+   * variability effect
+   * service time effect
+</code></pre></div>
+<p>更直观地说，排队等待由三类因素放大：</p>
+<h3 id="utilization_1">Utilization<a class="headerlink" href="#utilization_1" title="Permanent link">¶</a></h3>
+<p>系统越接近满载，等待越容易急剧增加。</p>
+<div class="highlight"><pre><span></span><code>rho / (1 - rho)
+</code></pre></div>
+<p>这一项会在 <code>rho</code> 接近 1 时变得很大。</p>
+<h3 id="variability">Variability<a class="headerlink" href="#variability" title="Permanent link">¶</a></h3>
+<p>到达越突发、服务时间越不稳定，等待越严重。</p>
+<p>在 LLM 推理中，服务时间变化来自：</p>
+<ul>
+<li>输入长度不同。</li>
+<li>输出长度不同。</li>
+<li>是否命中 prefix cache。</li>
+<li>是否触发 RAG 检索。</li>
+<li>是否走工具调用。</li>
+<li>是否 speculative decoding 接受率不同。</li>
+<li>是否遇到长上下文。</li>
+<li>是否动态 batch 中混入长请求。</li>
+</ul>
+<h3 id="service-time_1">Service Time<a class="headerlink" href="#service-time_1" title="Permanent link">¶</a></h3>
+<p>单次服务越慢，排队等待的基础尺度越大。</p>
+<p>这意味着优化单请求服务时间仍然有意义，因为它不仅缩短请求本身，也能降低后续请求等待。</p>
+<p>Kingman 直觉给 AI 系统一个很重要的启发：</p>
+<blockquote>
+<p>降低 p99 不只靠提高平均吞吐，还要降低 workload 波动、控制长请求、限制队列、做隔离和调度。</p>
+</blockquote>
+<h2 id="llm">LLM 推理里的队列不止一个<a class="headerlink" href="#llm" title="Permanent link">¶</a></h2>
+<p>一个 LLM 服务里通常有多层队列。</p>
+<div class="highlight"><pre><span></span><code>client
+  -&gt; load balancer
+  -&gt; API server ingress queue
+  -&gt; tokenizer / preprocessing
+  -&gt; scheduler waiting queue
+  -&gt; prefill batch
+  -&gt; decode active set
+  -&gt; sampling / postprocess
+  -&gt; streaming response
+</code></pre></div>
+<p>每一层都可能制造 tail latency。</p>
+<h3 id="ingress-queue">Ingress Queue<a class="headerlink" href="#ingress-queue" title="Permanent link">¶</a></h3>
+<p>入口队列用于吸收短期突发。</p>
+<p>如果入口队列过长，请求会在服务外层等待很久，等轮到它时可能已经接近 timeout。继续处理这样的请求可能浪费 GPU。</p>
+<h3 id="scheduler-queue">Scheduler Queue<a class="headerlink" href="#scheduler-queue" title="Permanent link">¶</a></h3>
+<p>调度队列决定请求何时进入 prefill 或 decode。</p>
+<p>影响因素包括：</p>
+<ul>
+<li>当前 batch 是否已满。</li>
+<li>KV Cache 是否有空间。</li>
+<li>请求长度。</li>
+<li>优先级。</li>
+<li>是否可与其他请求合批。</li>
+<li>是否命中 prefix cache。</li>
+</ul>
+<p>调度策略可以显著影响 p99。</p>
+<h3 id="prefill-queue">Prefill Queue<a class="headerlink" href="#prefill-queue" title="Permanent link">¶</a></h3>
+<p>Prefill 处理输入 prompt，通常计算密集，长 prompt 会占用较多 GPU 时间。</p>
+<p>如果长 prompt 和短 prompt 混在一起，短请求可能被长请求阻塞。</p>
+<h3 id="decode-active-set">Decode Active Set<a class="headerlink" href="#decode-active-set" title="Permanent link">¶</a></h3>
+<p>Decode 阶段逐 token 生成，活跃请求集合会持续变化。</p>
+<p>影响因素包括：</p>
+<ul>
+<li>当前活跃序列数。</li>
+<li>每个请求剩余输出长度。</li>
+<li>KV Cache 容量。</li>
+<li>batching 策略。</li>
+<li>speculative decoding。</li>
+<li>EOS 提前结束。</li>
+</ul>
+<p>Decode 的排队和调度比普通 Web 服务更复杂，因为请求不是一次处理完，而是多轮反复占用 GPU。</p>
+<h2 id="_6">多阶段队列模型<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>LLM 服务更像一个多阶段队列网络，而不是单个 FIFO 队列。</p>
+<p>可以粗略拆成：</p>
+<div class="highlight"><pre><span></span><code>ingress queue
+  -&gt; preprocessing/tokenization
+  -&gt; prefill queue
+  -&gt; prefill service
+  -&gt; decode active set
+  -&gt; postprocess/streaming
+</code></pre></div>
+<p>每个阶段都有不同资源：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>主要资源</th>
+<th>典型指标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ingress</td>
+<td>API worker、连接、限流器</td>
+<td>queue length、queue age、reject</td>
+</tr>
+<tr>
+<td>tokenization</td>
+<td>CPU、内存、线程池</td>
+<td>tokenizer time、CPU queue</td>
+</tr>
+<tr>
+<td>prefill</td>
+<td>GPU compute、HBM、batch slot</td>
+<td>TTFT、prefill time、prefill batch</td>
+</tr>
+<tr>
+<td>decode</td>
+<td>GPU memory bandwidth、KV Cache、scheduler</td>
+<td>TPOT、active sequences、KV occupancy</td>
+</tr>
+<tr>
+<td>streaming</td>
+<td>network、client connection</td>
+<td>stream duration、cancel、disconnect</td>
+</tr>
+</tbody>
+</table>
+<p>多阶段系统有两个重要后果：</p>
+<ol>
+<li>任一阶段成为瓶颈，都会把等待传导到整体 E2E。</li>
+<li>阶段之间的调度策略会改变 tail latency。</li>
+</ol>
+<p>例如 prefill 很重时，decode 可能被 prefill 抢占 GPU；decode active set 很大时，新请求可能迟迟得不到 prefill slot，TTFT 变差。</p>
+<h3 id="prefilldecode">Prefill/Decode 资源冲突<a class="headerlink" href="#prefilldecode" title="Permanent link">¶</a></h3>
+<p>Prefill 和 decode 的计算形态不同：</p>
+<ul>
+<li>prefill 通常更 compute-heavy。</li>
+<li>decode 通常更 memory/KV-heavy，且按 token 反复执行。</li>
+</ul>
+<p>如果同一个 replica 同时处理 prefill 和 decode，需要决定：</p>
+<ul>
+<li>prefill 一次放多大 batch。</li>
+<li>decode 每轮保留多少 active sequence。</li>
+<li>prefill 是否能插队。</li>
+<li>decode 是否要保证 token streaming 平滑。</li>
+<li>长 prompt 是否要单独排队。</li>
+</ul>
+<p>排队指标也要分开看：</p>
+<div class="highlight"><pre><span></span><code>prefill_wait_time
+prefill_service_time
+decode_wait_per_step
+decode_tpot
+active_decode_sequences
+</code></pre></div>
+<p>只看 TTFT 和 TPOT 的最终值，不足以解释资源冲突在哪里。</p>
+<h3 id="kv-cache">KV Cache 是队列容量的一部分<a class="headerlink" href="#kv-cache" title="Permanent link">¶</a></h3>
+<p>在 LLM 服务里，队列容量不只是请求数，还包括 KV Cache token occupancy。</p>
+<p>一个请求进入 decode active set 后，会持续占用 KV Cache。长上下文和长输出请求会让：</p>
+<div class="highlight"><pre><span></span><code>active_requests 不高
+但 KV Cache occupancy 很高
+</code></pre></div>
+<p>这会导致：</p>
+<ul>
+<li>新请求无法 admission。</li>
+<li>decode batch 被迫缩小。</li>
+<li>KV eviction 或 swap。</li>
+<li>prefix cache 命中率变化。</li>
+<li>p99 TTFT 和 TPOT 同时恶化。</li>
+</ul>
+<p>因此 queueing report 里必须同时写：</p>
+<div class="highlight"><pre><span></span><code>request_queue_length
+active_sequence_count
+kv_cache_tokens_used
+kv_cache_occupancy
+cache_eviction_or_swap
+</code></pre></div>
+<p>对 LLM 来说，“队列满了”可能不是请求队列满，而是 KV Cache 满。</p>
+<h2 id="batching">Batching 的排队取舍<a class="headerlink" href="#batching" title="Permanent link">¶</a></h2>
+<p>Batching 是 AI 推理里最重要的吞吐优化之一，但它不是免费午餐。</p>
+<p>Batching 的收益：</p>
+<ul>
+<li>提高 GPU 利用率。</li>
+<li>合并 kernel。</li>
+<li>提高 tokens/s。</li>
+<li>摊薄 launch overhead。</li>
+<li>让矩阵形状更适合硬件。</li>
+</ul>
+<p>Batching 的代价：</p>
+<ul>
+<li>请求可能要等 batch 凑齐。</li>
+<li>大 batch service time 可能变长。</li>
+<li>长短请求混合会产生 head-of-line blocking。</li>
+<li>KV Cache 占用增加。</li>
+<li>p99 可能变差。</li>
+</ul>
+<p>所以 batching 的核心问题不是“batch 越大越好”，而是：</p>
+<div class="highlight"><pre><span></span><code>在 SLA 约束下，选择能最大化 goodput 的 batch 策略。
+</code></pre></div>
+<h3 id="batch-window">Batch Window<a class="headerlink" href="#batch-window" title="Permanent link">¶</a></h3>
+<p>很多系统会设置一个短暂等待窗口：</p>
+<div class="highlight"><pre><span></span><code>wait up to X ms to form a better batch
+</code></pre></div>
+<p>如果 <code>X</code> 太小，batch 不充分，吞吐低。</p>
+<p>如果 <code>X</code> 太大，TTFT 增加，p99 变差。</p>
+<h3 id="continuous-batching">Continuous Batching<a class="headerlink" href="#continuous-batching" title="Permanent link">¶</a></h3>
+<p>连续 batching 允许请求在 decode 过程中动态加入和离开 batch。</p>
+<p>它能显著提高吞吐，但也让排队模型更复杂：</p>
+<ul>
+<li>请求服务不是一次完成。</li>
+<li>decode step 之间共享 GPU。</li>
+<li>新请求插入会影响活跃集合。</li>
+<li>长输出请求会长期占用资源。</li>
+</ul>
+<p>因此 benchmark 必须记录：</p>
+<ul>
+<li>TTFT。</li>
+<li>TPOT。</li>
+<li>active sequence count。</li>
+<li>waiting queue length。</li>
+<li>prefill batch size。</li>
+<li>decode batch size。</li>
+<li>KV Cache occupancy。</li>
+</ul>
+<p>只看 overall latency 不够。</p>
+<h2 id="head-of-line-blocking">Head-of-Line Blocking<a class="headerlink" href="#head-of-line-blocking" title="Permanent link">¶</a></h2>
+<p>Head-of-line blocking 指队列前面的慢请求挡住后面的快请求。</p>
+<p>在 LLM 推理中，慢请求可能是：</p>
+<ul>
+<li>超长 prompt。</li>
+<li>超长输出。</li>
+<li>RAG 上下文很多。</li>
+<li>工具调用等待。</li>
+<li>多模态输入预处理。</li>
+<li>prefix cache miss。</li>
+<li>低优先级但已经进入队列的请求。</li>
+</ul>
+<p>如果所有请求共用一个 FIFO 队列，短请求可能被长请求拖慢。</p>
+<p>常见缓解方式：</p>
+<ul>
+<li>按输入长度分桶。</li>
+<li>按输出预算分队列。</li>
+<li>区分 interactive 和 batch。</li>
+<li>给长上下文单独 replica pool。</li>
+<li>设置 max tokens、deadline、priority。</li>
+<li>对超长请求使用单独调度策略。</li>
+</ul>
+<p>不要只看平均输入长度。尾部长度分布通常决定 p99。</p>
+<h2 id="_7">调度、优先级与分桶<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<p>排队模型不是只能告诉你“加机器”。很多 tail latency 问题可以通过调度策略改善。</p>
+<h3 id="_8">按长度分桶<a class="headerlink" href="#_8" title="Permanent link">¶</a></h3>
+<p>最常见的是按请求长度分桶：</p>
+<div class="highlight"><pre><span></span><code>short_prompt_short_output
+long_prompt_short_output
+short_prompt_long_output
+long_prompt_long_output
+</code></pre></div>
+<p>分桶后的好处：</p>
+<ul>
+<li>batch 内 shape 更一致。</li>
+<li>短请求不容易被长请求挡住。</li>
+<li>长请求可以用更宽松 SLA 或单独资源池。</li>
+<li>p99 归因更清晰。</li>
+</ul>
+<p>风险是：</p>
+<ul>
+<li>每个桶的 QPS 下降，batch 可能变小。</li>
+<li>资源池切分太细会降低利用率。</li>
+<li>路由策略变复杂。</li>
+</ul>
+<p>所以分桶要从最粗的差异开始，例如先区分 interactive 和 long-context，而不是一开始就做很多小桶。</p>
+<h3 id="deadline-aware-scheduling">Deadline-aware Scheduling<a class="headerlink" href="#deadline-aware-scheduling" title="Permanent link">¶</a></h3>
+<p>如果请求带 deadline，调度器可以优先处理仍有机会成功的请求。</p>
+<p>一个简单判断：</p>
+<div class="highlight"><pre><span></span><code>deadline_remaining
+  &gt; estimated_waiting_time + estimated_service_time
+</code></pre></div>
+<p>如果不满足，就应该拒绝、降级或取消，而不是继续排队。</p>
+<p>deadline-aware scheduling 的目标不是让每个请求都成功，而是在过载时最大化：</p>
+<div class="highlight"><pre><span></span><code>goodput_at_SLA
+</code></pre></div>
+<h3 id="priority-class">Priority Class<a class="headerlink" href="#priority-class" title="Permanent link">¶</a></h3>
+<p>不同请求类型可以有不同优先级：</p>
+<ul>
+<li>interactive chat。</li>
+<li>paid / high-priority request。</li>
+<li>batch generation。</li>
+<li>background evaluation。</li>
+<li>agent workflow 的中间调用。</li>
+</ul>
+<p>优先级不是简单插队。需要配合：</p>
+<ul>
+<li>每类请求的 quota。</li>
+<li>starvation 防护。</li>
+<li>最大队列时间。</li>
+<li>降级策略。</li>
+<li>资源池隔离。</li>
+</ul>
+<p>否则高优先级流量可能把低优先级完全饿死，或者低优先级长请求把高优先级 p99 拖坏。</p>
+<h3 id="work-conserving-sla-conserving">Work-conserving 与 SLA-conserving<a class="headerlink" href="#work-conserving-sla-conserving" title="Permanent link">¶</a></h3>
+<p>很多调度器默认追求 work-conserving：</p>
+<div class="highlight"><pre><span></span><code>只要 GPU 有空，就尽量塞满工作。
+</code></pre></div>
+<p>这有利于 throughput，但不一定有利于 tail latency。低延迟服务有时需要 SLA-conserving：</p>
+<div class="highlight"><pre><span></span><code>宁愿拒绝或延后某些请求，也要保住目标请求的 deadline。
+</code></pre></div>
+<p>这也是 goodput at SLA 比 peak throughput 更重要的原因。</p>
+<h2 id="goodputsla">Goodput：SLA 下的有效吞吐<a class="headerlink" href="#goodputsla" title="Permanent link">¶</a></h2>
+<p>Throughput 表示系统完成多少工作。</p>
+<p>Goodput 表示在 SLA 约束下完成多少有用工作。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>throughput = 120 requests/s
+but p99 latency &gt; SLA
+goodput at SLA = 90 requests/s
+</code></pre></div>
+<p>对在线推理来说，goodput 比峰值 throughput 更有意义。</p>
+<p>容量规划要回答：</p>
+<div class="highlight"><pre><span></span><code>每个 replica 在满足 TTFT / TPOT / E2E p99 的前提下，能承载多少 QPS？
+</code></pre></div>
+<p>而不是：</p>
+<div class="highlight"><pre><span></span><code>极限压测下最多能挤出多少 tokens/s？
+</code></pre></div>
+<p>极限 throughput 经常对应不可接受的 tail latency。</p>
+<h2 id="_9">过载、超时和重试<a class="headerlink" href="#_9" title="Permanent link">¶</a></h2>
+<p>过载时，系统会出现一个危险反馈环：</p>
+<div class="highlight"><pre><span></span><code>服务变慢
+  -&gt; in-flight requests 增加
+  -&gt; 队列变长
+  -&gt; 更多请求超时
+  -&gt; 客户端重试
+  -&gt; 到达率进一步升高
+  -&gt; 服务更慢
+</code></pre></div>
+<p>Google SRE 书中反复强调 overload 和 cascading failure 的关系；AWS Builders Library 也强调 timeout、retry、backoff 和 jitter 需要谨慎设计。对 AI 推理服务来说，这些经验尤其重要，因为 GPU 任务昂贵，处理已经超时的请求会浪费大量算力。</p>
+<h3 id="deadline-propagation">Deadline Propagation<a class="headerlink" href="#deadline-propagation" title="Permanent link">¶</a></h3>
+<p>请求应该携带 deadline。</p>
+<p>如果某个请求已经没有机会在 SLA 内完成，就应该尽早取消或拒绝，而不是继续占用 GPU。</p>
+<h3 id="load-shedding">Load Shedding<a class="headerlink" href="#load-shedding" title="Permanent link">¶</a></h3>
+<p>当系统接近过载时，可以主动拒绝一部分请求，保住剩余请求的延迟和成功率。</p>
+<p>常见触发条件：</p>
+<ul>
+<li>queue length 超过阈值。</li>
+<li>estimated waiting time 超过 deadline。</li>
+<li>KV Cache occupancy 过高。</li>
+<li>GPU memory pressure。</li>
+<li>p99 连续超标。</li>
+<li>active requests 超过限制。</li>
+</ul>
+<p>拒绝请求听起来不好，但比让所有请求一起超时更好。</p>
+<h3 id="backoff-and-jitter">Backoff and Jitter<a class="headerlink" href="#backoff-and-jitter" title="Permanent link">¶</a></h3>
+<p>客户端重试应该带退避和随机抖动。</p>
+<p>如果所有客户端同时重试，会形成同步流量峰值，把刚恢复的服务再次打爆。</p>
+<h3 id="retry-budget">Retry Budget<a class="headerlink" href="#retry-budget" title="Permanent link">¶</a></h3>
+<p>重试应该有预算。</p>
+<p>例如：</p>
+<ul>
+<li>每个请求最多重试几次。</li>
+<li>每个客户端重试 QPS 上限。</li>
+<li>只对可重试错误重试。</li>
+<li>不重试已经明显超过 deadline 的请求。</li>
+<li>对 overload 返回的错误采用更保守策略。</li>
+</ul>
+<p>没有重试预算的系统，峰值流量会被客户端自己放大。</p>
+<h3 id="retry-amplification">Retry Amplification<a class="headerlink" href="#retry-amplification" title="Permanent link">¶</a></h3>
+<p>重试会把外部负载放大。</p>
+<p>如果原始请求速率是：</p>
+<div class="highlight"><pre><span></span><code>base_qps = 100
+</code></pre></div>
+<p>超时后有 30% 请求重试一次，那么实际到达服务的请求可能变成：</p>
+<div class="highlight"><pre><span></span><code>offered_load ~= 100 + 100 * 0.3 = 130 req/s
+</code></pre></div>
+<p>如果重试请求再次超时并继续重试，放大可能更严重：</p>
+<div class="highlight"><pre><span></span><code>effective_arrival_rate
+  = base_arrival_rate * (1 + retry_rate + retry_rate^2 + ...)
+</code></pre></div>
+<p>这就是为什么过载时不能无条件重试。</p>
+<p>AI 推理服务尤其敏感，因为每个失败请求都可能已经消耗了：</p>
+<ul>
+<li>prefill GPU 时间。</li>
+<li>多轮 decode 时间。</li>
+<li>KV Cache。</li>
+<li>network streaming。</li>
+<li>scheduler slot。</li>
+</ul>
+<p>如果客户端重试，旧请求没有及时取消，新请求又进入队列，系统会同时处理“旧无效工作”和“新重试工作”。</p>
+<h3 id="load-shedding_1">Load Shedding 的目标<a class="headerlink" href="#load-shedding_1" title="Permanent link">¶</a></h3>
+<p>Load shedding 不是为了让错误率好看，而是为了保护系统从过载态回到稳态。</p>
+<p>比较两个策略：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>表面行为</th>
+<th>实际风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无限排队</td>
+<td>短时间 reject 少</td>
+<td>latency 爆炸、timeout 增加、retry storm</td>
+</tr>
+<tr>
+<td>明确拒绝</td>
+<td>reject 增加</td>
+<td>goodput 保持，系统可恢复</td>
+</tr>
+</tbody>
+</table>
+<p>低延迟推理服务通常应该优先保护：</p>
+<div class="highlight"><pre><span></span><code>goodput_at_SLA
+</code></pre></div>
+<p>而不是保护：</p>
+<div class="highlight"><pre><span></span><code>accepted_requests
+</code></pre></div>
+<p>接受一个已经不可能按 SLA 完成的请求，只会消耗资源。</p>
+<h3 id="_10">过载状态机<a class="headerlink" href="#_10" title="Permanent link">¶</a></h3>
+<p>可以把服务状态分成四档：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>信号</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>normal</td>
+<td>queue 短，p99 稳定</td>
+<td>正常调度</td>
+</tr>
+<tr>
+<td>stressed</td>
+<td>queue age 上升，KV occupancy 高</td>
+<td>降低 batch wait、限制长请求、提高 headroom</td>
+</tr>
+<tr>
+<td>overloaded</td>
+<td>p99 超标，timeout/retry 上升</td>
+<td>admission control、load shedding、取消过期请求</td>
+</tr>
+<tr>
+<td>recovering</td>
+<td>offered load 下降但 queue 尚未清空</td>
+<td>保持限流，逐步恢复接收</td>
+</tr>
+</tbody>
+</table>
+<p>恢复期不能立刻放开所有请求。否则积压队列和同步重试会让系统再次进入 overloaded。</p>
+<h2 id="_11">多副本服务的排队问题<a class="headerlink" href="#_11" title="Permanent link">¶</a></h2>
+<p>多个 replica 并不自动消除排队。</p>
+<p>常见问题：</p>
+<h3 id="_12">负载不均<a class="headerlink" href="#_12" title="Permanent link">¶</a></h3>
+<p>如果路由只做简单 round-robin，可能忽略每个 replica 当前队列长度、KV Cache 状态和请求长度。</p>
+<p>更好的路由信号包括：</p>
+<ul>
+<li>waiting queue length。</li>
+<li>active sequence count。</li>
+<li>KV Cache occupancy。</li>
+<li>recent TTFT / TPOT。</li>
+<li>estimated time to first token。</li>
+<li>model loaded / warming state。</li>
+<li>node health。</li>
+</ul>
+<h3 id="_13">异构节点<a class="headerlink" href="#_13" title="Permanent link">¶</a></h3>
+<p>同一个服务池里可能有不同 GPU、不同显存、不同网络状态、不同温度/频率。</p>
+<p>如果容量模型假设所有 replica 等价，p99 可能被慢节点拖坏。</p>
+<h3 id="_14">冷启动<a class="headerlink" href="#_14" title="Permanent link">¶</a></h3>
+<p>新 replica 加入时可能需要：</p>
+<ul>
+<li>拉镜像。</li>
+<li>加载模型权重。</li>
+<li>warmup kernel。</li>
+<li>建立 cache。</li>
+<li>编译 graph。</li>
+</ul>
+<p>autoscaling 如果只看当前 QPS，可能来不及应对突发。容量规划必须考虑冷启动时间和预留 headroom。</p>
+<h2 id="benchmark">Benchmark 应该怎么设计<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>排队和尾延迟只有在负载测试中才会暴露。</p>
+<p>单请求 benchmark 只能回答服务时间，不能回答排队行为。</p>
+<h3 id="open-loop-vs-closed-loop">Open-loop vs Closed-loop<a class="headerlink" href="#open-loop-vs-closed-loop" title="Permanent link">¶</a></h3>
+<p>Closed-loop 测试常见方式是：</p>
+<div class="highlight"><pre><span></span><code>client sends request
+waits for response
+sends next request
+</code></pre></div>
+<p>这种方式会因为服务变慢而自动降低发送速率，容易隐藏过载。</p>
+<p>Open-loop 测试按指定到达过程发请求：</p>
+<div class="highlight"><pre><span></span><code>send requests according to target QPS distribution
+regardless of previous response completion
+</code></pre></div>
+<p>它更适合观察系统在固定外部到达率下的排队和 tail latency。</p>
+<p>两者都有价值：</p>
+<ul>
+<li>closed-loop 适合模拟有限用户数的交互。</li>
+<li>open-loop 适合测容量边界和 overload 行为。</li>
+</ul>
+<p>做容量规划时，至少要有 open-loop 压测。</p>
+<h3 id="coordinated-omission">Coordinated Omission<a class="headerlink" href="#coordinated-omission" title="Permanent link">¶</a></h3>
+<p>Closed-loop 测试容易出现 coordinated omission。</p>
+<p>直觉是：</p>
+<div class="highlight"><pre><span></span><code>服务越慢，客户端发下一次请求越晚。
+</code></pre></div>
+<p>这样测试流量会随着服务变慢自动下降，导致 benchmark 没有真实打到过载状态，p99 被低估。</p>
+<p>Open-loop 测试按外部到达率发请求，即使前面的请求还没完成，后面的请求也会继续到达，因此更能暴露：</p>
+<ul>
+<li>队列增长。</li>
+<li>timeout。</li>
+<li>load shedding。</li>
+<li>retry amplification。</li>
+<li>goodput 降低。</li>
+</ul>
+<p>容量边界报告里应该明确：</p>
+<div class="highlight"><pre><span></span><code>load_generation_mode: open_loop / closed_loop
+arrival_process: constant / poisson / trace_replay / burst
+</code></pre></div>
+<h3 id="qps">到达过程不能只有平均 QPS<a class="headerlink" href="#qps" title="Permanent link">¶</a></h3>
+<p>真实流量通常有突发。</p>
+<p>benchmark 应该覆盖：</p>
+<ul>
+<li>steady QPS。</li>
+<li>burst traffic。</li>
+<li>diurnal pattern。</li>
+<li>sudden spike。</li>
+<li>retry storm。</li>
+<li>long-context burst。</li>
+<li>mixed short/long requests。</li>
+</ul>
+<p>如果只测恒定平均 QPS，会低估 p99。</p>
+<h3 id="goodput">阶梯压测与 Goodput 曲线<a class="headerlink" href="#goodput" title="Permanent link">¶</a></h3>
+<p>排队容量最好用阶梯压测：</p>
+<div class="highlight"><pre><span></span><code>QPS: 20 -&gt; 40 -&gt; 60 -&gt; 80 -&gt; 100 -&gt; 120 -&gt; 140
+each_step_duration: enough_to_reach_steady_state
+</code></pre></div>
+<p>每一档记录：</p>
+<div class="highlight"><pre><span></span><code>offered_load
+throughput
+goodput_at_SLA
+p50/p95/p99 TTFT
+p50/p95/p99 TPOT
+p50/p95/p99 E2E
+queue_age_p95/p99
+error_timeout_reject
+</code></pre></div>
+<p>然后画三条曲线：</p>
+<div class="highlight"><pre><span></span><code>QPS -&gt; p99 latency
+QPS -&gt; goodput at SLA
+QPS -&gt; queue age p99
+</code></pre></div>
+<p>通常会看到：</p>
+<ul>
+<li>低 QPS 区：latency 稳定，goodput 约等于 throughput。</li>
+<li>接近容量区：p99 开始快速上升。</li>
+<li>过载区：throughput 可能还在上升，但 goodput 停滞或下降。</li>
+</ul>
+<p>容量点应该选在过载拐点之前，并保留 headroom。</p>
+<h3 id="_15">稳态窗口要足够长<a class="headerlink" href="#_15" title="Permanent link">¶</a></h3>
+<p>排队系统需要时间进入稳态。</p>
+<p>如果每个 QPS 档只测很短时间，可能看不到：</p>
+<ul>
+<li>队列逐步积压。</li>
+<li>KV Cache occupancy 逐渐上升。</li>
+<li>长输出请求长期占用资源。</li>
+<li>retry storm 延迟出现。</li>
+<li>autoscaling 冷启动。</li>
+</ul>
+<p>报告里要写：</p>
+<div class="highlight"><pre><span></span><code>warmup_duration
+measurement_duration
+cooldown_duration
+steady_state_criteria
+</code></pre></div>
+<p>例如可以要求：</p>
+<div class="highlight"><pre><span></span><code>queue_length 不再持续单调上升
+active_sequence_count 达到稳定范围
+cache 状态与目标场景一致
+</code></pre></div>
+<h3 id="_16">请求长度分布必须真实<a class="headerlink" href="#_16" title="Permanent link">¶</a></h3>
+<p>LLM 推理的 service time 高度依赖：</p>
+<ul>
+<li>input tokens。</li>
+<li>output tokens。</li>
+<li>max tokens。</li>
+<li>stop condition。</li>
+<li>RAG chunks。</li>
+<li>image/audio/video 输入大小。</li>
+<li>tool call 次数。</li>
+</ul>
+<p>benchmark 必须使用长度分布，而不是只用一个固定 prompt。</p>
+<p>至少记录：</p>
+<div class="highlight"><pre><span></span><code>input_tokens p50/p90/p99
+output_tokens p50/p90/p99
+concurrent requests
+TTFT p50/p95/p99
+TPOT p50/p95/p99
+E2E latency p50/p95/p99
+error / timeout / cancelled
+</code></pre></div>
+<h2 id="_17">需要采集的指标<a class="headerlink" href="#_17" title="Permanent link">¶</a></h2>
+<p>为了分析排队和尾延迟，建议采集以下指标。</p>
+<h3 id="_18">请求时间戳<a class="headerlink" href="#_18" title="Permanent link">¶</a></h3>
+<p>每个请求记录：</p>
+<div class="highlight"><pre><span></span><code>client_send_time
+server_receive_time
+admission_time
+scheduled_time
+prefill_start_time
+prefill_end_time
+first_token_time
+last_token_time
+response_finish_time
+</code></pre></div>
+<p>这样可以拆出：</p>
+<div class="highlight"><pre><span></span><code>network latency
+ingress queueing
+scheduler waiting
+prefill latency
+TTFT
+decode TPOT
+postprocess / streaming
+E2E latency
+</code></pre></div>
+<h3 id="_19">队列指标<a class="headerlink" href="#_19" title="Permanent link">¶</a></h3>
+<p>按时间记录：</p>
+<ul>
+<li>waiting queue length。</li>
+<li>active request count。</li>
+<li>active sequence count。</li>
+<li>prefill queue length。</li>
+<li>decode active set size。</li>
+<li>batch size。</li>
+<li>batch wait time。</li>
+<li>queue age。</li>
+<li>rejected requests。</li>
+<li>cancelled requests。</li>
+</ul>
+<p>队列长度本身不是最终目标，但它能解释 p99。</p>
+<h3 id="_20">分桶指标<a class="headerlink" href="#_20" title="Permanent link">¶</a></h3>
+<p>排队分析不能只看全局 p99。至少按以下维度分桶：</p>
+<ul>
+<li>input token bucket。</li>
+<li>output token bucket。</li>
+<li>request class。</li>
+<li>replica / node。</li>
+<li>cache hit / miss。</li>
+<li>prefill / decode。</li>
+<li>priority。</li>
+<li>error / timeout / cancelled。</li>
+</ul>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>p99_e2e_overall = 8s
+p99_e2e_short_prompt = 2s
+p99_e2e_long_context = 25s
+</code></pre></div>
+<p>如果只看 overall，可能不知道 p99 是长上下文拖出来的，还是所有请求都变慢。</p>
+<p>分桶还能帮助决定：</p>
+<ul>
+<li>是否需要长短请求分池。</li>
+<li>是否需要 prefix cache 保护。</li>
+<li>是否某些 replica 是慢节点。</li>
+<li>是否 retry 集中在某类请求。</li>
+</ul>
+<h3 id="_21">资源指标<a class="headerlink" href="#_21" title="Permanent link">¶</a></h3>
+<p>同时记录：</p>
+<ul>
+<li>GPU utilization。</li>
+<li>HBM bandwidth。</li>
+<li>KV Cache occupancy。</li>
+<li>GPU memory free/used。</li>
+<li>CPU utilization。</li>
+<li>tokenizer time。</li>
+<li>network throughput。</li>
+<li>storage/cache hit。</li>
+</ul>
+<p>排队问题常常由资源瓶颈触发，但最终表现为 latency。</p>
+<h2 id="_22">容量规划怎么用排队模型<a class="headerlink" href="#_22" title="Permanent link">¶</a></h2>
+<p>一个实用流程：</p>
+<h3 id="1-sla">1. 定义 SLA<a class="headerlink" href="#1-sla" title="Permanent link">¶</a></h3>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>TTFT p99 &lt; 500 ms
+TPOT p99 &lt; 50 ms
+E2E p99 &lt; 5 s
+error rate &lt; 0.1%
+</code></pre></div>
+<h3 id="2-workload">2. 定义 workload 分布<a class="headerlink" href="#2-workload" title="Permanent link">¶</a></h3>
+<p>记录：</p>
+<div class="highlight"><pre><span></span><code>input length distribution
+output length distribution
+request mix
+burst factor
+cache hit rate
+priority classes
+</code></pre></div>
+<h3 id="3-replica-goodput">3. 测单 replica goodput 曲线<a class="headerlink" href="#3-replica-goodput" title="Permanent link">¶</a></h3>
+<p>对每个 replica，压测不同 QPS：</p>
+<div class="highlight"><pre><span></span><code>QPS -&gt; TTFT/TPOT/E2E p50/p95/p99 -&gt; error rate
+</code></pre></div>
+<p>找到满足 SLA 的最大 QPS：</p>
+<div class="highlight"><pre><span></span><code>goodput_per_replica_at_SLA
+</code></pre></div>
+<h3 id="4-headroom">4. 加 headroom<a class="headerlink" href="#4-headroom" title="Permanent link">¶</a></h3>
+<p>不要按极限 goodput 部署。</p>
+<p>需要考虑：</p>
+<ul>
+<li>流量突发。</li>
+<li>节点故障。</li>
+<li>rolling update。</li>
+<li>cache miss。</li>
+<li>模型热切换。</li>
+<li>长请求比例变化。</li>
+<li>上游 retry。</li>
+</ul>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>required_replicas
+  = ceil(peak_QPS / (goodput_per_replica_at_SLA * target_utilization))
+</code></pre></div>
+<p>其中 <code>target_utilization</code> 可能是 0.5、0.6、0.7，取决于 tail latency 敏感程度和 workload 波动。</p>
+<p>这里的 <code>target_utilization</code> 不是 GPU utilization，而是容量规划中的负载系数。它表示只使用单副本 SLA goodput 的一部分作为生产承载能力。</p>
+<p>如果请求长度波动大、burst 强、p99 要求严，target utilization 应该更保守。</p>
+<h3 id="_23">队列上限怎么定<a class="headerlink" href="#_23" title="Permanent link">¶</a></h3>
+<p>队列上限应该从 deadline 倒推，而不是随便设一个很大的数字。</p>
+<p>简单思路：</p>
+<div class="highlight"><pre><span></span><code>max_queue_time
+  &lt;= deadline - estimated_service_time - network_margin
+</code></pre></div>
+<p>如果 SLA 是 E2E 8s，某类请求估计 service time p95 已经 6s，那么它的排队时间预算可能只有 1-2s。</p>
+<p>队列长度上限可以再由 Little's Law 近似：</p>
+<div class="highlight"><pre><span></span><code>max_queue_length
+  ~= target_arrival_rate * max_queue_time
+</code></pre></div>
+<p>这只是粗略估算，但比“队列越大越能抗峰值”更符合低延迟服务目标。</p>
+<h3 id="_24">单副本曲线不能直接线性外推<a class="headerlink" href="#_24" title="Permanent link">¶</a></h3>
+<p>多个 replica 的容量不一定等于：</p>
+<div class="highlight"><pre><span></span><code>single_replica_goodput * replica_count
+</code></pre></div>
+<p>原因包括：</p>
+<ul>
+<li>路由不均。</li>
+<li>冷热 cache 差异。</li>
+<li>慢节点。</li>
+<li>模型加载和 warmup。</li>
+<li>多副本共享上游 tokenizer、存储或网络。</li>
+<li>长请求集中到某些 replica。</li>
+<li>autoscaling 滞后。</li>
+</ul>
+<p>所以容量规划要验证集群级曲线：</p>
+<div class="highlight"><pre><span></span><code>replica_count -&gt; goodput_at_SLA
+replica_count -&gt; p99
+replica_count -&gt; imbalance
+</code></pre></div>
+<p>而不是只做单副本 benchmark。</p>
+<h3 id="5">5. 做故障场景验证<a class="headerlink" href="#5" title="Permanent link">¶</a></h3>
+<p>验证：</p>
+<ul>
+<li>少一个 replica 是否还能满足 SLA。</li>
+<li>某个节点慢 20% 时路由是否能避开。</li>
+<li>cache miss burst 是否会打爆 p99。</li>
+<li>上游 retry 是否会放大流量。</li>
+<li>autoscaling 是否来得及。</li>
+</ul>
+<p>容量规划不是只算平均 QPS，而是验证系统在压力和故障下是否稳定。</p>
+<h2 id="_25">常见诊断模式<a class="headerlink" href="#_25" title="Permanent link">¶</a></h2>
+<h3 id="qps-p99_1">QPS 增加一点，p99 大幅变差<a class="headerlink" href="#qps-p99_1" title="Permanent link">¶</a></h3>
+<p>可能原因：</p>
+<ul>
+<li>utilization 接近饱和。</li>
+<li>队列过长。</li>
+<li>长请求比例变化。</li>
+<li>batch window 太大。</li>
+<li>KV Cache 接近容量上限。</li>
+<li>负载不均。</li>
+</ul>
+<p>排查：</p>
+<ul>
+<li>画 QPS -&gt; p99 曲线。</li>
+<li>同时看 queue length。</li>
+<li>看 rejected/timeout/cancelled。</li>
+<li>按 input/output length 分桶。</li>
+</ul>
+<h3 id="ttft-tpot">TTFT 高，但 TPOT 正常<a class="headerlink" href="#ttft-tpot" title="Permanent link">¶</a></h3>
+<p>可能原因：</p>
+<ul>
+<li>ingress queue 等待。</li>
+<li>scheduler 等待。</li>
+<li>prefill queue 堵塞。</li>
+<li>batch wait window 太大。</li>
+<li>长 prompt 阻塞短 prompt。</li>
+</ul>
+<p>排查：</p>
+<ul>
+<li>拆 TTFT：queueing + prefill。</li>
+<li>看 prefill batch size。</li>
+<li>看 prompt length 分布。</li>
+<li>看 prefix cache hit。</li>
+</ul>
+<h3 id="tpot-ttft">TPOT 高，但 TTFT 正常<a class="headerlink" href="#tpot-ttft" title="Permanent link">¶</a></h3>
+<p>可能原因：</p>
+<ul>
+<li>decode active set 太大。</li>
+<li>KV Cache 读成为瓶颈。</li>
+<li>decode batch 调度不合理。</li>
+<li>speculative decoding 接受率低。</li>
+<li>HBM bandwidth 接近上限。</li>
+</ul>
+<p>排查：</p>
+<ul>
+<li>看 active sequence count。</li>
+<li>看 KV Cache occupancy。</li>
+<li>看 HBM bandwidth。</li>
+<li>按 context length 分桶。</li>
+</ul>
+<h3 id="p99_2">平均延迟正常，p99 抖动<a class="headerlink" href="#p99_2" title="Permanent link">¶</a></h3>
+<p>可能原因：</p>
+<ul>
+<li>burst arrival。</li>
+<li>long-tail service time。</li>
+<li>slow replica。</li>
+<li>GC / CPU 抖动。</li>
+<li>cache eviction。</li>
+<li>network jitter。</li>
+<li>load balancer 不均。</li>
+</ul>
+<p>排查：</p>
+<ul>
+<li>不只看均值，画分位数和时间序列。</li>
+<li>找 p99 请求样本。</li>
+<li>对比 slow request 和 normal request 的长度、replica、cache、queue。</li>
+<li>检查是否集中在少数节点。</li>
+</ul>
+<h3 id="gpu-utilization-goodput">GPU utilization 高，但 goodput 不高<a class="headerlink" href="#gpu-utilization-goodput" title="Permanent link">¶</a></h3>
+<p>可能原因：</p>
+<ul>
+<li>处理了很多超时请求。</li>
+<li>retry 放大了无效工作。</li>
+<li>batch 太大导致 SLA 失败。</li>
+<li>长请求占用资源。</li>
+<li>低优先级请求挤占高优先级。</li>
+</ul>
+<p>排查：</p>
+<ul>
+<li>同时看 completed、timeout、cancelled、rejected。</li>
+<li>统计 successful tokens/s 和 wasted tokens/s。</li>
+<li>按 deadline 检查是否及时取消。</li>
+</ul>
+<h2 id="_26">设计建议<a class="headerlink" href="#_26" title="Permanent link">¶</a></h2>
+<h3 id="_27">小队列优先<a class="headerlink" href="#_27" title="Permanent link">¶</a></h3>
+<p>长队列能吸收突发，但会隐藏过载并增加尾延迟。</p>
+<p>对低延迟在线推理，队列应该有明确上限，并配合 deadline、admission control 和 load shedding。</p>
+<h3 id="_28">明确区分请求类型<a class="headerlink" href="#_28" title="Permanent link">¶</a></h3>
+<p>不要把所有请求放进同一个池。</p>
+<p>至少区分：</p>
+<ul>
+<li>interactive chat。</li>
+<li>batch offline generation。</li>
+<li>RAG-heavy requests。</li>
+<li>long-context requests。</li>
+<li>agent/tool requests。</li>
+<li>high-priority / low-priority。</li>
+</ul>
+<p>不同请求类型的 SLA 和排队策略应该不同。</p>
+<h3 id="estimated-waiting-time-admission">用 estimated waiting time 做 admission<a class="headerlink" href="#estimated-waiting-time-admission" title="Permanent link">¶</a></h3>
+<p>单纯按 queue length 拒绝不够，因为请求服务时间不同。</p>
+<p>更好的信号是：</p>
+<div class="highlight"><pre><span></span><code>estimated_waiting_time + estimated_service_time &lt; deadline_remaining
+</code></pre></div>
+<p>估算不需要完美，只要比盲目排队更好。</p>
+<h3 id="_29">限制最大工作量<a class="headerlink" href="#_29" title="Permanent link">¶</a></h3>
+<p>需要设置：</p>
+<ul>
+<li>max input tokens。</li>
+<li>max output tokens。</li>
+<li>max total tokens。</li>
+<li>max batch size。</li>
+<li>max active sequences。</li>
+<li>max queue time。</li>
+<li>max KV Cache occupancy。</li>
+</ul>
+<p>没有上限的请求会让排队模型失效。</p>
+<h3 id="_30">对取消请求及时释放资源<a class="headerlink" href="#_30" title="Permanent link">¶</a></h3>
+<p>客户端断开、deadline 过期、上游取消时，服务端要尽快停止生成并释放：</p>
+<ul>
+<li>KV Cache。</li>
+<li>scheduler state。</li>
+<li>network stream。</li>
+<li>batch slot。</li>
+</ul>
+<p>否则系统会处理无效请求，goodput 下降。</p>
+<h2 id="_31">常见误区<a class="headerlink" href="#_31" title="Permanent link">¶</a></h2>
+<h3 id="gpu-utilization">误区一：GPU utilization 没满，所以没有排队风险<a class="headerlink" href="#gpu-utilization" title="Permanent link">¶</a></h3>
+<p>GPU utilization 不是排队风险的充分指标。</p>
+<p>p99 可能先被这些因素打坏：</p>
+<ul>
+<li>scheduler queue。</li>
+<li>KV Cache 容量。</li>
+<li>长请求 head-of-line blocking。</li>
+<li>batch wait。</li>
+<li>CPU tokenization。</li>
+<li>slow replica。</li>
+<li>retry storm。</li>
+</ul>
+<h3 id="_32">误区二：平均延迟正常就代表用户体验正常<a class="headerlink" href="#_32" title="Permanent link">¶</a></h3>
+<p>在线服务要看分位数和 deadline miss。</p>
+<p>如果 p50 很好但 p99 很差，说明大多数请求正常，但尾部用户或上游工作流仍然会失败。</p>
+<h3 id="_33">误区三：队列越长越能抗突发<a class="headerlink" href="#_33" title="Permanent link">¶</a></h3>
+<p>长队列能减少短期 reject，但会增加 queueing latency，隐藏过载，并让请求到达 GPU 时已经接近超时。</p>
+<p>低延迟服务需要有界队列和明确 load shedding。</p>
+<h3 id="_34">误区四：重试能自然提高成功率<a class="headerlink" href="#_34" title="Permanent link">¶</a></h3>
+<p>重试只在瞬时、局部、可恢复错误下有帮助。系统过载时，无预算重试会放大 offered load，让成功率更低。</p>
+<h3 id="benchmark-p99">误区五：单请求 benchmark 可以代表线上 p99<a class="headerlink" href="#benchmark-p99" title="Permanent link">¶</a></h3>
+<p>单请求 benchmark 只能看服务时间，不能暴露：</p>
+<ul>
+<li>排队。</li>
+<li>batching 等待。</li>
+<li>长短请求混合。</li>
+<li>active decode set。</li>
+<li>retry。</li>
+<li>多副本负载不均。</li>
+</ul>
+<p>容量规划必须做并发和 open-loop benchmark。</p>
+<h3 id="_35">误区六：拒绝请求一定比排队差<a class="headerlink" href="#_35" title="Permanent link">¶</a></h3>
+<p>在过载时，及时拒绝可以保护剩余请求在 SLA 内完成。无限排队可能让所有请求都超时，goodput 更低。</p>
+<h2 id="_36">报告模板<a class="headerlink" href="#_36" title="Permanent link">¶</a></h2>
+<p>排队和尾延迟分析可以按下面模板记录。</p>
+<div class="highlight"><pre><span></span><code>Workload:
+  model / input length distribution / output length distribution / request mix
+
+SLA:
+  TTFT / TPOT / E2E / error budget
+
+Load Pattern:
+  open-loop or closed-loop
+  steady QPS / burst / retry / ramp-up
+  arrival process and trace source
+
+Capacity Curve:
+  QPS -&gt; p50/p95/p99 latency
+  QPS -&gt; goodput at SLA
+  QPS -&gt; error/timeout/reject
+  QPS -&gt; queue age p95/p99
+
+Queue Metrics:
+  ingress queue length
+  scheduler wait
+  prefill queue
+  decode active set
+  KV Cache occupancy
+
+Resource Metrics:
+  GPU / HBM / CPU / network / memory
+
+Bottleneck:
+  service time, queueing, batching, routing, cache, or overload
+
+Decision:
+  replica count
+  target utilization
+  queue limit
+  load shedding rule
+  routing policy
+  retry budget
+  request buckets
+</code></pre></div>
+<h2 id="_37">检查清单<a class="headerlink" href="#_37" title="Permanent link">¶</a></h2>
+<p>做排队和尾延迟分析前：</p>
+<ul>
+<li>是否写清 Queueing Contract？</li>
+<li>是否定义 offered load、throughput 和 goodput？</li>
+<li>是否明确 TTFT、TPOT、E2E、error rate 的 SLA？</li>
+<li>是否使用真实 input/output token 分布？</li>
+<li>是否包含 burst、retry 和 long-context 场景？</li>
+<li>是否区分 open-loop 和 closed-loop？</li>
+</ul>
+<p>采集指标时：</p>
+<ul>
+<li>是否记录每个请求的阶段时间戳？</li>
+<li>是否记录 queue length 和 queue age？</li>
+<li>是否记录 active sequence count 和 KV Cache occupancy？</li>
+<li>是否按请求长度、请求类型、replica、cache hit/miss 分桶？</li>
+<li>是否记录 rejected、timeout、cancelled 和 expired-but-running？</li>
+<li>是否记录 retry QPS 和 retry attempt？</li>
+</ul>
+<p>做容量判断时：</p>
+<ul>
+<li>是否绘制 QPS -&gt; p99 曲线？</li>
+<li>是否绘制 QPS -&gt; goodput at SLA 曲线？</li>
+<li>是否找到 latency/error 拐点？</li>
+<li>是否从 deadline 倒推 queue time 上限？</li>
+<li>是否保留 target utilization/headroom？</li>
+<li>是否验证少 replica、慢节点、cache miss burst 和 retry storm？</li>
+</ul>
+<p>落地策略时：</p>
+<ul>
+<li>是否有 admission control？</li>
+<li>是否有 load shedding？</li>
+<li>是否及时取消过期请求？</li>
+<li>是否限制 max input/output/total tokens？</li>
+<li>是否区分 interactive、long-context、batch、agent/tool 请求？</li>
+<li>是否有 retry budget、backoff 和 jitter？</li>
+</ul>
+<h2 id="_38">小结<a class="headerlink" href="#_38" title="Permanent link">¶</a></h2>
+<p>排队模型给 AI 推理系统一个基础判断框架：</p>
+<ul>
+<li>QPS、并发和延迟由 Little's Law 绑定。</li>
+<li>利用率接近饱和时，排队和 p99 会快速恶化。</li>
+<li>到达突发和服务时间波动会放大等待。</li>
+<li>batching 提高吞吐，但可能增加 TTFT 和尾延迟。</li>
+<li>goodput at SLA 比极限 throughput 更适合容量规划。</li>
+<li>过载时要尽早拒绝、降级或取消，而不是让队列无限增长。</li>
+<li>benchmark 必须覆盖 open-loop 负载、真实长度分布、burst、p95/p99 和队列指标。</li>
+<li>队列上限、target utilization、load shedding 和 retry budget 都应该从 deadline 与 goodput 目标倒推。</li>
+</ul>
+<p>对 AI 系统来说，排队不是运维细节，而是容量、调度、缓存和用户体验之间的核心连接点。</p>
+<h2 id="_39">参考资料<a class="headerlink" href="#_39" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://doi.org/10.1287/opre.9.3.383">J. D. C. Little, A Proof for the Queuing Formula: L = λW</a></li>
+<li><a href="https://doi.org/10.1017/S0305004100054383">J. F. C. Kingman, The single server queue in heavy traffic</a></li>
+<li><a href="https://research.google/pubs/the-tail-at-scale/">Google Research: The Tail at Scale</a></li>
+<li><a href="https://sre.google/sre-book/addressing-cascading-failures/">Google SRE Book: Addressing Cascading Failures</a></li>
+<li><a href="https://sre.google/sre-book/handling-overload/">Google SRE Book: Handling Overload</a></li>
+<li><a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/">AWS Builders Library: Timeouts, retries, and backoff with jitter</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

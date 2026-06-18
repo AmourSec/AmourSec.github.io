@@ -1,0 +1,3474 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/" rel="canonical"/>
+<link href="../parameter-efficient-finetuning-lora-qlora/" rel="prev"/>
+<link href="../muon-optimizer/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#sftdporlhf-grpo">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      先把后训练放到训练生命周期里
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      后训练的两个基本维度：离线训练与在线采样
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      几种后训练方式的系统差异
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sft">
+<span class="md-ellipsis">
+      SFT：最接近普通监督训练
+    </span>
+</a>
+<nav aria-label="SFT：最接近普通监督训练" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sft-token">
+<span class="md-ellipsis">
+      SFT 的有效 token
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sft-chat-template-loss-mask">
+<span class="md-ellipsis">
+      SFT 的 chat template 和 loss mask
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sft-packing">
+<span class="md-ellipsis">
+      SFT Packing 的收益和风险
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reward-model">
+<span class="md-ellipsis">
+      Reward Model 训练
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dpo">
+<span class="md-ellipsis">
+      DPO：离线偏好优化
+    </span>
+</a>
+<nav aria-label="DPO：离线偏好优化" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reference-logprob">
+<span class="md-ellipsis">
+      Reference logprob 的两种做法
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dpo-logprob">
+<span class="md-ellipsis">
+      DPO 的 logprob 计算路径
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dpo_1">
+<span class="md-ellipsis">
+      DPO 数据缓存的版本边界
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rlhf-ppo">
+<span class="md-ellipsis">
+      RLHF / PPO：把推理放进训练循环
+    </span>
+</a>
+<nav aria-label="RLHF / PPO：把推理放进训练循环" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ppo">
+<span class="md-ellipsis">
+      PPO 系统成本来自哪里
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollout-rlhf">
+<span class="md-ellipsis">
+      Rollout 是 RLHF 的系统核心
+    </span>
+</a>
+<nav aria-label="Rollout 是 RLHF 的系统核心" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollout-update">
+<span class="md-ellipsis">
+      Rollout 和 Update 的版本一致性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollout-engine">
+<span class="md-ellipsis">
+      Rollout Engine 和普通推理服务的差异
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#grpogroup-relative-policy-optimization">
+<span class="md-ellipsis">
+      GRPO：Group Relative Policy Optimization
+    </span>
+</a>
+<nav aria-label="GRPO：Group Relative Policy Optimization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#grpo-batch">
+<span class="md-ellipsis">
+      GRPO 的 batch 组织
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#grpo-verifier">
+<span class="md-ellipsis">
+      GRPO 与 Verifier 的关系
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      为什么后训练会影响集群调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      后训练平台的端到端数据流
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      资源池怎么拆
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      后训练里的多模型驻留
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#online">
+<span class="md-ellipsis">
+      Online 后训练的队列设计
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      后训练的数据版本更重要
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      显存与吞吐怎么估算
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint-artifact">
+<span class="md-ellipsis">
+      后训练 checkpoint 与 artifact
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      分离部署还是共置部署
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollouttraining">
+<span class="md-ellipsis">
+      Rollout/Training 分离时的权重同步
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loraqlora">
+<span class="md-ellipsis">
+      LoRA/QLoRA 与后训练
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 方法
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sftdpo">
+<span class="md-ellipsis">
+      优化 SFT/DPO 数据组织
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reference-logprob_1">
+<span class="md-ellipsis">
+      缓存 reference logprob
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollout-update_1">
+<span class="md-ellipsis">
+      分离 rollout 和 update
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      减少多模型同时驻留
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rewardverifier">
+<span class="md-ellipsis">
+      让 reward/verifier 成为可观测组件
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#response-length">
+<span class="md-ellipsis">
+      控制 response length
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#eval">
+<span class="md-ellipsis">
+      把 Eval 从训练主循环中拆出来
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      常见坑
+    </span>
+</a>
+<nav aria-label="常见坑" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rlhf">
+<span class="md-ellipsis">
+      把 RLHF 当成普通训练
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reference">
+<span class="md-ellipsis">
+      忘记 reference 版本
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tokenss">
+<span class="md-ellipsis">
+      只看总 tokens/s
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollout">
+<span class="md-ellipsis">
+      让 rollout 样本过期
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#response">
+<span class="md-ellipsis">
+      忽略 response 长度分布
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sampling">
+<span class="md-ellipsis">
+      没有记录 sampling 配置
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      学习顺序建议
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      先把后训练放到训练生命周期里
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      后训练的两个基本维度：离线训练与在线采样
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      几种后训练方式的系统差异
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sft">
+<span class="md-ellipsis">
+      SFT：最接近普通监督训练
+    </span>
+</a>
+<nav aria-label="SFT：最接近普通监督训练" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sft-token">
+<span class="md-ellipsis">
+      SFT 的有效 token
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sft-chat-template-loss-mask">
+<span class="md-ellipsis">
+      SFT 的 chat template 和 loss mask
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sft-packing">
+<span class="md-ellipsis">
+      SFT Packing 的收益和风险
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reward-model">
+<span class="md-ellipsis">
+      Reward Model 训练
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dpo">
+<span class="md-ellipsis">
+      DPO：离线偏好优化
+    </span>
+</a>
+<nav aria-label="DPO：离线偏好优化" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reference-logprob">
+<span class="md-ellipsis">
+      Reference logprob 的两种做法
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dpo-logprob">
+<span class="md-ellipsis">
+      DPO 的 logprob 计算路径
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dpo_1">
+<span class="md-ellipsis">
+      DPO 数据缓存的版本边界
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rlhf-ppo">
+<span class="md-ellipsis">
+      RLHF / PPO：把推理放进训练循环
+    </span>
+</a>
+<nav aria-label="RLHF / PPO：把推理放进训练循环" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ppo">
+<span class="md-ellipsis">
+      PPO 系统成本来自哪里
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollout-rlhf">
+<span class="md-ellipsis">
+      Rollout 是 RLHF 的系统核心
+    </span>
+</a>
+<nav aria-label="Rollout 是 RLHF 的系统核心" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollout-update">
+<span class="md-ellipsis">
+      Rollout 和 Update 的版本一致性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollout-engine">
+<span class="md-ellipsis">
+      Rollout Engine 和普通推理服务的差异
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#grpogroup-relative-policy-optimization">
+<span class="md-ellipsis">
+      GRPO：Group Relative Policy Optimization
+    </span>
+</a>
+<nav aria-label="GRPO：Group Relative Policy Optimization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#grpo-batch">
+<span class="md-ellipsis">
+      GRPO 的 batch 组织
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#grpo-verifier">
+<span class="md-ellipsis">
+      GRPO 与 Verifier 的关系
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      为什么后训练会影响集群调度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      后训练平台的端到端数据流
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      资源池怎么拆
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      后训练里的多模型驻留
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#online">
+<span class="md-ellipsis">
+      Online 后训练的队列设计
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      后训练的数据版本更重要
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      显存与吞吐怎么估算
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint-artifact">
+<span class="md-ellipsis">
+      后训练 checkpoint 与 artifact
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      分离部署还是共置部署
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollouttraining">
+<span class="md-ellipsis">
+      Rollout/Training 分离时的权重同步
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loraqlora">
+<span class="md-ellipsis">
+      LoRA/QLoRA 与后训练
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 方法
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sftdpo">
+<span class="md-ellipsis">
+      优化 SFT/DPO 数据组织
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reference-logprob_1">
+<span class="md-ellipsis">
+      缓存 reference logprob
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollout-update_1">
+<span class="md-ellipsis">
+      分离 rollout 和 update
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      减少多模型同时驻留
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rewardverifier">
+<span class="md-ellipsis">
+      让 reward/verifier 成为可观测组件
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#response-length">
+<span class="md-ellipsis">
+      控制 response length
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#eval">
+<span class="md-ellipsis">
+      把 Eval 从训练主循环中拆出来
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      常见坑
+    </span>
+</a>
+<nav aria-label="常见坑" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rlhf">
+<span class="md-ellipsis">
+      把 RLHF 当成普通训练
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reference">
+<span class="md-ellipsis">
+      忘记 reference 版本
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tokenss">
+<span class="md-ellipsis">
+      只看总 tokens/s
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rollout">
+<span class="md-ellipsis">
+      让 rollout 样本过期
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#response">
+<span class="md-ellipsis">
+      忽略 response 长度分布
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sampling">
+<span class="md-ellipsis">
+      没有记录 sampling 配置
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      学习顺序建议
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="sftdporlhf-grpo">后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角<a class="headerlink" href="#sftdporlhf-grpo" title="Permanent link">¶</a></h1>
+<p>后训练，英文常叫 post-training，指基础模型预训练完成之后，用指令数据、偏好数据、奖励模型或在线采样继续调整模型行为的一组训练流程。</p>
+<p>这篇不讨论“怎样让模型更聪明”或“哪种对齐算法效果最好”。这里关心的是系统问题：</p>
+<blockquote>
+<p>SFT、DPO、RLHF、GRPO 会把普通语言模型训练变成不同的数据流和计算流；它们改变 GPU 显存、推理-训练耦合、batch 形态、checkpoint、调度和 benchmark 方法。</p>
+</blockquote>
+<p>如果只把后训练理解成“再训练几轮”，很容易低估系统复杂度。SFT 比较接近普通监督训练；DPO 会引入 chosen/rejected 成对样本和 reference logprob；RLHF/PPO 会把在线推理 rollout、reward model、reference model、value model 和 policy update 串起来；GRPO 又用同一 prompt 的多组回答构造相对优势，减少某些 value/critic 相关成本，但增加 group generation 和样本组织压力。</p>
+<h2 id="_1">先把后训练放到训练生命周期里<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>大模型训练可以粗略分成：</p>
+<div class="highlight"><pre><span></span><code>pretraining
+-&gt; post-training
+-&gt; evaluation
+-&gt; serving
+-&gt; feedback / data collection
+</code></pre></div>
+<p>预训练更像大规模 next-token prediction：数据量极大，训练时间长，step 结构稳定，系统重点是长期吞吐、并行扩展、checkpoint 和稳定性。</p>
+<p>后训练更像一组短到中等长度的实验流水线：数据规模相对小，版本多，评估频繁，训练方法变化快，可能还会把推理服务式的 rollout 放进训练循环。</p>
+<div class="mermaid">flowchart TB
+    A["预训练基础模型"] --&gt; B["SFT<br/>指令监督微调"]
+    B --&gt; C["偏好数据 / 人类或模型反馈"]
+    C --&gt; D{"后训练方法"}
+    D --&gt; E["DPO / IPO / KTO 等<br/>离线偏好优化"]
+    D --&gt; F["RLHF / PPO<br/>在线 rollout + reward"]
+    D --&gt; G["GRPO<br/>group rollout + relative advantage"]
+    E --&gt; H["评估与部署"]
+    F --&gt; H
+    G --&gt; H
+</div>
+<p>从系统视角看，后训练不是单一算法，而是一组 workload family。它们对硬件和平台的要求不同。</p>
+<h2 id="_2">后训练的两个基本维度：离线训练与在线采样<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>理解后训练系统，先不要急着记 SFT、DPO、PPO、GRPO 的公式。更实用的分法是看两个维度。</p>
+<p>第一个维度：训练信号来自哪里。</p>
+<table>
+<thead>
+<tr>
+<th>训练信号</th>
+<th>例子</th>
+<th>系统含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>人工或模型写好的目标回答</td>
+<td>SFT</td>
+<td>数据集比较稳定，训练像普通 supervised learning。</td>
+</tr>
+<tr>
+<td>chosen/rejected 偏好对</td>
+<td>reward model、DPO</td>
+<td>一个 prompt 对应多条 response，logprob 和 pairwise 数据更重要。</td>
+</tr>
+<tr>
+<td>rollout 后由 reward/verifier 打分</td>
+<td>RLHF/PPO、GRPO</td>
+<td>训练过程需要在线生成，推理系统进入训练闭环。</td>
+</tr>
+</tbody>
+</table>
+<p>第二个维度：是否需要在训练过程中生成新样本。</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>是否在线生成</th>
+<th>典型方法</th>
+<th>系统特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>离线后训练</td>
+<td>否</td>
+<td>SFT、reward model、DPO</td>
+<td>主要是 DataLoader、forward/backward、logprob 和 checkpoint。</td>
+</tr>
+<tr>
+<td>在线后训练</td>
+<td>是</td>
+<td>PPO/RLHF、GRPO</td>
+<td>需要 rollout engine、reward/verifier、样本队列、policy version 管理。</td>
+</tr>
+</tbody>
+</table>
+<p>这两个维度比算法名字更能解释系统成本。DPO 和 SFT 都是离线训练，但 DPO 的样本是成对 response，训练时要处理 reference logprob；PPO 和 GRPO 都是在线训练，但 PPO 常有 value/critic 路径，GRPO 则把同一 prompt 的多条回答组织成 group。</p>
+<p>一句话：</p>
+<blockquote>
+<p>离线后训练像“更复杂的训练数据”；在线后训练像“推理服务和训练服务互相喂数据”。</p>
+</blockquote>
+<h2 id="_3">几种后训练方式的系统差异<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>数据形态</th>
+<th>是否在线生成</th>
+<th>额外模型</th>
+<th>主要系统压力</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SFT</td>
+<td>prompt + target response</td>
+<td>通常否</td>
+<td>无或少量 reference</td>
+<td>普通 forward/backward、数据 packing、loss mask。</td>
+</tr>
+<tr>
+<td>Reward Model 训练</td>
+<td>prompt + 多个回答 + 偏好排序</td>
+<td>通常否</td>
+<td>reward model</td>
+<td>pairwise/ranking loss、长回答编码、数据质量。</td>
+</tr>
+<tr>
+<td>DPO</td>
+<td>prompt + chosen/rejected</td>
+<td>否</td>
+<td>reference model 或缓存的 reference logprob</td>
+<td>成对样本、双 response forward、reference logprob、显存和吞吐。</td>
+</tr>
+<tr>
+<td>RLHF/PPO</td>
+<td>prompt + policy rollout + reward</td>
+<td>是</td>
+<td>policy、reference、reward、value/critic</td>
+<td>rollout 推理、KV Cache、reward scoring、PPO update、推理训练切换。</td>
+</tr>
+<tr>
+<td>GRPO</td>
+<td>prompt + group responses</td>
+<td>是</td>
+<td>policy、reference、reward/verifier</td>
+<td>同 prompt 多回答采样、group advantage、rollout 吞吐、样本分组。</td>
+</tr>
+</tbody>
+</table>
+<p>这张表的重点不是算法优劣，而是系统成本来源不同：</p>
+<ul>
+<li>SFT 最像普通训练。</li>
+<li>DPO 把一个样本扩展成 chosen/rejected 两条 response。</li>
+<li>PPO/RLHF 把推理服务的生成阶段塞进训练循环。</li>
+<li>GRPO 减少或避免某些 value model 训练路径，但会增加同 prompt 多样本生成和分组管理。</li>
+</ul>
+<h2 id="sft">SFT：最接近普通监督训练<a class="headerlink" href="#sft" title="Permanent link">¶</a></h2>
+<p>SFT 是 Supervised Fine-Tuning。它用人工或模型生成的高质量指令回答，让模型学习“给定 prompt 后应该输出什么”。</p>
+<p>典型样本是：</p>
+<div class="highlight"><pre><span></span><code>prompt: 用户问题 / 系统指令 / 上下文
+response: 目标回答
+</code></pre></div>
+<p>训练时通常把 prompt 和 response 拼成一段 token 序列，但 loss 只打在 response 部分：</p>
+<div class="highlight"><pre><span></span><code>[prompt tokens][response tokens]
+ loss mask: 0 0 0 ... 1 1 1
+</code></pre></div>
+<p>SFT 的系统形态接近普通 causal language modeling：</p>
+<ol>
+<li>读入样本。</li>
+<li>tokenize。</li>
+<li>按长度 packing 或 padding。</li>
+<li>forward。</li>
+<li>只在 response token 上算 loss。</li>
+<li>backward。</li>
+<li>optimizer step。</li>
+</ol>
+<p>它的瓶颈通常来自：</p>
+<ul>
+<li>sequence length 分布不均。</li>
+<li>prompt 很长但 loss token 很少。</li>
+<li>padding 浪费。</li>
+<li>多轮对话模板导致 token 数膨胀。</li>
+<li>小数据集频繁 eval 和 checkpoint。</li>
+<li>LoRA/QLoRA 配置与全量微调的取舍。</li>
+</ul>
+<h3 id="sft-token">SFT 的有效 token<a class="headerlink" href="#sft-token" title="Permanent link">¶</a></h3>
+<p>SFT benchmark 不能只看总 tokens/s。因为 prompt token 也参与 forward，但通常不参与 loss。</p>
+<p>建议区分：</p>
+<div class="highlight"><pre><span></span><code>input tokens: prompt + response + padding
+loss tokens: 真正参与 loss 的 response tokens
+effective tokens: 去掉 padding 后的真实 tokens
+</code></pre></div>
+<p>如果一个 batch 里 prompt 很长、response 很短，GPU 计算了大量 prompt token，但训练信号只来自少量 response token。系统吞吐看起来不低，训练效率可能并不高。</p>
+<h3 id="sft-chat-template-loss-mask">SFT 的 chat template 和 loss mask<a class="headerlink" href="#sft-chat-template-loss-mask" title="Permanent link">¶</a></h3>
+<p>SFT 里经常有多轮对话格式，例如：</p>
+<div class="highlight"><pre><span></span><code>system: ...
+user: ...
+assistant: ...
+user: ...
+assistant: ...
+</code></pre></div>
+<p>这些文本不会直接进入模型。它们会先经过 chat template 变成具体 token 序列。模板会决定：</p>
+<ul>
+<li>system prompt 是否存在。</li>
+<li>user / assistant 的分隔符。</li>
+<li>特殊 token 放在哪里。</li>
+<li>多轮对话如何拼接。</li>
+<li>哪些位置参与 loss。</li>
+</ul>
+<p>这会影响系统层面的三个问题。</p>
+<p>第一，token 数会变化。同样的文本，模板越复杂，prompt token 越多，forward 成本越高。</p>
+<p>第二，loss mask 会变化。有些训练只对 assistant 回答打 loss；有些训练可能对某些工具调用、思维过程或结构化字段打 loss。loss mask 一变，有效训练 token 就变了。</p>
+<p>第三，DPO/RLHF 的 logprob 也依赖同样模板。如果 SFT 和 DPO 使用不同模板，后面比较 logprob 时就不是同一个 token 序列。</p>
+<p>所以 SFT 数据集版本至少要记录：</p>
+<div class="highlight"><pre><span></span><code>raw text
+chat template revision
+tokenizer revision
+max length / truncation rule
+loss mask rule
+packing rule
+</code></pre></div>
+<p>不要只保存一个 JSONL 文本文件。对训练系统来说，模板和 mask 也是数据的一部分。</p>
+<h3 id="sft-packing">SFT Packing 的收益和风险<a class="headerlink" href="#sft-packing" title="Permanent link">¶</a></h3>
+<p>SFT 数据经常长短差异很大。如果每个样本单独 padding 到同一长度，会浪费大量计算。Packing 的做法是把多个短样本拼到同一个序列里，提高 token 利用率。</p>
+<div class="highlight"><pre><span></span><code>sample A + EOS + sample B + EOS + sample C
+</code></pre></div>
+<p>收益：</p>
+<ul>
+<li>padding token 变少。</li>
+<li>tokens/s 更接近真实计算利用率。</li>
+<li>小样本数据集吞吐更好。</li>
+</ul>
+<p>风险：</p>
+<ul>
+<li>attention mask 必须避免样本之间错误互相看见。</li>
+<li>loss mask 必须正确分段。</li>
+<li>position id / RoPE 处理要符合训练设计。</li>
+<li>如果后续要做 DPO/RLHF，packing 后的样本边界更难追踪。</li>
+</ul>
+<p>因此 SFT benchmark 最好同时报告：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>raw input tokens/s</td>
+<td>包含 padding 的输入吞吐。</td>
+</tr>
+<tr>
+<td>non-padding tokens/s</td>
+<td>去掉 padding 后的真实 token 吞吐。</td>
+</tr>
+<tr>
+<td>loss tokens/s</td>
+<td>真正参与 loss 的 token 吞吐。</td>
+</tr>
+<tr>
+<td>packing ratio</td>
+<td>packing 后有效 token 占比。</td>
+</tr>
+</tbody>
+</table>
+<p>如果只报告 raw tokens/s，packing 前后的对比可能会失真。</p>
+<h2 id="reward-model">Reward Model 训练<a class="headerlink" href="#reward-model" title="Permanent link">¶</a></h2>
+<p>RLHF 流程里常有 reward model。它学习判断哪个回答更好。</p>
+<p>常见数据形态是：</p>
+<div class="highlight"><pre><span></span><code>prompt
+chosen response
+rejected response
+</code></pre></div>
+<p>reward model 对 chosen 和 rejected 分别打分，再用 pairwise loss 让 chosen 分数高于 rejected。</p>
+<p>系统上，它和普通 SFT 不同：</p>
+<ul>
+<li>一个样本包含两条或多条 response。</li>
+<li>chosen/rejected 长度可能不同。</li>
+<li>可以把 prompt 共享，但实现上常常还是分别编码两条完整序列。</li>
+<li>如果 response 很长，batch padding 浪费明显。</li>
+<li>reward model 本身也可能是大模型，需要独立训练和 checkpoint。</li>
+</ul>
+<p>Reward model 训练不是所有后训练方法都必须有。例如 DPO 直接用偏好对优化 policy，不需要显式训练一个 reward model；但 RLHF/PPO 类流程通常会用 reward model 或 verifier 给 rollout 打分。</p>
+<h2 id="dpo">DPO：离线偏好优化<a class="headerlink" href="#dpo" title="Permanent link">¶</a></h2>
+<p>DPO 是 Direct Preference Optimization。它的工程直觉是：</p>
+<blockquote>
+<p>不再先训练 reward model、再用 PPO 做在线强化学习，而是直接用 chosen/rejected 偏好对优化 policy。</p>
+</blockquote>
+<p>典型输入是：</p>
+<div class="highlight"><pre><span></span><code>prompt
+chosen response
+rejected response
+</code></pre></div>
+<p>训练时要比较当前 policy 对 chosen/rejected 的 log probability，同时通常还需要 reference model 对 chosen/rejected 的 log probability 作为基准。</p>
+<p>简化数据流：</p>
+<div class="mermaid">flowchart TB
+    A["偏好样本<br/>prompt + chosen + rejected"] --&gt; B["Policy model forward<br/>chosen logprob"]
+    A --&gt; C["Policy model forward<br/>rejected logprob"]
+    A --&gt; D["Reference logprob<br/>在线计算或预先缓存"]
+    B --&gt; E["DPO loss"]
+    C --&gt; E
+    D --&gt; E
+    E --&gt; F["Backward 更新 policy"]
+</div>
+<p>DPO 的系统特点：</p>
+<ul>
+<li>一个样本至少有 chosen 和 rejected 两条 response。</li>
+<li>policy 需要对两条 response 计算 logprob。</li>
+<li>reference logprob 可以在线算，也可以离线缓存。</li>
+<li>如果在线跑 reference model，计算和显存成本会明显增加。</li>
+<li>如果缓存 reference logprob，数据管线和版本一致性更重要。</li>
+</ul>
+<h3 id="reference-logprob">Reference logprob 的两种做法<a class="headerlink" href="#reference-logprob" title="Permanent link">¶</a></h3>
+<p>第一种是在线计算 reference logprob：</p>
+<div class="highlight"><pre><span></span><code>每个 batch:
+  policy forward chosen/rejected
+  reference forward chosen/rejected
+  compute DPO loss
+  backward policy
+</code></pre></div>
+<p>优点：</p>
+<ul>
+<li>实现语义清楚。</li>
+<li>不需要提前生成缓存。</li>
+<li>reference model 和 tokenizer 直接来自当前环境。</li>
+</ul>
+<p>代价：</p>
+<ul>
+<li>额外 forward 成本。</li>
+<li>显存可能同时容纳 policy 和 reference。</li>
+<li>多机分布式时 reference 的并行策略也要管理。</li>
+</ul>
+<p>第二种是预先缓存 reference logprob：</p>
+<div class="highlight"><pre><span></span><code>离线:
+  reference model -&gt; logprob cache
+
+训练:
+  读取 prompt/chosen/rejected + cached reference logprob
+  policy forward
+  compute DPO loss
+</code></pre></div>
+<p>优点：</p>
+<ul>
+<li>训练时少跑 reference。</li>
+<li>可以降低训练 step time 和显存。</li>
+</ul>
+<p>代价：</p>
+<ul>
+<li>cache 必须和 base model、tokenizer、chat template、sequence truncation 完全一致。</li>
+<li>数据版本管理更复杂。</li>
+<li>一旦模板或 tokenizer 改了，cache 可能全部失效。</li>
+</ul>
+<p>从系统角度看，DPO 的关键问题是：reference 成本放在线上训练循环里，还是提前转成数据 artifact。</p>
+<h3 id="dpo-logprob">DPO 的 logprob 计算路径<a class="headerlink" href="#dpo-logprob" title="Permanent link">¶</a></h3>
+<p>DPO 的系统成本集中在 logprob。对每个样本，至少要拿到：</p>
+<div class="highlight"><pre><span></span><code>policy_logprob(chosen)
+policy_logprob(rejected)
+reference_logprob(chosen)
+reference_logprob(rejected)
+</code></pre></div>
+<p>这些 logprob 不是只取最后一个 token，而是通常要对 response token 的 token-level logprob 求和或平均。简化看：</p>
+<div class="highlight"><pre><span></span><code>prompt + chosen -&gt; token logprob -&gt; chosen sequence logprob
+prompt + rejected -&gt; token logprob -&gt; rejected sequence logprob
+</code></pre></div>
+<p>这带来几个工程影响：</p>
+<ul>
+<li>chosen 和 rejected 长度不同，batch padding 更复杂。</li>
+<li>一个训练样本会变成两条 sequence 的 forward。</li>
+<li>如果 online reference，reference 也要跑两条 sequence。</li>
+<li>如果 cache reference，cache 必须和 tokenizer/template/truncation 对齐。</li>
+<li>logprob 需要从 <code>[tokens, vocab]</code> logits 中 gather target token，输出层和 loss 路径会被频繁调用。</li>
+</ul>
+<p>一个 DPO batch 的粗略计算量可以这样理解：</p>
+<div class="highlight"><pre><span></span><code>policy forward: chosen + rejected
+reference forward: chosen + rejected   # 如果没有缓存
+policy backward: chosen + rejected
+</code></pre></div>
+<p>如果 reference logprob 已缓存，则训练时可以省掉 reference forward：</p>
+<div class="highlight"><pre><span></span><code>policy forward/backward: chosen + rejected
+read cached reference logprob
+</code></pre></div>
+<p>所以 DPO 性能优化经常不是先改 optimizer，而是先决定 reference logprob 的位置。</p>
+<h3 id="dpo_1">DPO 数据缓存的版本边界<a class="headerlink" href="#dpo_1" title="Permanent link">¶</a></h3>
+<p>缓存 reference logprob 能省训练成本，但它也把一部分模型计算结果变成了数据 artifact。缓存必须绑定这些信息：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>reference model id/revision</td>
+<td>换 reference 后 logprob 全变。</td>
+</tr>
+<tr>
+<td>tokenizer revision</td>
+<td>token 切分变了，logprob 无法复用。</td>
+</tr>
+<tr>
+<td>chat template revision</td>
+<td>prompt/response 拼接变了。</td>
+</tr>
+<tr>
+<td>truncation rule</td>
+<td>被截断 token 变了。</td>
+</tr>
+<tr>
+<td>response mask</td>
+<td>哪些 token 计入 logprob 变了。</td>
+</tr>
+<tr>
+<td>dtype / numerical policy</td>
+<td>极端情况下会影响可比性。</td>
+</tr>
+</tbody>
+</table>
+<p>如果这些字段没记录，后面看到一个 <code>ref_logprob.npy</code> 或 parquet 列，很难判断它能不能复用。</p>
+<p>推荐把 reference cache 当成一等数据集版本：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">reference_cache</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">model_id</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">model_revision</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">tokenizer_revision</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">chat_template_revision</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">truncation_rule</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">response_mask_rule</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">created_by_code_commit</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="w">  </span><span class="nt">checksum</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+</code></pre></div>
+<p>DPO 的很多“训练异常”其实不是优化器问题，而是 chosen/rejected、template、reference cache 不一致。</p>
+<h2 id="rlhf-ppo">RLHF / PPO：把推理放进训练循环<a class="headerlink" href="#rlhf-ppo" title="Permanent link">¶</a></h2>
+<p>RLHF 的经典流程通常包括三段：</p>
+<ol>
+<li>SFT 训练初始 policy。</li>
+<li>用人类偏好数据训练 reward model。</li>
+<li>用 PPO 之类的强化学习方法，让 policy 生成回答，再根据 reward 更新 policy。</li>
+</ol>
+<p>PPO 训练循环和普通 supervised training 很不一样。它需要先用当前 policy 生成 rollout：</p>
+<div class="highlight"><pre><span></span><code>prompt -&gt; policy.generate() -&gt; response
+</code></pre></div>
+<p>然后对 response 打分：</p>
+<div class="highlight"><pre><span></span><code>reward model(prompt, response) -&gt; reward
+reference model(prompt, response) -&gt; KL / reference logprob
+value model(prompt, response) -&gt; value estimate
+</code></pre></div>
+<p>再用这些结果构造 PPO loss 更新 policy。</p>
+<div class="mermaid">flowchart TB
+    A["Prompt batch"] --&gt; B["Policy rollout<br/>生成 responses"]
+    B --&gt; C["Reward / verifier scoring"]
+    B --&gt; D["Reference model logprob<br/>KL 约束"]
+    B --&gt; E["Value / critic<br/>估计 value"]
+    C --&gt; F["Advantage / return"]
+    D --&gt; F
+    E --&gt; F
+    F --&gt; G["PPO minibatch update"]
+    G --&gt; H["更新 policy"]
+    H --&gt; A
+</div>
+<p>这会带来一个重要变化：</p>
+<blockquote>
+<p>RLHF/PPO 的训练循环里有大量推理生成，而不只是 forward/backward。</p>
+</blockquote>
+<h3 id="ppo">PPO 系统成本来自哪里<a class="headerlink" href="#ppo" title="Permanent link">¶</a></h3>
+<p>PPO 类后训练通常同时涉及：</p>
+<ul>
+<li>policy model：被训练的模型。</li>
+<li>reference model：用于 KL 约束，通常冻结。</li>
+<li>reward model：给生成结果打分。</li>
+<li>value model / critic：估计 value 或 advantage，某些实现和 policy 共享 backbone。</li>
+<li>rollout engine：负责生成 response。</li>
+<li>training engine：负责 PPO update。</li>
+</ul>
+<p>系统成本包括：</p>
+<table>
+<thead>
+<tr>
+<th>成本</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rollout 推理</td>
+<td>Prefill/Decode、KV Cache、采样、变长输出。</td>
+</tr>
+<tr>
+<td>多模型显存</td>
+<td>policy、reference、reward、value 可能同时占资源。</td>
+</tr>
+<tr>
+<td>数据回流</td>
+<td>rollout 结果要进入训练 batch。</td>
+</tr>
+<tr>
+<td>旧策略 logprob</td>
+<td>PPO 需要记录 rollout 时 policy 的 logprob。</td>
+</tr>
+<tr>
+<td>KL 计算</td>
+<td>需要 reference logprob。</td>
+</tr>
+<tr>
+<td>多 epoch update</td>
+<td>同一批 rollout 可能被切成多个 minibatch 更新。</td>
+</tr>
+<tr>
+<td>同步与版本</td>
+<td>rollout policy 和 training policy 版本不能混乱。</td>
+</tr>
+</tbody>
+</table>
+<p>这就是为什么 RLHF/PPO 工程上常比 SFT/DPO 难很多。它不是一个普通 <code>DataLoader -&gt; forward -&gt; backward</code> 循环，而是一个“推理系统 + 训练系统 + 数据流水线”的组合。</p>
+<h2 id="rollout-rlhf">Rollout 是 RLHF 的系统核心<a class="headerlink" href="#rollout-rlhf" title="Permanent link">¶</a></h2>
+<p>Rollout 看起来像推理服务：</p>
+<ul>
+<li>输入 prompt。</li>
+<li>运行 prefill。</li>
+<li>逐 token decode。</li>
+<li>做 sampling。</li>
+<li>保存生成 token、logprob、attention mask 等。</li>
+</ul>
+<p>但它又不是普通在线推理服务：</p>
+<ul>
+<li>它的目标不是低用户延迟，而是高训练吞吐。</li>
+<li>输出要回流到训练。</li>
+<li>需要记录训练所需的 logprob、mask、reward、value。</li>
+<li>prompt 通常来自训练数据队列，不是随机用户请求。</li>
+<li>policy 会持续更新，engine 权重版本要跟上。</li>
+</ul>
+<p>因此 rollout engine 要关注：</p>
+<ul>
+<li>每秒生成 token 数。</li>
+<li>prompt 和 response 长度分布。</li>
+<li>KV Cache 显存。</li>
+<li>batch/continuous batching。</li>
+<li>采样参数。</li>
+<li>policy 权重更新频率。</li>
+<li>rollout 与训练之间的队列积压。</li>
+</ul>
+<p>如果 rollout 慢，训练 GPU 会等数据。如果训练慢，rollout 结果会堆积，甚至因为 policy 版本过旧而不能使用。</p>
+<h3 id="rollout-update">Rollout 和 Update 的版本一致性<a class="headerlink" href="#rollout-update" title="Permanent link">¶</a></h3>
+<p>在线后训练最容易出错的地方是 policy 版本。Rollout 使用某个时刻的 policy 生成样本，training update 又会持续改变 policy。</p>
+<p>如果系统没有记录 rollout policy version，就会出现：</p>
+<div class="highlight"><pre><span></span><code>policy_v10 生成 response
+policy_v20 训练时误以为这是当前 policy 样本
+</code></pre></div>
+<p>这会影响 PPO/GRPO 的训练语义。至少要记录：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>应记录字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rollout sample</td>
+<td>prompt id、response tokens、sampling config、policy version、生成时间。</td>
+</tr>
+<tr>
+<td>Logprob</td>
+<td>rollout-time policy logprob、reference logprob、mask。</td>
+</tr>
+<tr>
+<td>Reward</td>
+<td>reward model/verifier version、score、失败原因。</td>
+</tr>
+<tr>
+<td>Training batch</td>
+<td>使用哪些 rollout sample、是否过期、是否重复使用。</td>
+</tr>
+</tbody>
+</table>
+<p>分离式架构里通常需要设置样本过期规则：</p>
+<div class="highlight"><pre><span></span><code>max_policy_lag_steps
+max_queue_wait_time
+max_reuse_epochs
+</code></pre></div>
+<p>这不是纯算法细节，而是系统稳定性问题。样本太新，rollout 和 training 耦合太紧；样本太旧，训练信号可能不匹配当前 policy。</p>
+<h3 id="rollout-engine">Rollout Engine 和普通推理服务的差异<a class="headerlink" href="#rollout-engine" title="Permanent link">¶</a></h3>
+<p>Rollout engine 可以借用推理服务技术，但目标不同。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>在线推理服务</th>
+<th>后训练 rollout</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主要目标</td>
+<td>用户延迟、SLA、吞吐</td>
+<td>训练样本生成吞吐和版本一致性。</td>
+</tr>
+<tr>
+<td>请求来源</td>
+<td>用户流量</td>
+<td>prompt 数据集或任务队列。</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>返回给用户</td>
+<td>回流到训练。</td>
+</tr>
+<tr>
+<td>需要保存</td>
+<td>最终文本即可</td>
+<td>tokens、logprob、mask、sampling metadata。</td>
+</tr>
+<tr>
+<td>权重版本</td>
+<td>相对稳定</td>
+<td>policy 持续更新。</td>
+</tr>
+<tr>
+<td>cache 使用</td>
+<td>关注用户命中率</td>
+<td>关注 prompt 分布和批量生成效率。</td>
+</tr>
+</tbody>
+</table>
+<p>因此 rollout engine 的指标也不同：</p>
+<ul>
+<li>generated tokens/s。</li>
+<li>prompts/s。</li>
+<li>average response length。</li>
+<li>p95 / p99 response length。</li>
+<li>KV Cache 使用率。</li>
+<li>policy reload time。</li>
+<li>stale sample ratio。</li>
+<li>reward scoring backlog。</li>
+</ul>
+<p>如果只用普通推理服务的 TTFT/TPOT 指标，无法完整解释在线后训练效率。</p>
+<h2 id="grpogroup-relative-policy-optimization">GRPO：Group Relative Policy Optimization<a class="headerlink" href="#grpogroup-relative-policy-optimization" title="Permanent link">¶</a></h2>
+<p>GRPO 常见于近年的 reasoning / math 后训练工作。它的核心直觉是：对同一个 prompt 生成多条回答，用同组回答之间的相对得分估计优势，而不是依赖一个单独 value model 给每个 token 学 value。</p>
+<p>简化流程：</p>
+<div class="highlight"><pre><span></span><code>同一个 prompt
+-&gt; 生成 G 条 responses
+-&gt; 对每条 response 打 reward / verifier score
+-&gt; 在同组内归一化或比较 reward
+-&gt; 得到 relative advantage
+-&gt; 更新 policy
+</code></pre></div>
+<p>用图表示：</p>
+<div class="mermaid">flowchart TB
+    A["Prompt"] --&gt; B["Policy 采样 G 条 responses"]
+    B --&gt; C["Reward / verifier scoring"]
+    C --&gt; D["组内比较<br/>relative advantage"]
+    D --&gt; E["Policy update<br/>带 KL 或 reference 约束"]
+</div>
+<p>从系统角度看，GRPO 的收益和代价都很清楚。</p>
+<p>收益：</p>
+<ul>
+<li>可以减少或避免单独 value model / critic 的训练成本。</li>
+<li>advantage 来自同组 response 的相对质量，适合有明确 verifier/reward 的任务。</li>
+<li>训练链路可能比 PPO 少一个复杂模型组件。</li>
+</ul>
+<p>代价：</p>
+<ul>
+<li>每个 prompt 要生成多条 response。</li>
+<li>rollout token 数按 group size 放大。</li>
+<li>batch 组织要保留 prompt group 边界。</li>
+<li>reward/verifier scoring 可能成为瓶颈。</li>
+<li>长 reasoning response 会让 rollout KV Cache 和存储压力增加。</li>
+</ul>
+<p>如果 group size 是 <code>G</code>，每个 prompt 平均生成 <code>L</code> 个 token，那么 rollout 生成 token 数大致是：</p>
+<div class="highlight"><pre><span></span><code>num_prompts * G * L
+</code></pre></div>
+<p>因此 GRPO 减少 value model 训练成本，不等于整体一定更便宜。它把成本更多放到了多样本生成、reward/verifier 和样本分组上。</p>
+<h3 id="grpo-batch">GRPO 的 batch 组织<a class="headerlink" href="#grpo-batch" title="Permanent link">¶</a></h3>
+<p>GRPO 的关键不是“多生成几条回答”这么简单，而是要保留 group 结构。</p>
+<p>普通 batch 可能是：</p>
+<div class="highlight"><pre><span></span><code>prompt_1 -&gt; response_1
+prompt_2 -&gt; response_2
+prompt_3 -&gt; response_3
+</code></pre></div>
+<p>GRPO batch 更像：</p>
+<div class="highlight"><pre><span></span><code>prompt_1 -&gt; response_1_1, response_1_2, ..., response_1_G
+prompt_2 -&gt; response_2_1, response_2_2, ..., response_2_G
+</code></pre></div>
+<p>优势估计要在同一个 prompt 的 group 内做比较。如果数据管线打乱了 group 边界，训练语义就会错。</p>
+<p>系统上要记录：</p>
+<ul>
+<li><code>prompt_id</code></li>
+<li><code>group_id</code></li>
+<li><code>sample_index_in_group</code></li>
+<li>reward / verifier score</li>
+<li>group mean / std 或相对 rank</li>
+<li>response length</li>
+<li>policy version</li>
+</ul>
+<p>这会影响 batching：</p>
+<ul>
+<li>同组 response 长度差异可能很大。</li>
+<li>padding 浪费会随着 group size 放大。</li>
+<li>verifier 需要按 response 批量打分，但结果要回填到 group。</li>
+<li>训练 update 要能从 group 结构计算 advantage。</li>
+</ul>
+<p>所以 GRPO 的数据对象不只是 <code>(prompt, response)</code>，而是：</p>
+<div class="highlight"><pre><span></span><code>prompt -&gt; group[responses, rewards, logprobs, masks, metadata]
+</code></pre></div>
+<h3 id="grpo-verifier">GRPO 与 Verifier 的关系<a class="headerlink" href="#grpo-verifier" title="Permanent link">¶</a></h3>
+<p>GRPO 常用于数学、代码、推理等可以用规则或模型打分的任务。在这些场景里，reward/verifier 可能是：</p>
+<ul>
+<li>exact match。</li>
+<li>单元测试。</li>
+<li>规则检查器。</li>
+<li>另一个模型 judge。</li>
+<li>reward model。</li>
+</ul>
+<p>这让 verifier 成为系统关键组件。它决定了训练信号，也可能决定吞吐。</p>
+<p>常见瓶颈包括：</p>
+<ul>
+<li>单元测试运行慢。</li>
+<li>sandbox 隔离成本高。</li>
+<li>模型 judge 推理成本高。</li>
+<li>verifier timeout。</li>
+<li>部分样本无法解析。</li>
+<li>reward 分布过于稀疏，很多 group 全 0 或全 1。</li>
+</ul>
+<p>如果 group 内所有 response 得分都一样，相对优势信号会变弱。系统监控要看：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>为什么重要</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>group reward variance</td>
+<td>判断同组是否有可学习差异。</td>
+</tr>
+<tr>
+<td>all-zero group ratio</td>
+<td>verifier 太严格或模型太弱时常见。</td>
+</tr>
+<tr>
+<td>all-one group ratio</td>
+<td>任务太简单或 verifier 太宽松。</td>
+</tr>
+<tr>
+<td>verifier latency</td>
+<td>可能成为端到端瓶颈。</td>
+</tr>
+<tr>
+<td>invalid response ratio</td>
+<td>影响有效训练样本。</td>
+</tr>
+</tbody>
+</table>
+<p>因此 GRPO 平台不是只扩 rollout GPU。很多时候要先扩 verifier，或优化 verifier 的批处理与缓存。</p>
+<h2 id="_4">为什么后训练会影响集群调度<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<p>普通大规模预训练通常是稳定长作业。后训练平台则更像混合 workload：</p>
+<ul>
+<li>SFT：中短训练作业。</li>
+<li>DPO：偏好数据训练，可能需要 reference cache。</li>
+<li>RLHF/PPO：rollout + training 双系统。</li>
+<li>GRPO：高 rollout token 生成量 + reward/verifier。</li>
+<li>Eval：频繁、短、指标多。</li>
+<li>数据处理：去重、过滤、模板化、采样。</li>
+</ul>
+<p>调度系统要面对：</p>
+<ul>
+<li>训练 GPU 和 rollout GPU 是否共池。</li>
+<li>推理引擎是否常驻。</li>
+<li>reward model / verifier 是否独立部署。</li>
+<li>rollout 任务和 policy update 是否需要 gang scheduling。</li>
+<li>短任务是否被大训练任务挤压。</li>
+<li>adapter 微调和 RL 后训练是否共享基础模型缓存。</li>
+<li>eval 是否独占资源或低优先级运行。</li>
+</ul>
+<p>在后训练平台里，只看 GPU utilization 很容易误判。一个 PPO 任务可能训练 GPU 利用率不高，但瓶颈在 rollout；一个 GRPO 任务可能 rollout GPU 很忙，但训练 update 很短。</p>
+<h2 id="_5">后训练平台的端到端数据流<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<p>把后训练平台画成一条链路，会发现它比普通训练多了很多中间 artifact。</p>
+<div class="mermaid">flowchart TB
+    A["Prompt / Preference Dataset"] --&gt; B["Template + Tokenization"]
+    B --&gt; C{"训练方法"}
+    C --&gt; D["SFT / DPO<br/>离线训练 batch"]
+    C --&gt; E["Rollout Queue<br/>在线生成请求"]
+    E --&gt; F["Rollout Engine<br/>policy generate"]
+    F --&gt; G["Reward / Verifier Scoring"]
+    G --&gt; H["Rollout Artifact<br/>tokens, logprobs, rewards, metadata"]
+    D --&gt; I["Policy Update"]
+    H --&gt; I
+    I --&gt; J["Checkpoint / Adapter"]
+    J --&gt; K["Eval"]
+    K --&gt; L["Model Registry / Serving Candidate"]
+</div>
+<p>这条链路里，每个节点都可能变成瓶颈：</p>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th>常见瓶颈</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Template + Tokenization</td>
+<td>CPU 处理慢、模板版本不一致、loss mask 错。</td>
+</tr>
+<tr>
+<td>Rollout Queue</td>
+<td>训练等 rollout，或 rollout 积压过期。</td>
+</tr>
+<tr>
+<td>Rollout Engine</td>
+<td>KV Cache、decode 吞吐、policy reload。</td>
+</tr>
+<tr>
+<td>Reward / Verifier</td>
+<td>打分慢、timeout、reward 分布异常。</td>
+</tr>
+<tr>
+<td>Policy Update</td>
+<td>backward、optimizer、显存、分布式同步。</td>
+</tr>
+<tr>
+<td>Eval</td>
+<td>评估频繁、生成式 eval 慢、资源抢占。</td>
+</tr>
+<tr>
+<td>Registry</td>
+<td>checkpoint、adapter、reference cache、eval report 版本不清。</td>
+</tr>
+</tbody>
+</table>
+<p>后训练系统的难点不只是“某个环节快”，而是这些环节速率要匹配。否则就会出现：</p>
+<ul>
+<li>rollout 生成太慢，training GPU 等数据。</li>
+<li>rollout 生成太快，样本队列堆积并过期。</li>
+<li>verifier 太慢，rollout 结果无法进入 update。</li>
+<li>eval 太频繁，训练主循环被打断。</li>
+<li>checkpoint 太慢，短任务周转时间被存储拖垮。</li>
+</ul>
+<h2 id="_6">资源池怎么拆<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>后训练可以把资源拆成几个池：</p>
+<table>
+<thead>
+<tr>
+<th>资源池</th>
+<th>承担任务</th>
+<th>典型优化目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training pool</td>
+<td>SFT/DPO/PPO/GRPO policy update</td>
+<td>backward/update 吞吐、显存、稳定性。</td>
+</tr>
+<tr>
+<td>Rollout pool</td>
+<td>policy generate</td>
+<td>decode tokens/s、KV Cache、policy reload。</td>
+</tr>
+<tr>
+<td>Reward/verifier pool</td>
+<td>reward model、规则检查、单元测试</td>
+<td>scoring throughput、timeout、隔离。</td>
+</tr>
+<tr>
+<td>Eval pool</td>
+<td>validation、benchmark、生成式评估</td>
+<td>稳定可比、低干扰。</td>
+</tr>
+<tr>
+<td>Data pool</td>
+<td>tokenize、packing、reference cache</td>
+<td>数据吞吐、版本治理。</td>
+</tr>
+</tbody>
+</table>
+<p>小规模实验可以共用一个 GPU pool。大规模后训练则通常需要拆池，因为不同环节的硬件需求不同：</p>
+<ul>
+<li>training 需要高显存和高带宽，关注 backward 和 optimizer。</li>
+<li>rollout 更像推理服务，关注 KV Cache、decode 和 batching。</li>
+<li>verifier 可能是 CPU-heavy、GPU-heavy 或 sandbox-heavy。</li>
+<li>eval 要稳定，不应该被训练主循环频繁打断。</li>
+</ul>
+<p>拆池之后，调度问题会变复杂。要监控每个池的利用率和队列长度，而不是只看总体 GPU utilization。</p>
+<h2 id="_7">后训练里的多模型驻留<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<p>RLHF/PPO/GRPO 经常同时出现多个模型角色：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>是否训练</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Policy</td>
+<td>是</td>
+<td>被优化的模型。</td>
+</tr>
+<tr>
+<td>Reference</td>
+<td>否</td>
+<td>提供 KL / reference logprob 约束。</td>
+</tr>
+<tr>
+<td>Reward model</td>
+<td>通常否，可能单独训练</td>
+<td>对 response 打分。</td>
+</tr>
+<tr>
+<td>Value / critic</td>
+<td>PPO 中可能训练</td>
+<td>估计 value / advantage。</td>
+</tr>
+<tr>
+<td>Verifier</td>
+<td>通常否</td>
+<td>规则、测试或模型 judge。</td>
+</tr>
+</tbody>
+</table>
+<p>这些角色可以有不同部署方式：</p>
+<table>
+<thead>
+<tr>
+<th>部署方式</th>
+<th>优点</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全部共置在训练进程</td>
+<td>简单，数据传输少</td>
+<td>显存压力大，模型互相干扰。</td>
+</tr>
+<tr>
+<td>reference/reward 独立服务化</td>
+<td>training 进程轻</td>
+<td>RPC、版本一致性、服务可用性。</td>
+</tr>
+<tr>
+<td>rollout 独立推理引擎</td>
+<td>可用 vLLM/SGLang 等优化 decode</td>
+<td>权重同步、队列和过期样本复杂。</td>
+</tr>
+<tr>
+<td>reward/verifier 批处理服务</td>
+<td>scoring 吞吐高</td>
+<td>需要请求聚合、timeout 和结果回填。</td>
+</tr>
+</tbody>
+</table>
+<p>选择时要看瓶颈：</p>
+<ul>
+<li>如果显存放不下多个模型，先拆 reference/reward。</li>
+<li>如果 rollout decode 是瓶颈，拆 rollout pool。</li>
+<li>如果 verifier 慢，拆 verifier pool 并做批处理。</li>
+<li>如果实验很小，过度拆分会让调试和版本管理更难。</li>
+</ul>
+<h2 id="online">Online 后训练的队列设计<a class="headerlink" href="#online" title="Permanent link">¶</a></h2>
+<p>在线后训练通常至少有两个队列：</p>
+<div class="highlight"><pre><span></span><code>prompt queue -&gt; rollout engine -&gt; rollout result queue -&gt; training update
+</code></pre></div>
+<p>如果有 reward/verifier，还会多一段：</p>
+<div class="highlight"><pre><span></span><code>rollout result queue -&gt; scoring queue -&gt; scored sample queue
+</code></pre></div>
+<p>每个队列都要有元数据：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">sample_id</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">prompt_id</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">policy_version</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">sampling_config_hash</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">created_at</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">expires_at</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="s">"generated"</span><span class="w">  </span><span class="c1"># generated / scored / consumed / expired / failed</span>
+<span class="nt">retry_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+</code></pre></div>
+<p>队列不是越长越好。队列太短，训练可能断粮；队列太长，样本可能 stale。常见控制策略：</p>
+<ul>
+<li>限制最大队列长度。</li>
+<li>限制最大 policy lag。</li>
+<li>对过期样本直接丢弃或降权。</li>
+<li>按 prompt 难度或长度做采样。</li>
+<li>对 verifier 失败样本单独统计。</li>
+<li>记录每条样本是否被训练消费。</li>
+</ul>
+<p>如果系统没有 sample-level lineage，后面很难解释一次训练为什么变好或变坏。</p>
+<h2 id="_8">后训练的数据版本更重要<a class="headerlink" href="#_8" title="Permanent link">¶</a></h2>
+<p>后训练数据通常比预训练数据更“结构化”，也更容易因为细节变化影响结果。</p>
+<p>需要记录：</p>
+<table>
+<thead>
+<tr>
+<th>数据对象</th>
+<th>为什么重要</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prompt</td>
+<td>生成和训练的输入。</td>
+</tr>
+<tr>
+<td>Chosen/rejected response</td>
+<td>DPO、reward model 的核心偏好数据。</td>
+</tr>
+<tr>
+<td>Reward / verifier score</td>
+<td>RLHF/GRPO 的训练信号。</td>
+</tr>
+<tr>
+<td>Chat template</td>
+<td>改变 token 序列和 loss mask。</td>
+</tr>
+<tr>
+<td>Tokenizer revision</td>
+<td>改变 token boundary 和 logprob。</td>
+</tr>
+<tr>
+<td>Truncation 规则</td>
+<td>决定哪些 token 参与训练。</td>
+</tr>
+<tr>
+<td>Reference logprob cache</td>
+<td>必须和 reference model、模板、tokenizer 对齐。</td>
+</tr>
+<tr>
+<td>Policy version</td>
+<td>rollout 时使用的模型版本。</td>
+</tr>
+</tbody>
+</table>
+<p>尤其要警惕：看起来一样的文本，在不同 chat template 下可能变成不同 token 序列。DPO/RLHF 里的 logprob 对 token 序列非常敏感，不能只记录原始文本。</p>
+<h2 id="_9">显存与吞吐怎么估算<a class="headerlink" href="#_9" title="Permanent link">¶</a></h2>
+<p>后训练的显存不能只按一个模型估算。</p>
+<p>SFT 的显存类似普通训练：</p>
+<div class="highlight"><pre><span></span><code>policy weights
++ gradients
++ optimizer states
++ activations
++ temporary buffers
+</code></pre></div>
+<p>DPO 可能增加：</p>
+<div class="highlight"><pre><span></span><code>chosen/rejected activations
++ reference model weights or reference cache
++ longer batch sequence packing
+</code></pre></div>
+<p>RLHF/PPO 可能涉及：</p>
+<div class="highlight"><pre><span></span><code>policy training memory
++ rollout policy serving memory
++ reference model memory
++ reward model memory
++ value model memory
++ KV Cache
++ rollout storage buffers
+</code></pre></div>
+<p>GRPO 可能把 rollout token 数放大：</p>
+<div class="highlight"><pre><span></span><code>prompt_count * group_size * response_length
+</code></pre></div>
+<p>所以容量评估要分开看：</p>
+<ul>
+<li>training step time。</li>
+<li>rollout tokens/s。</li>
+<li>reward scoring tokens/s。</li>
+<li>update tokens/s。</li>
+<li>end-to-end samples/s。</li>
+<li>每轮迭代 wall-clock time。</li>
+</ul>
+<p>单独报告 policy update 的 tokens/s 对 RLHF/GRPO 不够，因为真正瓶颈常常在生成和打分。</p>
+<h2 id="checkpoint-artifact">后训练 checkpoint 与 artifact<a class="headerlink" href="#checkpoint-artifact" title="Permanent link">¶</a></h2>
+<p>后训练 checkpoint 不只是 policy 权重。不同方法需要保存的状态不同。</p>
+<p>SFT/DPO 至少保存：</p>
+<div class="highlight"><pre><span></span><code>policy weights or adapter
+optimizer state
+scheduler state
+global step / consumed tokens
+dataset position
+tokenizer/template revision
+training config
+eval report
+</code></pre></div>
+<p>DPO 还要保存或引用：</p>
+<div class="highlight"><pre><span></span><code>reference model revision
+reference logprob cache version
+chosen/rejected data revision
+</code></pre></div>
+<p>PPO/GRPO 还要保存或记录：</p>
+<div class="highlight"><pre><span></span><code>rollout policy version
+rollout queue state
+reward/verifier version
+sampling config
+KL/reference config
+advantage normalization config
+</code></pre></div>
+<p>如果后训练使用 LoRA/QLoRA，还要把 adapter 纳入模型版本：</p>
+<div class="highlight"><pre><span></span><code>base_model_revision
+adapter_revision
+adapter_config
+merge/unmerge state
+serving compatibility
+</code></pre></div>
+<p>一个可追踪的后训练 artifact registry 至少回答：</p>
+<ul>
+<li>当前 policy 来自哪个 base model。</li>
+<li>是否经过 SFT、DPO、RLHF/GRPO，每一步使用什么数据。</li>
+<li>reference model 是哪个版本。</li>
+<li>reward/verifier 是哪个版本。</li>
+<li>rollout 使用了什么 sampling 配置。</li>
+<li>eval 用了哪些 benchmark 和 decoding 配置。</li>
+<li>这个 checkpoint 是否可 resume，还是只能部署。</li>
+</ul>
+<p>后训练实验数量通常很多，单个实验时间可能不长。没有 artifact 规范时，后面会留下大量无法解释的 adapter、checkpoint 和 eval 报告。</p>
+<h2 id="_10">分离部署还是共置部署<a class="headerlink" href="#_10" title="Permanent link">¶</a></h2>
+<p>后训练系统常见两种架构。</p>
+<p>第一种是共置：</p>
+<div class="highlight"><pre><span></span><code>同一批 GPU 同时承担 rollout 和 training
+</code></pre></div>
+<p>优点：</p>
+<ul>
+<li>部署简单。</li>
+<li>数据传输路径短。</li>
+<li>小规模实验容易跑。</li>
+</ul>
+<p>代价：</p>
+<ul>
+<li>rollout 和 training 资源互相干扰。</li>
+<li>显存要同时考虑推理 KV Cache 和训练 activation。</li>
+<li>权重更新和推理 engine reload 容易影响效率。</li>
+</ul>
+<p>第二种是分离：</p>
+<div class="highlight"><pre><span></span><code>rollout GPU pool -&gt; 生成样本队列 -&gt; training GPU pool
+reward/verifier pool -&gt; 打分
+</code></pre></div>
+<p>优点：</p>
+<ul>
+<li>每类 workload 可以独立扩缩。</li>
+<li>rollout 可以使用 serving engine 优化。</li>
+<li>training GPU 更专注于 backward/update。</li>
+</ul>
+<p>代价：</p>
+<ul>
+<li>队列和数据传输复杂。</li>
+<li>policy 版本一致性要管理。</li>
+<li>rollout 过期样本要处理。</li>
+<li>监控和调度更复杂。</li>
+</ul>
+<p>选型原则：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>更适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>小模型、小实验、低并发</td>
+<td>共置。</td>
+</tr>
+<tr>
+<td>大规模 RLHF/GRPO、rollout 很重</td>
+<td>分离。</td>
+</tr>
+<tr>
+<td>reward/verifier 很慢</td>
+<td>独立 scoring pool。</td>
+</tr>
+<tr>
+<td>policy 更新频繁、样本易过期</td>
+<td>更紧耦合或短队列。</td>
+</tr>
+<tr>
+<td>需要复用高性能 serving engine</td>
+<td>分离 rollout pool。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="rollouttraining">Rollout/Training 分离时的权重同步<a class="headerlink" href="#rollouttraining" title="Permanent link">¶</a></h2>
+<p>分离部署的关键是权重同步。Training 更新 policy 后，rollout engine 需要拿到新权重，否则会持续用旧 policy 生成样本。</p>
+<p>常见同步方式：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>说明</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>周期性保存 checkpoint，再由 rollout 加载</td>
+<td>实现简单</td>
+<td>checkpoint I/O 和 reload 时间可能很高。</td>
+</tr>
+<tr>
+<td>只同步 adapter</td>
+<td>LoRA/QLoRA 场景很轻</td>
+<td>rollout engine 必须支持动态 adapter。</td>
+</tr>
+<tr>
+<td>内存/网络直接广播权重</td>
+<td>延迟低</td>
+<td>工程复杂，要求训练和推理框架深度集成。</td>
+</tr>
+<tr>
+<td>固定若干 update 后同步</td>
+<td>降低同步频率</td>
+<td>policy lag 增大。</td>
+</tr>
+</tbody>
+</table>
+<p>同步频率不是越高越好：</p>
+<ul>
+<li>太高会让 rollout engine 频繁 reload，decode 吞吐下降。</li>
+<li>太低会让 rollout 样本过期，训练信号变旧。</li>
+</ul>
+<p>因此要监控：</p>
+<div class="highlight"><pre><span></span><code>policy_version_in_training
+policy_version_in_rollout
+average_policy_lag
+reload_time
+stale_sample_ratio
+rollout_queue_depth
+</code></pre></div>
+<p>这类指标比单纯的 GPU 利用率更能解释在线后训练是否健康。</p>
+<h2 id="loraqlora">LoRA/QLoRA 与后训练<a class="headerlink" href="#loraqlora" title="Permanent link">¶</a></h2>
+<p>后训练经常和 LoRA/QLoRA 组合。</p>
+<p>原因很直接：</p>
+<ul>
+<li>SFT/DPO 实验多，adapter checkpoint 小，便于快速迭代。</li>
+<li>RLHF/GRPO 的 policy update 可能只训练 adapter，降低 optimizer state。</li>
+<li>多任务、多数据版本可以共享基础模型。</li>
+</ul>
+<p>但组合后也有额外问题：</p>
+<ul>
+<li>reference model 是否包含同一个 base、不包含 adapter，还是某个固定 adapter。</li>
+<li>rollout engine 是否支持动态 LoRA。</li>
+<li>cache key 是否包含 adapter id。</li>
+<li>reward/verifier 是否基于同一 tokenizer/template。</li>
+<li>merge/unmerge 是否影响 policy update。</li>
+<li>adapter checkpoint 是否能和 rollout engine 快速同步。</li>
+</ul>
+<p>如果后训练系统把 adapter 当作普通小文件，而不是模型版本的一部分，就容易出现 policy rollout、reference logprob、reward scoring 和训练 update 版本不一致。</p>
+<h2 id="benchmark">Benchmark 方法<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>后训练 benchmark 要按方法分层。</p>
+<p>SFT/DPO 可以报告：</p>
+<ul>
+<li>step time。</li>
+<li>tokens/s。</li>
+<li>effective loss tokens/s。</li>
+<li>peak memory。</li>
+<li>trainable parameters。</li>
+<li>eval time。</li>
+<li>checkpoint size。</li>
+</ul>
+<p>RLHF/PPO/GRPO 还要报告：</p>
+<ul>
+<li>rollout prompts/s。</li>
+<li>rollout output tokens/s。</li>
+<li>reward scoring samples/s。</li>
+<li>policy update tokens/s。</li>
+<li>每轮 rollout/update 的 wall-clock time。</li>
+<li>rollout queue wait。</li>
+<li>stale rollout ratio。</li>
+<li>每个 prompt 的 responses 数。</li>
+<li>average response length。</li>
+<li>KL、reward、advantage 分布。</li>
+<li>end-to-end time to target eval score。</li>
+</ul>
+<p>一个可复现的后训练 benchmark 至少固定：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">"dpo"</span><span class="w">  </span><span class="c1"># sft / reward_model / dpo / ppo / grpo</span>
+<span class="nt">base_model</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">policy_model</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">reference_model</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">reward_model</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">tokenizer_revision</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">chat_template_revision</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">dataset_revision</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">prompt_length_distribution</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">response_length_distribution</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">max_prompt_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="nt">max_response_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="nt">packing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">precision</span><span class="p">:</span><span class="w"> </span><span class="s">"bf16"</span>
+<span class="nt">parallelism</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">fsdp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">tp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">pp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="nt">peft</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="nt">rollout</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">num_responses_per_prompt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">sampling_config</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">rollout_engine</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
+<span class="nt">metrics</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">step_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">rollout_tokens_per_second</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">update_tokens_per_second</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">end_to_end_iteration_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">peak_gpu_memory_gb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</code></pre></div>
+<h2 id="_11">常见优化方向<a class="headerlink" href="#_11" title="Permanent link">¶</a></h2>
+<h3 id="sftdpo">优化 SFT/DPO 数据组织<a class="headerlink" href="#sftdpo" title="Permanent link">¶</a></h3>
+<p>重点是减少 padding 和无效 token：</p>
+<ul>
+<li>按长度分桶。</li>
+<li>packing 多个短样本。</li>
+<li>明确 loss mask。</li>
+<li>区分 input tokens 和 loss tokens。</li>
+<li>预先 tokenization。</li>
+<li>对超长 prompt/response 做规则化截断。</li>
+</ul>
+<h3 id="reference-logprob_1">缓存 reference logprob<a class="headerlink" href="#reference-logprob_1" title="Permanent link">¶</a></h3>
+<p>对 DPO 类训练，如果 reference model 不变，可以考虑预先计算 reference logprob。</p>
+<p>收益：</p>
+<ul>
+<li>减少训练时 reference forward。</li>
+<li>降低显存和 step time。</li>
+</ul>
+<p>风险：</p>
+<ul>
+<li>tokenizer/template/truncation 一变，cache 失效。</li>
+<li>cache 体积可能很大。</li>
+<li>需要记录 reference model revision。</li>
+</ul>
+<h3 id="rollout-update_1">分离 rollout 和 update<a class="headerlink" href="#rollout-update_1" title="Permanent link">¶</a></h3>
+<p>对 RLHF/GRPO，如果 rollout 占大头，可以把 rollout engine 独立出来，使用推理系统优化方法：</p>
+<ul>
+<li>continuous batching。</li>
+<li>KV Cache 管理。</li>
+<li>prefix cache。</li>
+<li>speculative decoding，视任务语义谨慎使用。</li>
+<li>多副本 rollout pool。</li>
+<li>reward/verifier 批量打分。</li>
+</ul>
+<p>但 rollout 与 update 分离后，要处理样本过期和版本一致性。</p>
+<h3 id="_12">减少多模型同时驻留<a class="headerlink" href="#_12" title="Permanent link">¶</a></h3>
+<p>RLHF/PPO 里 policy、reference、reward、value 都可能吃显存。</p>
+<p>常见做法：</p>
+<ul>
+<li>reference 使用 frozen 低精度权重。</li>
+<li>reward model 独立服务化。</li>
+<li>value head 与 policy 共享 backbone。</li>
+<li>LoRA 只训练 adapter。</li>
+<li>分阶段运行 rollout/scoring/update。</li>
+<li>用 CPU/offload 或模型并行放下大模型。</li>
+</ul>
+<h3 id="rewardverifier">让 reward/verifier 成为可观测组件<a class="headerlink" href="#rewardverifier" title="Permanent link">¶</a></h3>
+<p>很多后训练瓶颈不是 policy update，而是 reward/verifier scoring。</p>
+<p>需要监控：</p>
+<ul>
+<li>scoring latency。</li>
+<li>scoring throughput。</li>
+<li>reward 分布。</li>
+<li>failed / invalid sample ratio。</li>
+<li>verifier timeout。</li>
+<li>prompt/response 长度对 scoring 的影响。</li>
+</ul>
+<p>如果 reward/verifier 不稳定，训练曲线可能看起来像优化问题，本质却是数据和打分系统问题。</p>
+<h3 id="response-length">控制 response length<a class="headerlink" href="#response-length" title="Permanent link">¶</a></h3>
+<p>后训练尤其是 RLHF/GRPO，很容易被 response length 拖垮。</p>
+<p>response 越长：</p>
+<ul>
+<li>rollout decode token 越多。</li>
+<li>KV Cache 占用越大。</li>
+<li>reward/verifier scoring 越慢。</li>
+<li>DPO/RLHF logprob 计算越重。</li>
+<li>batch padding 浪费越明显。</li>
+</ul>
+<p>常见控制方法：</p>
+<ul>
+<li>设置合理的 <code>max_new_tokens</code>。</li>
+<li>对 prompt 按长度分桶。</li>
+<li>对超长 response 做截断策略。</li>
+<li>记录 stop reason。</li>
+<li>把 average / p95 / p99 response length 放入指标。</li>
+<li>对无效长输出设置惩罚或过滤。</li>
+</ul>
+<p>只优化模型训练 step，不控制 response length，在线后训练端到端成本会失控。</p>
+<h3 id="eval">把 Eval 从训练主循环中拆出来<a class="headerlink" href="#eval" title="Permanent link">¶</a></h3>
+<p>后训练 eval 往往比预训练 eval 更复杂。它可能包括：</p>
+<ul>
+<li>多轮生成式评估。</li>
+<li>reward model 打分。</li>
+<li>verifier / 单元测试。</li>
+<li>人工偏好抽检。</li>
+<li>安全或格式约束检查。</li>
+</ul>
+<p>如果每隔很少 step 就同步跑完整 eval，训练吞吐会很差。常见做法是：</p>
+<ul>
+<li>小 eval 高频跑，完整 eval 低频跑。</li>
+<li>eval pool 独立调度。</li>
+<li>eval 只消费稳定 checkpoint 或 adapter。</li>
+<li>eval report 绑定 checkpoint version。</li>
+<li>训练主循环只等待关键 gating 指标，不等待所有报告。</li>
+</ul>
+<p>这样能避免后训练平台被 eval 拖成串行流水线。</p>
+<h2 id="_13">常见坑<a class="headerlink" href="#_13" title="Permanent link">¶</a></h2>
+<h3 id="rlhf">把 RLHF 当成普通训练<a class="headerlink" href="#rlhf" title="Permanent link">¶</a></h3>
+<p>普通训练只有 dataset batch。RLHF 有 rollout、reward、reference、value、policy update。只测 backward step time 不能代表端到端效率。</p>
+<h3 id="reference">忘记 reference 版本<a class="headerlink" href="#reference" title="Permanent link">¶</a></h3>
+<p>DPO/RLHF 的 reference model 是训练语义的一部分。更换 reference 或 chat template 后，旧 logprob cache 可能不能用。</p>
+<h3 id="tokenss">只看总 tokens/s<a class="headerlink" href="#tokenss" title="Permanent link">¶</a></h3>
+<p>SFT 要区分 loss tokens。RLHF/GRPO 要区分 rollout tokens 和 update tokens。把所有 token 混成一个吞吐指标，会掩盖瓶颈。</p>
+<h3 id="rollout">让 rollout 样本过期<a class="headerlink" href="#rollout" title="Permanent link">¶</a></h3>
+<p>如果 policy 已经更新很多步，旧 policy 生成的 rollout 可能不再适合继续训练。分离架构必须记录 rollout policy version，并设置过期规则。</p>
+<h3 id="response">忽略 response 长度分布<a class="headerlink" href="#response" title="Permanent link">¶</a></h3>
+<p>后训练 response 长度波动很大。少数超长回答可能拖慢整个 batch，增加 KV Cache 和 activation 压力。</p>
+<h3 id="sampling">没有记录 sampling 配置<a class="headerlink" href="#sampling" title="Permanent link">¶</a></h3>
+<p>temperature、top-p、max tokens、stop words 都会影响 rollout 数据分布。RLHF/GRPO 实验必须记录这些配置。</p>
+<h2 id="_14">学习顺序建议<a class="headerlink" href="#_14" title="Permanent link">¶</a></h2>
+<p>建议按这个顺序学：</p>
+<ol>
+<li>先理解 SFT，因为它最接近普通监督训练。</li>
+<li>再理解 reward model 训练，知道偏好数据如何变成打分模型。</li>
+<li>然后理解 DPO，重点看 chosen/rejected 和 reference logprob。</li>
+<li>再看 RLHF/PPO，重点看 rollout、reward、reference、value 和 policy update 的闭环。</li>
+<li>最后看 GRPO，理解 group responses 如何改变 rollout 数量和 advantage 计算。</li>
+</ol>
+<p>从系统角度记住一句话：</p>
+<blockquote>
+<p>后训练不是一种训练 step，而是一组数据、推理、打分和优化循环；不同方法的瓶颈可能完全不在同一个地方。</p>
+</blockquote>
+<h2 id="_15">参考资料<a class="headerlink" href="#_15" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2203.02155">Training language models to follow instructions with human feedback</a></li>
+<li><a href="https://arxiv.org/abs/1707.06347">Proximal Policy Optimization Algorithms</a></li>
+<li><a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization: Your Language Model is Secretly a Reward Model</a></li>
+<li><a href="https://arxiv.org/abs/2402.03300">DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models</a></li>
+<li><a href="https://huggingface.co/docs/trl/index">Hugging Face TRL documentation</a></li>
+<li><a href="https://huggingface.co/docs/trl/main/en/dpo_trainer">Hugging Face TRL DPO Trainer</a></li>
+<li><a href="https://huggingface.co/docs/trl/main/en/ppo_trainer">Hugging Face TRL PPO Trainer</a></li>
+<li><a href="https://huggingface.co/docs/trl/main/en/grpo_trainer">Hugging Face TRL GRPO Trainer</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

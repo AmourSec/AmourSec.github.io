@@ -10,26 +10,28 @@
 
 
 
-        <link rel="canonical" href="https://amoursec.github.io/">
+        <link rel="canonical" href="https://amoursec.github.io/09-reliability-observability/">
 
 
+        <link rel="prev" href="../08-benchmark-capacity/benchmark-data-governance-run-records/">
 
-        <link rel="next" href="knowledge-map/">
+
+        <link rel="next" href="observability-overview-signals/">
 
 
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
 
 
 
-        <title>首页 - AI Knowledge Graph</title>
+        <title>可靠性、可观测性与故障复盘 - AI Knowledge Graph</title>
 
 
 
-      <link rel="stylesheet" href="assets/stylesheets/main.a40c8224.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.a40c8224.min.css">
 
 
-        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
 
 
 
@@ -48,9 +50,9 @@
 
 
 
-      <link rel="stylesheet" href="assets/stylesheets/extra.css">
+      <link rel="stylesheet" href="../assets/stylesheets/extra.css">
 
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
 
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
 
 
-        <a href="#ai-knowledge-graph" class="md-skip">
+        <a href="#_1" class="md-skip">
           跳转至
         </a>
 
@@ -92,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="页眉">
-    <a href="." title="AI Knowledge Graph" class="md-header__button md-logo" aria-label="AI Knowledge Graph" data-md-component="logo">
+    <a href=".." title="AI Knowledge Graph" class="md-header__button md-logo" aria-label="AI Knowledge Graph" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
 
-              首页
+              可靠性、可观测性与故障复盘
 
           </span>
         </div>
@@ -213,7 +215,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="AI Knowledge Graph" class="md-nav__button md-logo" aria-label="AI Knowledge Graph" data-md-component="logo">
+    <a href=".." title="AI Knowledge Graph" class="md-nav__button md-logo" aria-label="AI Knowledge Graph" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -242,35 +244,8 @@
 
 
 
-
-
-    <li class="md-nav__item md-nav__item--active">
-
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-
-
-
-
-
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-
-
-  <span class="md-ellipsis">
-    首页
-  </span>
-
-
-
-
-    <span class="md-status md-status--reviewed"></span>
-
-
-
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -286,53 +261,6 @@
 
 
       </a>
-
-
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-
-
-
-
-
-
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      目标
-    </span>
-  </a>
-
-</li>
-
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      写作原则
-    </span>
-  </a>
-
-</li>
-
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      推荐阅读路径
-    </span>
-  </a>
-
-</li>
-
-    </ul>
-
-</nav>
-
     </li>
 
 
@@ -344,7 +272,7 @@
 
 
     <li class="md-nav__item">
-      <a href="knowledge-map/" class="md-nav__link">
+      <a href="../knowledge-map/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -408,7 +336,7 @@
 
 
     <li class="md-nav__item">
-      <a href="01-getting-started/" class="md-nav__link">
+      <a href="../01-getting-started/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -480,7 +408,7 @@
 
 
     <li class="md-nav__item">
-      <a href="02-ai-workloads/" class="md-nav__link">
+      <a href="../02-ai-workloads/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -508,7 +436,7 @@
 
 
     <li class="md-nav__item">
-      <a href="02-ai-workloads/ai-fundamentals/" class="md-nav__link">
+      <a href="../02-ai-workloads/ai-fundamentals/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -536,7 +464,7 @@
 
 
     <li class="md-nav__item">
-      <a href="02-ai-workloads/transformer/" class="md-nav__link">
+      <a href="../02-ai-workloads/transformer/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -564,7 +492,7 @@
 
 
     <li class="md-nav__item">
-      <a href="02-ai-workloads/training-primer/" class="md-nav__link">
+      <a href="../02-ai-workloads/training-primer/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -592,7 +520,7 @@
 
 
     <li class="md-nav__item">
-      <a href="02-ai-workloads/inference-primer/" class="md-nav__link">
+      <a href="../02-ai-workloads/inference-primer/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -620,7 +548,7 @@
 
 
     <li class="md-nav__item">
-      <a href="02-ai-workloads/multimodal-primer/" class="md-nav__link">
+      <a href="../02-ai-workloads/multimodal-primer/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -692,7 +620,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/" class="md-nav__link">
+      <a href="../03-inference-systems/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -720,7 +648,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/request-lifecycle/" class="md-nav__link">
+      <a href="../03-inference-systems/request-lifecycle/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -748,7 +676,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/prefill-decode/" class="md-nav__link">
+      <a href="../03-inference-systems/prefill-decode/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -776,7 +704,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/metrics/" class="md-nav__link">
+      <a href="../03-inference-systems/metrics/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -804,7 +732,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/batching/" class="md-nav__link">
+      <a href="../03-inference-systems/batching/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -832,7 +760,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/kv-cache/" class="md-nav__link">
+      <a href="../03-inference-systems/kv-cache/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -860,7 +788,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/paged-attention/" class="md-nav__link">
+      <a href="../03-inference-systems/paged-attention/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -888,7 +816,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/prefix-cache/" class="md-nav__link">
+      <a href="../03-inference-systems/prefix-cache/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -916,7 +844,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/scheduling/" class="md-nav__link">
+      <a href="../03-inference-systems/scheduling/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -944,7 +872,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/quantization/" class="md-nav__link">
+      <a href="../03-inference-systems/quantization/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -972,7 +900,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/speculative-decoding/" class="md-nav__link">
+      <a href="../03-inference-systems/speculative-decoding/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1000,7 +928,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/prefill-decode-disaggregation/" class="md-nav__link">
+      <a href="../03-inference-systems/prefill-decode-disaggregation/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1028,7 +956,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/moe-inference-optimization/" class="md-nav__link">
+      <a href="../03-inference-systems/moe-inference-optimization/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1056,7 +984,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/ep-size-large-small-ep/" class="md-nav__link">
+      <a href="../03-inference-systems/ep-size-large-small-ep/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1084,7 +1012,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/single-node-serving-architecture/" class="md-nav__link">
+      <a href="../03-inference-systems/single-node-serving-architecture/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1112,7 +1040,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/distributed-inference/" class="md-nav__link">
+      <a href="../03-inference-systems/distributed-inference/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1140,7 +1068,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/cache-system/" class="md-nav__link">
+      <a href="../03-inference-systems/cache-system/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1168,7 +1096,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/benchmark-methodology/" class="md-nav__link">
+      <a href="../03-inference-systems/benchmark-methodology/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1196,7 +1124,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/vllm/" class="md-nav__link">
+      <a href="../03-inference-systems/vllm/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1224,7 +1152,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/tensorrt-llm/" class="md-nav__link">
+      <a href="../03-inference-systems/tensorrt-llm/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1252,7 +1180,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/sglang/" class="md-nav__link">
+      <a href="../03-inference-systems/sglang/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1280,7 +1208,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/rag-agent-workloads/" class="md-nav__link">
+      <a href="../03-inference-systems/rag-agent-workloads/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1308,7 +1236,7 @@
 
 
     <li class="md-nav__item">
-      <a href="03-inference-systems/benchmark-profiling/" class="md-nav__link">
+      <a href="../03-inference-systems/benchmark-profiling/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1380,7 +1308,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/" class="md-nav__link">
+      <a href="../04-training-systems/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1408,7 +1336,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/training-lifecycle/" class="md-nav__link">
+      <a href="../04-training-systems/training-lifecycle/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1436,7 +1364,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/data-pipeline/" class="md-nav__link">
+      <a href="../04-training-systems/data-pipeline/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1464,7 +1392,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/training-data-mixing-sampling-effective-tokens/" class="md-nav__link">
+      <a href="../04-training-systems/training-data-mixing-sampling-effective-tokens/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1492,7 +1420,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/batch-gradient-accumulation/" class="md-nav__link">
+      <a href="../04-training-systems/batch-gradient-accumulation/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1520,7 +1448,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/vocab-output-cross-entropy/" class="md-nav__link">
+      <a href="../04-training-systems/vocab-output-cross-entropy/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1548,7 +1476,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/memory-composition-optimization/" class="md-nav__link">
+      <a href="../04-training-systems/memory-composition-optimization/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1576,7 +1504,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/backward-autograd-gradient-lifecycle/" class="md-nav__link">
+      <a href="../04-training-systems/backward-autograd-gradient-lifecycle/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1604,7 +1532,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/distributed-training-runtime/" class="md-nav__link">
+      <a href="../04-training-systems/distributed-training-runtime/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1632,7 +1560,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/collective-communication-primitives/" class="md-nav__link">
+      <a href="../04-training-systems/collective-communication-primitives/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1660,7 +1588,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/data-parallel-gradient-sync/" class="md-nav__link">
+      <a href="../04-training-systems/data-parallel-gradient-sync/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1688,7 +1616,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/zero-fsdp/" class="md-nav__link">
+      <a href="../04-training-systems/zero-fsdp/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1716,7 +1644,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/tensor-parallel/" class="md-nav__link">
+      <a href="../04-training-systems/tensor-parallel/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1744,7 +1672,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/sequence-context-parallel/" class="md-nav__link">
+      <a href="../04-training-systems/sequence-context-parallel/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1772,7 +1700,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/pipeline-parallel/" class="md-nav__link">
+      <a href="../04-training-systems/pipeline-parallel/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1800,7 +1728,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/expert-parallel-moe-training/" class="md-nav__link">
+      <a href="../04-training-systems/expert-parallel-moe-training/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1828,7 +1756,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/hybrid-parallelism-composition/" class="md-nav__link">
+      <a href="../04-training-systems/hybrid-parallelism-composition/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1856,7 +1784,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/activation-checkpointing/" class="md-nav__link">
+      <a href="../04-training-systems/activation-checkpointing/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1884,7 +1812,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/mixed-precision-training/" class="md-nav__link">
+      <a href="../04-training-systems/mixed-precision-training/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1912,7 +1840,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/training-stability-numerical-debugging/" class="md-nav__link">
+      <a href="../04-training-systems/training-stability-numerical-debugging/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1940,7 +1868,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/communication-computation-overlap/" class="md-nav__link">
+      <a href="../04-training-systems/communication-computation-overlap/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1968,7 +1896,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/flux-kernel-fusion/" class="md-nav__link">
+      <a href="../04-training-systems/flux-kernel-fusion/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -1996,7 +1924,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/optimizer-scheduler-cost/" class="md-nav__link">
+      <a href="../04-training-systems/optimizer-scheduler-cost/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2024,7 +1952,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/parameter-efficient-finetuning-lora-qlora/" class="md-nav__link">
+      <a href="../04-training-systems/parameter-efficient-finetuning-lora-qlora/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2052,7 +1980,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/" class="md-nav__link">
+      <a href="../04-training-systems/post-training-workloads-sft-dpo-rlhf-grpo/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2080,7 +2008,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/muon-optimizer/" class="md-nav__link">
+      <a href="../04-training-systems/muon-optimizer/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2108,7 +2036,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/evaluation-validation-checkpoint-selection/" class="md-nav__link">
+      <a href="../04-training-systems/evaluation-validation-checkpoint-selection/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2136,7 +2064,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/training-reproducibility-randomness-run-manifest/" class="md-nav__link">
+      <a href="../04-training-systems/training-reproducibility-randomness-run-manifest/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2164,7 +2092,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/checkpoint-resume-fault-tolerance/" class="md-nav__link">
+      <a href="../04-training-systems/checkpoint-resume-fault-tolerance/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2192,7 +2120,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/training-performance-metrics-scaling/" class="md-nav__link">
+      <a href="../04-training-systems/training-performance-metrics-scaling/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2220,7 +2148,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/training-benchmark-profiling/" class="md-nav__link">
+      <a href="../04-training-systems/training-benchmark-profiling/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2248,7 +2176,7 @@
 
 
     <li class="md-nav__item">
-      <a href="04-training-systems/deepspeed-megatron-fsdp/" class="md-nav__link">
+      <a href="../04-training-systems/deepspeed-megatron-fsdp/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2320,7 +2248,7 @@
 
 
     <li class="md-nav__item">
-      <a href="05-kernels-compilers/" class="md-nav__link">
+      <a href="../05-kernels-compilers/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2348,7 +2276,7 @@
 
 
     <li class="md-nav__item">
-      <a href="05-kernels-compilers/attention-computation-patterns/" class="md-nav__link">
+      <a href="../05-kernels-compilers/attention-computation-patterns/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2376,7 +2304,7 @@
 
 
     <li class="md-nav__item">
-      <a href="05-kernels-compilers/triton/" class="md-nav__link">
+      <a href="../05-kernels-compilers/triton/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2404,7 +2332,7 @@
 
 
     <li class="md-nav__item">
-      <a href="05-kernels-compilers/torchinductor/" class="md-nav__link">
+      <a href="../05-kernels-compilers/torchinductor/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2476,7 +2404,7 @@
 
 
     <li class="md-nav__item">
-      <a href="06-accelerators-architecture/" class="md-nav__link">
+      <a href="../06-accelerators-architecture/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2504,7 +2432,7 @@
 
 
     <li class="md-nav__item">
-      <a href="06-accelerators-architecture/performance-model-roofline/" class="md-nav__link">
+      <a href="../06-accelerators-architecture/performance-model-roofline/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2532,7 +2460,7 @@
 
 
     <li class="md-nav__item">
-      <a href="06-accelerators-architecture/compute-units-simt-tensorcore/" class="md-nav__link">
+      <a href="../06-accelerators-architecture/compute-units-simt-tensorcore/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2560,7 +2488,7 @@
 
 
     <li class="md-nav__item">
-      <a href="06-accelerators-architecture/memory-hierarchy-data-reuse/" class="md-nav__link">
+      <a href="../06-accelerators-architecture/memory-hierarchy-data-reuse/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2588,7 +2516,7 @@
 
 
     <li class="md-nav__item">
-      <a href="06-accelerators-architecture/precision-formats-low-bit-compute/" class="md-nav__link">
+      <a href="../06-accelerators-architecture/precision-formats-low-bit-compute/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2616,7 +2544,7 @@
 
 
     <li class="md-nav__item">
-      <a href="06-accelerators-architecture/interconnect-communication-architecture/" class="md-nav__link">
+      <a href="../06-accelerators-architecture/interconnect-communication-architecture/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2644,7 +2572,7 @@
 
 
     <li class="md-nav__item">
-      <a href="06-accelerators-architecture/power-thermal-reliability/" class="md-nav__link">
+      <a href="../06-accelerators-architecture/power-thermal-reliability/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2672,7 +2600,7 @@
 
 
     <li class="md-nav__item">
-      <a href="06-accelerators-architecture/accelerator-architecture-tradeoffs/" class="md-nav__link">
+      <a href="../06-accelerators-architecture/accelerator-architecture-tradeoffs/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2700,7 +2628,7 @@
 
 
     <li class="md-nav__item">
-      <a href="06-accelerators-architecture/workload-mapping-compiler-runtime-interface/" class="md-nav__link">
+      <a href="../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2772,7 +2700,7 @@
 
 
     <li class="md-nav__item">
-      <a href="07-cluster-infra/" class="md-nav__link">
+      <a href="../07-cluster-infra/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2800,7 +2728,7 @@
 
 
     <li class="md-nav__item">
-      <a href="07-cluster-infra/ai-cluster-architecture-overview/" class="md-nav__link">
+      <a href="../07-cluster-infra/ai-cluster-architecture-overview/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2828,7 +2756,7 @@
 
 
     <li class="md-nav__item">
-      <a href="07-cluster-infra/scheduling-queues-resource-management/" class="md-nav__link">
+      <a href="../07-cluster-infra/scheduling-queues-resource-management/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2856,7 +2784,7 @@
 
 
     <li class="md-nav__item">
-      <a href="07-cluster-infra/gpu-topology-numa-mig-mps-isolation/" class="md-nav__link">
+      <a href="../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2884,7 +2812,7 @@
 
 
     <li class="md-nav__item">
-      <a href="07-cluster-infra/rdma-network-nccl-topology-congestion/" class="md-nav__link">
+      <a href="../07-cluster-infra/rdma-network-nccl-topology-congestion/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2912,7 +2840,7 @@
 
 
     <li class="md-nav__item">
-      <a href="07-cluster-infra/storage-data-cache-checkpoint/" class="md-nav__link">
+      <a href="../07-cluster-infra/storage-data-cache-checkpoint/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2940,7 +2868,7 @@
 
 
     <li class="md-nav__item">
-      <a href="07-cluster-infra/environment-reproducibility-containers/" class="md-nav__link">
+      <a href="../07-cluster-infra/environment-reproducibility-containers/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2968,7 +2896,7 @@
 
 
     <li class="md-nav__item">
-      <a href="07-cluster-infra/mixed-workload-multitenancy-isolation/" class="md-nav__link">
+      <a href="../07-cluster-infra/mixed-workload-multitenancy-isolation/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -2996,7 +2924,7 @@
 
 
     <li class="md-nav__item">
-      <a href="07-cluster-infra/resource-utilization-fragmentation-capacity/" class="md-nav__link">
+      <a href="../07-cluster-infra/resource-utilization-fragmentation-capacity/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3024,7 +2952,7 @@
 
 
     <li class="md-nav__item">
-      <a href="07-cluster-infra/node-lifecycle-health-maintenance/" class="md-nav__link">
+      <a href="../07-cluster-infra/node-lifecycle-health-maintenance/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3096,7 +3024,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3124,7 +3052,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/performance-analysis-benchmark-methodology/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/performance-analysis-benchmark-methodology/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3152,7 +3080,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/inference-capacity-modeling/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/inference-capacity-modeling/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3180,7 +3108,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/training-capacity-scaling-efficiency/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/training-capacity-scaling-efficiency/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3208,7 +3136,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3236,7 +3164,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/roofline-analysis-compute-bandwidth/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/roofline-analysis-compute-bandwidth/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3264,7 +3192,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/queueing-model-tail-latency/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/queueing-model-tail-latency/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3292,7 +3220,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/energy-power-thermal-benchmark/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/energy-power-thermal-benchmark/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3320,7 +3248,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/benchmark-workload-design-trace-replay/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/benchmark-workload-design-trace-replay/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3348,7 +3276,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/ab-testing-ablation-regression-detection/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/ab-testing-ablation-regression-detection/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3376,7 +3304,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/cost-model-unit-economics/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/cost-model-unit-economics/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3404,7 +3332,7 @@
 
 
     <li class="md-nav__item">
-      <a href="08-benchmark-capacity/benchmark-data-governance-run-records/" class="md-nav__link">
+      <a href="../08-benchmark-capacity/benchmark-data-governance-run-records/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3442,13 +3370,13 @@
 
 
 
-    <li class="md-nav__item md-nav__item--nested">
+
+
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
 
 
 
-
-
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_11" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" checked>
 
 
           <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
@@ -3462,7 +3390,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
 
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_11">
             <span class="md-nav__icon md-icon"></span>
             可靠性、可观测性与故障复盘
@@ -3475,8 +3403,35 @@
 
 
 
-    <li class="md-nav__item">
-      <a href="09-reliability-observability/" class="md-nav__link">
+
+
+    <li class="md-nav__item md-nav__item--active">
+
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+
+
+
+
+
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+
+
+  <span class="md-ellipsis">
+    概览
+  </span>
+
+
+
+
+    <span class="md-status md-status--draft"></span>
+
+
+
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+
+      <a href="./" class="md-nav__link md-nav__link--active">
 
 
   <span class="md-ellipsis">
@@ -3492,6 +3447,53 @@
 
 
       </a>
+
+
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      建议主题
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      关键问题
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      专题入口
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+
     </li>
 
 
@@ -3504,7 +3506,7 @@
 
 
     <li class="md-nav__item">
-      <a href="09-reliability-observability/observability-overview-signals/" class="md-nav__link">
+      <a href="observability-overview-signals/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3532,7 +3534,7 @@
 
 
     <li class="md-nav__item">
-      <a href="09-reliability-observability/slo-sli-error-budget-alerting/" class="md-nav__link">
+      <a href="slo-sli-error-budget-alerting/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3560,7 +3562,7 @@
 
 
     <li class="md-nav__item">
-      <a href="09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/" class="md-nav__link">
+      <a href="ai-failure-modes-gpu-nccl-network-storage/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3588,7 +3590,7 @@
 
 
     <li class="md-nav__item">
-      <a href="09-reliability-observability/incident-response-runbook-postmortem/" class="md-nav__link">
+      <a href="incident-response-runbook-postmortem/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3660,7 +3662,7 @@
 
 
     <li class="md-nav__item">
-      <a href="10-papers-cases/" class="md-nav__link">
+      <a href="../10-papers-cases/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3688,7 +3690,7 @@
 
 
     <li class="md-nav__item">
-      <a href="10-papers-cases/ai-system-architecture/" class="md-nav__link">
+      <a href="../10-papers-cases/ai-system-architecture/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3716,7 +3718,7 @@
 
 
     <li class="md-nav__item">
-      <a href="10-papers-cases/adr/" class="md-nav__link">
+      <a href="../10-papers-cases/adr/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3744,7 +3746,7 @@
 
 
     <li class="md-nav__item">
-      <a href="10-papers-cases/failure-cases/" class="md-nav__link">
+      <a href="../10-papers-cases/failure-cases/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3816,7 +3818,7 @@
 
 
     <li class="md-nav__item">
-      <a href="11-knowledge-index/" class="md-nav__link">
+      <a href="../11-knowledge-index/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3888,7 +3890,7 @@
 
 
     <li class="md-nav__item">
-      <a href="99-templates/knowledge-note/" class="md-nav__link">
+      <a href="../99-templates/knowledge-note/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3916,7 +3918,7 @@
 
 
     <li class="md-nav__item">
-      <a href="99-templates/adr/" class="md-nav__link">
+      <a href="../99-templates/adr/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3944,7 +3946,7 @@
 
 
     <li class="md-nav__item">
-      <a href="99-templates/benchmark-report/" class="md-nav__link">
+      <a href="../99-templates/benchmark-report/" class="md-nav__link">
 
 
   <span class="md-ellipsis">
@@ -3999,18 +4001,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
 
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      目标
-    </span>
-  </a>
-
-</li>
-
-        <li class="md-nav__item">
   <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
-      写作原则
+      建议主题
     </span>
   </a>
 
@@ -4019,7 +4012,16 @@
         <li class="md-nav__item">
   <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
-      推荐阅读路径
+      关键问题
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      专题入口
     </span>
   </a>
 
@@ -4043,32 +4045,34 @@
 
 
 
-<h1 id="ai-knowledge-graph">AI Knowledge Graph<a class="headerlink" href="#ai-knowledge-graph" title="Permanent link">&para;</a></h1>
-<p>这是一个面向 AI Systems、AI Infrastructure 和高效 AI 计算方向的开放知识库。它不以提升模型任务指标为主线，而以“让 AI 负载跑得更快、更省、更稳、更可复现”为主线，沉淀推理系统、分布式训练、Kernel 与编译、加速器架构、集群基础设施、性能分析和系统论文复现。</p>
-<h2 id="_1">目标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h1 id="_1">可靠性、可观测性与故障复盘<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p>本目录关注 AI 系统如何长期稳定运行。性能优化如果不能被观测、不能恢复、不能复盘，就无法沉淀成可靠的基础设施能力。</p>
+<h2 id="_2">建议主题<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
-<li>为系统方向新生提供一条从 AI 计算负载到推理、训练、Kernel、硬件、集群和 Benchmark 的学习路径。</li>
-<li>为研究者整理系统方法、性能方法、实验方法、容量模型和故障复盘。</li>
-<li>为 AI 检索、问答、知识图谱和 skills 提供可引用、可追溯的结构化知识源。</li>
+<li>metrics、logs、traces、profiles、events</li>
+<li>GPU health、ECC、Xid、temperature、power、clock、memory error</li>
+<li>OOM、NCCL timeout、hang、kernel failure、driver reset</li>
+<li>queue backlog、tail latency、straggler、checkpoint failure</li>
+<li>alerting、SLO、error budget、runbook</li>
+<li>fault injection、chaos test、rollback、fallback、graceful degradation</li>
+<li>incident review、root cause analysis、corrective action</li>
+<li>性能回归、容量耗尽、版本升级风险</li>
 </ul>
-<h2 id="_2">写作原则<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="_3">关键问题<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ul>
-<li>每篇文档必须包含 front matter 元数据。</li>
-<li>重要结论需要标明论文、代码仓库、硬件规格、Benchmark 或实验记录来源。</li>
-<li>性能结论必须保留 workload、batch shape、sequence length、precision、硬件环境、软件版本、并发模型和复现状态。</li>
-<li>技术比较需要说明前提假设、瓶颈类型、适用范围和反例。</li>
-<li>临时讨论不要直接进入知识库，先沉淀成可复用的知识点、系统论文笔记、实验记录或技术决策。</li>
+<li>失败是否能被快速发现、定位、隔离和恢复。</li>
+<li>监控指标是否覆盖 workload、runtime、kernel、hardware 和 cluster。</li>
+<li>故障复盘是否给出可验证的改进项。</li>
+<li>可靠性改动是否影响延迟、吞吐或资源利用率。</li>
+<li>线上故障经验是否能转化为 Benchmark、测试用例和知识库条目。</li>
 </ul>
-<h2 id="_3">推荐阅读路径<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<ol>
-<li>从 <code>知识地图</code> 理解整体结构。</li>
-<li>新生先阅读 <code>入门导读</code>、<code>AI 基础概念</code>、<code>Transformer 流程与原理</code>、<code>训练过程与原理</code>、<code>推理过程与原理</code>、<code>多模态原理</code>。</li>
-<li>然后阅读 <code>AI 计算工作负载基础</code>，先用浅显方式理解模型、Transformer、训练、推理和多模态为什么成立。</li>
-<li>做推理方向重点阅读 <code>推理系统与优化</code>、<code>Kernel、算子与编译优化</code>、<code>性能分析、Benchmark 与容量建模</code>。</li>
-<li>做训练和集群方向重点阅读 <code>训练系统与优化</code>、<code>集群、网络、存储与调度</code>、<code>可靠性、可观测性与故障复盘</code>。</li>
-<li>做硬件或算子方向重点阅读 <code>AI 加速器与计算架构</code>、<code>Kernel、算子与编译优化</code>、<code>性能分析、Benchmark 与容量建模</code>。</li>
-<li>做论文复现和长期沉淀时，优先使用 <code>论文复现与系统案例</code>、<code>知识组织、模板与 AI 可读索引</code> 和模板。</li>
-</ol>
+<h2 id="_4">专题入口<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="observability-overview-signals/">AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events</a>：解释 AI 推理、训练和集群系统如何使用 metrics、logs、traces、profiles、events 五类观测信号，建立 latency/traffic/errors/saturation 黄金信号、分层观测、black-box/white-box、关联字段、cardinality 治理、告警、dashboard、sampling、retention、benchmark 联动和最小可观测性闭环。</li>
+<li><a href="slo-sli-error-budget-alerting/">SLO、SLI、错误预算与告警策略：从用户体验到行动门槛</a>：解释如何为 AI 推理、训练和集群平台定义 SLI、SLO、SLA、error budget、burn rate 与 alert policy，覆盖 SLO contract、用户旅程、推理 TTFT/TPOT/goodput、训练 job progress/checkpoint/recovery、集群 GPU readiness/scheduling/storage、事件口径、time slice、multi-window burn-rate alerting、发布治理、容量规划和 benchmark 联动。</li>
+<li><a href="ai-failure-modes-gpu-nccl-network-storage/">AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime</a>：解释如何从症状、影响范围、时间线、分层信号和 evidence pack 定位 AI 系统故障，覆盖 GPU Xid/ECC/OOM/降频、DCGM 健康门禁、NCCL timeout/hang、RDMA/RoCE 网络、checkpoint 与数据存储、Runtime 状态机、调度 placement、环境漂移、runbook、自动隔离、SLO 关联和 benchmark 沉淀。</li>
+<li><a href="incident-response-runbook-postmortem/">Incident Response、Runbook 与故障复盘：从止血到可复现改进</a>：解释 AI 系统事故发生时如何宣告 incident、设置 severity、分配 commander/ops/comms/scribe 角色、维护 live state document、执行 stop-the-bleeding mitigation、设计 runbook、交接 handoff、编写 blameless postmortem，并把事故沉淀为 alert、benchmark、health check、架构改进和 AI-readable incident knowledge card。</li>
+</ul>
 
 
 
@@ -4124,10 +4128,10 @@
     </div>
 
 
-    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
 
 
-      <script src="assets/javascripts/bundle.60a45f97.min.js"></script>
+      <script src="../assets/javascripts/bundle.60a45f97.min.js"></script>
 
 
   </body>

@@ -1,0 +1,2689 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/04-training-systems/training-stability-numerical-debugging/" rel="canonical"/>
+<link href="../mixed-precision-training/" rel="prev"/>
+<link href="../communication-computation-overlap/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康 - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#naninfloss-spike">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      什么算训练不稳定
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      为什么这是系统问题
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      常见根因总览
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      需要持续观测的信号
+    </span>
+</a>
+<nav aria-label="需要持续观测的信号" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss">
+<span class="md-ellipsis">
+      Loss
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gradient">
+<span class="md-ellipsis">
+      Gradient
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameter">
+<span class="md-ellipsis">
+      Parameter
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#activation">
+<span class="md-ellipsis">
+      Activation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#precision-state">
+<span class="md-ellipsis">
+      Precision State
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nan-inf">
+<span class="md-ellipsis">
+      NaN / Inf 的传播路径
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss-spike">
+<span class="md-ellipsis">
+      Loss Spike 不一定都是坏事
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gradient-norm">
+<span class="md-ellipsis">
+      Gradient Norm 是早期预警
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gradient-clipping">
+<span class="md-ellipsis">
+      Gradient Clipping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#amploss-scaling-skipped-step">
+<span class="md-ellipsis">
+      AMP、Loss Scaling 和 Skipped Step
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      低精度敏感区域
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#optimizer-state">
+<span class="md-ellipsis">
+      Optimizer State 被污染
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint">
+<span class="md-ellipsis">
+      Checkpoint 回滚策略
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bad-batch">
+<span class="md-ellipsis">
+      Bad Batch 和数据隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      分布式训练中的特殊问题
+    </span>
+</a>
+<nav aria-label="分布式训练中的特殊问题" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank">
+<span class="md-ellipsis">
+      一个 rank 出错，全局都受影响
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank-skipped-step">
+<span class="md-ellipsis">
+      所有 rank 必须一致处理 skipped step
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank_1">
+<span class="md-ellipsis">
+      Rank 间数据不同导致排查困难
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe">
+<span class="md-ellipsis">
+      MoE 稳定性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      长上下文稳定性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kernel-fusion-compiler">
+<span class="md-ellipsis">
+      Kernel Fusion 和 Compiler 风险
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runbook">
+<span class="md-ellipsis">
+      稳定性 Runbook
+    </span>
+</a>
+<nav aria-label="稳定性 Runbook" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      第一步：保护现场
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      第二步：确认异常范围
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      第三步：回到最小复现
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      第四步：做二分
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      第五步：决定恢复动作
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#guardrail">
+<span class="md-ellipsis">
+      自动化 Guardrail
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      监控和开销取舍
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 时怎么比较稳定性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nan">
+<span class="md-ellipsis">
+      误区一：NaN 后自动重启就行
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss-spike_1">
+<span class="md-ellipsis">
+      误区二：loss spike 一定是数据问题
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bf16">
+<span class="md-ellipsis">
+      误区三：BF16 就不会有数值问题
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gradient-clipping_1">
+<span class="md-ellipsis">
+      误区四：gradient clipping 能解决梯度爆炸
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank-0">
+<span class="md-ellipsis">
+      误区五：只看 rank 0 日志
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      误区六：性能优化不影响数值
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      误区七：能跑完就代表稳定
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../flux-kernel-fusion/">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      一张总图
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      什么算训练不稳定
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      为什么这是系统问题
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      常见根因总览
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      需要持续观测的信号
+    </span>
+</a>
+<nav aria-label="需要持续观测的信号" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss">
+<span class="md-ellipsis">
+      Loss
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gradient">
+<span class="md-ellipsis">
+      Gradient
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameter">
+<span class="md-ellipsis">
+      Parameter
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#activation">
+<span class="md-ellipsis">
+      Activation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#precision-state">
+<span class="md-ellipsis">
+      Precision State
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nan-inf">
+<span class="md-ellipsis">
+      NaN / Inf 的传播路径
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss-spike">
+<span class="md-ellipsis">
+      Loss Spike 不一定都是坏事
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gradient-norm">
+<span class="md-ellipsis">
+      Gradient Norm 是早期预警
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gradient-clipping">
+<span class="md-ellipsis">
+      Gradient Clipping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#amploss-scaling-skipped-step">
+<span class="md-ellipsis">
+      AMP、Loss Scaling 和 Skipped Step
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      低精度敏感区域
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#optimizer-state">
+<span class="md-ellipsis">
+      Optimizer State 被污染
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checkpoint">
+<span class="md-ellipsis">
+      Checkpoint 回滚策略
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bad-batch">
+<span class="md-ellipsis">
+      Bad Batch 和数据隔离
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      分布式训练中的特殊问题
+    </span>
+</a>
+<nav aria-label="分布式训练中的特殊问题" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank">
+<span class="md-ellipsis">
+      一个 rank 出错，全局都受影响
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank-skipped-step">
+<span class="md-ellipsis">
+      所有 rank 必须一致处理 skipped step
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank_1">
+<span class="md-ellipsis">
+      Rank 间数据不同导致排查困难
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe">
+<span class="md-ellipsis">
+      MoE 稳定性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      长上下文稳定性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kernel-fusion-compiler">
+<span class="md-ellipsis">
+      Kernel Fusion 和 Compiler 风险
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#runbook">
+<span class="md-ellipsis">
+      稳定性 Runbook
+    </span>
+</a>
+<nav aria-label="稳定性 Runbook" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      第一步：保护现场
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      第二步：确认异常范围
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      第三步：回到最小复现
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      第四步：做二分
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      第五步：决定恢复动作
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#guardrail">
+<span class="md-ellipsis">
+      自动化 Guardrail
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_14">
+<span class="md-ellipsis">
+      监控和开销取舍
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 时怎么比较稳定性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_15">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nan">
+<span class="md-ellipsis">
+      误区一：NaN 后自动重启就行
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#loss-spike_1">
+<span class="md-ellipsis">
+      误区二：loss spike 一定是数据问题
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bf16">
+<span class="md-ellipsis">
+      误区三：BF16 就不会有数值问题
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gradient-clipping_1">
+<span class="md-ellipsis">
+      误区四：gradient clipping 能解决梯度爆炸
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rank-0">
+<span class="md-ellipsis">
+      误区五：只看 rank 0 日志
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_16">
+<span class="md-ellipsis">
+      误区六：性能优化不影响数值
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_17">
+<span class="md-ellipsis">
+      误区七：能跑完就代表稳定
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_18">
+<span class="md-ellipsis">
+      设计检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_19">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_20">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="naninfloss-spike">训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康<a class="headerlink" href="#naninfloss-spike" title="Permanent link">¶</a></h1>
+<p>训练系统优化不能只看速度。</p>
+<p>如果一个配置让 step time 降低 10%，但每隔几千 step 就出现 NaN、loss spike、梯度爆炸或需要回滚，那么它可能并没有降低真实成本。</p>
+<p>长期训练中，数值异常会带来非常实际的系统损失：</p>
+<ul>
+<li>浪费 GPU 时间。</li>
+<li>需要回滚 checkpoint。</li>
+<li>破坏 optimizer state。</li>
+<li>让 benchmark 结果不可比。</li>
+<li>让自动调参和性能优化误判。</li>
+<li>让分布式训练卡在 collective 或 timeout。</li>
+</ul>
+<p>本篇重点不是讨论“怎么把模型训练得更聪明”，而是讨论：</p>
+<div class="highlight"><pre><span></span><code>训练系统如何发现、定位、隔离和恢复数值异常，
+让长时间训练高效、稳定、可复现地运行。
+</code></pre></div>
+<h2 id="_1">一张总图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<div class="mermaid">flowchart TB
+    Train["Training Step<br/>data / forward / loss / backward / optimizer"]
+    Signals["Signals<br/>loss / grad norm / param norm / loss scale / amax"]
+    Detect["Detection<br/>NaN / Inf / spike / drift / overflow"]
+    Scope["Scope<br/>data / dtype / model / optimizer / distributed"]
+    Action["Action<br/>skip / clip / lower lr / rollback / quarantine"]
+    Record["Record<br/>step / rank / batch / config / trace"]
+    Resume["Resume<br/>safe checkpoint / stable config"]
+
+    Train --&gt; Signals
+    Signals --&gt; Detect
+    Detect --&gt; Scope
+    Scope --&gt; Action
+    Action --&gt; Record
+    Record --&gt; Resume
+    Resume --&gt; Train
+</div>
+<p>这张图强调：</p>
+<div class="highlight"><pre><span></span><code>稳定性不是出错后重启一下，
+而是一套从观测、定位、处理到恢复的闭环。
+</code></pre></div>
+<h2 id="_2">什么算训练不稳定<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>训练不稳定不只有 loss 变成 NaN。</p>
+<p>常见现象包括：</p>
+<ul>
+<li>loss 直接变成 NaN。</li>
+<li>loss 变成 Inf。</li>
+<li>loss 突然 spike，然后恢复或继续发散。</li>
+<li>gradient norm 突然暴涨。</li>
+<li>parameter norm 或 activation norm 异常增长。</li>
+<li>AMP loss scale 频繁下降。</li>
+<li>FP8 amax / scale 异常。</li>
+<li>某一层输出出现 NaN/Inf。</li>
+<li>某个 rank 先异常，其他 rank 在 collective 里 timeout。</li>
+<li>eval 指标突然掉很多，但训练 loss 看起来正常。</li>
+<li>训练可以跑完，但最终质量明显差于 baseline。</li>
+</ul>
+<p>工程上要把这些现象分成两类：</p>
+<div class="highlight"><pre><span></span><code>hard failure：NaN / Inf / OOM / crash
+soft failure：loss spike / quality regression / unstable scale / abnormal norm
+</code></pre></div>
+<p>hard failure 会直接停训练。</p>
+<p>soft failure 更危险，因为它可能继续消耗算力，直到很晚才暴露。</p>
+<h2 id="_3">为什么这是系统问题<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>数值稳定性看起来像算法问题，但在 AI Infra 里它也是系统问题。</p>
+<p>原因是：</p>
+<ul>
+<li>dtype 由 runtime 和 kernel 决定。</li>
+<li>gradient sync 会传播 NaN。</li>
+<li>optimizer state 可能被污染。</li>
+<li>checkpoint 决定能否回滚。</li>
+<li>data pipeline 决定坏样本是否可追溯。</li>
+<li>distributed sampler 决定异常是否只出现在某个 rank。</li>
+<li>kernel fusion 可能改变计算顺序。</li>
+<li>communication dtype 可能影响误差。</li>
+<li>自动重启策略可能掩盖根因。</li>
+</ul>
+<p>例如某个 rank 的一个 batch 产生 NaN，随后梯度 AllReduce 把 NaN 扩散到所有 rank。</p>
+<p>最后看到的是：</p>
+<div class="highlight"><pre><span></span><code>所有 GPU 的梯度都是 NaN。
+</code></pre></div>
+<p>但根因可能只是：</p>
+<div class="highlight"><pre><span></span><code>rank 17 的某条样本触发了异常 loss。
+</code></pre></div>
+<p>这就是为什么稳定性要和日志、rank、batch、checkpoint、data lineage 一起设计。</p>
+<h2 id="_4">常见根因总览<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>典型根因</th>
+<th>常见表现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据</td>
+<td>坏样本、异常 label、空文本、超长样本、mask 错</td>
+<td>单个 step spike、特定 rank 异常</td>
+</tr>
+<tr>
+<td>Batch/LR</td>
+<td>global batch 变化、学习率过高、warmup 太短</td>
+<td>loss spike、grad norm 暴涨</td>
+</tr>
+<tr>
+<td>精度</td>
+<td>FP16 overflow、loss scale 不合适、敏感算子低精度</td>
+<td>NaN/Inf、loss scale 下降</td>
+</tr>
+<tr>
+<td>Optimizer</td>
+<td>beta、eps、weight decay、clip 配置不当</td>
+<td>更新过大、norm 漂移</td>
+</tr>
+<tr>
+<td>分布式</td>
+<td>某 rank 数据不同、skip step 不一致、all-reduce 扩散 NaN</td>
+<td>timeout、rank 间状态不一致</td>
+</tr>
+<tr>
+<td>Kernel/Compiler</td>
+<td>fusion 改变顺序、低精度 accumulation、bug</td>
+<td>只在特定 shape 或配置出现</td>
+</tr>
+<tr>
+<td>MoE</td>
+<td>router collapse、token dropping、expert imbalance</td>
+<td>router loss spike、expert 负载异常</td>
+</tr>
+<tr>
+<td>长上下文</td>
+<td>mask/position 错、attention 数值范围变大</td>
+<td>长序列下才出现不稳定</td>
+</tr>
+</tbody>
+</table>
+<p>排查时不要一开始就假设是模型本身。</p>
+<p>系统配置、数据路径和并行方式同样可能是根因。</p>
+<h2 id="_5">需要持续观测的信号<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<p>至少记录：</p>
+<h3 id="loss">Loss<a class="headerlink" href="#loss" title="Permanent link">¶</a></h3>
+<ul>
+<li>train loss。</li>
+<li>smoothed loss。</li>
+<li>per-loss-component。</li>
+<li>loss before reduction。</li>
+<li>loss after reduction。</li>
+</ul>
+<p>如果有多项 loss，不要只记录总和。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>total_loss = lm_loss + aux_loss + router_loss + regularization
+</code></pre></div>
+<p>总 loss spike 时，要知道是哪一项变了。</p>
+<h3 id="gradient">Gradient<a class="headerlink" href="#gradient" title="Permanent link">¶</a></h3>
+<ul>
+<li>global grad norm。</li>
+<li>per-layer grad norm。</li>
+<li>grad max / min。</li>
+<li>grad NaN/Inf count。</li>
+<li>clipped ratio。</li>
+<li>zero grad ratio。</li>
+</ul>
+<p>只记录一个 global grad norm 有时不够，因为某一层可能先异常。</p>
+<h3 id="parameter">Parameter<a class="headerlink" href="#parameter" title="Permanent link">¶</a></h3>
+<ul>
+<li>parameter norm。</li>
+<li>update norm。</li>
+<li>update-to-weight ratio。</li>
+<li>per-layer weight RMS。</li>
+<li>embedding / output head norm。</li>
+</ul>
+<p>更新幅度比权重本身还大时，要警惕。</p>
+<h3 id="activation">Activation<a class="headerlink" href="#activation" title="Permanent link">¶</a></h3>
+<ul>
+<li>activation max / min。</li>
+<li>activation RMS。</li>
+<li>NaN/Inf count。</li>
+<li>selected layer output statistics。</li>
+</ul>
+<p>全量记录 activation 代价很高，可以只采样关键层或异常窗口。</p>
+<h3 id="precision-state">Precision State<a class="headerlink" href="#precision-state" title="Permanent link">¶</a></h3>
+<p>混合精度下还要记录：</p>
+<ul>
+<li>loss scale。</li>
+<li>overflow count。</li>
+<li>skipped optimizer steps。</li>
+<li>FP8 amax。</li>
+<li>FP8 scale / scale inverse。</li>
+<li>communication dtype。</li>
+</ul>
+<p>这些信号能说明低精度是否稳定。</p>
+<h2 id="nan-inf">NaN / Inf 的传播路径<a class="headerlink" href="#nan-inf" title="Permanent link">¶</a></h2>
+<p>NaN 一旦出现，传播速度很快。</p>
+<p>典型路径：</p>
+<div class="highlight"><pre><span></span><code>bad input / unstable op
+  -&gt; activation NaN
+  -&gt; loss NaN
+  -&gt; gradient NaN
+  -&gt; all-reduce spreads NaN
+  -&gt; optimizer state NaN
+  -&gt; parameter NaN
+  -&gt; checkpoint polluted
+</code></pre></div>
+<p>最重要的是在污染 optimizer state 和 checkpoint 之前发现。</p>
+<p>如果 optimizer state 已经 NaN，单纯跳过一个 batch 往往不够。</p>
+<p>需要回滚到干净 checkpoint。</p>
+<h2 id="loss-spike">Loss Spike 不一定都是坏事<a class="headerlink" href="#loss-spike" title="Permanent link">¶</a></h2>
+<p>loss spike 要分情况。</p>
+<p>可能是正常现象：</p>
+<ul>
+<li>数据 batch 难度较高。</li>
+<li>curriculum 或数据分布切换。</li>
+<li>学习率 schedule 切换。</li>
+<li>MoE routing 早期波动。</li>
+<li>eval batch 和 train batch 分布不同。</li>
+</ul>
+<p>也可能是风险信号：</p>
+<ul>
+<li>学习率过高。</li>
+<li>gradient accumulation 缩放错。</li>
+<li>bad sample。</li>
+<li>loss mask 错。</li>
+<li>FP16 overflow。</li>
+<li>router collapse。</li>
+<li>position id 错。</li>
+<li>checkpoint resume 后 optimizer state 错。</li>
+</ul>
+<p>判断 loss spike 是否危险，要看：</p>
+<ul>
+<li>spike 是否可复现。</li>
+<li>spike 是否和特定数据相关。</li>
+<li>spike 后 grad norm 是否暴涨。</li>
+<li>spike 后参数/update norm 是否异常。</li>
+<li>eval 指标是否受影响。</li>
+<li>是否同时出现 overflow 或 loss scale 下降。</li>
+</ul>
+<h2 id="gradient-norm">Gradient Norm 是早期预警<a class="headerlink" href="#gradient-norm" title="Permanent link">¶</a></h2>
+<p>很多不稳定会先体现在 gradient norm。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>loss 还没 NaN，
+但 grad norm 已经突然从 2.3 变成 5000。
+</code></pre></div>
+<p>这时如果继续 optimizer step，参数可能被一次大更新破坏。</p>
+<p>建议记录：</p>
+<ul>
+<li>global grad norm。</li>
+<li>grad norm moving average。</li>
+<li>grad norm percentile。</li>
+<li>clipped grad norm。</li>
+<li>unclipped grad norm。</li>
+</ul>
+<p>如果用了 gradient clipping，要同时记录 clipping 发生频率。</p>
+<p>高频 clipping 说明配置可能有问题，而不是“clipping 成功解决一切”。</p>
+<h2 id="gradient-clipping">Gradient Clipping<a class="headerlink" href="#gradient-clipping" title="Permanent link">¶</a></h2>
+<p>Gradient clipping 常用于防止梯度爆炸。</p>
+<p>常见形式：</p>
+<div class="highlight"><pre><span></span><code>clip global norm to threshold
+</code></pre></div>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm_</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">max_norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</code></pre></div>
+<p>它的直觉是：</p>
+<div class="highlight"><pre><span></span><code>如果梯度整体太大，就按比例缩小，限制一次 optimizer step 的更新幅度。
+</code></pre></div>
+<p>注意点：</p>
+<ul>
+<li>clipping 要在 optimizer step 前。</li>
+<li>AMP 下通常要先 unscale gradients，再 clip。</li>
+<li>分布式训练中要确认 clip 的是全局梯度语义。</li>
+<li>记录 clipping ratio，否则不知道是否频繁触发。</li>
+<li>clipping 不能修复数据或 loss mask 错误。</li>
+</ul>
+<p>如果每一步都在 clipping，通常说明学习率、batch、loss scale 或模型配置需要重新检查。</p>
+<h2 id="amploss-scaling-skipped-step">AMP、Loss Scaling 和 Skipped Step<a class="headerlink" href="#amploss-scaling-skipped-step" title="Permanent link">¶</a></h2>
+<p>FP16 训练中，梯度可能太小而 underflow，也可能太大而 overflow。</p>
+<p>Loss scaling 的作用是：</p>
+<div class="highlight"><pre><span></span><code>先把 loss 放大，让梯度落到 FP16 可表示范围；
+optimizer step 前再把梯度缩回来。
+</code></pre></div>
+<p>如果检测到 overflow，AMP 通常会跳过这次 optimizer step，并降低 loss scale。</p>
+<p>这是一种保护机制。</p>
+<p>但如果频繁发生：</p>
+<ul>
+<li>训练有效 step 变少。</li>
+<li>wall-clock to target 变差。</li>
+<li>optimizer state 更新节奏不稳定。</li>
+<li>loss 曲线可能出现异常。</li>
+</ul>
+<p>所以要记录：</p>
+<ul>
+<li>current loss scale。</li>
+<li>overflow step。</li>
+<li>skipped step count。</li>
+<li>overflow rank。</li>
+<li>overflow layer 或 op，如果能定位。</li>
+</ul>
+<p>BF16 动态范围更大，通常比 FP16 少依赖 loss scaling，但不代表绝对稳定。</p>
+<p>FP8 更依赖 scale/amax 统计和框架实现，必须记录 FP8 metadata。</p>
+<h2 id="_6">低精度敏感区域<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>一些操作更容易需要高精度或特殊处理：</p>
+<ul>
+<li>loss 计算。</li>
+<li>softmax。</li>
+<li>layer norm / RMSNorm。</li>
+<li>reduction。</li>
+<li>small variance statistics。</li>
+<li>logits。</li>
+<li>router。</li>
+<li>gradient norm。</li>
+<li>optimizer state update。</li>
+</ul>
+<p>混合精度不是“所有东西都半精度”。</p>
+<p>稳定配置通常是：</p>
+<div class="highlight"><pre><span></span><code>大矩阵乘用低精度加速；
+敏感 reduction、norm、loss、optimizer state 用更稳的精度。
+</code></pre></div>
+<p>如果手动 <code>.half()</code> 把敏感路径也变成 FP16，NaN 风险会明显增加。</p>
+<h2 id="optimizer-state">Optimizer State 被污染<a class="headerlink" href="#optimizer-state" title="Permanent link">¶</a></h2>
+<p>AdamW 等 optimizer 会维护状态：</p>
+<div class="highlight"><pre><span></span><code>momentum
+variance
+</code></pre></div>
+<p>一旦梯度 NaN 进入 optimizer step，状态也可能变 NaN。</p>
+<p>之后即使后续 batch 正常，optimizer state 仍然可能继续污染参数。</p>
+<p>所以发生 NaN 时要区分：</p>
+<ul>
+<li>NaN 出现在 forward。</li>
+<li>NaN 出现在 loss。</li>
+<li>NaN 出现在 backward。</li>
+<li>NaN 进入 gradient。</li>
+<li>NaN 进入 optimizer state。</li>
+<li>NaN 进入 parameter。</li>
+</ul>
+<p>如果已经进入 optimizer state，最稳妥的恢复方式通常是回滚 checkpoint。</p>
+<h2 id="checkpoint">Checkpoint 回滚策略<a class="headerlink" href="#checkpoint" title="Permanent link">¶</a></h2>
+<p>长期训练必须设计数值异常后的回滚策略。</p>
+<p>建议：</p>
+<ul>
+<li>保留最近多个 checkpoint。</li>
+<li>保存 checkpoint manifest。</li>
+<li>标记 checkpoint 是否通过 health check。</li>
+<li>不要把异常后的 checkpoint 标成 latest good。</li>
+<li>支持回滚到上一个 clean checkpoint。</li>
+<li>记录异常 step、batch、rank、配置。</li>
+</ul>
+<p>可以维护两个指针：</p>
+<div class="highlight"><pre><span></span><code>latest_checkpoint
+latest_good_checkpoint
+</code></pre></div>
+<p><code>latest_checkpoint</code> 表示最近保存。</p>
+<p><code>latest_good_checkpoint</code> 表示通过稳定性检查，可以安全恢复。</p>
+<p>如果 NaN 发生后自动保存了 checkpoint，但没有区分 good/bad，就可能把污染状态保存下来。</p>
+<h2 id="bad-batch">Bad Batch 和数据隔离<a class="headerlink" href="#bad-batch" title="Permanent link">¶</a></h2>
+<p>有些异常来自特定数据。</p>
+<p>例如：</p>
+<ul>
+<li>空样本。</li>
+<li>全 padding。</li>
+<li>超长样本截断错误。</li>
+<li>label 越界。</li>
+<li>loss mask 全 0。</li>
+<li>多模态样本缺失图片或音频。</li>
+<li>数值特征范围异常。</li>
+<li>packed sequence 文档边界错。</li>
+</ul>
+<p>需要记录：</p>
+<ul>
+<li>dataset shard。</li>
+<li>sample id。</li>
+<li>document id。</li>
+<li>token length。</li>
+<li>loss mask token count。</li>
+<li>rank。</li>
+<li>dataloader worker。</li>
+<li>preprocessing version。</li>
+</ul>
+<p>如果坏样本可复现，要能隔离它，而不是只重启训练。</p>
+<p>有些团队会建立 bad batch quarantine：</p>
+<div class="highlight"><pre><span></span><code>异常 batch -&gt; 保存 metadata -&gt; 跳过或隔离 -&gt; 离线复现 -&gt; 修数据或规则
+</code></pre></div>
+<h2 id="_7">分布式训练中的特殊问题<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<h3 id="rank">一个 rank 出错，全局都受影响<a class="headerlink" href="#rank" title="Permanent link">¶</a></h3>
+<p>分布式训练中，一个 rank 的 NaN 会通过 collective 扩散。</p>
+<p>例如 DDP AllReduce：</p>
+<div class="highlight"><pre><span></span><code>rank 3 grad = NaN
+all-reduce
+all ranks grad = NaN
+</code></pre></div>
+<p>因此要尽量在 all-reduce 前发现异常 rank。</p>
+<p>可以在 debug 模式下检查：</p>
+<ul>
+<li>local loss finite。</li>
+<li>local grad finite。</li>
+<li>per-rank grad norm。</li>
+<li>per-rank data sample id。</li>
+</ul>
+<p>生产中全量检查会有开销，可以采用周期性或异常触发检查。</p>
+<h3 id="rank-skipped-step">所有 rank 必须一致处理 skipped step<a class="headerlink" href="#rank-skipped-step" title="Permanent link">¶</a></h3>
+<p>如果某个 rank 检测到 overflow，其他 rank 没检测到，不能让一部分 rank 做 optimizer step，另一部分 rank 不做。</p>
+<p>否则模型副本会不一致。</p>
+<p>需要保证：</p>
+<ul>
+<li>overflow 状态在 rank 间同步。</li>
+<li>skipped step 行为一致。</li>
+<li>scheduler step 行为一致。</li>
+<li>gradient accumulation counter 一致。</li>
+<li>checkpoint step 编号一致。</li>
+</ul>
+<p>这类错误很隐蔽，可能不会马上 crash，但会破坏训练。</p>
+<h3 id="rank_1">Rank 间数据不同导致排查困难<a class="headerlink" href="#rank_1" title="Permanent link">¶</a></h3>
+<p>每个 rank 看到不同数据。</p>
+<p>如果只有 rank 17 的样本触发异常，只看 rank 0 日志可能完全看不到。</p>
+<p>所以日志必须包含：</p>
+<ul>
+<li>rank。</li>
+<li>sample id。</li>
+<li>sequence length。</li>
+<li>loss component。</li>
+<li>local grad norm。</li>
+<li>overflow flag。</li>
+</ul>
+<h2 id="moe">MoE 稳定性<a class="headerlink" href="#moe" title="Permanent link">¶</a></h2>
+<p>MoE 训练有额外风险。</p>
+<p>常见问题：</p>
+<ul>
+<li>router logits 过大。</li>
+<li>expert load imbalance。</li>
+<li>token dropping 增多。</li>
+<li>router loss spike。</li>
+<li>某些 expert 几乎收不到 token。</li>
+<li>top-k routing 在早期不稳定。</li>
+<li>expert batch 太小导致 kernel 和统计不稳定。</li>
+</ul>
+<p>需要记录：</p>
+<ul>
+<li>tokens per expert。</li>
+<li>drop rate。</li>
+<li>router entropy。</li>
+<li>router loss。</li>
+<li>expert grad norm。</li>
+<li>expert load balance。</li>
+<li>all-to-all imbalance。</li>
+</ul>
+<p>MoE 的 loss spike 可能不是主 LM loss 引起，而是 router 或专家负载引起。</p>
+<h2 id="_8">长上下文稳定性<a class="headerlink" href="#_8" title="Permanent link">¶</a></h2>
+<p>长上下文训练也容易引入数值和语义问题。</p>
+<p>常见根因：</p>
+<ul>
+<li>position id 错。</li>
+<li>RoPE scaling 配置错。</li>
+<li>causal mask 错。</li>
+<li>document boundary 错。</li>
+<li>packed sequence 的 loss mask 错。</li>
+<li>attention logits 数值范围变大。</li>
+<li>micro-batch 太小导致统计波动。</li>
+</ul>
+<p>排查长上下文时要按 sequence length 分桶观察：</p>
+<div class="highlight"><pre><span></span><code>8K / 16K / 32K / 64K / 128K
+</code></pre></div>
+<p>如果只在长序列上出现 loss spike，不要只看平均 loss。</p>
+<h2 id="kernel-fusion-compiler">Kernel Fusion 和 Compiler 风险<a class="headerlink" href="#kernel-fusion-compiler" title="Permanent link">¶</a></h2>
+<p>Kernel fusion、Triton kernel、TorchInductor、通信计算融合都可能改变：</p>
+<ul>
+<li>计算顺序。</li>
+<li>accumulation dtype。</li>
+<li>reduction 顺序。</li>
+<li>rounding 行为。</li>
+<li>mask 处理。</li>
+<li>边界条件。</li>
+</ul>
+<p>这些变化可能让数值略有差异。</p>
+<p>大多数差异是可接受的，但必须做 guardrail：</p>
+<ul>
+<li>和 baseline 对比 loss curve。</li>
+<li>检查 NaN/Inf。</li>
+<li>检查 per-layer max error。</li>
+<li>在多个 shape 上测试。</li>
+<li>记录 kernel/fusion 配置。</li>
+</ul>
+<p>性能优化不能只看 step time。</p>
+<p>如果 kernel 优化让训练更快但更容易 loss spike，要谨慎采用。</p>
+<h2 id="runbook">稳定性 Runbook<a class="headerlink" href="#runbook" title="Permanent link">¶</a></h2>
+<p>遇到 NaN/Inf 或严重 loss spike，可以按下面顺序排查。</p>
+<h3 id="_9">第一步：保护现场<a class="headerlink" href="#_9" title="Permanent link">¶</a></h3>
+<ul>
+<li>停止继续污染 checkpoint。</li>
+<li>保存当前 run manifest。</li>
+<li>保存异常 step 日志。</li>
+<li>保存异常 rank 日志。</li>
+<li>保存 batch metadata。</li>
+<li>保存最近 profiler 或 trace。</li>
+</ul>
+<h3 id="_10">第二步：确认异常范围<a class="headerlink" href="#_10" title="Permanent link">¶</a></h3>
+<p>判断：</p>
+<ul>
+<li>是单 rank 先异常，还是所有 rank 同时异常？</li>
+<li>是 forward NaN，还是 backward NaN？</li>
+<li>是 loss NaN，还是 grad NaN？</li>
+<li>optimizer state 是否被污染？</li>
+<li>checkpoint 是否已污染？</li>
+</ul>
+<h3 id="_11">第三步：回到最小复现<a class="headerlink" href="#_11" title="Permanent link">¶</a></h3>
+<p>按顺序缩小：</p>
+<ol>
+<li>单机单卡。</li>
+<li>单机多卡。</li>
+<li>多机小规模。</li>
+<li>原始规模。</li>
+</ol>
+<p>同时固定：</p>
+<ul>
+<li>数据 batch。</li>
+<li>seed。</li>
+<li>dtype。</li>
+<li>parallelism config。</li>
+<li>optimizer config。</li>
+<li>checkpoint。</li>
+</ul>
+<h3 id="_12">第四步：做二分<a class="headerlink" href="#_12" title="Permanent link">¶</a></h3>
+<p>二分方向：</p>
+<ul>
+<li>数据版本。</li>
+<li>代码 commit。</li>
+<li>precision 配置。</li>
+<li>learning rate。</li>
+<li>optimizer。</li>
+<li>kernel fusion。</li>
+<li>sequence length。</li>
+<li>MoE routing。</li>
+<li>parallelism size。</li>
+</ul>
+<p>不要同时改很多变量。</p>
+<h3 id="_13">第五步：决定恢复动作<a class="headerlink" href="#_13" title="Permanent link">¶</a></h3>
+<p>可选动作：</p>
+<ul>
+<li>跳过坏 batch。</li>
+<li>降低 learning rate。</li>
+<li>增加 warmup。</li>
+<li>调整 loss scale。</li>
+<li>开启或加强 gradient clipping。</li>
+<li>保留敏感 op 高精度。</li>
+<li>回滚到 latest good checkpoint。</li>
+<li>禁用可疑 fused kernel。</li>
+<li>隔离异常数据 shard。</li>
+</ul>
+<p>恢复动作也要记录进实验报告。</p>
+<h2 id="guardrail">自动化 Guardrail<a class="headerlink" href="#guardrail" title="Permanent link">¶</a></h2>
+<p>长期训练应有自动 guardrail。</p>
+<p>例如：</p>
+<ul>
+<li>loss finite check。</li>
+<li>grad finite check。</li>
+<li>grad norm threshold。</li>
+<li>loss spike threshold。</li>
+<li>loss scale lower bound。</li>
+<li>overflow frequency threshold。</li>
+<li>update-to-weight ratio threshold。</li>
+<li>per-rank timeout。</li>
+<li>checkpoint health check。</li>
+</ul>
+<p>但阈值不能太粗。</p>
+<p>例如 loss spike threshold 要考虑：</p>
+<ul>
+<li>当前训练阶段。</li>
+<li>数据分布。</li>
+<li>loss moving average。</li>
+<li>batch size。</li>
+<li>MoE router loss。</li>
+<li>curriculum 切换。</li>
+</ul>
+<p>建议将 guardrail 结果写入 benchmark/run registry，方便后续对比不同配置。</p>
+<h2 id="_14">监控和开销取舍<a class="headerlink" href="#_14" title="Permanent link">¶</a></h2>
+<p>全量数值检查会影响性能。</p>
+<p>例如每一步检查所有 activation 是否 finite，代价可能很高。</p>
+<p>可以分层：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>常态</td>
+<td>loss、grad norm、loss scale、overflow、关键指标</td>
+</tr>
+<tr>
+<td>周期采样</td>
+<td>per-layer norm、activation summary、selected rank</td>
+</tr>
+<tr>
+<td>异常触发</td>
+<td>保存 batch metadata、打开更细日志、短窗口 profiler</td>
+</tr>
+<tr>
+<td>Debug run</td>
+<td>全量 finite check、anomaly detection、逐层 hook</td>
+</tr>
+</tbody>
+</table>
+<p>生产长期训练要低开销。</p>
+<p>复现异常时可以提高检查强度。</p>
+<h2 id="benchmark">Benchmark 时怎么比较稳定性<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>训练系统 benchmark 不应该只报告：</p>
+<div class="highlight"><pre><span></span><code>tokens/s
+</code></pre></div>
+<p>还应该报告：</p>
+<ul>
+<li>NaN/Inf 次数。</li>
+<li>loss spike 次数。</li>
+<li>overflow 次数。</li>
+<li>skipped step 数。</li>
+<li>clipping ratio。</li>
+<li>grad norm distribution。</li>
+<li>run 是否完成。</li>
+<li>是否需要回滚。</li>
+<li>checkpoint 是否可恢复。</li>
+<li>time to target loss。</li>
+<li>wall-clock lost to failures。</li>
+</ul>
+<p>如果配置 A 更快 5%，但每 10 小时回滚一次，它可能比配置 B 更贵。</p>
+<h2 id="_15">常见误区<a class="headerlink" href="#_15" title="Permanent link">¶</a></h2>
+<h3 id="nan">误区一：NaN 后自动重启就行<a class="headerlink" href="#nan" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p>如果 optimizer state 或 checkpoint 已污染，重启可能只是从坏状态继续。</p>
+<h3 id="loss-spike_1">误区二：loss spike 一定是数据问题<a class="headerlink" href="#loss-spike_1" title="Permanent link">¶</a></h3>
+<p>不一定。</p>
+<p>学习率、loss scaling、gradient accumulation、mask、position id、kernel fusion、optimizer 都可能导致 spike。</p>
+<h3 id="bf16">误区三：BF16 就不会有数值问题<a class="headerlink" href="#bf16" title="Permanent link">¶</a></h3>
+<p>不对。</p>
+<p>BF16 动态范围较大，但精度仍有限，softmax、loss、optimizer、长上下文和异常数据仍可能出问题。</p>
+<h3 id="gradient-clipping_1">误区四：gradient clipping 能解决梯度爆炸<a class="headerlink" href="#gradient-clipping_1" title="Permanent link">¶</a></h3>
+<p>只能限制一次更新的幅度。</p>
+<p>如果根因是数据、loss mask、学习率或模型结构，clipping 只是减轻症状。</p>
+<h3 id="rank-0">误区五：只看 rank 0 日志<a class="headerlink" href="#rank-0" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p>异常可能先出现在任意 rank。rank 0 可能只是最后看到 all-reduce 后的 NaN。</p>
+<h3 id="_16">误区六：性能优化不影响数值<a class="headerlink" href="#_16" title="Permanent link">¶</a></h3>
+<p>不一定。</p>
+<p>低精度、fusion、编译、通信 dtype、reduction 顺序都会改变数值路径。</p>
+<h3 id="_17">误区七：能跑完就代表稳定<a class="headerlink" href="#_17" title="Permanent link">¶</a></h3>
+<p>不够。</p>
+<p>还要看 loss curve、eval、grad norm、overflow、clipping、回滚次数和最终质量。</p>
+<h2 id="_18">设计检查清单<a class="headerlink" href="#_18" title="Permanent link">¶</a></h2>
+<p>训练前：</p>
+<ul>
+<li>是否记录 precision config？</li>
+<li>是否记录 optimizer 和 scheduler config？</li>
+<li>是否记录 gradient clipping 配置？</li>
+<li>是否定义 loss spike 和 NaN guardrail？</li>
+<li>是否有 latest good checkpoint？</li>
+</ul>
+<p>训练中：</p>
+<ul>
+<li>是否记录 loss component？</li>
+<li>是否记录 grad norm？</li>
+<li>是否记录 NaN/Inf count？</li>
+<li>是否记录 loss scale / overflow / skipped step？</li>
+<li>是否记录 rank-aware sample metadata？</li>
+</ul>
+<p>异常发生时：</p>
+<ul>
+<li>是否知道哪个 rank 先异常？</li>
+<li>是否知道异常 batch？</li>
+<li>是否知道 forward/backward/optimizer 哪一步出问题？</li>
+<li>是否阻止坏 checkpoint 覆盖 good checkpoint？</li>
+<li>是否保存足够复现信息？</li>
+</ul>
+<p>恢复时：</p>
+<ul>
+<li>是否回滚到 clean checkpoint？</li>
+<li>是否隔离坏数据？</li>
+<li>是否记录恢复动作？</li>
+<li>是否重新验证 loss curve？</li>
+<li>是否避免所有 rank 状态不一致？</li>
+</ul>
+<p>Benchmark 时：</p>
+<ul>
+<li>是否同时报告性能和稳定性？</li>
+<li>是否记录失败重试成本？</li>
+<li>是否把 stability guardrail 作为通过条件？</li>
+<li>是否比较 time to target loss，而不只是 step time？</li>
+</ul>
+<h2 id="_19">小结<a class="headerlink" href="#_19" title="Permanent link">¶</a></h2>
+<p>训练稳定性与数值异常治理，是训练系统工程的一部分。</p>
+<p>核心原则是：</p>
+<div class="highlight"><pre><span></span><code>先观测，早发现；
+先定位，别污染；
+能回滚，可复现；
+性能优化必须通过稳定性 guardrail。
+</code></pre></div>
+<p>一个高效训练系统不只是每一步快。</p>
+<p>它还应该做到：</p>
+<ul>
+<li>长时间不发散。</li>
+<li>异常能定位到 rank、batch、step、layer。</li>
+<li>checkpoint 能安全恢复。</li>
+<li>optimizer state 不被静默污染。</li>
+<li>性能优化不会破坏 loss curve。</li>
+<li>benchmark 同时报告速度、成本和稳定性。</li>
+</ul>
+<p>这也是为什么训练系统章节要把混合精度、optimizer、checkpoint、benchmark 和可观测性连在一起看：它们共同决定一次训练到底是“跑得快”，还是“稳定地跑到目标”。</p>
+<h2 id="_20">参考资料<a class="headerlink" href="#_20" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://docs.pytorch.org/docs/stable/amp.html">PyTorch AMP</a></li>
+<li><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.utils.clip_grad_norm_.html">PyTorch clip_grad_norm_</a></li>
+<li><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html">PyTorch DistributedDataParallel</a></li>
+<li><a href="https://docs.nvidia.com/deeplearning/transformer-engine/user-guide/examples/fp8_primer.html">NVIDIA Transformer Engine FP8 Primer</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>

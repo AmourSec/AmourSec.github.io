@@ -1,0 +1,3091 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
+<link href="https://amoursec.github.io/04-training-systems/flux-kernel-fusion/" rel="canonical"/>
+<link href="../communication-computation-overlap/" rel="prev"/>
+<link href="../optimizer-scheduler-cost/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
+<title>FLUX 通信重叠与 Kernel Fusion - AI Knowledge Graph</title>
+<link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="blue" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#flux-kernel-fusion">
+          跳转至
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="页眉" class="md-header__inner md-grid">
+<a aria-label="AI Knowledge Graph" class="md-header__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            AI Knowledge Graph
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+
+              FLUX 通信重叠与 Kernel Fusion
+
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-hidden="true" class="md-option" data-md-color-accent="blue" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜索" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜索" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="查找" class="md-search__options">
+<button aria-label="清空当前内容" class="md-search__icon md-icon" tabindex="-1" title="清空当前内容" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="导航栏" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="AI Knowledge Graph" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="AI Knowledge Graph">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    AI Knowledge Graph
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/AmourSec/aikg" title="前往仓库">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    AmourSec/aikg
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    首页
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../knowledge-map/">
+<span class="md-ellipsis">
+    知识地图
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    入门导读
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            入门导读
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../01-getting-started/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 计算工作负载基础
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            AI 计算工作负载基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/ai-fundamentals/">
+<span class="md-ellipsis">
+    AI 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/transformer/">
+<span class="md-ellipsis">
+    Transformer 流程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/training-primer/">
+<span class="md-ellipsis">
+    训练过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/inference-primer/">
+<span class="md-ellipsis">
+    推理过程与原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../02-ai-workloads/multimodal-primer/">
+<span class="md-ellipsis">
+    多模态原理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    推理系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            推理系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
+<span class="md-ellipsis">
+    推理请求生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
+<span class="md-ellipsis">
+    Prefill 与 Decode
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
+<span class="md-ellipsis">
+    指标体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
+<span class="md-ellipsis">
+    Batching
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
+<span class="md-ellipsis">
+    KV Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
+<span class="md-ellipsis">
+    PagedAttention
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
+<span class="md-ellipsis">
+    Prefix Cache
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
+<span class="md-ellipsis">
+    调度策略
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
+<span class="md-ellipsis">
+    量化推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
+<span class="md-ellipsis">
+    Speculative Decoding
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
+<span class="md-ellipsis">
+    Prefill/Decode 分离部署
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
+<span class="md-ellipsis">
+    MoE 模型推理优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
+<span class="md-ellipsis">
+    EP Size 与大 EP / 小 EP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
+<span class="md-ellipsis">
+    单机推理服务架构
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
+<span class="md-ellipsis">
+    多机分布式推理
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
+<span class="md-ellipsis">
+    缓存体系
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
+<span class="md-ellipsis">
+    Benchmark 方法
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
+<span class="md-ellipsis">
+    vLLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
+<span class="md-ellipsis">
+    TensorRT-LLM
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
+<span class="md-ellipsis">
+    SGLang
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
+<span class="md-ellipsis">
+    RAG 与 Agent 推理负载
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
+<span class="md-ellipsis">
+    Benchmark 方法与性能剖析
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    训练系统与优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            训练系统与优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-lifecycle/">
+<span class="md-ellipsis">
+    训练任务生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../data-pipeline/">
+<span class="md-ellipsis">
+    数据输入与 Data Pipeline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-data-mixing-sampling-effective-tokens/">
+<span class="md-ellipsis">
+    训练数据混合、采样与有效 Token
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../batch-gradient-accumulation/">
+<span class="md-ellipsis">
+    Batch、Micro-batch 与 Gradient Accumulation
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../vocab-output-cross-entropy/">
+<span class="md-ellipsis">
+    大词表输出层、Logits 与 Cross Entropy 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../memory-composition-optimization/">
+<span class="md-ellipsis">
+    显存组成与优化总览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../backward-autograd-gradient-lifecycle/">
+<span class="md-ellipsis">
+    Backward、Autograd Graph 与梯度生命周期
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../distributed-training-runtime/">
+<span class="md-ellipsis">
+    分布式训练启动与运行时：torchrun、Rank、Process Group 与 NCCL
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../collective-communication-primitives/">
+<span class="md-ellipsis">
+    Collective 通信原语与通信量模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../data-parallel-gradient-sync/">
+<span class="md-ellipsis">
+    Data Parallel 与梯度同步
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../zero-fsdp/">
+<span class="md-ellipsis">
+    ZeRO 与 FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tensor-parallel/">
+<span class="md-ellipsis">
+    Tensor Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../sequence-context-parallel/">
+<span class="md-ellipsis">
+    Sequence Parallel 与 Context Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../pipeline-parallel/">
+<span class="md-ellipsis">
+    Pipeline Parallel
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../expert-parallel-moe-training/">
+<span class="md-ellipsis">
+    Expert Parallel 与 MoE 训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../hybrid-parallelism-composition/">
+<span class="md-ellipsis">
+    并行策略组合：3D/4D/5D Parallelism
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../activation-checkpointing/">
+<span class="md-ellipsis">
+    Activation Checkpointing
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mixed-precision-training/">
+<span class="md-ellipsis">
+    混合精度训练
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-stability-numerical-debugging/">
+<span class="md-ellipsis">
+    训练稳定性与数值异常：NaN、Inf、Loss Spike 与梯度健康
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../communication-computation-overlap/">
+<span class="md-ellipsis">
+    通信与计算重叠
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    FLUX 通信重叠与 Kernel Fusion
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      先给结论
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overlap">
+<span class="md-ellipsis">
+      传统 Overlap 的边界
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#allgather-gemm">
+<span class="md-ellipsis">
+      一个简单例子：AllGather 后接 GEMM
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gemm-reducescatter">
+<span class="md-ellipsis">
+      一个简单例子：GEMM 后接 ReduceScatter
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flux">
+<span class="md-ellipsis">
+      FLUX 的核心思想
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      总体数据流
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dense-mlp">
+<span class="md-ellipsis">
+      Dense MLP 场景
+    </span>
+</a>
+<nav aria-label="Dense MLP 场景" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mlp-layer0allgather-gemm">
+<span class="md-ellipsis">
+      MLP Layer0：AllGather + GEMM
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mlp-layer1gemm-reducescatter">
+<span class="md-ellipsis">
+      MLP Layer1：GEMM + ReduceScatter
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe">
+<span class="md-ellipsis">
+      MoE 场景
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe-layer0-layer1">
+<span class="md-ellipsis">
+      MoE Layer0 与 Layer1 的直觉
+    </span>
+</a>
+<nav aria-label="MoE Layer0 与 Layer1 的直觉" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe-layer0">
+<span class="md-ellipsis">
+      MoE Layer0
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe-layer1">
+<span class="md-ellipsis">
+      MoE Layer1
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fluxcomet-moe">
+<span class="md-ellipsis">
+      FLUX、COMET 与 MoE
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kernel-fusion">
+<span class="md-ellipsis">
+      为什么 Kernel Fusion 关键
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fused-kernel">
+<span class="md-ellipsis">
+      它和普通 Fused Kernel 的区别
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nccl-nvshmem-cutlass">
+<span class="md-ellipsis">
+      和 NCCL / NVSHMEM / CUTLASS 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ampere-hopper">
+<span class="md-ellipsis">
+      Ampere 与 Hopper 的差异
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor-parallel">
+<span class="md-ellipsis">
+      它为什么和 Tensor Parallel 关系密切
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe_1">
+<span class="md-ellipsis">
+      它为什么和 MoE 关系密切
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ep-ep">
+<span class="md-ellipsis">
+      和大 EP / 小 EP 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      训练与推理中的差异
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overlap_1">
+<span class="md-ellipsis">
+      与上一层 Overlap 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#profiler">
+<span class="md-ellipsis">
+      Profiler 里应该怎么看
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 设计
+    </span>
+</a>
+<nav aria-label="Benchmark 设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-kernel-layer-microbenchmark">
+<span class="md-ellipsis">
+      1. Kernel / Layer Microbenchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-model-step-benchmark">
+<span class="md-ellipsis">
+      2. Model Step Benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-end-to-end-training-benchmark">
+<span class="md-ellipsis">
+      3. End-to-end Training Benchmark
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ab">
+<span class="md-ellipsis">
+      A/B 实验矩阵
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      数值正确性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#buffer">
+<span class="md-ellipsis">
+      显存与 Buffer 生命周期
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      与编译器的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      与硬件互连的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1">
+<span class="md-ellipsis">
+      1. 先定位依赖通信
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-chunk-tile">
+<span class="md-ellipsis">
+      2. 控制 Chunk / Tile 粒度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-gemm">
+<span class="md-ellipsis">
+      3. 保持 GEMM 形状高效
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-rank-mapping">
+<span class="md-ellipsis">
+      4. 做 Rank Mapping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5">
+<span class="md-ellipsis">
+      5. 限制融合范围
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-baseline">
+<span class="md-ellipsis">
+      6. 保留 Baseline 路径
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flux_1">
+<span class="md-ellipsis">
+      误区一：FLUX 就是异步通信
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flux_2">
+<span class="md-ellipsis">
+      误区二：只要通信占比高就适合 FLUX
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fusion">
+<span class="md-ellipsis">
+      误区三：Fusion 一定更快
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#microbenchmark">
+<span class="md-ellipsis">
+      误区四：Microbenchmark 变快就是训练变快
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      误区五：训练和推理收益可以直接照搬
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      误区六：忽略数值和可复现性
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      落地检查表
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../optimizer-scheduler-cost/">
+<span class="md-ellipsis">
+    Optimizer 与 Scheduler 系统成本
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../parameter-efficient-finetuning-lora-qlora/">
+<span class="md-ellipsis">
+    参数高效微调：LoRA、QLoRA 与 Adapter 系统优化
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../post-training-workloads-sft-dpo-rlhf-grpo/">
+<span class="md-ellipsis">
+    后训练工作负载：SFT、DPO、RLHF 与 GRPO 系统视角
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../muon-optimizer/">
+<span class="md-ellipsis">
+    Muon 优化器
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../evaluation-validation-checkpoint-selection/">
+<span class="md-ellipsis">
+    Evaluation、Validation 与 Checkpoint Selection
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-reproducibility-randomness-run-manifest/">
+<span class="md-ellipsis">
+    训练可复现性、随机性与 Run Manifest
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../checkpoint-resume-fault-tolerance/">
+<span class="md-ellipsis">
+    Checkpoint、Resume 与容错
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-performance-metrics-scaling/">
+<span class="md-ellipsis">
+    训练性能指标与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../training-benchmark-profiling/">
+<span class="md-ellipsis">
+    训练性能剖析与 Benchmark
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../deepspeed-megatron-fsdp/">
+<span class="md-ellipsis">
+    DeepSpeed、Megatron-LM 与 PyTorch FSDP
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Kernel、算子与编译优化
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Kernel、算子与编译优化
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/attention-computation-patterns/">
+<span class="md-ellipsis">
+    Attention 机制与计算模式
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/triton/">
+<span class="md-ellipsis">
+    Triton Kernel 编程
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../05-kernels-compilers/torchinductor/">
+<span class="md-ellipsis">
+    TorchInductor 与 PyTorch 编译栈
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            AI 加速器与计算架构
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/performance-model-roofline/">
+<span class="md-ellipsis">
+    AI 加速器性能模型：算力、带宽与 Roofline
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/compute-units-simt-tensorcore/">
+<span class="md-ellipsis">
+    计算单元：SIMT、Tensor Core 与矩阵引擎
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/memory-hierarchy-data-reuse/">
+<span class="md-ellipsis">
+    存储层次：HBM、SRAM、Cache 与数据复用
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/precision-formats-low-bit-compute/">
+<span class="md-ellipsis">
+    精度格式：FP16、BF16、FP8 与量化计算
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/interconnect-communication-architecture/">
+<span class="md-ellipsis">
+    互连与通信架构：PCIe、NVLink、CXL、RDMA 与 NoC
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/power-thermal-reliability/">
+<span class="md-ellipsis">
+    功耗、散热、频率与可靠性：从峰值算力到持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/accelerator-architecture-tradeoffs/">
+<span class="md-ellipsis">
+    架构取舍：GPU、NPU、TPU、ASIC 与 FPGA
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">
+<span class="md-ellipsis">
+    Workload Mapping：算子、Compiler、Runtime 与硬件执行
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    集群、网络、存储与调度
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            集群、网络、存储与调度
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/ai-cluster-architecture-overview/">
+<span class="md-ellipsis">
+    AI 集群架构总览：节点、网络、存储与调度
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/scheduling-queues-resource-management/">
+<span class="md-ellipsis">
+    调度系统与资源队列：Slurm、Kubernetes、Ray、Volcano 与 Kueue
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/gpu-topology-numa-mig-mps-isolation/">
+<span class="md-ellipsis">
+    GPU 拓扑、NUMA、MIG/MPS 与资源隔离
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">
+<span class="md-ellipsis">
+    RDMA 网络与 NCCL 拓扑：InfiniBand、RoCE 与拥塞控制
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/storage-data-cache-checkpoint/">
+<span class="md-ellipsis">
+    存储、数据缓存与 Checkpoint：NVMe、并行文件系统与对象存储
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/environment-reproducibility-containers/">
+<span class="md-ellipsis">
+    环境可复现：镜像、驱动、CUDA 与依赖锁定
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/mixed-workload-multitenancy-isolation/">
+<span class="md-ellipsis">
+    混合集群与多租户隔离：训练、推理、Notebook 与批处理共存
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/resource-utilization-fragmentation-capacity/">
+<span class="md-ellipsis">
+    资源利用率、碎片与容量治理：从 GPU 分配到有效吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../07-cluster-infra/node-lifecycle-health-maintenance/">
+<span class="md-ellipsis">
+    节点生命周期与集群运维：交付、验收、入池、维护与下线
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    性能分析、Benchmark 与容量建模
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            性能分析、Benchmark 与容量建模
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/performance-analysis-benchmark-methodology/">
+<span class="md-ellipsis">
+    性能分析与 Benchmark 方法论：指标、实验设计与瓶颈定位
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/inference-capacity-modeling/">
+<span class="md-ellipsis">
+    推理容量建模：QPS、并发、TTFT、TPOT 与 GPU 副本数
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/training-capacity-scaling-efficiency/">
+<span class="md-ellipsis">
+    训练容量建模：Tokens/s、Step Time、MFU 与扩展效率
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/profiler-toolchain-bottleneck-analysis/">
+<span class="md-ellipsis">
+    Profiler 工具链与瓶颈定位：Nsight、PyTorch Profiler、DCGM、perf 与 eBPF
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/roofline-analysis-compute-bandwidth/">
+<span class="md-ellipsis">
+    Roofline 分析：算力、带宽与瓶颈上限
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/queueing-model-tail-latency/">
+<span class="md-ellipsis">
+    排队模型与尾延迟：QPS、并发、利用率和 p99
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/energy-power-thermal-benchmark/">
+<span class="md-ellipsis">
+    能效、功耗与热限制：Power、Energy per Token 与持续吞吐
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-workload-design-trace-replay/">
+<span class="md-ellipsis">
+    Benchmark 负载设计与 Trace Replay：从玩具测试到真实 Workload
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/ab-testing-ablation-regression-detection/">
+<span class="md-ellipsis">
+    A/B 对比、消融实验与性能回归检测
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/cost-model-unit-economics/">
+<span class="md-ellipsis">
+    成本模型与单位经济性：Cost per Token、GPU Hour 与有效产出
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../08-benchmark-capacity/benchmark-data-governance-run-records/">
+<span class="md-ellipsis">
+    Benchmark 数据治理与实验记录：Run Manifest、Raw Data 与可复现报告
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<span class="md-ellipsis">
+    可靠性、可观测性与故障复盘
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
+<span class="md-nav__icon md-icon"></span>
+            可靠性、可观测性与故障复盘
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/observability-overview-signals/">
+<span class="md-ellipsis">
+    AI 系统可观测性总览：Metrics、Logs、Traces、Profiles 与 Events
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/slo-sli-error-budget-alerting/">
+<span class="md-ellipsis">
+    SLO、SLI、错误预算与告警策略：从用户体验到行动门槛
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/ai-failure-modes-gpu-nccl-network-storage/">
+<span class="md-ellipsis">
+    AI 系统故障模式：GPU、NCCL、网络、存储与 Runtime
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../09-reliability-observability/incident-response-runbook-postmortem/">
+<span class="md-ellipsis">
+    Incident Response、Runbook 与故障复盘：从止血到可复现改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<span class="md-ellipsis">
+    论文复现与系统案例
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
+<span class="md-nav__icon md-icon"></span>
+            论文复现与系统案例
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/ai-system-architecture/">
+<span class="md-ellipsis">
+    AI 系统论文与架构：从论文贡献到可复现实验
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/adr/">
+<span class="md-ellipsis">
+    技术决策记录：从 Benchmark 证据到可追溯选择
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../10-papers-cases/failure-cases/">
+<span class="md-ellipsis">
+    故障案例库：从失败复现到系统改进
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<span class="md-ellipsis">
+    知识组织、模板与 AI 可读索引
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
+<span class="md-nav__icon md-icon"></span>
+            知识组织、模板与 AI 可读索引
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../11-knowledge-index/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<span class="md-ellipsis">
+    模板
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
+<span class="md-nav__icon md-icon"></span>
+            模板
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/knowledge-note/">
+<span class="md-ellipsis">
+    知识点模板：从概念解释到 AI 可读卡片
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/adr/">
+<span class="md-ellipsis">
+    技术决策模板：从问题、证据到可追溯决策
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../99-templates/benchmark-report/">
+<span class="md-ellipsis">
+    基准实验报告模板：从问题设计到可复现实验
+  </span>
+<span class="md-status md-status--reviewed"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      先给结论
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overlap">
+<span class="md-ellipsis">
+      传统 Overlap 的边界
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#allgather-gemm">
+<span class="md-ellipsis">
+      一个简单例子：AllGather 后接 GEMM
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#gemm-reducescatter">
+<span class="md-ellipsis">
+      一个简单例子：GEMM 后接 ReduceScatter
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flux">
+<span class="md-ellipsis">
+      FLUX 的核心思想
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      总体数据流
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dense-mlp">
+<span class="md-ellipsis">
+      Dense MLP 场景
+    </span>
+</a>
+<nav aria-label="Dense MLP 场景" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mlp-layer0allgather-gemm">
+<span class="md-ellipsis">
+      MLP Layer0：AllGather + GEMM
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mlp-layer1gemm-reducescatter">
+<span class="md-ellipsis">
+      MLP Layer1：GEMM + ReduceScatter
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe">
+<span class="md-ellipsis">
+      MoE 场景
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe-layer0-layer1">
+<span class="md-ellipsis">
+      MoE Layer0 与 Layer1 的直觉
+    </span>
+</a>
+<nav aria-label="MoE Layer0 与 Layer1 的直觉" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe-layer0">
+<span class="md-ellipsis">
+      MoE Layer0
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe-layer1">
+<span class="md-ellipsis">
+      MoE Layer1
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fluxcomet-moe">
+<span class="md-ellipsis">
+      FLUX、COMET 与 MoE
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#kernel-fusion">
+<span class="md-ellipsis">
+      为什么 Kernel Fusion 关键
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fused-kernel">
+<span class="md-ellipsis">
+      它和普通 Fused Kernel 的区别
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#nccl-nvshmem-cutlass">
+<span class="md-ellipsis">
+      和 NCCL / NVSHMEM / CUTLASS 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ampere-hopper">
+<span class="md-ellipsis">
+      Ampere 与 Hopper 的差异
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tensor-parallel">
+<span class="md-ellipsis">
+      它为什么和 Tensor Parallel 关系密切
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#moe_1">
+<span class="md-ellipsis">
+      它为什么和 MoE 关系密切
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ep-ep">
+<span class="md-ellipsis">
+      和大 EP / 小 EP 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      训练与推理中的差异
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overlap_1">
+<span class="md-ellipsis">
+      与上一层 Overlap 的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#profiler">
+<span class="md-ellipsis">
+      Profiler 里应该怎么看
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#benchmark">
+<span class="md-ellipsis">
+      Benchmark 设计
+    </span>
+</a>
+<nav aria-label="Benchmark 设计" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-kernel-layer-microbenchmark">
+<span class="md-ellipsis">
+      1. Kernel / Layer Microbenchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-model-step-benchmark">
+<span class="md-ellipsis">
+      2. Model Step Benchmark
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-end-to-end-training-benchmark">
+<span class="md-ellipsis">
+      3. End-to-end Training Benchmark
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ab">
+<span class="md-ellipsis">
+      A/B 实验矩阵
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      数值正确性
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#buffer">
+<span class="md-ellipsis">
+      显存与 Buffer 生命周期
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      与编译器的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      与硬件互连的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      常见优化方向
+    </span>
+</a>
+<nav aria-label="常见优化方向" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1">
+<span class="md-ellipsis">
+      1. 先定位依赖通信
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-chunk-tile">
+<span class="md-ellipsis">
+      2. 控制 Chunk / Tile 粒度
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-gemm">
+<span class="md-ellipsis">
+      3. 保持 GEMM 形状高效
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-rank-mapping">
+<span class="md-ellipsis">
+      4. 做 Rank Mapping
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5">
+<span class="md-ellipsis">
+      5. 限制融合范围
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-baseline">
+<span class="md-ellipsis">
+      6. 保留 Baseline 路径
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      常见误区
+    </span>
+</a>
+<nav aria-label="常见误区" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flux_1">
+<span class="md-ellipsis">
+      误区一：FLUX 就是异步通信
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#flux_2">
+<span class="md-ellipsis">
+      误区二：只要通信占比高就适合 FLUX
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#fusion">
+<span class="md-ellipsis">
+      误区三：Fusion 一定更快
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#microbenchmark">
+<span class="md-ellipsis">
+      误区四：Microbenchmark 变快就是训练变快
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      误区五：训练和推理收益可以直接照搬
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      误区六：忽略数值和可复现性
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_11">
+<span class="md-ellipsis">
+      落地检查表
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_12">
+<span class="md-ellipsis">
+      小结
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_13">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="flux-kernel-fusion">FLUX 通信重叠与 Kernel Fusion<a class="headerlink" href="#flux-kernel-fusion" title="Permanent link">¶</a></h1>
+<p>前一篇 <a href="../communication-computation-overlap/">通信与计算重叠</a> 讲的是通用 overlap：</p>
+<ul>
+<li>DDP gradient bucket 和 backward 计算重叠。</li>
+<li>FSDP / ZeRO 参数 all-gather 和模块 forward 重叠。</li>
+<li>async collective 和不同 CUDA stream 重叠。</li>
+<li>用 profiler 看 exposed communication time。</li>
+</ul>
+<p>这些方法的前提通常是：</p>
+<div class="highlight"><pre><span></span><code>通信正在进行时，还有另一段不依赖通信结果的计算可以执行。
+</code></pre></div>
+<p>FLUX 关注的是更难的一类问题：</p>
+<div class="highlight"><pre><span></span><code>后续计算本身依赖通信结果。
+</code></pre></div>
+<p>例如 Tensor Parallel 中常见的链路：</p>
+<div class="highlight"><pre><span></span><code>local GEMM -&gt; AllGather / AllReduce / ReduceScatter -&gt; next GEMM
+</code></pre></div>
+<p>如果下一个 GEMM 必须等通信完全结束，普通 async collective 很难把等待隐藏掉。</p>
+<p>FLUX 的思路是：不要把通信和计算都看成一个大块，而是把它们拆成更细粒度的 chunk / tile，再把通信 I/O 和 GEMM 放进更紧密的 kernel 级协同里。</p>
+<p>一句话理解：</p>
+<blockquote>
+<p>FLUX 是一种面向 GPU 分布式训练/推理的通信计算融合思路：把依赖通信和依赖计算细粒度化，并通过 kernel fusion / tile scheduling 让部分数据到达后尽快参与计算，从而减少关键路径上的通信等待。</p>
+</blockquote>
+<p>它不是简单地“把 NCCL 放到另一个 stream”。它更接近：</p>
+<div class="highlight"><pre><span></span><code>communication-aware GEMM kernel
+</code></pre></div>
+<p>或者：</p>
+<div class="highlight"><pre><span></span><code>把通信进度纳入 GPU kernel 级执行计划
+</code></pre></div>
+<p>本篇从训练系统视角解释 FLUX：它解决什么问题，dense MLP 和 MoE 中分别怎么理解，为什么它依赖硬件/互连/实现，以及如何 benchmark。</p>
+<h2 id="_1">先给结论<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>FLUX 适合下面这类瓶颈：</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>通信在关键路径上</td>
+<td>profiler 中能看到 AllGather、ReduceScatter、AllToAll 等等待暴露。</td>
+</tr>
+<tr>
+<td>后续计算依赖通信结果</td>
+<td>普通 stream overlap 没有足够独立计算可覆盖通信。</td>
+</tr>
+<tr>
+<td>通信对象能切成 chunk / tile</td>
+<td>数据到达一部分后，可以先处理一部分。</td>
+</tr>
+<tr>
+<td>chunk 后的 GEMM 仍然高效</td>
+<td>不能因为拆太小让 Tensor Core 利用率崩掉。</td>
+</tr>
+<tr>
+<td>实现能把 I/O 和 GEMM 融合</td>
+<td>否则大量小 kernel / 小通信会吞掉收益。</td>
+</tr>
+</tbody>
+</table>
+<p>它不适合把所有训练瓶颈都往里面套。</p>
+<p>如果瓶颈是：</p>
+<ul>
+<li>DataLoader 慢。</li>
+<li>optimizer step 慢。</li>
+<li>checkpoint 保存慢。</li>
+<li>activation checkpointing 重算过多。</li>
+<li>pipeline stage 不均衡。</li>
+<li>GPU 本地 GEMM 已经 compute-bound 且通信不暴露。</li>
+</ul>
+<p>FLUX 类方法通常不是第一优先级。</p>
+<p>学习 FLUX 的价值在于建立一个更底层的分析框架：</p>
+<div class="highlight"><pre><span></span><code>当 bucket-level / stream-level overlap 不够时，
+是否可以继续下探到 tile-level / kernel-level overlap？
+</code></pre></div>
+<h2 id="overlap">传统 Overlap 的边界<a class="headerlink" href="#overlap" title="Permanent link">¶</a></h2>
+<p>普通 overlap 可以理解为时间轴上的并行。</p>
+<p>理想情况：</p>
+<div class="highlight"><pre><span></span><code>compute A:       [================]
+communication B:      [----------]
+</code></pre></div>
+<p>只要通信 B 期间还有 compute A 可以继续，通信就有机会被隐藏。</p>
+<p>训练里常见例子是 DDP backward：</p>
+<div class="highlight"><pre><span></span><code>layer N backward
+ready gradient bucket -&gt; AllReduce starts
+layer N-1 backward continues
+</code></pre></div>
+<p>AllReduce 还在跑时，backward 继续计算前面层的梯度。</p>
+<p>但 TP / MoE / distributed GEMM 里经常出现另一种时间轴：</p>
+<div class="highlight"><pre><span></span><code>local compute:   [=======]
+communication:          [-----------]
+dependent compute:                  [=======]
+</code></pre></div>
+<p>dependent compute 必须等待通信结果。</p>
+<p>这时，即使 communication 是 async launch，也没有足够的独立计算覆盖它。</p>
+<p>通信就暴露在关键路径上。</p>
+<h2 id="allgather-gemm">一个简单例子：AllGather 后接 GEMM<a class="headerlink" href="#allgather-gemm" title="Permanent link">¶</a></h2>
+<p>假设一个张量按 hidden 维度切在多个 GPU 上。</p>
+<p>每张 GPU 只有输入的一部分：</p>
+<div class="highlight"><pre><span></span><code>rank 0: X0
+rank 1: X1
+rank 2: X2
+rank 3: X3
+</code></pre></div>
+<p>后面的 GEMM 需要完整输入：</p>
+<div class="highlight"><pre><span></span><code>X = concat(X0, X1, X2, X3)
+Y = X @ W
+</code></pre></div>
+<p>传统执行方式：</p>
+<div class="highlight"><pre><span></span><code>AllGather X0..X3 -&gt; 得到完整 X -&gt; GEMM
+</code></pre></div>
+<p>时间轴是：</p>
+<div class="highlight"><pre><span></span><code>AllGather: [-------------]
+GEMM:                   [================]
+</code></pre></div>
+<p>如果 AllGather 很慢，GEMM 只能等。</p>
+<p>FLUX 类思路会问：</p>
+<div class="highlight"><pre><span></span><code>能不能 X 的一部分 gather 完，就先让对应 GEMM tile 开始？
+</code></pre></div>
+<p>也就是说：</p>
+<div class="highlight"><pre><span></span><code>gather tile 0 -&gt; compute tile 0
+gather tile 1 -&gt; compute tile 1
+gather tile 2 -&gt; compute tile 2
+...
+</code></pre></div>
+<p>这样时间轴可能变成：</p>
+<div class="highlight"><pre><span></span><code>AllGather tiles: [----][----][----][----]
+GEMM tiles:           [====][====][====][====]
+</code></pre></div>
+<p>通信仍然存在，但不再完全挡在 GEMM 前面。</p>
+<h2 id="gemm-reducescatter">一个简单例子：GEMM 后接 ReduceScatter<a class="headerlink" href="#gemm-reducescatter" title="Permanent link">¶</a></h2>
+<p>另一个常见链路是：</p>
+<div class="highlight"><pre><span></span><code>GEMM -&gt; ReduceScatter
+</code></pre></div>
+<p>传统方式：</p>
+<div class="highlight"><pre><span></span><code>完整 GEMM 输出完成 -&gt; ReduceScatter 整个输出
+</code></pre></div>
+<p>时间轴：</p>
+<div class="highlight"><pre><span></span><code>GEMM:          [================]
+ReduceScatter:                 [-----------]
+</code></pre></div>
+<p>如果 GEMM 产生的是一块一块 tile，理论上每个 tile 计算完后，就可以把它写到对应 rank 或触发局部规约/散发逻辑。</p>
+<p>FLUX 类实现会把通信 I/O 融合到 GEMM epilogue 或附近阶段：</p>
+<div class="highlight"><pre><span></span><code>GEMM tile computed -&gt; epilogue writes / reduces / scatters tile
+</code></pre></div>
+<p>这样可以减少：</p>
+<ul>
+<li>完整输出 tensor 落地后的等待。</li>
+<li>中间结果写回再读出的访存。</li>
+<li>GEMM 和 ReduceScatter 之间的大块同步边界。</li>
+</ul>
+<h2 id="flux">FLUX 的核心思想<a class="headerlink" href="#flux" title="Permanent link">¶</a></h2>
+<p>可以把 FLUX 拆成三个关键词：</p>
+<ol>
+<li><strong>Over-decomposition</strong>：把原本大块通信和大块计算拆成更细粒度的 tile / chunk。</li>
+<li><strong>Rescheduling</strong>：调整 tile 的执行顺序，让依赖数据一到达就能被消费。</li>
+<li><strong>Kernel Fusion</strong>：把通信 I/O、copy、scatter/gather、GEMM epilogue 等融合进更少、更高效的 GPU kernel。</li>
+</ol>
+<p>这三件事缺一不可。</p>
+<p>只拆小而不融合，会产生大量小 kernel、小通信和同步，可能更慢。</p>
+<p>只融合而不重排，可能仍然要等完整通信完成。</p>
+<p>只重排而不考虑 GEMM tile shape，可能让 Tensor Core 跑不满。</p>
+<p>FLUX 真正难的地方不是“有 overlap 这个想法”，而是在不破坏计算效率的前提下做细粒度 overlap。</p>
+<h2 id="_2">总体数据流<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>下面的图对比传统执行和 FLUX 类执行。</p>
+<div class="mermaid">flowchart TB
+    subgraph A["传统大块边界"]
+        A1["Local compute / local shard"] --&gt; A2["Collective communication<br/>AllGather / AllReduce / ReduceScatter / AllToAll"]
+        A2 --&gt; A3["Dependent compute<br/>GEMM / activation / next layer"]
+    end
+
+    subgraph B["FLUX 类细粒度边界"]
+        B1["Split tensor into chunks / tiles"] --&gt; B2["Move or receive tile"]
+        B2 --&gt; B3["Tile becomes ready"]
+        B3 --&gt; B4["Fused dependent compute"]
+        B4 --&gt; B5["Epilogue I/O<br/>write / reduce / scatter"]
+        B5 --&gt; B2
+    end
+
+    A3 --&gt; C["目标：减少 exposed communication"]
+    B5 --&gt; C
+</div>
+<p>核心不是消灭通信量。</p>
+<p>通信量通常仍然存在。</p>
+<p>目标是改变时间安排：</p>
+<div class="highlight"><pre><span></span><code>减少通信等待暴露在关键路径上的比例。
+</code></pre></div>
+<h2 id="dense-mlp">Dense MLP 场景<a class="headerlink" href="#dense-mlp" title="Permanent link">¶</a></h2>
+<p>Transformer 的 MLP 通常包含两层大矩阵：</p>
+<div class="highlight"><pre><span></span><code>hidden -&gt; intermediate -&gt; hidden
+</code></pre></div>
+<p>在 Tensor Parallel 中，这两层可能会引入 AllGather 或 ReduceScatter。</p>
+<p>不同框架实现细节不同，但可以抽象成两个常见模式：</p>
+<div class="highlight"><pre><span></span><code>MLP layer0: AllGather + GEMM
+MLP layer1: GEMM + ReduceScatter
+</code></pre></div>
+<h3 id="mlp-layer0allgather-gemm">MLP Layer0：AllGather + GEMM<a class="headerlink" href="#mlp-layer0allgather-gemm" title="Permanent link">¶</a></h3>
+<p>传统写法：</p>
+<div class="highlight"><pre><span></span><code>full_input = all_gather(input_shard)
+output = gemm(full_input, weight)
+</code></pre></div>
+<p>问题：</p>
+<ul>
+<li>GEMM 要等 full_input。</li>
+<li>AllGather 和 GEMM 之间有大块同步边界。</li>
+<li>full_input 可能带来额外显存峰值。</li>
+</ul>
+<p>FLUX 类思路：</p>
+<div class="highlight"><pre><span></span><code>GEMM kernel 按 tile 工作
+通信/拷贝在另一路径推进
+某个 tile 依赖的数据 ready 后，相关 thread block 再计算
+</code></pre></div>
+<p>也就是说，GEMM 不必等整个 AllGather 结束才开始。</p>
+<p>它可以对已经 ready 的 tile 先计算。</p>
+<h3 id="mlp-layer1gemm-reducescatter">MLP Layer1：GEMM + ReduceScatter<a class="headerlink" href="#mlp-layer1gemm-reducescatter" title="Permanent link">¶</a></h3>
+<p>传统写法：</p>
+<div class="highlight"><pre><span></span><code>partial_output = gemm(input, weight)
+output_shard = reduce_scatter(partial_output)
+</code></pre></div>
+<p>问题：</p>
+<ul>
+<li>ReduceScatter 等完整 GEMM 结束。</li>
+<li>partial_output 可能先完整写入 global memory。</li>
+<li>通信在 GEMM 后面暴露。</li>
+</ul>
+<p>FLUX 类思路：</p>
+<div class="highlight"><pre><span></span><code>GEMM tile 完成后，在 epilogue 或融合逻辑中直接处理远端写入 / reduce / scatter
+</code></pre></div>
+<p>这类融合可以让数据一产生就进入通信或规约路径。</p>
+<p>它既减少同步边界，也可能减少中间 tensor 的读写。</p>
+<h2 id="moe">MoE 场景<a class="headerlink" href="#moe" title="Permanent link">¶</a></h2>
+<p>MoE 层比 dense MLP 更复杂。</p>
+<p>一个简化 MoE MLP 可能包含：</p>
+<div class="highlight"><pre><span></span><code>router -&gt; token dispatch -&gt; grouped GEMM -&gt; activation
+-&gt; grouped GEMM -&gt; gather/combine -&gt; reduce/scatter
+</code></pre></div>
+<p>通信主要来自：</p>
+<ul>
+<li>token dispatch。</li>
+<li>expert parallel group 内 AllToAll / AllGather。</li>
+<li>expert 输出 combine。</li>
+<li>top-k reduce。</li>
+<li>ReduceScatter。</li>
+</ul>
+<p>传统 MoE 执行常常是多个大块顺序阶段：</p>
+<div class="highlight"><pre><span></span><code>route tokens
+communicate tokens
+scatter tokens to experts
+grouped GEMM
+activation
+grouped GEMM
+gather expert outputs
+combine top-k outputs
+communicate back
+</code></pre></div>
+<p>问题是：</p>
+<ul>
+<li>token 分布不均会导致某些 expert 或 rank 拖尾。</li>
+<li>dispatch/combine 和 grouped GEMM 之间有大块边界。</li>
+<li>细粒度 token 到达后不能及时被专家计算消费。</li>
+<li>coarse-grained overlap 可能损伤 GEMM 效率。</li>
+</ul>
+<p>FLUX / COMET 这类 MoE 优化会把问题进一步拆开：</p>
+<div class="highlight"><pre><span></span><code>部分 token 到达 -&gt; 对应 expert tile 先算
+部分 expert 输出完成 -&gt; 尽早 gather / reduce
+</code></pre></div>
+<p>并通过调度把通信、scatter/gather、grouped GEMM 和 reduce 组织得更紧。</p>
+<h2 id="moe-layer0-layer1">MoE Layer0 与 Layer1 的直觉<a class="headerlink" href="#moe-layer0-layer1" title="Permanent link">¶</a></h2>
+<p>可以把 MoE MLP 拆成两段。</p>
+<h3 id="moe-layer0">MoE Layer0<a class="headerlink" href="#moe-layer0" title="Permanent link">¶</a></h3>
+<p>Layer0 大致是：</p>
+<div class="highlight"><pre><span></span><code>tokens from ranks -&gt; gather/scatter to experts -&gt; grouped GEMM
+</code></pre></div>
+<p>传统方式：</p>
+<div class="highlight"><pre><span></span><code>先把 token 都搬到位
+再按 expert 分组
+再执行 grouped GEMM
+</code></pre></div>
+<p>FLUX 类思路：</p>
+<div class="highlight"><pre><span></span><code>token 分批到达
+按 expert 分组的 tile 逐步 ready
+ready 的 tile 先进入 grouped GEMM
+</code></pre></div>
+<p>关键是把 token 到达顺序、expert 分组和 GEMM tile 调度结合起来。</p>
+<h3 id="moe-layer1">MoE Layer1<a class="headerlink" href="#moe-layer1" title="Permanent link">¶</a></h3>
+<p>Layer1 大致是：</p>
+<div class="highlight"><pre><span></span><code>grouped GEMM -&gt; gather expert outputs -&gt; top-k combine -&gt; reduce/scatter back
+</code></pre></div>
+<p>传统方式：</p>
+<div class="highlight"><pre><span></span><code>所有 expert GEMM 完成
+再 gather
+再 combine
+再通信回原 rank
+</code></pre></div>
+<p>FLUX 类思路：</p>
+<div class="highlight"><pre><span></span><code>某些 expert output tile 完成后
+尽早进入 gather / top-k reduce / reduce-scatter
+</code></pre></div>
+<p>这里更容易遇到异构负载和长尾：</p>
+<ul>
+<li>不同 expert token 数不同。</li>
+<li>top-k 可能让一个 token 对应多个 expert 输出。</li>
+<li>combine 需要按原 token 顺序还原。</li>
+<li>token dropping / capacity limit 会影响形状。</li>
+</ul>
+<p>因此 MoE 里的 fine-grained overlap 不只是通信优化，也是负载调度问题。</p>
+<h2 id="fluxcomet-moe">FLUX、COMET 与 MoE<a class="headerlink" href="#fluxcomet-moe" title="Permanent link">¶</a></h2>
+<p>FLUX 项目本身支持 dense / MoE 模型的通信重叠 kernel。</p>
+<p>项目 README 提到它提供可插拔 kernel，支持训练和推理中的多种 parallelism，也给出了 dense all-gather+GEMM、GEMM+reduce-scatter，以及 MoE grouped GEMM 相关示例。</p>
+<p>COMET 可以看作更专门面向 MoE 的 fine-grained computation-communication overlap 系统。</p>
+<p>从学习角度可以这样理解：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>关注重点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FLUX</td>
+<td>通信 I/O 与 dense/MoE GEMM 的 kernel-level overlap。</td>
+</tr>
+<tr>
+<td>COMET</td>
+<td>MoE 层里通信、dispatch、grouped GEMM、负载分配的细粒度重排。</td>
+</tr>
+</tbody>
+</table>
+<p>不需要把它们记成两个孤立名词。</p>
+<p>更重要的是掌握这类方法共同的系统思想：</p>
+<div class="highlight"><pre><span></span><code>依赖通信不一定只能大块等待，
+可以通过数据依赖分析、tile 调度和 fused kernel 把等待拆散。
+</code></pre></div>
+<h2 id="kernel-fusion">为什么 Kernel Fusion 关键<a class="headerlink" href="#kernel-fusion" title="Permanent link">¶</a></h2>
+<p>假设你把一个大 tensor 拆成 128 个 chunk。</p>
+<p>如果每个 chunk 都单独：</p>
+<div class="highlight"><pre><span></span><code>launch communication
+launch copy
+launch GEMM
+launch scatter
+launch reduce
+</code></pre></div>
+<p>那就会出现大量开销：</p>
+<ul>
+<li>kernel launch 开销。</li>
+<li>小 GEMM 效率差。</li>
+<li>小通信效率差。</li>
+<li>同步点变多。</li>
+<li>中间 tensor 频繁读写 global memory。</li>
+<li>Python / framework 调度开销上升。</li>
+</ul>
+<p>所以 fine-grained overlap 必须配合 fusion。</p>
+<p>Fusion 的目标是：</p>
+<ul>
+<li>让细粒度 I/O 不破坏 GEMM 主体效率。</li>
+<li>减少中间结果落地。</li>
+<li>减少 launch 和同步。</li>
+<li>让 thread block / warp 调度能自然隐藏远端 I/O latency。</li>
+</ul>
+<p>这也是为什么 FLUX 不是普通训练脚本层面的优化。</p>
+<p>它通常需要 CUDA/C++、CUTLASS、NCCL、NVSHMEM、TMA、异步 copy、epilogue fusion 等底层能力。</p>
+<h2 id="fused-kernel">它和普通 Fused Kernel 的区别<a class="headerlink" href="#fused-kernel" title="Permanent link">¶</a></h2>
+<p>普通 fused kernel 常见形式：</p>
+<div class="highlight"><pre><span></span><code>matmul -&gt; bias -&gt; activation
+</code></pre></div>
+<p>它的主要目标是减少本地 GPU 上的内存读写。</p>
+<p>FLUX 类 fusion 的特殊点是：</p>
+<div class="highlight"><pre><span></span><code>communication / remote I/O -&gt; dependent GEMM
+GEMM -&gt; communication / remote I/O
+</code></pre></div>
+<p>它不是只融合本地算子，而是把分布式数据移动也纳入 kernel 设计。</p>
+<p>这对编译器和 runtime 都更难。</p>
+<p>原因是 collective 通信涉及：</p>
+<ul>
+<li>多 rank 同步。</li>
+<li>process group。</li>
+<li>network topology。</li>
+<li>remote memory。</li>
+<li>数据到达顺序。</li>
+<li>buffer 生命周期。</li>
+<li>算法选择。</li>
+</ul>
+<p>单卡编译器通常不天然掌握这些信息。</p>
+<h2 id="nccl-nvshmem-cutlass">和 NCCL / NVSHMEM / CUTLASS 的关系<a class="headerlink" href="#nccl-nvshmem-cutlass" title="Permanent link">¶</a></h2>
+<p>学习 FLUX 时容易把几个名字混在一起。</p>
+<p>可以这样分：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NCCL</td>
+<td>常用 GPU collective 通信库，提供 AllReduce、AllGather、ReduceScatter、AllToAll 等能力。</td>
+</tr>
+<tr>
+<td>NVSHMEM</td>
+<td>GPU 端远程内存访问和 PGAS 编程模型，可用于更细粒度的远端 I/O。</td>
+</tr>
+<tr>
+<td>CUTLASS</td>
+<td>NVIDIA 的高性能 GEMM / kernel 模板库，可用于构造高效矩阵乘 kernel。</td>
+</tr>
+<tr>
+<td>FLUX</td>
+<td>把通信 I/O 和 GEMM 等计算融合、重排、封装成可用 kernel 的库。</td>
+</tr>
+</tbody>
+</table>
+<p>普通框架代码通常是：</p>
+<div class="highlight"><pre><span></span><code>NCCL collective kernel
+then CUTLASS/cuBLAS GEMM kernel
+</code></pre></div>
+<p>FLUX 类设计希望更紧：</p>
+<div class="highlight"><pre><span></span><code>GEMM kernel 中感知或触发通信 I/O
+通信 ready 后对应 tile 继续执行
+</code></pre></div>
+<p>具体实现会因 GPU 代际和互连方式不同而不同。</p>
+<h2 id="ampere-hopper">Ampere 与 Hopper 的差异<a class="headerlink" href="#ampere-hopper" title="Permanent link">¶</a></h2>
+<p>这类优化高度依赖 GPU 架构。</p>
+<p>以直觉理解：</p>
+<p>Ampere 上，一个 kernel 往往有较多 thread blocks 可由 SM 调度器切换。当某些 thread block 遇到长延迟 I/O 时，SM 还有机会切到其他 ready block。</p>
+<p>Hopper 上，TMA、warp specialization、cluster 等机制让高性能 GEMM 形成更精细的 producer/consumer pipeline。此时如果把长延迟远端 I/O 粗暴插进 epilogue，可能破坏原本高效的异步流水。</p>
+<p>因此同一个“通信融合”想法，在不同 GPU 上可能需要不同实现：</p>
+<ul>
+<li>Ampere 可能更适合某些 epilogue 融合路径。</li>
+<li>Hopper 需要更注意 TMA pipeline、persistent kernel 和 warp specialization。</li>
+<li>不同 dtype、tile shape 和 occupancy 会改变最优策略。</li>
+</ul>
+<p>结论是：</p>
+<div class="highlight"><pre><span></span><code>FLUX 类优化必须实测，不能只凭“融合更多就更快”判断。
+</code></pre></div>
+<h2 id="tensor-parallel">它为什么和 Tensor Parallel 关系密切<a class="headerlink" href="#tensor-parallel" title="Permanent link">¶</a></h2>
+<p>Tensor Parallel 直接把单层矩阵运算切到多 GPU。</p>
+<p>它的收益：</p>
+<ul>
+<li>单卡放不下的层可以切开。</li>
+<li>大 GEMM 可以并行。</li>
+<li>单卡计算延迟可以降低。</li>
+</ul>
+<p>代价：</p>
+<ul>
+<li>每层或每几层会引入高频通信。</li>
+<li>通信通常处在 forward/backward 关键路径上。</li>
+<li>TP group 内 GPU 互连质量直接影响收益。</li>
+</ul>
+<p>传统 TP 里，通信可能是：</p>
+<ul>
+<li>Column Parallel 后的 AllGather / ReduceScatter。</li>
+<li>Row Parallel 后的 AllReduce。</li>
+<li>vocab parallel cross entropy 的 AllReduce。</li>
+<li>sequence parallel 的 AllGather / ReduceScatter。</li>
+</ul>
+<p>这些通信不是偶尔发生，而是每层都会发生。</p>
+<p>所以 TP 是 FLUX 这类方法最自然的场景之一。</p>
+<p>如果 TP 通信不能隐藏，扩大 TP size 可能出现：</p>
+<div class="highlight"><pre><span></span><code>单卡 GEMM 变小
+通信占比上升
+扩展效率下降
+</code></pre></div>
+<p>FLUX 试图缓解的就是这种 TP 通信暴露。</p>
+<h2 id="moe_1">它为什么和 MoE 关系密切<a class="headerlink" href="#moe_1" title="Permanent link">¶</a></h2>
+<p>MoE 的目标是扩大参数量，但每个 token 只激活部分 expert。</p>
+<p>系统代价是 token routing 和 expert parallel 通信。</p>
+<p>MoE 的典型问题：</p>
+<ul>
+<li>token dispatch/combine 通信重。</li>
+<li>expert token 分布不均。</li>
+<li>grouped GEMM 形状不稳定。</li>
+<li>AllToAll 或 gather/scatter 长尾明显。</li>
+<li>EP size 越大，通信范围和负载问题越突出。</li>
+</ul>
+<p>这类问题非常适合 fine-grained overlap 的思想。</p>
+<p>因为 MoE 的数据本来就是按 token / expert 分组，存在天然的细粒度任务：</p>
+<div class="highlight"><pre><span></span><code>expert 0 的 token
+expert 1 的 token
+expert 2 的 token
+...
+</code></pre></div>
+<p>如果等所有 expert 数据都到齐再算，就会被最慢路径拖住。</p>
+<p>如果某些 expert 的 token ready 后就能先算，就有机会减少长尾。</p>
+<p>但 MoE 也更难，因为它还要处理：</p>
+<ul>
+<li>top-k routing。</li>
+<li>token 排序和还原。</li>
+<li>capacity。</li>
+<li>dropped token。</li>
+<li>combine 权重。</li>
+<li>expert load imbalance。</li>
+<li>grouped GEMM tile shape。</li>
+</ul>
+<p>因此 MoE 里的 FLUX/COMET 类优化，通常比 dense MLP 更依赖调度设计。</p>
+<h2 id="ep-ep">和大 EP / 小 EP 的关系<a class="headerlink" href="#ep-ep" title="Permanent link">¶</a></h2>
+<p>EP size 会影响 FLUX 类优化的收益路径。</p>
+<p>小 EP：</p>
+<ul>
+<li>通信范围小。</li>
+<li>每个 rank 上 expert 权重更多。</li>
+<li>通信压力较低，但显存压力较高。</li>
+<li>fine-grained overlap 的收益可能没那么明显。</li>
+</ul>
+<p>大 EP：</p>
+<ul>
+<li>每个 rank 放的 expert 更少。</li>
+<li>expert 权重显存下降。</li>
+<li>token dispatch 范围扩大。</li>
+<li>AllToAll / gather / scatter 更容易暴露。</li>
+<li>expert load imbalance 更明显。</li>
+</ul>
+<p>因此大 EP 场景更容易需要 fine-grained MoE overlap。</p>
+<p>但不能简单说“大 EP 一定要 FLUX”。</p>
+<p>仍然要看：</p>
+<ul>
+<li>expert token 数分布。</li>
+<li>batch size。</li>
+<li>sequence length。</li>
+<li>top-k。</li>
+<li>capacity factor。</li>
+<li>GPU 互连。</li>
+<li>EP group 是否跨节点。</li>
+<li>grouped GEMM 是否还能高效。</li>
+</ul>
+<p>相关内容见：<a href="../expert-parallel-moe-training/">Expert Parallel 与 MoE 训练</a></p>
+<h2 id="_3">训练与推理中的差异<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>FLUX 论文和项目都覆盖训练和推理场景，但两者收益路径不完全一样。</p>
+<p>训练中有：</p>
+<ul>
+<li>forward。</li>
+<li>backward。</li>
+<li>activation 保存或重算。</li>
+<li>gradient communication。</li>
+<li>optimizer step。</li>
+<li>mixed precision state。</li>
+<li>checkpoint。</li>
+</ul>
+<p>推理中有：</p>
+<ul>
+<li>prefill。</li>
+<li>decode。</li>
+<li>KV cache。</li>
+<li>batching。</li>
+<li>SLO。</li>
+<li>streaming。</li>
+<li>request scheduling。</li>
+</ul>
+<p>同样是 TP 通信暴露，训练和推理的优化目标不同：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>主要目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>训练</td>
+<td>降低 step time，提高 MFU / tokens/s，保持数值正确。</td>
+</tr>
+<tr>
+<td>Prefill 推理</td>
+<td>降低大 prompt 的批处理耗时，提高吞吐和 TTFT。</td>
+</tr>
+<tr>
+<td>Decode 推理</td>
+<td>降低逐 token latency，提高小 batch 下的通信隐藏。</td>
+</tr>
+</tbody>
+</table>
+<p>训练系统文章关注的是训练。</p>
+<p>但推理里的 prefill/decode 也能帮助理解为什么 dependent communication 是一个普遍问题。</p>
+<h2 id="overlap_1">与上一层 Overlap 的关系<a class="headerlink" href="#overlap_1" title="Permanent link">¶</a></h2>
+<p>FLUX 不替代 bucket-level 或 stream-level overlap。</p>
+<p>它是更底层的一层。</p>
+<p>可以按层级理解：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>典型手段</th>
+<th>解决的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>调度层</td>
+<td>训练任务排队、资源隔离、eval 异步</td>
+<td>集群资源等待。</td>
+</tr>
+<tr>
+<td>框架层</td>
+<td>gradient bucket、prefetch、async collective</td>
+<td>通信和独立计算重叠。</td>
+</tr>
+<tr>
+<td>并行策略层</td>
+<td>DP/FSDP/TP/PP/EP/SP/CP 组合</td>
+<td>改变计算、显存、通信分布。</td>
+</tr>
+<tr>
+<td>kernel 层</td>
+<td>tile scheduling、epilogue fusion、remote I/O</td>
+<td>依赖通信和依赖计算的细粒度重叠。</td>
+</tr>
+<tr>
+<td>FLUX 类方法</td>
+<td>communication-aware GEMM / MoE kernel</td>
+<td>TP/MoE 等通信暴露。</td>
+</tr>
+</tbody>
+</table>
+<p>如果框架层 overlap 已经把通信盖住，FLUX 收益可能有限。</p>
+<p>如果通信暴露来自依赖路径，FLUX 才更有意义。</p>
+<h2 id="profiler">Profiler 里应该怎么看<a class="headerlink" href="#profiler" title="Permanent link">¶</a></h2>
+<p>考虑 FLUX 前，先用 profiler 证明问题存在。</p>
+<p>重点看：</p>
+<ul>
+<li>TP / EP layer time。</li>
+<li>NCCL collective 是否在关键路径上。</li>
+<li>collective 后是否有明显空白等待。</li>
+<li>GEMM 是否被通信推迟。</li>
+<li>GPU kernel timeline 中是否存在大块同步边界。</li>
+<li>SM utilization 是否因等待通信下降。</li>
+<li>网络 utilization 是否有长尾。</li>
+<li>不同 rank 的 layer time 是否不均。</li>
+</ul>
+<p>一个典型信号：</p>
+<div class="highlight"><pre><span></span><code>AllGather 完成前，dependent GEMM 没法启动。
+ReduceScatter 在 GEMM 后暴露，且后面没有足够计算覆盖。
+MoE dispatch/combine 拖住 grouped GEMM。
+</code></pre></div>
+<p>如果 profiler 显示主要时间花在本地 GEMM，而且通信不暴露，那么先优化 GEMM、shape、batch 或 precision。</p>
+<h2 id="benchmark">Benchmark 设计<a class="headerlink" href="#benchmark" title="Permanent link">¶</a></h2>
+<p>评估 FLUX 类优化不能只看一个 microbenchmark。</p>
+<p>至少要分三层：</p>
+<h3 id="1-kernel-layer-microbenchmark">1. Kernel / Layer Microbenchmark<a class="headerlink" href="#1-kernel-layer-microbenchmark" title="Permanent link">¶</a></h3>
+<p>回答：</p>
+<div class="highlight"><pre><span></span><code>目标 kernel 或目标层是否变快？
+</code></pre></div>
+<p>指标：</p>
+<ul>
+<li>fused kernel latency。</li>
+<li>GEMM TFLOPs。</li>
+<li>communication latency。</li>
+<li>exposed communication。</li>
+<li>occupancy。</li>
+<li>memory bandwidth。</li>
+<li>remote I/O time。</li>
+<li>register / shared memory pressure。</li>
+<li>correctness error。</li>
+</ul>
+<h3 id="2-model-step-benchmark">2. Model Step Benchmark<a class="headerlink" href="#2-model-step-benchmark" title="Permanent link">¶</a></h3>
+<p>回答：</p>
+<div class="highlight"><pre><span></span><code>一个训练 step 是否变快？
+</code></pre></div>
+<p>指标：</p>
+<ul>
+<li>step time。</li>
+<li>tokens/s。</li>
+<li>MFU。</li>
+<li>TP/EP layer time。</li>
+<li>forward time。</li>
+<li>backward time。</li>
+<li>communication time。</li>
+<li>optimizer time。</li>
+<li>peak memory。</li>
+</ul>
+<h3 id="3-end-to-end-training-benchmark">3. End-to-end Training Benchmark<a class="headerlink" href="#3-end-to-end-training-benchmark" title="Permanent link">¶</a></h3>
+<p>回答：</p>
+<div class="highlight"><pre><span></span><code>长期训练是否真的更划算？
+</code></pre></div>
+<p>指标：</p>
+<ul>
+<li>tokens/day。</li>
+<li>cost per token。</li>
+<li>stability。</li>
+<li>checkpoint overhead。</li>
+<li>eval cadence 下的有效吞吐。</li>
+<li>failure rate。</li>
+<li>run-to-run variance。</li>
+</ul>
+<p>如果 microbenchmark 变快，但 step time 没变，需要继续定位是否被其他瓶颈掩盖。</p>
+<h2 id="ab">A/B 实验矩阵<a class="headerlink" href="#ab" title="Permanent link">¶</a></h2>
+<p>建议至少比较：</p>
+<table>
+<thead>
+<tr>
+<th>实验</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>baseline framework</td>
+<td>原始 Megatron / vLLM / 自研框架路径。</td>
+</tr>
+<tr>
+<td>normal async overlap</td>
+<td>排除普通 overlap 已经足够的情况。</td>
+</tr>
+<tr>
+<td>FLUX dense kernel</td>
+<td>验证 dense MLP / TP 路径收益。</td>
+</tr>
+<tr>
+<td>FLUX MoE kernel</td>
+<td>验证 expert dispatch / grouped GEMM 路径收益。</td>
+</tr>
+<tr>
+<td>different TP sizes</td>
+<td>看 TP 通信暴露是否随 TP size 变化。</td>
+</tr>
+<tr>
+<td>different EP sizes</td>
+<td>看 MoE 通信和 expert load 是否改变收益。</td>
+</tr>
+<tr>
+<td>intra-node only</td>
+<td>区分 NVLink / NVSwitch 场景。</td>
+</tr>
+<tr>
+<td>cross-node</td>
+<td>检查 IB/RoCE 下收益是否仍成立。</td>
+</tr>
+<tr>
+<td>different sequence lengths</td>
+<td>看 prefill/long context 或训练 token shape 影响。</td>
+</tr>
+<tr>
+<td>different micro-batch</td>
+<td>看 GEMM shape 和 token count 对收益影响。</td>
+</tr>
+</tbody>
+</table>
+<p>所有 benchmark 必须固定：</p>
+<ul>
+<li>model config。</li>
+<li>data shape。</li>
+<li>batch / sequence。</li>
+<li>precision。</li>
+<li>parallelism。</li>
+<li>rank mapping。</li>
+<li>warmup。</li>
+<li>measurement window。</li>
+<li>environment。</li>
+<li>commit。</li>
+<li>manifest。</li>
+</ul>
+<h2 id="_4">数值正确性<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<p>FLUX 类优化会改变计算和通信的执行顺序。</p>
+<p>它可能改变：</p>
+<ul>
+<li>浮点规约顺序。</li>
+<li>epilogue 中的舍入时机。</li>
+<li>中间结果写回时机。</li>
+<li>reduce / scatter 顺序。</li>
+<li>grouped GEMM 的 token 排列。</li>
+</ul>
+<p>因此必须验证数值正确性。</p>
+<p>常见检查：</p>
+<ul>
+<li>与 baseline 输出做 <code>max_abs_diff</code> / <code>mean_abs_diff</code>。</li>
+<li>对 forward output 比较。</li>
+<li>对 backward gradient 比较。</li>
+<li>对 optimizer step 后参数比较。</li>
+<li>小模型短训练 loss 曲线对齐。</li>
+<li>MoE token combine 后 token 顺序正确。</li>
+<li>top-k combine 权重正确。</li>
+<li>dropped token / padding token 处理正确。</li>
+</ul>
+<p>对于 BF16/FP16/FP8，不要期待每个 bit 都一样。</p>
+<p>但误差必须在可解释范围内，并且长期训练稳定性不能下降。</p>
+<p>相关内容见：<a href="../training-stability-numerical-debugging/">训练稳定性与数值异常</a></p>
+<h2 id="buffer">显存与 Buffer 生命周期<a class="headerlink" href="#buffer" title="Permanent link">¶</a></h2>
+<p>FLUX 类方法不只是算快，还可能改变显存结构。</p>
+<p>需要关注：</p>
+<ul>
+<li>all-gather buffer 是否还需要完整保存。</li>
+<li>reduce-scatter buffer 是否减少。</li>
+<li>fused kernel 是否需要额外 staging buffer。</li>
+<li>remote I/O buffer 如何分配。</li>
+<li>MoE token scatter/gather buffer 是否复用。</li>
+<li>allocator 是否产生碎片。</li>
+<li>peak memory 是否下降或上升。</li>
+</ul>
+<p>有时 fusion 会减少中间 tensor。</p>
+<p>也有时为了 pipeline 和远端 I/O，需要额外 buffer。</p>
+<p>所以 benchmark 里必须记录 peak memory 和 allocator 行为。</p>
+<p>相关内容见：<a href="../memory-composition-optimization/">显存组成与优化总览</a></p>
+<h2 id="_5">与编译器的关系<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<p>TorchInductor、XLA、TVM、Triton 等编译器擅长做本地图优化和算子融合。</p>
+<p>但 FLUX 类问题跨越了：</p>
+<ul>
+<li>多 rank。</li>
+<li>collective。</li>
+<li>remote I/O。</li>
+<li>process group。</li>
+<li>topology。</li>
+<li>CUDA stream。</li>
+<li>GEMM tile schedule。</li>
+</ul>
+<p>这比普通 graph fusion 更复杂。</p>
+<p>未来编译器可能会更好地表达 distributed tensor 和 collective schedule。</p>
+<p>但在当前工程实践里，很多通信计算融合仍然需要专门库或手写 kernel。</p>
+<p>相关内容见：</p>
+<ul>
+<li><a href="../../05-kernels-compilers/triton/">Triton Kernel 编程</a></li>
+<li><a href="../../05-kernels-compilers/torchinductor/">TorchInductor 与 PyTorch 编译栈</a></li>
+</ul>
+<h2 id="_6">与硬件互连的关系<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>FLUX 的收益和互连强相关。</p>
+<p>需要区分：</p>
+<ul>
+<li>PCIe。</li>
+<li>NVLink。</li>
+<li>NVSwitch。</li>
+<li>InfiniBand。</li>
+<li>RoCE。</li>
+<li>跨机架网络。</li>
+</ul>
+<p>一般来说：</p>
+<ul>
+<li>节点内高速互连更适合高频 TP。</li>
+<li>跨节点 TP/EP 通信更容易暴露网络长尾。</li>
+<li>网络拥塞会放大 fine-grained schedule 的不稳定性。</li>
+<li>rank mapping 错误会吞掉所有 kernel 层优化收益。</li>
+</ul>
+<p>因此 FLUX benchmark 不应该只报告 GPU 型号。</p>
+<p>还要报告：</p>
+<ul>
+<li>每节点 GPU 数。</li>
+<li>TP/EP group 是否跨节点。</li>
+<li>NVLink / NVSwitch 拓扑。</li>
+<li>IB/RoCE 带宽。</li>
+<li>NCCL 拓扑检测。</li>
+<li>rank mapping。</li>
+<li>是否有其他任务竞争网络。</li>
+</ul>
+<p>相关内容见：<a href="../../07-cluster-infra/rdma-network-nccl-topology-congestion/">RDMA 网络与 NCCL 拓扑</a></p>
+<h2 id="_7">常见优化方向<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<h3 id="1">1. 先定位依赖通信<a class="headerlink" href="#1" title="Permanent link">¶</a></h3>
+<p>不要一上来就集成 FLUX。</p>
+<p>先回答：</p>
+<div class="highlight"><pre><span></span><code>哪个 layer 的哪个 collective 暴露？
+这个 collective 后面的计算是否依赖它？
+</code></pre></div>
+<p>如果只是普通 DDP gradient AllReduce 暴露，可能先调整 bucket size、backward overlap、网络和 rank mapping。</p>
+<h3 id="2-chunk-tile">2. 控制 Chunk / Tile 粒度<a class="headerlink" href="#2-chunk-tile" title="Permanent link">¶</a></h3>
+<p>chunk 太大：</p>
+<ul>
+<li>overlap 空间不足。</li>
+<li>仍然接近大块等待。</li>
+</ul>
+<p>chunk 太小：</p>
+<ul>
+<li>GEMM tile 低效。</li>
+<li>launch / synchronization 开销上升。</li>
+<li>remote I/O 太碎。</li>
+<li>metadata 管理复杂。</li>
+</ul>
+<p>合理粒度要同时看通信隐藏和 Tensor Core efficiency。</p>
+<h3 id="3-gemm">3. 保持 GEMM 形状高效<a class="headerlink" href="#3-gemm" title="Permanent link">¶</a></h3>
+<p>过分解不能破坏核心 GEMM。</p>
+<p>要关注：</p>
+<ul>
+<li>M/N/K 是否符合 Tensor Core tile。</li>
+<li>grouped GEMM 是否有太多小 expert。</li>
+<li>micro-batch 是否太小。</li>
+<li>sequence length 是否导致 token 数不足。</li>
+<li>MoE expert token 分布是否极不均。</li>
+</ul>
+<h3 id="4-rank-mapping">4. 做 Rank Mapping<a class="headerlink" href="#4-rank-mapping" title="Permanent link">¶</a></h3>
+<p>FLUX 类优化经常作用在 TP/EP group 内。</p>
+<p>如果 TP/EP group 跨了不该跨的网络层级，kernel 层优化很难救。</p>
+<p>建议：</p>
+<ul>
+<li>TP 优先放在节点内高速互连。</li>
+<li>EP 根据 expert 权重和 token dispatch 范围权衡。</li>
+<li>大 EP 跨节点时重点看 AllToAll 长尾。</li>
+<li>记录 rank mapping 到 Run Manifest。</li>
+</ul>
+<h3 id="5">5. 限制融合范围<a class="headerlink" href="#5" title="Permanent link">¶</a></h3>
+<p>不要把所有逻辑都塞进一个巨大 kernel。</p>
+<p>过度 fusion 可能导致：</p>
+<ul>
+<li>register pressure 上升。</li>
+<li>occupancy 下降。</li>
+<li>编译时间上升。</li>
+<li>debug 困难。</li>
+<li>dtype / shape 支持变窄。</li>
+<li>硬件代际适配困难。</li>
+</ul>
+<p>好的 fusion 是围绕关键路径做局部融合。</p>
+<h3 id="6-baseline">6. 保留 Baseline 路径<a class="headerlink" href="#6-baseline" title="Permanent link">¶</a></h3>
+<p>FLUX 类优化应该可以开关。</p>
+<p>原因：</p>
+<ul>
+<li>不同 shape 收益不同。</li>
+<li>不同 GPU 代际收益不同。</li>
+<li>Debug 时需要回到 baseline。</li>
+<li>数值异常时需要二分定位。</li>
+<li>新框架版本可能改变原有瓶颈。</li>
+</ul>
+<p>建议配置项清楚记录：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">flux</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">dense_ag_gemm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">dense_gemm_rs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">moe_grouped_gemm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">min_tokens_per_expert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128</span>
+<span class="w">  </span><span class="nt">fallback_to_baseline</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<p>这只是示例，真实字段以具体实现为准。</p>
+<h2 id="_8">常见误区<a class="headerlink" href="#_8" title="Permanent link">¶</a></h2>
+<h3 id="flux_1">误区一：FLUX 就是异步通信<a class="headerlink" href="#flux_1" title="Permanent link">¶</a></h3>
+<p>不是。</p>
+<p>异步通信是 stream-level overlap 的基础。</p>
+<p>FLUX 更强调：</p>
+<ul>
+<li>fine-grained data dependency。</li>
+<li>tile / chunk rescheduling。</li>
+<li>GEMM 与通信 I/O 的 kernel-level fusion。</li>
+</ul>
+<h3 id="flux_2">误区二：只要通信占比高就适合 FLUX<a class="headerlink" href="#flux_2" title="Permanent link">¶</a></h3>
+<p>不一定。</p>
+<p>通信占比高要先看通信是否在 FLUX 擅长的依赖路径上。</p>
+<p>例如：</p>
+<ul>
+<li>checkpoint 上传慢不是 FLUX 解决的问题。</li>
+<li>数据加载慢不是 FLUX 解决的问题。</li>
+<li>DDP bucket 没和 backward 重叠好，优先调 bucket 和 overlap。</li>
+<li>网络拥塞严重，先看拓扑和调度。</li>
+</ul>
+<h3 id="fusion">误区三：Fusion 一定更快<a class="headerlink" href="#fusion" title="Permanent link">¶</a></h3>
+<p>不一定。</p>
+<p>Fusion 可能：</p>
+<ul>
+<li>降低 occupancy。</li>
+<li>增加寄存器压力。</li>
+<li>破坏 GEMM tile。</li>
+<li>增加编译复杂度。</li>
+<li>缩小可支持 shape 范围。</li>
+</ul>
+<p>必须用 profiler 证明。</p>
+<h3 id="microbenchmark">误区四：Microbenchmark 变快就是训练变快<a class="headerlink" href="#microbenchmark" title="Permanent link">¶</a></h3>
+<p>不一定。</p>
+<p>训练 step 可能仍然被：</p>
+<ul>
+<li>data pipeline。</li>
+<li>activation recompute。</li>
+<li>optimizer。</li>
+<li>checkpoint。</li>
+<li>pipeline bubble。</li>
+<li>MoE load imbalance。</li>
+</ul>
+<p>其他环节限制。</p>
+<h3 id="_9">误区五：训练和推理收益可以直接照搬<a class="headerlink" href="#_9" title="Permanent link">¶</a></h3>
+<p>不能。</p>
+<p>推理 decode 常常是小 batch、低 latency。</p>
+<p>训练常常是大 batch、大 GEMM、forward/backward 成对出现。</p>
+<p>同一个 kernel 在两者中的收益路径不同。</p>
+<h3 id="_10">误区六：忽略数值和可复现性<a class="headerlink" href="#_10" title="Permanent link">¶</a></h3>
+<p>通信和计算顺序变化可能带来数值差异。</p>
+<p>需要记录：</p>
+<ul>
+<li>kernel 版本。</li>
+<li>dtype。</li>
+<li>shape。</li>
+<li>rank mapping。</li>
+<li>random seed / RNG state。</li>
+<li>baseline diff。</li>
+<li>loss 曲线。</li>
+</ul>
+<p>相关内容见：<a href="../training-reproducibility-randomness-run-manifest/">训练可复现性、随机性与 Run Manifest</a></p>
+<h2 id="_11">落地检查表<a class="headerlink" href="#_11" title="Permanent link">¶</a></h2>
+<p>考虑 FLUX 类优化前：</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> profiler 确认通信暴露在关键路径上。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 确认后续计算依赖通信结果。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 确认普通 async / bucket overlap 不足。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 确认目标层是 TP / MoE / distributed GEMM 等高频路径。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录 baseline step time、layer time、MFU、tokens/s。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录 TP/EP group 和 rank mapping。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录 GPU、互连、CUDA、NCCL、CUTLASS、NVSHMEM、PyTorch 版本。</li>
+</ul>
+<p>集成时：</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 保留 baseline fallback。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 小 shape 和目标 shape 都测试。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> forward output 与 baseline 对齐。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> backward gradient 与 baseline 对齐。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> MoE token 顺序、top-k combine、padding/dropped token 正确。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录 peak memory。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录 compile/build flags。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录 kernel 开关到 Run Manifest。</li>
+</ul>
+<p>Benchmark 时：</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 做 kernel/layer microbenchmark。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 做 model step benchmark。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 做短训练稳定性验证。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 比较不同 TP size。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 比较不同 EP size。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 比较节点内和跨节点。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 比较不同 batch/sequence/token distribution。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 用 profiler 证明 exposed communication 降低。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 用端到端 step time 证明训练真正变快。</li>
+</ul>
+<p>上线前：</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 明确 fallback 条件。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 明确不支持 shape / dtype / GPU 架构。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 明确异常时如何回退 baseline。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 记录版本和 artifact。</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"/><span class="task-list-indicator"></span></label> 监控 kernel error、NCCL error、NaN/Inf、tokens/s 回退。</li>
+</ul>
+<h2 id="_12">小结<a class="headerlink" href="#_12" title="Permanent link">¶</a></h2>
+<p>FLUX 的核心不是“多开一个通信 stream”，而是把依赖通信和依赖计算放到更细的粒度上重新组织。</p>
+<p>它的关键思想是：</p>
+<ul>
+<li>通信不一定只能大块等待。</li>
+<li>数据到达一部分，就可以尝试处理一部分。</li>
+<li>细粒度 overlap 必须配合 kernel fusion，否则开销会反噬。</li>
+<li>Dense MLP 中典型是 AllGather+GEMM、GEMM+ReduceScatter。</li>
+<li>MoE 中典型是 token dispatch、grouped GEMM、gather/combine、reduce/scatter 的细粒度重排。</li>
+<li>收益高度依赖 TP/EP size、shape、互连、GPU 架构和实现质量。</li>
+</ul>
+<p>对训练系统工程来说，FLUX 提供的是一个重要判断框架：</p>
+<div class="highlight"><pre><span></span><code>当通信已经在依赖路径上暴露，且普通 overlap 不够时，
+可以从框架层继续下探到 tile/kernel 层，
+重新设计通信 I/O 和计算 tile 的执行关系。
+</code></pre></div>
+<h2 id="_13">参考资料<a class="headerlink" href="#_13" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2406.06858">FLUX: Fast Software-based Communication Overlap On GPUs Through Kernel Fusion</a></li>
+<li><a href="https://github.com/bytedance/flux">bytedance/flux GitHub repository</a></li>
+<li><a href="https://github.com/bytedance/flux/blob/main/docs/design.md">bytedance/flux Design Doc</a></li>
+<li><a href="https://github.com/bytedance/flux/blob/main/docs/moe_usage.md">bytedance/flux MoE Usage</a></li>
+<li><a href="https://arxiv.org/abs/2502.19811">COMET: Fine-grained Computation-communication Overlapping for Mixture-of-Experts</a></li>
+<li><a href="../communication-computation-overlap/">通信与计算重叠</a></li>
+</ul>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  回到页面顶部
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+<script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+<script src="../../assets/javascripts/mermaid.min.js"></script><script>mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: "loose",
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        nodeSpacing: 28,
+        rankSpacing: 42
+    }
+});</script></body>
+</html>
