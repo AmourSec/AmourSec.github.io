@@ -854,11 +854,67 @@
   
   
     <li class="md-nav__item">
+      <a href="../12-hardware-basics/gpu-architecture-basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GPU 架构基础
+  </span>
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../12-hardware-basics/npu-basics/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     NPU 基础概念
+  </span>
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-hardware-basics/gpu-npu-comparison/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GPU 与 NPU 异同点
   </span>
   
     
@@ -4665,14 +4721,16 @@
     <section class="kg-mindmap-branch">
       <a class="kg-branch-title" href="../12-hardware-basics/">硬件基础</a>
       <ul>
-        <li class="kg-node-main"><a href="../12-hardware-basics/">硬件基础：NPU 与昇腾平台</a></li>
+        <li class="kg-node-main"><a href="../12-hardware-basics/">硬件基础：GPU / NPU / 昇腾平台</a></li>
+        <li class="kg-node-child"><a href="../12-hardware-basics/gpu-architecture-basics/">GPU 架构基础</a></li>
         <li class="kg-node-child"><a href="../12-hardware-basics/npu-basics/">NPU 基础概念</a></li>
+        <li class="kg-node-child"><a href="../12-hardware-basics/gpu-npu-comparison/">GPU 与 NPU 异同点</a></li>
         <li class="kg-node-child"><a href="../12-hardware-basics/ascend-npu-models/">昇腾 NPU 型号与架构映射</a></li>
         <li class="kg-node-child"><a href="../12-hardware-basics/ascend-910-series/">Ascend 910 系列</a></li>
         <li class="kg-node-child"><a href="../12-hardware-basics/ascend-950-series/">Ascend 950 系列</a></li>
         <li class="kg-node-child"><a href="../12-hardware-basics/cann-stack/">CANN 软件栈与开发入口</a></li>
         <li class="kg-node-child"><a href="../12-hardware-basics/ai-skills-sample/">NPU 相关 AI Skills 样例</a></li>
-        <li class="kg-node-note"><span>关键词：NPU / Ascend / Atlas / CANN / SocVersion / NpuArch / __NPU_ARCH__ / skills</span></li>
+        <li class="kg-node-note"><span>关键词：GPU / SM / warp / Tensor Core / NPU / Ascend / Atlas / CANN / SocVersion / NpuArch / __NPU_ARCH__ / skills</span></li>
       </ul>
     </section>
     <section class="kg-mindmap-branch">
@@ -4784,7 +4842,7 @@
 </tr>
 <tr>
 <td>具体硬件平台</td>
-<td>研究 NPU、昇腾型号映射、CANN 软件栈、平台证据收集，以及如何把硬件适配经验沉淀成 AI skill。</td>
+<td>研究 GPU/NPU 执行模型、GPU 与 NPU 差异、昇腾型号映射、CANN 软件栈、平台证据收集，以及如何把硬件适配经验沉淀成 AI skill。</td>
 <td><a href="../12-hardware-basics/">硬件基础</a></td>
 </tr>
 <tr>
@@ -4827,7 +4885,9 @@
 </ul>
 <h3 id="_4">硬件基础<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <ul>
+<li>GPU 入门：<a href="../12-hardware-basics/gpu-architecture-basics/">GPU 架构基础</a></li>
 <li>NPU 入门：<a href="../12-hardware-basics/npu-basics/">NPU 基础概念</a></li>
+<li>GPU/NPU 对比：<a href="../12-hardware-basics/gpu-npu-comparison/">GPU 与 NPU 异同点</a></li>
 <li>昇腾平台：<a href="../12-hardware-basics/ascend-npu-models/">昇腾 NPU 型号与架构映射</a>、<a href="../12-hardware-basics/ascend-910-series/">Ascend 910 系列</a>、<a href="../12-hardware-basics/ascend-950-series/">Ascend 950 系列</a></li>
 <li>软件栈与 AI 输入：<a href="../12-hardware-basics/cann-stack/">CANN 软件栈与开发入口</a>、<a href="../12-hardware-basics/ai-skills-sample/">NPU 相关 AI Skills 样例</a></li>
 </ul>
@@ -4946,11 +5006,11 @@
 </tr>
 <tr>
 <td>想做 NPU 或昇腾平台适配</td>
-<td><a href="../12-hardware-basics/npu-basics/">NPU 基础概念</a> -&gt; <a href="../12-hardware-basics/ascend-npu-models/">昇腾 NPU 型号与架构映射</a> -&gt; <a href="../12-hardware-basics/cann-stack/">CANN 软件栈与开发入口</a> -&gt; <a href="../12-hardware-basics/ai-skills-sample/">NPU 相关 AI Skills 样例</a></td>
+<td><a href="../12-hardware-basics/gpu-npu-comparison/">GPU 与 NPU 异同点</a> -&gt; <a href="../12-hardware-basics/npu-basics/">NPU 基础概念</a> -&gt; <a href="../12-hardware-basics/ascend-npu-models/">昇腾 NPU 型号与架构映射</a> -&gt; <a href="../12-hardware-basics/cann-stack/">CANN 软件栈与开发入口</a> -&gt; <a href="../12-hardware-basics/ai-skills-sample/">NPU 相关 AI Skills 样例</a></td>
 </tr>
 <tr>
 <td>想做 AI 加速器或硬件架构</td>
-<td><a href="../12-hardware-basics/npu-basics/">NPU 基础概念</a> -&gt; <a href="../06-accelerators-architecture/performance-model-roofline/">AI 加速器性能模型</a> -&gt; <a href="../06-accelerators-architecture/compute-units-simt-tensorcore/">计算单元</a> -&gt; <a href="../06-accelerators-architecture/memory-hierarchy-data-reuse/">存储层次</a> -&gt; <a href="../06-accelerators-architecture/interconnect-communication-architecture/">互连与通信架构</a> -&gt; <a href="../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">Workload Mapping</a></td>
+<td><a href="../12-hardware-basics/gpu-architecture-basics/">GPU 架构基础</a> -&gt; <a href="../12-hardware-basics/npu-basics/">NPU 基础概念</a> -&gt; <a href="../12-hardware-basics/gpu-npu-comparison/">GPU 与 NPU 异同点</a> -&gt; <a href="../06-accelerators-architecture/performance-model-roofline/">AI 加速器性能模型</a> -&gt; <a href="../06-accelerators-architecture/compute-units-simt-tensorcore/">计算单元</a> -&gt; <a href="../06-accelerators-architecture/memory-hierarchy-data-reuse/">存储层次</a> -&gt; <a href="../06-accelerators-architecture/interconnect-communication-architecture/">互连与通信架构</a> -&gt; <a href="../06-accelerators-architecture/workload-mapping-compiler-runtime-interface/">Workload Mapping</a></td>
 </tr>
 <tr>
 <td>想建设稳定集群或实验平台</td>
@@ -4993,7 +5053,7 @@
 <tr>
 <td>硬件基础</td>
 <td>2、5、6、8</td>
-<td>NPU 基础、昇腾型号映射、Ascend 910/950、CANN 软件栈、平台证据收集和 AI skill 样例</td>
+<td>GPU 架构、NPU 基础、GPU/NPU 对比、昇腾型号映射、Ascend 910/950、CANN 软件栈、平台证据收集和 AI skill 样例</td>
 </tr>
 <tr>
 <td>3 推理系统与优化</td>

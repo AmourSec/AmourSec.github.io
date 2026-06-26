@@ -16,7 +16,7 @@
         <link rel="prev" href="../02-ai-workloads/multimodal-primer/">
       
       
-        <link rel="next" href="npu-basics/">
+        <link rel="next" href="gpu-architecture-basics/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -722,11 +722,67 @@
   
   
     <li class="md-nav__item">
+      <a href="gpu-architecture-basics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GPU 架构基础
+  </span>
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="npu-basics/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     NPU 基础概念
+  </span>
+  
+    
+  
+  
+    <span class="md-status md-status--draft"></span>
+  
+
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="gpu-npu-comparison/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GPU 与 NPU 异同点
   </span>
   
     
@@ -4373,9 +4429,9 @@
 <p>本章把“具体硬件平台怎么认识、怎么适配、怎么沉淀成 AI 可用经验”单独拿出来。它和 <a href="../06-accelerators-architecture/">AI 加速器与计算架构</a> 的关系是：</p>
 <ul>
 <li><code>AI 加速器与计算架构</code> 讲通用原理：算力、带宽、存储层次、互连、功耗、workload mapping。</li>
-<li><code>硬件基础</code> 讲具体平台：型号怎么叫、软件栈怎么识别硬件、算子和模型服务适配时该收集哪些证据、怎么把经验写成 skill。</li>
+<li><code>硬件基础</code> 讲工程入口：GPU/NPU 的基本执行模型、具体平台型号怎么叫、软件栈怎么识别硬件、算子和模型服务适配时该收集哪些证据、怎么把经验写成 skill。</li>
 </ul>
-<p>第一版聚焦 NPU 和昇腾 Ascend/CANN 生态，只围绕服务器、训练和推理加速场景组织内容，不展开端侧移动芯片线索。</p>
+<p>本章围绕服务器、训练和推理加速场景组织内容。GPU 部分先讲通用架构视角，NPU 部分先讲基础概念，再进入昇腾 Ascend/CANN 生态；不展开端侧移动芯片线索。</p>
 <h2 id="_2">本章结构<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -4386,8 +4442,16 @@
 </thead>
 <tbody>
 <tr>
+<td><a href="gpu-architecture-basics/">GPU 架构基础</a></td>
+<td>GPU 为什么适合 AI 计算，SM、warp、SIMT、Tensor Core、显存层次和 kernel 执行是什么关系。</td>
+</tr>
+<tr>
 <td><a href="npu-basics/">NPU 基础概念</a></td>
 <td>NPU 是什么，为什么 AI 系统工程师需要理解 NPU 的执行模型和软件栈。</td>
+</tr>
+<tr>
+<td><a href="gpu-npu-comparison/">GPU 与 NPU 异同点</a></td>
+<td>GPU/NPU 在执行模型、软件栈、内存、算子覆盖、训练推理和迁移适配上有什么相同和不同。</td>
 </tr>
 <tr>
 <td><a href="ascend-npu-models/">昇腾 NPU 型号与架构映射</a></td>
@@ -4413,8 +4477,9 @@
 </table>
 <h2 id="_3">学习顺序<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <ol>
-<li>先读 <a href="npu-basics/">NPU 基础概念</a>，建立“硬件不是孤立芯片，而是硬件、runtime、compiler、framework 和 workload 的组合”的视角。</li>
-<li>再读 <a href="ascend-npu-models/">昇腾 NPU 型号与架构映射</a>，理解为什么不能只说“910B”或“950”，而要同时记录 CANN 版本、SocVersion、NpuArch 和实际设备信息。</li>
+<li>先读 <a href="gpu-architecture-basics/">GPU 架构基础</a> 和 <a href="npu-basics/">NPU 基础概念</a>，建立“硬件不是孤立芯片，而是硬件、runtime、compiler、framework 和 workload 的组合”的视角。</li>
+<li>再读 <a href="gpu-npu-comparison/">GPU 与 NPU 异同点</a>，理解哪些 GPU 经验可以迁移，哪些必须重新验证。</li>
+<li>继续读 <a href="ascend-npu-models/">昇腾 NPU 型号与架构映射</a>，理解为什么不能只说“910B”或“950”，而要同时记录 CANN 版本、SocVersion、NpuArch 和实际设备信息。</li>
 <li>根据手头平台选择 <a href="ascend-910-series/">Ascend 910 系列</a> 或 <a href="ascend-950-series/">Ascend 950 系列</a>。</li>
 <li>如果要做迁移、算子、性能优化或问题诊断，继续读 <a href="cann-stack/">CANN 软件栈与开发入口</a>。</li>
 <li>如果要让 AI 以后能复用团队经验，读 <a href="ai-skills-sample/">NPU 相关 AI Skills 样例</a>，并参考 <code>skills/</code> 目录中的样例写法。</li>
