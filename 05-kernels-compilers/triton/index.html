@@ -48,9 +48,9 @@
 </div>
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
-
+            
               Triton Kernel 编程
-
+            
           </span>
 </div>
 </div>
@@ -811,6 +811,20 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#triton_4">
+<span class="md-ellipsis">
+      Triton 编译器视角
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#triton-ai">
+<span class="md-ellipsis">
+      Triton AI 算子生成
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#triton-kernel_2">
 <span class="md-ellipsis">
       Triton Kernel 的基本结构
@@ -874,7 +888,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#triton_4">
+<a class="md-nav__link" href="#triton_5">
 <span class="md-ellipsis">
       Triton 适合写哪些算子
     </span>
@@ -1333,6 +1347,30 @@
 <span class="md-status md-status--draft"></span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../mlir-ai-compiler-ir/">
+<span class="md-ellipsis">
+    MLIR 与 AI 编译 IR
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tilelang/">
+<span class="md-ellipsis">
+    TileLang：面向 AI Kernel 的 Tile 编程模型
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../megakernel-persistent-automatic-generation/">
+<span class="md-ellipsis">
+    MegaKernel、Persistent Kernel 与自动生成
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
@@ -1340,12 +1378,85 @@
 <input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
 <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
 <span class="md-ellipsis">
-    AI 加速器与计算架构
+    硬件基础
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
 <nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            硬件基础
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../12-hardware-basics/">
+<span class="md-ellipsis">
+    概览
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../12-hardware-basics/npu-basics/">
+<span class="md-ellipsis">
+    NPU 基础概念
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../12-hardware-basics/ascend-npu-models/">
+<span class="md-ellipsis">
+    昇腾 NPU 型号与架构映射
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../12-hardware-basics/ascend-910-series/">
+<span class="md-ellipsis">
+    Ascend 910 系列
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../12-hardware-basics/ascend-950-series/">
+<span class="md-ellipsis">
+    Ascend 950 系列
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../12-hardware-basics/cann-stack/">
+<span class="md-ellipsis">
+    CANN 软件栈与开发入口
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../12-hardware-basics/ai-skills-sample/">
+<span class="md-ellipsis">
+    NPU 相关 AI Skills 样例
+  </span>
+<span class="md-status md-status--draft"></span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    AI 加速器与计算架构
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
 <span class="md-nav__icon md-icon"></span>
             AI 加速器与计算架构
           </label>
@@ -1426,15 +1537,15 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_9" type="checkbox"/>
-<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
 <span class="md-ellipsis">
     集群、网络、存储与调度
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_9">
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
 <span class="md-nav__icon md-icon"></span>
             集群、网络、存储与调度
           </label>
@@ -1523,15 +1634,15 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_10" type="checkbox"/>
-<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
+<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
 <span class="md-ellipsis">
     性能分析、Benchmark 与容量建模
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_10">
+<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_11">
 <span class="md-nav__icon md-icon"></span>
             性能分析、Benchmark 与容量建模
           </label>
@@ -1636,15 +1747,15 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_11" type="checkbox"/>
-<label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
+<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
 <span class="md-ellipsis">
     可靠性、可观测性与故障复盘
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_11_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_11">
+<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_12">
 <span class="md-nav__icon md-icon"></span>
             可靠性、可观测性与故障复盘
           </label>
@@ -1693,15 +1804,15 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_12" type="checkbox"/>
-<label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
+<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
 <span class="md-ellipsis">
     论文复现与系统案例
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_12_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_12">
+<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_13">
 <span class="md-nav__icon md-icon"></span>
             论文复现与系统案例
           </label>
@@ -1742,15 +1853,15 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_13" type="checkbox"/>
-<label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
 <span class="md-ellipsis">
     知识组织、模板与 AI 可读索引
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_13_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_13">
+<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_14">
 <span class="md-nav__icon md-icon"></span>
             知识组织、模板与 AI 可读索引
           </label>
@@ -1767,15 +1878,15 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
-<label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_15" type="checkbox"/>
+<label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="0">
 <span class="md-ellipsis">
     模板
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_14">
+<nav aria-expanded="false" aria-labelledby="__nav_15_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_15">
 <span class="md-nav__icon md-icon"></span>
             模板
           </label>
@@ -1875,6 +1986,20 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#triton_4">
+<span class="md-ellipsis">
+      Triton 编译器视角
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#triton-ai">
+<span class="md-ellipsis">
+      Triton AI 算子生成
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#triton-kernel_2">
 <span class="md-ellipsis">
       Triton Kernel 的基本结构
@@ -1938,7 +2063,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#triton_4">
+<a class="md-nav__link" href="#triton_5">
 <span class="md-ellipsis">
       Triton 适合写哪些算子
     </span>
@@ -2562,6 +2687,114 @@ end-to-end latency
 <li>支持的 dtype/shape 列表。</li>
 <li>Triton/PyTorch/CUDA/ROCm 版本。</li>
 </ul>
+<h2 id="triton_4">Triton 编译器视角<a class="headerlink" href="#triton_4" title="Permanent link">¶</a></h2>
+<p>从使用者角度看，Triton 是 <code>@triton.jit</code> 加一段 Python DSL。从系统角度看，Triton 更像一个 AI kernel 编译器：它把 block program 形式的用户代码转成多层 IR，再经过优化和 lowering，最终生成目标 GPU 后端代码。</p>
+<p>可以把 Triton 编译器 pipeline 简化为：</p>
+<div class="highlight"><pre><span></span><code>Python DSL
+-&gt; Triton AST / semantic analysis
+-&gt; Triton IR / Triton dialect
+-&gt; Triton GPU IR / layout and memory lowering
+-&gt; backend-specific lowering
+-&gt; PTX / AMDGCN / target code
+-&gt; driver JIT / machine code
+</code></pre></div>
+<p>这个视角很重要，因为很多性能问题不是 Python 语法问题，而是编译器是否能从你的表达里推导出好的执行方式。</p>
+<p>例如：</p>
+<ul>
+<li>pointer pattern 是否让编译器看出 coalesced load/store。</li>
+<li>block tensor shape 是否适合 vectorization。</li>
+<li><code>tl.dot</code> 的 dtype、shape、layout 是否能映射到 Tensor Core 或等价矩阵单元。</li>
+<li>mask 是否过于复杂，导致 predicate 和控制流开销上升。</li>
+<li><code>num_warps</code>、<code>num_stages</code> 是否造成 register/shared memory 压力。</li>
+<li>program ordering 是否有利于 L2 reuse。</li>
+</ul>
+<p>排查 Triton 编译器相关问题时，可以按三层看：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>看什么</th>
+<th>常见问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DSL 层</td>
+<td><code>tl.load</code>、<code>tl.store</code>、<code>tl.dot</code>、mask、constexpr</td>
+<td>语义错、stride 错、shape 特化太多</td>
+</tr>
+<tr>
+<td>IR / lowering 层</td>
+<td>Triton dialect、TritonGPU dialect、layout encoding</td>
+<td>layout 不理想、vectorization 不生效、fallback</td>
+</tr>
+<tr>
+<td>目标代码层</td>
+<td>PTX/SASS/ISA、register、shared memory、occupancy</td>
+<td>spill、bank conflict、Tensor Core 利用率低</td>
+</tr>
+</tbody>
+</table>
+<p>不要把 Triton 编译器当黑盒。对于关键 kernel，至少要能回答：它生成了几个 kernel、是否命中编译缓存、是否走目标矩阵指令、资源占用是多少、和预期 schedule 是否一致。</p>
+<h2 id="triton-ai">Triton AI 算子生成<a class="headerlink" href="#triton-ai" title="Permanent link">¶</a></h2>
+<p>这类方向有时会被写成 Triton AI算子生成或 Triton AI 算子生成。这里指同一类问题：围绕 AI workload 自动或半自动生成 Triton kernel。</p>
+<p>它可以分成三种来源。</p>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>说明</th>
+<th>适合场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>手写生成</td>
+<td>工程师直接写 Triton kernel</td>
+<td>自定义 fused op、特殊 layout、MoE routing</td>
+</tr>
+<tr>
+<td>编译器生成</td>
+<td>TorchInductor 等后端生成 Triton</td>
+<td>PyTorch graph 自动融合、elementwise/reduction 组合</td>
+</tr>
+<tr>
+<td>自动模板/搜索生成</td>
+<td>根据算子 schema、shape 和硬件搜索 Triton 实现</td>
+<td>大量候选 kernel、自动调参、跨硬件移植</td>
+</tr>
+</tbody>
+</table>
+<p>第三类是“AI 算子生成”里越来越重要的方向。它不是让模型随便写一段 kernel，而是把算子语义、shape、dtype、layout、memory hierarchy、tile space 和 correctness test 组织成一个生成闭环。</p>
+<p>一个相对可靠的 Triton 算子生成流程应该是：</p>
+<div class="highlight"><pre><span></span><code>算子语义 / schema
+-&gt; reference implementation
+-&gt; shape / dtype / layout 约束
+-&gt; Triton template 或生成候选
+-&gt; autotune / schedule search
+-&gt; correctness test
+-&gt; microbenchmark
+-&gt; profiler
+-&gt; end-to-end validation
+-&gt; fallback / guard
+</code></pre></div>
+<p>这类流程适合：</p>
+<ul>
+<li>layernorm、RMSNorm、softmax、activation 等 fused reduction/elementwise。</li>
+<li>quant/dequant、scale、cast 和 epilogue 融合。</li>
+<li>MoE dispatch/combine、top-k、packing。</li>
+<li>特殊 attention pattern。</li>
+<li>固定 shape 的服务端 hot path。</li>
+</ul>
+<p>但它也有硬约束：</p>
+<ul>
+<li>必须有参考实现和误差容忍标准。</li>
+<li>必须覆盖边界 shape、非连续 stride、mask 和 dtype。</li>
+<li>必须记录生成代码、tuning 参数和环境版本。</li>
+<li>必须有 fallback，不能让生成失败影响线上请求。</li>
+<li>不能只看单 kernel microbenchmark，要看端到端收益。</li>
+</ul>
+<p>因此，Triton AI 算子生成的关键不是“生成代码”，而是“生成、验证、调优、回退和追踪”这一整套工程闭环。</p>
 <h2 id="triton-kernel_2">Triton Kernel 的基本结构<a class="headerlink" href="#triton-kernel_2" title="Permanent link">¶</a></h2>
 <p>一个最小 Triton kernel 通常长这样：</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">triton</span>
@@ -2794,7 +3027,7 @@ hidden=8192 -&gt; BLOCK_SIZE=8192 或分块实现
 </tbody>
 </table>
 <p>对 AI 系统来说，shape 管理本身就是性能工程的一部分。Triton 写得再好，如果线上 shape 分布不可控，收益也可能被编译、fallback 和缓存抖动吃掉。</p>
-<h2 id="triton_4">Triton 适合写哪些算子<a class="headerlink" href="#triton_4" title="Permanent link">¶</a></h2>
+<h2 id="triton_5">Triton 适合写哪些算子<a class="headerlink" href="#triton_5" title="Permanent link">¶</a></h2>
 <p>适合：</p>
 <table>
 <thead>
@@ -3798,8 +4031,8 @@ microbenchmark 提升多少，
 <div class="md-footer-meta md-typeset">
 <div class="md-footer-meta__inner md-grid">
 <div class="md-copyright">
-
-
+  
+  
     Made with
     <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
       Material for MkDocs

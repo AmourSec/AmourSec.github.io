@@ -2,7 +2,7 @@
 
 > AI infrastructure and efficient computing knowledge base for systems-oriented graduate students, engineers, and AI-assisted retrieval.
 
-This repository is a public Markdown knowledge base rendered as a MkDocs site. Use `llms.txt` as the entry index and `llms-full.txt` when a single-file context dump is preferred.
+This repository is a public Markdown knowledge base rendered as a MkDocs site. Human-readable documents live in `docs/`; task-oriented AI skill samples live in `skills/`. Use `llms.txt` as the entry index and `llms-full.txt` when a single-file context dump is preferred.
 
 ## Canonical Locations
 
@@ -15,8 +15,8 @@ This repository is a public Markdown knowledge base rendered as a MkDocs site. U
 
 1. Start with `首页` and `知识地图` to understand the scope and structure.
 2. Read `AI 基础概念`, `Transformer 流程与原理`, `训练过程与原理`, `推理过程与原理`, and `多模态原理` for baseline AI workload understanding.
-3. For efficient computing, move to `推理系统与优化`, `Kernel、算子与编译优化`, `AI 加速器与计算架构`, and `性能分析、Benchmark 与容量建模`.
-4. For long-term knowledge capture, use `论文复现与系统案例`, `知识组织、模板与 AI 可读索引`, and the templates.
+3. For efficient computing, move to `推理系统与优化`, `Kernel、算子与编译优化`, `硬件基础`, `AI 加速器与计算架构`, and `性能分析、Benchmark 与容量建模`.
+4. For long-term knowledge capture, use `论文复现与系统案例`, `知识组织、模板与 AI 可读索引`, the templates, and task-oriented skill samples.
 
 ## Primary Documents
 
@@ -40,7 +40,7 @@ This repository is a public Markdown knowledge base rendered as a MkDocs site. U
 - [调度策略](https://amoursec.github.io/03-inference-systems/scheduling/): 推理调度策略如何在队列、优先级、SLO、缓存、准入控制和公平性之间取舍。
 - [量化推理](https://amoursec.github.io/03-inference-systems/quantization/): 量化推理用低精度权重、激活或 KV Cache 降低显存、带宽和推理成本。
 - [Speculative Decoding](https://amoursec.github.io/03-inference-systems/speculative-decoding/): Speculative Decoding 用 draft 和 verify 减少目标模型逐 token Decode 等待。
-- [Prefill/Decode 分离部署](https://amoursec.github.io/03-inference-systems/prefill-decode-disaggregation/): Prefill/Decode 分离部署用独立资源池和 KV 传输减少两阶段互相干扰。
+- [Prefill/Decode 分离部署](https://amoursec.github.io/03-inference-systems/prefill-decode-disaggregation/): Prefill/Decode 分离部署用独立资源池和 KV 传输减少两阶段互相干扰，并解释异构下的 AFD / 异构下 AFD（Attention-FFN Disaggregation）如何进一步按 Attention 与 FFN/MLP 角色拆分资源池、通信路径和调度责任。
 - [MoE 模型推理优化](https://amoursec.github.io/03-inference-systems/moe-inference-optimization/): MoE 推理优化关注专家路由、dispatch/combine、负载不均、通信和专家权重放置。
 - [EP Size 与大 EP / 小 EP](https://amoursec.github.io/03-inference-systems/ep-size-large-small-ep/): EP Size 与大 EP / 小 EP 说明 MoE 专家并行大小如何影响每卡专家显存、all-to-all 通信范围、DP 副本、Prefill/Decode 和尾延迟。
 - [单机推理服务架构](https://amoursec.github.io/03-inference-systems/single-node-serving-architecture/): 单机推理服务架构梳理 API、tokenizer、scheduler、GPU executor、KV Cache、streaming 和可观测性。
@@ -53,7 +53,7 @@ This repository is a public Markdown knowledge base rendered as a MkDocs site. U
 - [vLLM](https://amoursec.github.io/03-inference-systems/vllm/): vLLM 作为现代 LLM serving 引擎案例，串联 PagedAttention、continuous batching、KV Cache、OpenAI-compatible serving 和性能调优。
 - [TensorRT-LLM](https://amoursec.github.io/03-inference-systems/tensorrt-llm/): TensorRT-LLM 作为 NVIDIA GPU 高性能推理栈案例，串联 engine/runtime、in-flight batching、paged KV cache、量化、kernel 优化和多 GPU 并行。
 - [SGLang](https://amoursec.github.io/03-inference-systems/sglang/): SGLang 作为结构化生成和高性能 runtime 案例，串联 RadixAttention、prefix reuse、structured outputs、RAG/Agent 和多模态 serving。
-- [RAG 与 Agent 推理负载](https://amoursec.github.io/03-inference-systems/rag-agent-workloads/): RAG 与 Agent 作为复合推理 workload，拆解检索、rerank、context packing、工具调用、多轮 LLM 调用、缓存、容量、可靠性和端到端 benchmark。
+- [RAG 与 Agent 推理负载](https://amoursec.github.io/03-inference-systems/rag-agent-workloads/): RAG 与 Agent 作为复合推理 workload，拆解检索、rerank、context packing、工具调用、多轮 LLM 调用、代码执行沙箱、沙箱快启、PVM/pre-warmed VM/pooled VM/persistent VM 池化、缓存、容量、可靠性和端到端 benchmark。
 - [Benchmark 方法与性能剖析](https://amoursec.github.io/03-inference-systems/benchmark-profiling/): Benchmark 方法与性能剖析连接 benchmark 现象、trace、profiling、队列分析、GPU timeline、KV Cache、网络瓶颈和容量模型。
 - [训练系统与优化](https://amoursec.github.io/04-training-systems/): 训练系统与优化主题入口，覆盖训练生命周期、数据混合采样、大词表输出层/loss、backward/autograd、collective 通信原语、并行策略、通信重叠、FLUX、参数高效微调、后训练工作负载、Muon 优化器、evaluation/checkpoint selection、训练可复现性/run manifest、checkpoint 和训练 benchmark。
 - [训练任务生命周期](https://amoursec.github.io/04-training-systems/training-lifecycle/): 训练任务生命周期从数据读取、forward、loss、backward、gradient sync、optimizer step 到 checkpoint 建立训练系统端到端视角。
@@ -87,10 +87,20 @@ This repository is a public Markdown knowledge base rendered as a MkDocs site. U
 - [训练性能指标与扩展效率](https://amoursec.github.io/04-training-systems/training-performance-metrics-scaling/): 训练性能指标与扩展效率解释如何用固定 workload、warmup/steady/end-to-end 测量窗口、step time breakdown、samples/s、tokens/s、instantaneous/sustained/effective throughput、goodput、tokens/day、time to target quality、quality-normalized throughput、MFU/HFU、FLOPs 分子分母纪律、dense/MoE FLOPs 估算、strong/weak scaling、scaling 实验矩阵、并行策略影响、显存 headroom、通信 exposed time 与有效带宽、synthetic/real data 差异、optimizer/checkpoint overhead、stability metrics、straggler/tail metrics、cost efficiency、性能回归门槛和报告模板评价训练系统。
 - [训练性能剖析与 Benchmark](https://amoursec.github.io/04-training-systems/training-benchmark-profiling/): 训练性能剖析与 Benchmark 解释如何用问题驱动方式设计可复现训练 benchmark，覆盖 micro/component/end-to-end benchmark、torch.utils.benchmark、固定 workload、测量窗口、随机性、环境记录、benchmark manifest、重复测量与噪声、synthetic/real data、工具选择矩阵、PyTorch Profiler、Nsight Systems、Nsight Compute、NVTX 命名、多 rank trace、step time breakdown、通信 exposed time 与归因、data pipeline 对照实验、memory/optimizer/checkpoint profiling、straggler 定位、paired A/B、profiling overhead、trace 资产治理、benchmark 报告模板、性能回归处理流程和常见误区。
 - [DeepSpeed、Megatron-LM 与 PyTorch FSDP](https://amoursec.github.io/04-training-systems/deepspeed-megatron-fsdp/): DeepSpeed、Megatron-LM 与 PyTorch FSDP 从训练系统职责拆分出发比较 runtime、model definition、parallel layout、memory sharding、optimizer、kernel/fusion、checkpoint/resume 和 observability，覆盖 DeepSpeed ZeRO/offload/runtime 配置、ZeRO stage、DeepSpeed 适用边界，Megatron Core 的 TP/PP/EP/CP、Transformer/MoE model-parallel training stack、distributed optimizer/FSDP/dist checkpointing，PyTorch FSDP 的 wrap policy、sharding strategy、PyTorch 原生生态、DTensor/Tensor Parallel/DeviceMesh/DCP、FSDP checkpoint 语义、parallel group ownership、框架组合方式、迁移成本、框架选型矩阵、benchmark 失败路径、选型报告模板、常见误区和设计检查清单。
-- [Kernel、算子与编译优化](https://amoursec.github.io/05-kernels-compilers/): Kernel、算子与编译优化主题入口，覆盖算子语义、手写 Kernel、图编译与代码生成、性能诊断、Attention、Triton 和 TorchInductor。
+- [Kernel、算子与编译优化](https://amoursec.github.io/05-kernels-compilers/): Kernel、算子与编译优化主题入口，覆盖算子语义、手写 Kernel、Tile 与 Schedule、图编译与代码生成、编译 IR 与 Lowering、跨算子融合、性能诊断、Attention、Triton、Triton 编译器、Triton AI 算子生成、TorchInductor、MLIR、TileLang、OpenTileIR/open tile IR、Persistent Kernel 和 MegaKernel。
 - [Attention 机制与计算模式](https://amoursec.github.io/05-kernels-compilers/attention-computation-patterns/): Attention 机制与计算模式区分 attention pattern、exact/approx、kernel 实现和状态管理四个维度，解释 Q/K/V shape、dense/causal/cross attention、mask 类型、Dense Attention 的 O(n^2) 成本和中间矩阵、Sparse Attention pattern 与 block sparse kernel 难点、MHA/MQA/GQA、FlashAttention 的 IO-aware tiling、online softmax、FlashAttention-2 work partition、PagedAttention block table、训练 forward/backward、推理 Prefill/Decode、KV Cache、长上下文、TP/SP/CP 并行、attention kernel 输入约束、Dense/Sparse/Flash/Paged 使用场景、性能分析维度、attention benchmark 方法和常见优化决策。
-- [Triton Kernel 编程](https://amoursec.github.io/05-kernels-compilers/triton/): Triton Kernel 编程解释 blocked program 执行模型、JIT 生命周期、launch grid、program_id、block tensor、pointer arithmetic、mask、shape specialization、AI workload 模式、tiling、资源模型、数值与 dtype、fused softmax、matmul、autotune、PyTorch/Inductor 集成、debugging、benchmark、端到端验证和 profiler 方法。
+- [Triton Kernel 编程](https://amoursec.github.io/05-kernels-compilers/triton/): Triton Kernel 编程解释 blocked program 执行模型、Triton 编译器 pipeline、Triton AI算子生成 / Triton AI 算子生成闭环、JIT 生命周期、launch grid、program_id、block tensor、pointer arithmetic、mask、shape specialization、AI workload 模式、tiling、资源模型、数值与 dtype、fused softmax、matmul、autotune、PyTorch/Inductor 集成、debugging、benchmark、端到端验证和 profiler 方法。
 - [TorchInductor 与 PyTorch 编译栈](https://amoursec.github.io/05-kernels-compilers/torchinductor/): TorchInductor 与 PyTorch 编译栈解释 torch.compile、编译区域、TorchDynamo、FX/ATen 图、Fake Tensor、AOTAutograd、TorchInductor lowering/fusion/scheduler/codegen、graph break、guard、recompile、dynamic shape、CUDA Graph、compile mode、Generated Code、AOTInductor、生产上线策略、tlparse、TORCH_LOGS、torch.compiler API、profiler 和消融排查方法。
+- [MLIR 与 AI 编译 IR](https://amoursec.github.io/05-kernels-compilers/mlir-ai-compiler-ir/): MLIR 与 AI 编译 IR 解释为什么 AI 编译需要多层 IR、dialect、lowering、bufferization、loop/tile/vector/GPU 层级、MLIR 与 Triton/TorchInductor/TileLang/MegaKernel 的关系、IR 能解决和不能解决的问题、读 IR 的方法、常见误区和工程检查清单。
+- [TileLang：面向 AI Kernel 的 Tile 编程模型](https://amoursec.github.io/05-kernels-compilers/tilelang/): TileLang：面向 AI Kernel 的 Tile 编程模型解释 tile-oriented DSL 在 AI kernel 中的位置，覆盖 tile、dataflow、schedule、layout、thread binding、pipeline、tensorization、autotuning、OpenTileIR/open tile IR 方向、与 Triton/TVM/MLIR 的关系、适用场景、benchmark 方法和工程检查清单。
+- [MegaKernel、Persistent Kernel 与自动生成](https://amoursec.github.io/05-kernels-compilers/megakernel-persistent-automatic-generation/): MegaKernel / mega kernel / mega-kernel、Persistent Kernel 与自动生成解释普通 fusion、CUDA Graph、persistent kernel、MegaKernel 的区别，覆盖 LLM 推理为何关注 persistent kernel、Triton MegaKernel、Ascend C MegaKernel-style 实现、自动生成 pipeline、任务图/Event/IR-based 方向、收益来源、风险、benchmark 方法和设计决策表。
+- [硬件基础](https://amoursec.github.io/12-hardware-basics/): 硬件基础章节入口，聚焦 NPU、昇腾 Ascend/CANN 平台、型号映射、软件栈和 AI skill 样例。
+- [NPU 基础概念](https://amoursec.github.io/12-hardware-basics/npu-basics/): NPU 基础概念解释 NPU 执行模型、计算单元、片上存储、HBM、数据搬运、compiler、runtime、profiling，以及 AI Infra 为什么要把硬件、软件栈和 workload 证据连起来。
+- [昇腾 NPU 型号与架构映射](https://amoursec.github.io/12-hardware-basics/ascend-npu-models/): 昇腾 NPU 型号与架构映射解释产品系列、芯片型号、SocVersion、NpuArch、__NPU_ARCH__、archXX 的关系，并给出 Ascend 910B、910_93、950PR、950DT 的工程判断边界。
+- [Ascend 910 系列](https://amoursec.github.io/12-hardware-basics/ascend-910-series/): Ascend 910 系列说明 910、910B、910_93 在服务器训练、推理、算子和编译优化中的学习重点、实验清单和 CANN 上下文记录方式。
+- [Ascend 950 系列](https://amoursec.github.io/12-hardware-basics/ascend-950-series/): Ascend 950 系列说明 950PR、950DT、DAV_3510、Atlas 950/A5 的公开线索、验证边界、Prefill/Decode、低精度、通信扩展和 skill 沉淀方向。
+- [CANN 软件栈与开发入口](https://amoursec.github.io/12-hardware-basics/cann-stack/): CANN 软件栈与开发入口解释 Toolkit、Runtime、Driver、torch_npu、图模式、Ascend C、profiling、simulator、模型推理优化和 AI 诊断证据收集。
+- [NPU 相关 AI Skills 样例](https://amoursec.github.io/12-hardware-basics/ai-skills-sample/): NPU 相关 AI Skills 样例解释普通文档、benchmark、ADR、failure case 与 skill 的区别，并给出 NPU 架构能力判断 skill 的组织方式。
 - [AI 加速器与计算架构](https://amoursec.github.io/06-accelerators-architecture/): AI 加速器与计算架构主题入口，关注 GPU、NPU、TPU、ASIC、FPGA 的计算、存储、互连、能效和可编程性。
 - [AI 加速器性能模型：算力、带宽与 Roofline](https://amoursec.github.io/06-accelerators-architecture/performance-model-roofline/): AI 加速器性能模型用 arithmetic intensity、ridge point、多重 Roofline、compute/memory/network/energy roof、FLOPs/bytes 口径、compute-bound、memory-bound、launch-bound、HBM、片上存储、矩阵单元、低精度、Prefill/Decode、训练、MoE、互连、能效、硬件选型和 benchmark 分析硬件真实性能上限。
 - [计算单元：SIMT、Tensor Core 与矩阵引擎](https://amoursec.github.io/06-accelerators-architecture/compute-units-simt-tensorcore/): 计算单元：SIMT、Tensor Core 与矩阵引擎解释 SIMD/SIMT、masked execution、warp、warp scheduler、SM、occupancy、register/shared memory、Tensor Core tile/fragment/accumulator、Matrix Core、systolic array、NPU/ASIC 取舍、vector/scalar/load-store/SFU、稀疏、不规则访存、动态控制流、Transformer/MoE/Prefill/Decode 映射、并行切分、kernel fusion、profiler 指标和真实矩阵单元利用率。
@@ -135,6 +145,10 @@ This repository is a public Markdown knowledge base rendered as a MkDocs site. U
 - [知识点模板：从概念解释到 AI 可读卡片](https://amoursec.github.io/99-templates/knowledge-note/): 知识点模板说明如何撰写 AI Infra 普通知识点文章，覆盖适用场景、最小模板、完整推荐模板、front matter、domain/doc_type/status/workload/system_layer/metrics/sources 字段、系统对象、成本模型、指标体系、适用范围、相关技术、Benchmark 方法、证据来源、AI-readable knowledge card、写作规则、常见误区和模板质量门禁。
 - [技术决策模板：从问题、证据到可追溯决策](https://amoursec.github.io/99-templates/adr/): 技术决策模板说明如何撰写 AI Infra ADR，覆盖使用场景、文件命名、状态流转、最小模板、完整推荐模板、decision question、context、workload contract、system scope、decision drivers、options、evidence matrix、benchmark evidence、evidence level、decision、consequences、cost model、reliability impact、implementation plan、rollout、rollback、confirmation、revisit condition、AI-readable ADR card、字段说明、写作规则、常见误区、质量门禁以及与知识点、Benchmark、Failure Case、Runbook 和 Paper Note 的关系。
 - [基准实验报告模板：从问题设计到可复现实验](https://amoursec.github.io/99-templates/benchmark-report/): 基准实验报告模板说明如何撰写 AI Infra benchmark report，覆盖 benchmark 类型、证据等级、最小模板、完整推荐模板、benchmark question、hypothesis、validity scope、workload contract、hardware/software/runtime environment、baseline、variants、primary/guardrail/debugging metrics、experiment design、warmup、repetitions、sweep、stop conditions、commands、run manifest、raw data、summary data、results、statistical treatment、profiler and bottleneck analysis、correctness and quality guardrails、cost and energy、conclusion、artifact index、AI-readable benchmark card、字段说明、写作规则、常见误区和质量门禁。
+
+## AI Skill Samples
+
+- [npu-arch-capability-check](https://raw.githubusercontent.com/AmourSec/aikg/main/skills/npu-arch-capability-check/SKILL.md): NPU 架构能力判断 skill，指导 AI 根据 Ascend 设备型号、SocVersion、NpuArch、CANN 版本、编译宏和代码分支收集证据并输出能力判断。
 
 ## Markdown Source
 
@@ -208,6 +222,16 @@ Prefer Markdown source when exact wording, metadata, or citations are needed.
 - [05-kernels-compilers/attention-computation-patterns.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/05-kernels-compilers/attention-computation-patterns.md)
 - [05-kernels-compilers/triton.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/05-kernels-compilers/triton.md)
 - [05-kernels-compilers/torchinductor.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/05-kernels-compilers/torchinductor.md)
+- [05-kernels-compilers/mlir-ai-compiler-ir.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/05-kernels-compilers/mlir-ai-compiler-ir.md)
+- [05-kernels-compilers/tilelang.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/05-kernels-compilers/tilelang.md)
+- [05-kernels-compilers/megakernel-persistent-automatic-generation.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/05-kernels-compilers/megakernel-persistent-automatic-generation.md)
+- [12-hardware-basics/index.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/12-hardware-basics/index.md)
+- [12-hardware-basics/npu-basics.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/12-hardware-basics/npu-basics.md)
+- [12-hardware-basics/ascend-npu-models.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/12-hardware-basics/ascend-npu-models.md)
+- [12-hardware-basics/ascend-910-series.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/12-hardware-basics/ascend-910-series.md)
+- [12-hardware-basics/ascend-950-series.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/12-hardware-basics/ascend-950-series.md)
+- [12-hardware-basics/cann-stack.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/12-hardware-basics/cann-stack.md)
+- [12-hardware-basics/ai-skills-sample.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/12-hardware-basics/ai-skills-sample.md)
 - [06-accelerators-architecture/index.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/06-accelerators-architecture/index.md)
 - [06-accelerators-architecture/performance-model-roofline.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/06-accelerators-architecture/performance-model-roofline.md)
 - [06-accelerators-architecture/compute-units-simt-tensorcore.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/06-accelerators-architecture/compute-units-simt-tensorcore.md)
@@ -252,10 +276,12 @@ Prefer Markdown source when exact wording, metadata, or citations are needed.
 - [99-templates/knowledge-note.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/99-templates/knowledge-note.md)
 - [99-templates/adr.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/99-templates/adr.md)
 - [99-templates/benchmark-report.md](https://raw.githubusercontent.com/AmourSec/aikg/main/docs/99-templates/benchmark-report.md)
+- [skills/npu-arch-capability-check/SKILL.md](https://raw.githubusercontent.com/AmourSec/aikg/main/skills/npu-arch-capability-check/SKILL.md)
 
 ## AI Usage Notes
 
 - Treat front matter fields as metadata for domain, status, owner, license, and update time.
 - Prefer citing source document paths when answering from this knowledge base.
+- Use `skills/` files as task workflows, not as general-purpose encyclopedic articles.
 - Performance claims should preserve workload, batch shape, sequence length, precision, hardware, software version, and benchmark context when available.
 - Draft pages are useful for orientation, but should not be treated as verified conclusions unless the page status says reviewed or verified.
