@@ -286,14 +286,63 @@
 <li class="md-nav__item">
 <a class="md-nav__link" href="#_1">
 <span class="md-ellipsis">
-      一个最小视角
+      先看哪些架构图
     </span>
 </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#npu_1">
 <span class="md-ellipsis">
-      NPU 里常见的硬件概念
+      NPU 的整体结构
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#npu-ai-core">
+<span class="md-ellipsis">
+      NPU 内部：AI Core 是主要执行入口
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai-core-cubevectormte">
+<span class="md-ellipsis">
+      AI Core 内部：Cube、Vector、MTE 怎么协作
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cube">
+<span class="md-ellipsis">
+      Cube 计算单元：矩阵乘为什么是主角
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ubl1l0-hbm">
+<span class="md-ellipsis">
+      片上存储：UB、L1、L0 与 HBM
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tiling">
+<span class="md-ellipsis">
+      编程模型：Tiling、搬、算、搬
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#simdsimtregbase-gpu">
+<span class="md-ellipsis">
+      SIMD、SIMT、RegBase：不要只套 GPU 词汇
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai-workload-npu">
+<span class="md-ellipsis">
+      从 AI workload 看 NPU
     </span>
 </a>
 </li>
@@ -315,6 +364,13 @@
 <a class="md-nav__link" href="#_2">
 <span class="md-ellipsis">
       最小记录清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      参考资料
     </span>
 </a>
 </li>
@@ -1407,14 +1463,63 @@
 <li class="md-nav__item">
 <a class="md-nav__link" href="#_1">
 <span class="md-ellipsis">
-      一个最小视角
+      先看哪些架构图
     </span>
 </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#npu_1">
 <span class="md-ellipsis">
-      NPU 里常见的硬件概念
+      NPU 的整体结构
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#npu-ai-core">
+<span class="md-ellipsis">
+      NPU 内部：AI Core 是主要执行入口
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai-core-cubevectormte">
+<span class="md-ellipsis">
+      AI Core 内部：Cube、Vector、MTE 怎么协作
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cube">
+<span class="md-ellipsis">
+      Cube 计算单元：矩阵乘为什么是主角
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ubl1l0-hbm">
+<span class="md-ellipsis">
+      片上存储：UB、L1、L0 与 HBM
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tiling">
+<span class="md-ellipsis">
+      编程模型：Tiling、搬、算、搬
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#simdsimtregbase-gpu">
+<span class="md-ellipsis">
+      SIMD、SIMT、RegBase：不要只套 GPU 词汇
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai-workload-npu">
+<span class="md-ellipsis">
+      从 AI workload 看 NPU
     </span>
 </a>
 </li>
@@ -1439,6 +1544,13 @@
     </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      参考资料
+    </span>
+</a>
+</li>
 </ul>
 </nav>
 </div>
@@ -1447,65 +1559,475 @@
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
 <h1 id="npu">NPU 基础概念<a class="headerlink" href="#npu" title="Permanent link">¶</a></h1>
-<p>NPU 可以先理解成“为神经网络计算设计的加速器”。它不是只会运行某一个模型的固定电路，而是通过软件栈把模型中的矩阵乘、Attention、归一化、激活函数、数据搬运和通信等操作，映射到专门的计算单元和存储层次上。</p>
-<p>对 AI Infra 来说，NPU 的关键不是名字，而是它能否把目标 workload 稳定、高效、正确地跑起来。</p>
-<h2 id="_1">一个最小视角<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>NPU 可以先理解成“为神经网络计算设计的 AI 加速器”。它不是只会运行某一个模型的固定电路，而是通过软件栈把模型里的矩阵乘、Attention、归一化、激活函数、数据搬运和通信，映射到专门的计算单元、片上存储和外部显存上。</p>
+<p>对 AI Infra 来说，NPU 的关键不是名字，而是目标 workload 能不能稳定、高效、正确地跑起来。看 NPU 不能只看峰值算力，要同时看硬件单元、内存层次、编译器、runtime、算子覆盖、profiling 证据和具体模型 shape。</p>
+<blockquote>
+<p>图像说明：本篇引用 CANN/Ascend 开源资料中的官方或准官方架构图，图片版权归原项目或原厂所有。仓库不复制这些图片文件；如果离线阅读看不到图片，可以点击图下注明的来源。</p>
+</blockquote>
+<h2 id="_1">先看哪些架构图<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>NPU 资料容易一下子进入芯片型号、CANN 版本、Ascend C API 和算子细节。新手更适合按下面顺序读图：</p>
+<table>
+<thead>
+<tr>
+<th>先后</th>
+<th>图或资料</th>
+<th>适合用来理解什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/atlas_a2_a3_architecture.png">Atlas A2/A3 architecture</a></td>
+<td>从服务器/加速卡视角看 CPU、NPU、HBM、互连、通信和系统软件栈的关系。</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/ascend_950pr_950dt_architecture.png">Ascend 950PR/950DT architecture</a></td>
+<td>从新一代服务器 NPU 视角看不同芯片形态和系统结构。</td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/a2a3_npu_arch.png">A2/A3 NPU architecture</a></td>
+<td>理解 NPU 内部的 AI Core、片上存储、搬运通路和外部显存。</td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/950_npu_arch.png">950 NPU architecture</a></td>
+<td>对比新架构中新增或增强的执行单元、搬运通路和低精度能力。</td>
+</tr>
+<tr>
+<td>5</td>
+<td><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/AI-Core内部并行计算架构抽象.png">AI Core 内部并行计算架构抽象</a></td>
+<td>看清 AI Core 里 Cube、Vector、Scalar、MTE 和本地存储如何协作。</td>
+</tr>
+<tr>
+<td>6</td>
+<td><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/architecture_of_cube_compute_unit_a2a3.png">Cube compute unit A2/A3</a> 与 <a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/architecture_of_cube_compute_unit_950.png">Cube compute unit 950</a></td>
+<td>理解矩阵乘为什么是 NPU 的核心吞吐来源，以及不同代际的 Cube 能力差异。</td>
+</tr>
+<tr>
+<td>7</td>
+<td><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/a2a3_UB内存结构图.png">A2/A3 UB memory structure</a> 与 <a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/950_UB内存结构图.png">950 UB memory structure</a></td>
+<td>理解 UB 这种片上工作区为什么会影响 tiling、bank conflict、fusion 和算子性能。</td>
+</tr>
+<tr>
+<td>8</td>
+<td><a href="https://gitcode.com/cann/cannbot-skills/tree/master/ops/npu-arch">CANNBot NPU architecture skill</a></td>
+<td>用来查 SocVersion、NpuArch、<code>__NPU_ARCH__</code>、archXX、硬件参数和跨代能力差异。</td>
+</tr>
+</tbody>
+</table>
+<p>这些图不是为了背芯片结构，而是为了建立一条主线：模型算子先经过软件栈变成 NPU kernel，再由 AI Core、Cube/Vector、片上存储、数据搬运和通信共同执行。</p>
+<h2 id="npu_1">NPU 的整体结构<a class="headerlink" href="#npu_1" title="Permanent link">¶</a></h2>
+<p>先从服务器平台视角看。下面是 CANN/asc-devkit 中的 Atlas A2/A3 架构图：</p>
+<p><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/atlas_a2_a3_architecture.png"><img alt="Atlas A2/A3 architecture" src="https://raw.gitcode.com/cann/asc-devkit/raw/master/docs/api/figures/atlas_a2_a3_architecture.png"/></a></p>
+<p>来源：<a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/atlas_a2_a3_architecture.png">CANN asc-devkit - Atlas A2/A3 architecture</a></p>
+<p>这类图要先抓住几个层次：</p>
+<ul>
+<li>CPU 和 host 侧负责应用逻辑、框架、runtime 调用、输入输出和任务下发。</li>
+<li>NPU device 侧负责大规模 tensor 计算、片上数据搬运和部分通信任务。</li>
+<li>HBM 或设备侧内存存放权重、activation、KV Cache、临时 buffer 和输出。</li>
+<li>多卡或多节点训练/推理还要经过设备互连、网络和通信库。</li>
+</ul>
+<p>再看 Ascend 950PR/950DT 这类新平台的架构图：</p>
+<p><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/ascend_950pr_950dt_architecture.png"><img alt="Ascend 950PR and 950DT architecture" src="https://raw.gitcode.com/cann/asc-devkit/raw/master/docs/api/figures/ascend_950pr_950dt_architecture.png"/></a></p>
+<p>来源：<a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/ascend_950pr_950dt_architecture.png">CANN asc-devkit - Ascend 950PR/950DT architecture</a></p>
+<p>不同代际、不同 SKU 的具体参数会变，但系统视角基本稳定：NPU 从来不是孤立芯片，而是“硬件 + driver + CANN + 框架/推理引擎 + 算子实现 + workload”的组合。</p>
+<p>把它放进 AI 系统链路里，可以简化成：</p>
 <div class="mermaid">flowchart TB
-  A["模型或应用\nPyTorch / 推理引擎 / 训练框架"] --&gt; B["图、算子或 Kernel\nMatMul / Attention / LayerNorm / AllReduce"]
-  B --&gt; C["编译器与 Runtime\n图优化 / 算子选择 / 内存规划 / 调度"]
-  C --&gt; D["NPU 执行\n计算单元 / 本地存储 / HBM / DMA / 通信"]
-  D --&gt; E["系统指标\n吞吐 / 延迟 / 显存 / 能耗 / 正确性 / 稳定性"]
+  A["模型或服务代码\nPyTorch / MindSpore / 推理引擎 / 自定义算子"] --&gt; B["图、算子或 Kernel\nMatMul / Attention / Norm / AllReduce"]
+  B --&gt; C["框架适配与图优化\ntorch_npu / CANN Graph / 算子选择 / fusion"]
+  C --&gt; D["编译器与 Runtime\nTiling / 内存规划 / Stream / Kernel 调度"]
+  D --&gt; E["NPU Device\nAI Core / Cube / Vector / MTE / HCCL"]
+  E --&gt; F["存储与互连\nUB / L1 / L0 / L2 / HBM / RoCE 或片间互连"]
+  F --&gt; G["系统指标\n吞吐 / 延迟 / 显存 / 能耗 / 正确性 / 稳定性"]
 </div>
-<p>这条链路说明一件事：模型代码能不能快，不只取决于 NPU 峰值算力，还取决于编译器能不能生成合适的 kernel，runtime 能不能把内存和调度安排好，框架能不能把模型图落到硬件支持的路径上。</p>
-<h2 id="npu_1">NPU 里常见的硬件概念<a class="headerlink" href="#npu_1" title="Permanent link">¶</a></h2>
+<p>这条链路说明：模型代码能不能快，不只取决于 NPU 峰值算力，还取决于编译器能否生成合适的 kernel，runtime 能否把内存和调度安排好，框架能否把模型图落到硬件支持的路径上。</p>
+<h2 id="npu-ai-core">NPU 内部：AI Core 是主要执行入口<a class="headerlink" href="#npu-ai-core" title="Permanent link">¶</a></h2>
+<p>下面两张图给出了 A2/A3 和 950 的 NPU 内部架构视角：</p>
+<p><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/a2a3_npu_arch.png"><img alt="A2/A3 NPU architecture" src="https://raw.gitcode.com/cann/asc-devkit/raw/master/docs/api/figures/a2a3_npu_arch.png"/></a></p>
+<p>来源：<a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/a2a3_npu_arch.png">CANN asc-devkit - A2/A3 NPU architecture</a></p>
+<p><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/950_npu_arch.png"><img alt="950 NPU architecture" src="https://raw.gitcode.com/cann/asc-devkit/raw/master/docs/api/figures/950_npu_arch.png"/></a></p>
+<p>来源：<a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/950_npu_arch.png">CANN asc-devkit - 950 NPU architecture</a></p>
+<p>入门时不需要记住每个框的细节，先理解几个稳定概念：</p>
 <table>
 <thead>
 <tr>
 <th>概念</th>
 <th>可以怎么理解</th>
+<th>常见操作</th>
 <th>为什么重要</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>计算单元</td>
-<td>执行矩阵、向量、标量或专用 AI 指令的核心资源。</td>
-<td>决定 MatMul、Attention、MLP、LayerNorm 等算子的计算上限。</td>
+<td>AI Core</td>
+<td>执行 NPU kernel 的主要计算核心。</td>
+<td>启动 kernel、多核切分、每个 core 处理一段 tensor。</td>
+<td>决定单算子并行度、尾块浪费、占用率和负载均衡。</td>
 </tr>
 <tr>
-<td>本地存储</td>
-<td>靠近计算单元的小容量高速存储，如片上 buffer、cache 或专用 scratchpad。</td>
-<td>决定数据能否被反复复用，影响算子 tiling 和 fusion。</td>
+<td>Cube Core</td>
+<td>面向矩阵乘、卷积等 dense tensor 计算的专用矩阵单元。</td>
+<td>MatMul、Conv、MLP、QKV projection、Attention score。</td>
+<td>Transformer 主要 FLOPs 都来自矩阵乘，Cube 利用率直接影响吞吐。</td>
 </tr>
 <tr>
-<td>HBM / 外部显存</td>
-<td>存放模型权重、activation、KV Cache、临时 buffer 的大容量高带宽内存。</td>
-<td>大模型经常受显存容量和带宽限制。</td>
+<td>Vector Core</td>
+<td>面向逐元素、归一化、激活、类型转换、部分 reduction 的向量单元。</td>
+<td>Add、Mul、Cast、RMSNorm、Softmax 局部步骤、量化/反量化。</td>
+<td>很多算子不是算不动，而是 Vector 和数据搬运没有跟 Cube 配好。</td>
 </tr>
 <tr>
-<td>数据搬运</td>
-<td>在 HBM、片上存储和计算单元之间移动数据。</td>
-<td>很多 kernel 慢不是因为算不动，而是数据没有及时送到。</td>
+<td>Scalar / 控制单元</td>
+<td>处理控制、地址、循环、同步和少量标量逻辑。</td>
+<td>分支、offset 计算、mask、flag、pipeline 控制。</td>
+<td>动态 shape、尾块、mask 和同步会增加控制成本。</td>
 </tr>
 <tr>
-<td>编译器</td>
-<td>把图、算子或 DSL 降低到硬件可执行形式。</td>
-<td>影响算子覆盖、fusion、layout、dynamic shape 和 fallback。</td>
+<td>MTE / DataCopy</td>
+<td>负责在 Global Memory 和片上 Local Memory 之间搬数据。</td>
+<td><code>DataCopy</code>、GM 到 UB/L1、L1 到 L0、L0C 写回。</td>
+<td>数据供不上，Cube/Vector 就会等待。</td>
 </tr>
 <tr>
-<td>Runtime</td>
-<td>管理设备、stream、内存、执行队列和错误状态。</td>
-<td>影响端到端稳定性、并发、profiling 和故障诊断。</td>
+<td>Local Memory</td>
+<td>靠近计算单元的片上工作区，包含 UB、L1、L0A/L0B/L0C 等具体层次。</td>
+<td>tiling、双缓冲、缓存输入 tile、保存中间结果。</td>
+<td>片上容量小但快，决定数据复用和 fusion 能做到什么程度。</td>
 </tr>
 <tr>
-<td>通信</td>
-<td>多卡之间交换 tensor、梯度、KV、专家 token 或中间状态。</td>
-<td>分布式训练、MoE、长上下文推理都会被通信放大。</td>
+<td>Global Memory / HBM</td>
+<td>设备侧大容量内存。</td>
+<td>存权重、activation、KV Cache、optimizer state、输入输出。</td>
+<td>大模型经常受 HBM 容量和带宽限制。</td>
+</tr>
+<tr>
+<td>L2 / 片上缓存</td>
+<td>多 core 共享或靠近 device 的缓存层。</td>
+<td>跨 core 复用、缓存权重或中间数据。</td>
+<td>影响长上下文、权重读取、KV 读取和多核访存效率。</td>
+</tr>
+<tr>
+<td>HCCL / 通信</td>
+<td>多 NPU 之间交换 tensor。</td>
+<td>AllReduce、ReduceScatter、AllGather、AllToAll。</td>
+<td>训练、多机推理、MoE 和大模型并行会被通信放大。</td>
 </tr>
 </tbody>
 </table>
+<p>如果只记一句话：NPU 优化通常不是“让一个通用核心跑更多线程”，而是“让 Cube/Vector/MTE/片上存储形成稳定流水线，减少外部显存读写和空等”。</p>
+<h2 id="ai-core-cubevectormte">AI Core 内部：Cube、Vector、MTE 怎么协作<a class="headerlink" href="#ai-core-cubevectormte" title="Permanent link">¶</a></h2>
+<p>下面这张 AI Core 内部并行计算抽象图，是理解 NPU kernel 的核心入口：</p>
+<p><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/AI-Core内部并行计算架构抽象.png"><img alt="AI Core internal parallel architecture" src="https://raw.gitcode.com/cann/asc-devkit/raw/master/docs/api/figures/AI-Core%E5%86%85%E9%83%A8%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97%E6%9E%B6%E6%9E%84%E6%8A%BD%E8%B1%A1.png"/></a></p>
+<p>来源：<a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/AI-Core内部并行计算架构抽象.png">CANN asc-devkit - AI Core 内部并行计算架构抽象</a></p>
+<p>可以把 AI Core 内部理解成几条并行工作线：</p>
+<ul>
+<li><code>MTE</code> 负责搬数据：从 Global Memory 搬到 UB/L1/L0，或把结果搬回 Global Memory。</li>
+<li><code>Cube</code> 负责大块矩阵乘：例如 GEMM、Conv、QKV projection、MLP。</li>
+<li><code>Vector</code> 负责向量计算：例如 elementwise、Cast、Norm、Softmax、量化/反量化。</li>
+<li><code>Scalar</code> 负责控制：例如循环、地址、mask、同步和分支。</li>
+<li><code>Local Memory</code> 是这些单元协作的工作区：数据先搬到片上，再被计算单元反复使用。</li>
+</ul>
+<p>这也是为什么 NPU 文档里经常出现“流水”“Tiling”“搬入、计算、搬出”“双缓冲”“bank conflict”。它们都在解决同一个问题：不要让昂贵的计算单元等数据，也不要把中间结果频繁写回 HBM。</p>
+<p>一个典型矩阵算子的简化数据流如下：</p>
+<div class="mermaid">flowchart LR
+  A["Global Memory / HBM\n输入、权重、输出"] --&gt; B["MTE / DataCopy\n搬入 tile"]
+  B --&gt; C["L1 / UB\n片上缓存与工作区"]
+  C --&gt; D["L0A / L0B\nCube 输入操作数"]
+  D --&gt; E["Cube Core\n矩阵乘累加"]
+  E --&gt; F["L0C\n累加结果"]
+  F --&gt; G["Vector / FixPipe\n后处理、格式转换、搬出准备"]
+  G --&gt; H["Global Memory / HBM\n写回输出或中间结果"]
+</div>
+<p>一个典型向量算子的简化数据流则更像：</p>
+<div class="mermaid">flowchart LR
+  A["Global Memory / HBM\n输入 tensor"] --&gt; B["MTE / DataCopy"]
+  B --&gt; C["UB\n向量工作区"]
+  C --&gt; D["Vector Core\nAdd / Mul / Cast / Reduce / Norm"]
+  D --&gt; E["UB\n结果或中间值"]
+  E --&gt; F["MTE / DataCopy"]
+  F --&gt; G["Global Memory / HBM\n输出 tensor"]
+</div>
+<h2 id="cube">Cube 计算单元：矩阵乘为什么是主角<a class="headerlink" href="#cube" title="Permanent link">¶</a></h2>
+<p>Transformer 的主要计算量集中在矩阵乘上，例如 Q/K/V projection、Attention score、Attention output projection、MLP 的 up/gate/down projection，以及训练中的 backward GEMM。NPU 的 Cube 单元就是为这类 dense tensor 计算提供高吞吐的。</p>
+<p>下面是 CANN/asc-devkit 中 A2/A3 与 950 的 Cube 计算单元示意图：</p>
+<p><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/architecture_of_cube_compute_unit_a2a3.png"><img alt="Cube compute unit A2/A3" src="https://raw.gitcode.com/cann/asc-devkit/raw/master/docs/api/figures/architecture_of_cube_compute_unit_a2a3.png"/></a></p>
+<p>来源：<a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/architecture_of_cube_compute_unit_a2a3.png">CANN asc-devkit - Cube compute unit A2/A3</a></p>
+<p><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/architecture_of_cube_compute_unit_950.png"><img alt="Cube compute unit 950" src="https://raw.gitcode.com/cann/asc-devkit/raw/master/docs/api/figures/architecture_of_cube_compute_unit_950.png"/></a></p>
+<p>来源：<a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/architecture_of_cube_compute_unit_950.png">CANN asc-devkit - Cube compute unit 950</a></p>
+<p>对工程入门来说，Cube 相关问题可以先这样看：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>应该看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>矩阵乘是否走到高效路径</td>
+<td>dtype、shape、layout、对齐、是否调用高性能 MatMul API 或 fused kernel。</td>
+</tr>
+<tr>
+<td>Cube 是否吃满</td>
+<td>profiler 里的 Cube 利用率、热点 kernel、矩阵 shape、尾块比例。</td>
+</tr>
+<tr>
+<td>为什么峰值算力高但端到端不快</td>
+<td>可能卡在 HBM、数据搬运、Vector 后处理、kernel 太碎、通信或 host 调度。</td>
+</tr>
+<tr>
+<td>为什么换一代 NPU 后需要改算子</td>
+<td>新架构可能改变 Cube 支持的数据类型、搬运通路、L0C/UB 容量和同步方式。</td>
+</tr>
+<tr>
+<td>为什么不能硬编码参数</td>
+<td>同一架构下不同 SKU、vNPU 切分和版本配置可能改变可见核数和存储容量。</td>
+</tr>
+</tbody>
+</table>
+<p>换句话说，Cube 是主角，但它不是单独工作的。一个 GEMM 要快，必须同时把输入 tile、L0/L1/UB、输出搬运、后处理和多核切分组织好。</p>
+<h2 id="ubl1l0-hbm">片上存储：UB、L1、L0 与 HBM<a class="headerlink" href="#ubl1l0-hbm" title="Permanent link">¶</a></h2>
+<p>NPU 上的性能瓶颈经常不是“算不动”，而是“数据没有放在正确的位置”。可以先把内存层次分成两类：</p>
+<ul>
+<li><code>Global Memory</code>：设备侧大内存，通常用于权重、activation、KV Cache、optimizer state 和临时 buffer。</li>
+<li><code>Local Memory</code>：靠近 AI Core 的片上工作区，容量小但速度快，常见具体层次包括 UB、L1、L0A、L0B、L0C 等。</li>
+</ul>
+<p>下面是 A2/A3 与 950 的 UB 存储结构图：</p>
+<p><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/a2a3_UB内存结构图.png"><img alt="A2/A3 UB memory structure" src="https://raw.gitcode.com/cann/asc-devkit/raw/master/docs/api/figures/a2a3_UB%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84%E5%9B%BE.png"/></a></p>
+<p>来源：<a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/a2a3_UB内存结构图.png">CANN asc-devkit - A2/A3 UB memory structure</a></p>
+<p><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/950_UB内存结构图.png"><img alt="950 UB memory structure" src="https://raw.gitcode.com/cann/asc-devkit/raw/master/docs/api/figures/950_UB%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84%E5%9B%BE.png"/></a></p>
+<p>来源：<a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/api/figures/950_UB内存结构图.png">CANN asc-devkit - 950 UB memory structure</a></p>
+<p>常见存储单元可以这样理解：</p>
+<table>
+<thead>
+<tr>
+<th>存储层次</th>
+<th>主要用途</th>
+<th>常见操作</th>
+<th>性能含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HBM / Global Memory</td>
+<td>大容量设备内存。</td>
+<td>读权重、activation、KV Cache，写输出。</td>
+<td>容量和带宽限制大模型训练、长上下文推理和 KV Cache。</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>设备侧共享缓存或片上缓存层。</td>
+<td>跨 core 缓存复用，减少 HBM 访问。</td>
+<td>L2 命中率会影响权重、KV 和中间 tensor 访问。</td>
+</tr>
+<tr>
+<td>UB</td>
+<td>Vector 工作区和很多算子的片上临时空间。</td>
+<td>搬入输入，做 elementwise、Cast、Norm、Reduce，保存临时结果。</td>
+<td>UB 容量、对齐、bank conflict 会影响向量算子和 fusion。</td>
+</tr>
+<tr>
+<td>L1</td>
+<td>Cube 输入数据的片上缓存层之一。</td>
+<td>缓存或重排矩阵 tile，向 L0A/L0B 供数。</td>
+<td>决定矩阵 tile 能否高效复用。</td>
+</tr>
+<tr>
+<td>L0A / L0B</td>
+<td>Cube 左右输入操作数。</td>
+<td>装载矩阵 A/B 的小块。</td>
+<td>对齐、layout 和 tile shape 决定 Cube 喂数效率。</td>
+</tr>
+<tr>
+<td>L0C</td>
+<td>Cube 输出累加区。</td>
+<td>保存矩阵乘累加结果，再交给后处理或写回。</td>
+<td>影响输出累加、融合 epilogue 和跨代迁移。</td>
+</tr>
+<tr>
+<td>BT / 其他专用 buffer</td>
+<td>某些后处理、bias 或特定功能的辅助存储。</td>
+<td>FixPipe、bias、格式转换等。</td>
+<td>具体能力强依赖架构代际和 API 支持。</td>
+</tr>
+</tbody>
+</table>
+<p>新手先记住：HBM 大但远，UB/L1/L0 小但近。高性能 kernel 的核心动作，就是把数据从 HBM 搬到片上后尽量多用几次。</p>
+<h2 id="tiling">编程模型：Tiling、搬、算、搬<a class="headerlink" href="#tiling" title="Permanent link">¶</a></h2>
+<p>多数用户不会一上来写 Ascend C 自定义算子，但理解它的基本执行模型很有帮助。因为框架、编译器和高性能库最终也要解决类似问题。</p>
+<p>NPU 算子常见的思路可以概括成四步：</p>
+<ol>
+<li><code>Tiling</code>：host 侧根据 shape、dtype、硬件核数和片上 buffer 容量，把大 tensor 切成每个 core 能处理的小块。</li>
+<li><code>搬入</code>：kernel 侧用 <code>DataCopy</code> 把 Global Memory 中的数据搬到 Local Memory。</li>
+<li><code>计算</code>：在 Local Memory 上调用 Cube、Vector 或其他硬件单元完成计算。</li>
+<li><code>搬出</code>：把 Local Memory 中的结果写回 Global Memory。</li>
+</ol>
+<p>一个非常简化的示意如下：</p>
+<div class="mermaid">flowchart TB
+  A["Host Tiling\nshape / dtype / core num / buffer size"] --&gt; B["SetBlockDim\n决定启动多少个 core"]
+  B --&gt; C["每个 AI Core 处理自己的 tile"]
+  C --&gt; D["DataCopy\nGM -&gt; UB/L1/L0"]
+  D --&gt; E["Compute\nCube / Vector / Scalar"]
+  E --&gt; F["DataCopy 或 FixPipe\nUB/L0C -&gt; GM"]
+  F --&gt; G["输出 tensor"]
+</div>
+<p>常见 Ascend C 概念可以这样对应：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>可以怎么理解</th>
+<th>常见用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GlobalTensor</code></td>
+<td>指向 Global Memory 中的数据。</td>
+<td>读输入、权重、KV，写输出。</td>
+</tr>
+<tr>
+<td><code>LocalTensor</code></td>
+<td>指向 Local Memory 中的数据。</td>
+<td>在 UB/L1/L0 等片上空间里计算。</td>
+</tr>
+<tr>
+<td><code>DataCopy</code></td>
+<td>触发数据搬运，通常对应 MTE/DMA 能力。</td>
+<td>GM 到 UB、GM 到 L1、L0C 到 GM 等。</td>
+</tr>
+<tr>
+<td><code>TPipe</code></td>
+<td>管理 kernel 内的流水资源。</td>
+<td>初始化队列、buffer 和异步流水。</td>
+</tr>
+<tr>
+<td><code>TQue</code></td>
+<td>管理输入、输出或临时 tensor 队列。</td>
+<td>双缓冲、多 stage pipeline。</td>
+</tr>
+<tr>
+<td><code>TBuf</code></td>
+<td>管理一块临时 buffer。</td>
+<td>临时工作区、scratch buffer。</td>
+</tr>
+<tr>
+<td><code>SetBlockDim</code></td>
+<td>设置 kernel 使用多少个 core。</td>
+<td>多核并行切分。</td>
+</tr>
+<tr>
+<td><code>GetCoreNumAic/Aiv</code></td>
+<td>获取实际可见 Cube/Vector 核数。</td>
+<td>避免硬编码核数。</td>
+</tr>
+<tr>
+<td><code>GetCoreMemSize</code></td>
+<td>获取 UB、L1、L0 等可用容量。</td>
+<td>避免硬编码 buffer 大小。</td>
+</tr>
+</tbody>
+</table>
+<p>写算子时最忌讳把某个型号的核数、UB 大小、L0 大小直接写死。CANNBot NPU 架构 skill 也强调：具体 SKU、vNPU 切分和运行时环境可能让可见资源发生变化，应该通过平台接口获取实际值。</p>
+<h2 id="simdsimtregbase-gpu">SIMD、SIMT、RegBase：不要只套 GPU 词汇<a class="headerlink" href="#simdsimtregbase-gpu" title="Permanent link">¶</a></h2>
+<p>GPU 文章里会重点讲 SIMT、warp、thread block。NPU 里也会出现 SIMD、SIMT、RegBase 等词，但含义和使用边界要按当前平台资料判断，不能把 CUDA 经验直接逐字搬过来。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>入门理解</th>
+<th>什么时候需要关心</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SIMD</td>
+<td>一条向量指令处理多个数据元素。</td>
+<td>elementwise、Cast、Norm、Reduce、向量化内存访问。</td>
+</tr>
+<tr>
+<td>SIMT</td>
+<td>用线程式编程表达并行，硬件负责调度一组线程执行。</td>
+<td>新架构上处理不规则逻辑、线程级并行或从 GPU 迁移某些写法。</td>
+</tr>
+<tr>
+<td>RegBase</td>
+<td>Vector 计算从 UB 内存操作更多转向寄存器内计算。</td>
+<td>950 类新架构上做 VF 融合、减少中间结果回写 UB。</td>
+</tr>
+<tr>
+<td>MemBase</td>
+<td>以 UB 等 Local Memory 为主要操作位置。</td>
+<td>传统向量 API、普通 elementwise 和入门算子。</td>
+</tr>
+</tbody>
+</table>
+<p>对新手来说，先不需要深入 API 细节。更重要的是知道：不同 NPU 代际可能引入新的执行模型、数据类型和搬运通路，所以迁移算子时要查 <code>SocVersion</code>、<code>NpuArch</code>、<code>__NPU_ARCH__</code> 和 CANN 版本，而不是只看产品名。</p>
+<h2 id="ai-workload-npu">从 AI workload 看 NPU<a class="headerlink" href="#ai-workload-npu" title="Permanent link">¶</a></h2>
+<p>把硬件单元和常见 AI 负载对应起来，能帮助你更快读 profiler：</p>
+<table>
+<thead>
+<tr>
+<th>AI 负载</th>
+<th>NPU 上通常涉及什么</th>
+<th>常见瓶颈</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>大 GEMM / MLP</td>
+<td>Cube、L1、L0A/L0B/L0C、HBM、MatMul API。</td>
+<td>shape 不合适、Cube 利用率低、输出后处理没融合、HBM 读写多。</td>
+</tr>
+<tr>
+<td>Attention Prefill</td>
+<td>QKV GEMM、QK^T、softmax、PV、mask、HBM/UB。</td>
+<td>长序列 HBM 读写、softmax/Mask 处理、tile 设计、fusion。</td>
+</tr>
+<tr>
+<td>Attention Decode</td>
+<td>小 batch GEMM、KV Cache 读取、调度和缓存。</td>
+<td>KV 带宽、请求长度不均、batch 太小、host 调度和 kernel 粒度。</td>
+</tr>
+<tr>
+<td>LayerNorm / RMSNorm</td>
+<td>Vector、UB、Reduce、Cast。</td>
+<td>memory-bound、UB 使用不佳、缺少 fusion。</td>
+</tr>
+<tr>
+<td>量化/反量化</td>
+<td>Vector、Cube 低精度路径、scale/zero-point 处理。</td>
+<td>dtype 支持、scale layout、额外 Cast 和搬运。</td>
+</tr>
+<tr>
+<td>MoE</td>
+<td>router、专家 GEMM、token dispatch/combine、AllToAll。</td>
+<td>负载不均、通信、专家 batch 太小、动态 shape。</td>
+</tr>
+<tr>
+<td>训练 backward</td>
+<td>Cube、Vector、activation、gradient、optimizer state、通信。</td>
+<td>显存、梯度同步、activation 保存/重算、通信计算重叠。</td>
+</tr>
+<tr>
+<td>多卡通信</td>
+<td>HCCL、拓扑、rank mapping、并行策略。</td>
+<td>AllReduce/AllToAll 尾部 rank、网络拥塞、并行策略不匹配。</td>
+</tr>
+</tbody>
+</table>
+<p>因此分析 NPU 性能时，不要只问“这张卡算力多少”。更应该问：</p>
+<ul>
+<li>当前模型主要热点是 Cube、Vector、数据搬运、通信还是 host 调度？</li>
+<li>当前 shape 是否让每个 AI Core 都有足够工作？</li>
+<li>中间结果是否频繁写回 HBM？</li>
+<li>是否发生算子 fallback、图断裂或不支持 dtype/layout？</li>
+<li>profiler 里的热点 kernel 是否符合预期？</li>
+</ul>
 <h2 id="npu-gpu">NPU 与 GPU 的学习差异<a class="headerlink" href="#npu-gpu" title="Permanent link">¶</a></h2>
-<p>GPU 生态里很多工程经验围绕 CUDA、Tensor Core、NCCL、Triton、TensorRT 展开。NPU 生态里也有类似层次，但名字、工具、编译路径和最佳实践会不同。学习 NPU 时，不要直接把 GPU 经验逐字搬过去，而要抓住几个对应关系：</p>
+<p>GPU 生态里很多工程经验围绕 CUDA、Tensor Core、NCCL、Triton、TensorRT 展开。NPU 生态里也有类似层次，但名字、工具、编译路径和最佳实践会不同。</p>
 <table>
 <thead>
 <tr>
@@ -1515,16 +2037,24 @@
 </thead>
 <tbody>
 <tr>
-<td>这个算子有没有高效 kernel？</td>
-<td>这个算子在 CANN/框架/推理引擎里是否有支持路径，是否发生 fallback。</td>
+<td>这个算子有没有高效 CUDA/Triton kernel？</td>
+<td>这个算子在 CANN、框架、推理引擎里是否有支持路径，是否发生 fallback。</td>
 </tr>
 <tr>
 <td>kernel 是 compute-bound 还是 memory-bound？</td>
-<td>片上 buffer、HBM、数据搬运和 tiling 是否匹配该算子的 shape。</td>
+<td>Cube、Vector、UB、L1/L0、HBM、DataCopy 和 tiling 是否匹配 shape。</td>
+</tr>
+<tr>
+<td>Tensor Core 是否被用上？</td>
+<td>Cube 是否被用上，dtype/layout/MatMul API 是否走到高效路径。</td>
+</tr>
+<tr>
+<td>shared memory、register 是否够？</td>
+<td>UB、L1、L0A/L0B/L0C 和临时 buffer 是否够，是否有 bank conflict。</td>
 </tr>
 <tr>
 <td>多卡通信是否拖慢训练？</td>
-<td>对应通信库、拓扑、rank mapping、parallel strategy 是否适合该 NPU 平台。</td>
+<td>HCCL、拓扑、rank mapping、parallel strategy 是否适合该 NPU 平台。</td>
 </tr>
 <tr>
 <td>profiler 看到的瓶颈在哪里？</td>
@@ -1536,6 +2066,7 @@
 </tr>
 </tbody>
 </table>
+<p>GPU 经验能帮助你形成“算力、访存、通信、调度”的分析框架，但具体到 NPU 时，一定要回到当前平台的软件栈和硬件文档。</p>
 <h2 id="ai-infra-npu">为什么 AI Infra 要理解 NPU<a class="headerlink" href="#ai-infra-npu" title="Permanent link">¶</a></h2>
 <p>做模型或算法时，可能只关心“能不能训练出更好的模型”。做 AI Infra 时，必须关心另一组问题：</p>
 <ul>
@@ -1550,14 +2081,22 @@
 <p>只要开始做 NPU 相关实验，建议每次记录：</p>
 <ul>
 <li>设备型号、数量、拓扑和 <code>npu-smi</code> 或等价工具输出。</li>
-<li>CANN Toolkit / Runtime / Driver 版本。</li>
-<li>框架版本，例如 PyTorch、torch_npu、推理引擎版本。</li>
-<li>SocVersion、NpuArch、编译目标和是否存在架构条件分支。</li>
+<li>CANN Toolkit / Runtime / Driver / Firmware 版本。</li>
+<li>框架版本，例如 PyTorch、torch_npu、MindSpore、推理引擎版本。</li>
+<li>SocVersion、NpuArch、<code>__NPU_ARCH__</code>、编译目标和是否存在架构条件分支。</li>
+<li>可见 AI Core / Cube / Vector 核数，以及 UB、L1、L0、L2、HBM 等容量信息，优先来自运行时接口。</li>
 <li>模型、精度、batch、sequence length、并行策略、输入输出长度分布。</li>
 <li>是否启用图模式、融合、量化、KV Cache、通信重叠或自定义算子。</li>
-<li>profiler、benchmark 和错误日志的原始文件路径。</li>
+<li>profiler、benchmark、编译日志和错误日志的原始文件路径。</li>
 </ul>
 <p>这些信息后续可以直接进入 benchmark report、failure case、ADR 或 AI skill。</p>
+<h2 id="_3">参考资料<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://gitcode.com/cann/asc-devkit">CANN asc-devkit</a>：CANN/Ascend 开源开发资料和图示来源。</li>
+<li><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/asc_950_feature_guide.md">Ascend 950PR/950DT 新增特性导航</a>：950PR/950DT 的 RegBase、SIMT、NDDMA、FixPipe、UB 结构等特性索引。</li>
+<li><a href="https://gitcode.com/cann/cannbot-skills/tree/master/ops/npu-arch">CANNBot NPU architecture skill</a>：SocVersion、NpuArch、<code>__NPU_ARCH__</code>、archXX 和架构能力判断入口。</li>
+<li><a href="https://www.hiascend.com/cann/document">HiAscend CANN 文档中心</a>：CANN、Ascend C、算子开发和 profiling 的官方文档入口。</li>
+</ul>
 </article>
 </div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
