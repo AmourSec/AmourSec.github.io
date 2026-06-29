@@ -11,7 +11,7 @@
 <link href="../gpu-npu-comparison/" rel="next"/>
 <link href="../../assets/images/favicon.png" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
-<title>NPU 基础概念 - AI Knowledge Graph</title>
+<title>NPU 架构基础 - AI Knowledge Graph</title>
 <link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
 <link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -49,7 +49,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              NPU 基础概念
+              NPU 架构基础
             
           </span>
 </div>
@@ -266,14 +266,14 @@
 <input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
 <label class="md-nav__link md-nav__link--active" for="__toc">
 <span class="md-ellipsis">
-    NPU 基础概念
+    NPU 架构基础
   </span>
 <span class="md-status md-status--draft"></span>
 <span class="md-nav__icon md-icon"></span>
 </label>
 <a class="md-nav__link md-nav__link--active" href="./">
 <span class="md-ellipsis">
-    NPU 基础概念
+    NPU 架构基础
   </span>
 <span class="md-status md-status--draft"></span>
 </a>
@@ -1558,7 +1558,7 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<h1 id="npu">NPU 基础概念<a class="headerlink" href="#npu" title="Permanent link">¶</a></h1>
+<h1 id="npu">NPU 架构基础<a class="headerlink" href="#npu" title="Permanent link">¶</a></h1>
 <p>NPU 可以先理解成“为神经网络计算设计的 AI 加速器”。它不是只会运行某一个模型的固定电路，而是通过软件栈把模型里的矩阵乘、Attention、归一化、激活函数、数据搬运和通信，映射到专门的计算单元、片上存储和外部显存上。</p>
 <p>对 AI Infra 来说，NPU 的关键不是名字，而是目标 workload 能不能稳定、高效、正确地跑起来。看 NPU 不能只看峰值算力，要同时看硬件单元、内存层次、编译器、runtime、算子覆盖、profiling 证据和具体模型 shape。</p>
 <blockquote>
