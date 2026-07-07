@@ -6,12 +6,12 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="AI infrastructure and efficient computing knowledge base for systems researchers and AI agents" name="description"/>
-<link href="https://amoursec.github.io/03-inference-systems/batching/" rel="canonical"/>
-<link href="../metrics/" rel="prev"/>
-<link href="../kv-cache/" rel="next"/>
+<link href="https://amoursec.github.io/11-knowledge-index/skills-authoring-guide/" rel="canonical"/>
+<link href="../" rel="prev"/>
+<link href="../../99-templates/knowledge-note/" rel="next"/>
 <link href="../../assets/images/favicon.png" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.5.50" name="generator"/>
-<title>Batching - AI Knowledge Graph</title>
+<title>AI Skills 编写指南 - AI Knowledge Graph</title>
 <link href="../../assets/stylesheets/main.a40c8224.min.css" rel="stylesheet"/>
 <link href="../../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -25,7 +25,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#batching">
+<a class="md-skip" href="#ai-skills">
           跳转至
         </a>
 </div>
@@ -49,7 +49,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              Batching
+              AI Skills 编写指南
             
           </span>
 </div>
@@ -372,22 +372,22 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
 <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
 <span class="md-ellipsis">
     推理系统与优化
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="true" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="__nav_6">
 <span class="md-nav__icon md-icon"></span>
             推理系统与优化
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../">
+<a class="md-nav__link" href="../../03-inference-systems/">
 <span class="md-ellipsis">
     概览
   </span>
@@ -395,7 +395,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../request-lifecycle/">
+<a class="md-nav__link" href="../../03-inference-systems/request-lifecycle/">
 <span class="md-ellipsis">
     推理请求生命周期
   </span>
@@ -403,7 +403,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../prefill-decode/">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode/">
 <span class="md-ellipsis">
     Prefill 与 Decode
   </span>
@@ -411,137 +411,23 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../metrics/">
+<a class="md-nav__link" href="../../03-inference-systems/metrics/">
 <span class="md-ellipsis">
     指标体系
   </span>
 <span class="md-status md-status--draft"></span>
 </a>
 </li>
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
-<span class="md-ellipsis">
-    Batching
-  </span>
-<span class="md-status md-status--draft"></span>
-<span class="md-nav__icon md-icon"></span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="./">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../03-inference-systems/batching/">
 <span class="md-ellipsis">
     Batching
   </span>
 <span class="md-status md-status--draft"></span>
 </a>
-<nav aria-label="目录" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#_1">
-<span class="md-ellipsis">
-      一个简化流程
-    </span>
-</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#gpu-batch">
-<span class="md-ellipsis">
-      为什么 GPU 喜欢 batch
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#batch-batch">
-<span class="md-ellipsis">
-      训练 batch 和推理 batch 不一样
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#static-batching">
-<span class="md-ellipsis">
-      Static Batching
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#dynamic-batching">
-<span class="md-ellipsis">
-      Dynamic Batching
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#continuous-batching">
-<span class="md-ellipsis">
-      Continuous Batching
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#prefill-decode-batching">
-<span class="md-ellipsis">
-      Prefill 和 Decode 的 Batching 不同
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#batching_1">
-<span class="md-ellipsis">
-      为什么 Batching 会增加延迟
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#batch-size">
-<span class="md-ellipsis">
-      Batch Size 不是一个数字
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#padding">
-<span class="md-ellipsis">
-      Padding 和长度分布
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#batching_2">
-<span class="md-ellipsis">
-      Batching 和显存
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#_2">
-<span class="md-ellipsis">
-      该观察哪些指标
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#_3">
-<span class="md-ellipsis">
-      一个调参思路
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#_4">
-<span class="md-ellipsis">
-      常见误区
-    </span>
-</a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../kv-cache/">
+<a class="md-nav__link" href="../../03-inference-systems/kv-cache/">
 <span class="md-ellipsis">
     KV Cache
   </span>
@@ -549,7 +435,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../paged-attention/">
+<a class="md-nav__link" href="../../03-inference-systems/paged-attention/">
 <span class="md-ellipsis">
     PagedAttention
   </span>
@@ -557,7 +443,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../prefix-cache/">
+<a class="md-nav__link" href="../../03-inference-systems/prefix-cache/">
 <span class="md-ellipsis">
     Prefix Cache
   </span>
@@ -565,7 +451,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../scheduling/">
+<a class="md-nav__link" href="../../03-inference-systems/scheduling/">
 <span class="md-ellipsis">
     调度策略
   </span>
@@ -573,7 +459,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../quantization/">
+<a class="md-nav__link" href="../../03-inference-systems/quantization/">
 <span class="md-ellipsis">
     量化推理
   </span>
@@ -581,7 +467,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../speculative-decoding/">
+<a class="md-nav__link" href="../../03-inference-systems/speculative-decoding/">
 <span class="md-ellipsis">
     Speculative Decoding
   </span>
@@ -589,7 +475,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../prefill-decode-disaggregation/">
+<a class="md-nav__link" href="../../03-inference-systems/prefill-decode-disaggregation/">
 <span class="md-ellipsis">
     Prefill/Decode 分离部署
   </span>
@@ -597,7 +483,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../moe-inference-optimization/">
+<a class="md-nav__link" href="../../03-inference-systems/moe-inference-optimization/">
 <span class="md-ellipsis">
     MoE 模型推理优化
   </span>
@@ -605,7 +491,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../ep-size-large-small-ep/">
+<a class="md-nav__link" href="../../03-inference-systems/ep-size-large-small-ep/">
 <span class="md-ellipsis">
     EP Size 与大 EP / 小 EP
   </span>
@@ -613,7 +499,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../single-node-serving-architecture/">
+<a class="md-nav__link" href="../../03-inference-systems/single-node-serving-architecture/">
 <span class="md-ellipsis">
     单机推理服务架构
   </span>
@@ -621,7 +507,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../distributed-inference/">
+<a class="md-nav__link" href="../../03-inference-systems/distributed-inference/">
 <span class="md-ellipsis">
     多机分布式推理
   </span>
@@ -629,7 +515,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../cache-system/">
+<a class="md-nav__link" href="../../03-inference-systems/cache-system/">
 <span class="md-ellipsis">
     缓存体系
   </span>
@@ -637,7 +523,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../benchmark-methodology/">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-methodology/">
 <span class="md-ellipsis">
     Benchmark 方法
   </span>
@@ -645,7 +531,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../vllm/">
+<a class="md-nav__link" href="../../03-inference-systems/vllm/">
 <span class="md-ellipsis">
     vLLM
   </span>
@@ -653,7 +539,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../tensorrt-llm/">
+<a class="md-nav__link" href="../../03-inference-systems/tensorrt-llm/">
 <span class="md-ellipsis">
     TensorRT-LLM
   </span>
@@ -661,7 +547,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../sglang/">
+<a class="md-nav__link" href="../../03-inference-systems/sglang/">
 <span class="md-ellipsis">
     SGLang
   </span>
@@ -669,7 +555,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../rag-agent-workloads/">
+<a class="md-nav__link" href="../../03-inference-systems/rag-agent-workloads/">
 <span class="md-ellipsis">
     RAG 与 Agent 推理负载
   </span>
@@ -677,7 +563,7 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../benchmark-profiling/">
+<a class="md-nav__link" href="../../03-inference-systems/benchmark-profiling/">
 <span class="md-ellipsis">
     Benchmark 方法与性能剖析
   </span>
@@ -1438,35 +1324,227 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_14" type="checkbox"/>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_14" type="checkbox"/>
 <label class="md-nav__link" for="__nav_14" id="__nav_14_label" tabindex="0">
 <span class="md-ellipsis">
     知识组织、模板与 AI 可读索引
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
+<nav aria-expanded="true" aria-labelledby="__nav_14_label" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="__nav_14">
 <span class="md-nav__icon md-icon"></span>
             知识组织、模板与 AI 可读索引
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../11-knowledge-index/">
+<a class="md-nav__link" href="../">
 <span class="md-ellipsis">
     概览
   </span>
 <span class="md-status md-status--draft"></span>
 </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../11-knowledge-index/skills-authoring-guide/">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    AI Skills 编写指南
+  </span>
+<span class="md-status md-status--draft"></span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
 <span class="md-ellipsis">
     AI Skills 编写指南
   </span>
 <span class="md-status md-status--draft"></span>
 </a>
+<nav aria-label="目录" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_1">
+<span class="md-ellipsis">
+      放在哪
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skill">
+<span class="md-ellipsis">
+      什么内容适合写成 skill
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skill_1">
+<span class="md-ellipsis">
+      skill 与文档类型的关系
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_2">
+<span class="md-ellipsis">
+      命名规则
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_3">
+<span class="md-ellipsis">
+      最小目录结构
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skillmd">
+<span class="md-ellipsis">
+      SKILL.md 标准结构
+    </span>
+</a>
+<nav aria-label="SKILL.md 标准结构" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#front-matter">
+<span class="md-ellipsis">
+      Front Matter
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_4">
+<span class="md-ellipsis">
+      正文
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      最小模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#npu">
+<span class="md-ellipsis">
+      稍完整示例：NPU 环境基线
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#references">
+<span class="md-ellipsis">
+      references 怎么写
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scripts">
+<span class="md-ellipsis">
+      scripts 怎么放
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#assets">
+<span class="md-ellipsis">
+      assets 怎么放
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skill_2">
+<span class="md-ellipsis">
+      从真实工作转成 skill
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai">
+<span class="md-ellipsis">
+      更新 AI 入口
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      质量检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      常见错误
+    </span>
+</a>
+<nav aria-label="常见错误" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skill_3">
+<span class="md-ellipsis">
+      把科普文章写成 skill
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#description">
+<span class="md-ellipsis">
+      description 太短
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skillmd_1">
+<span class="md-ellipsis">
+      把全部知识塞进 SKILL.md
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      输出没有证据边界
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skill_4">
+<span class="md-ellipsis">
+      skill 过大
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      推荐起步方向
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      最小提交流程
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 </ul>
 </nav>
@@ -1529,98 +1607,176 @@
 <li class="md-nav__item">
 <a class="md-nav__link" href="#_1">
 <span class="md-ellipsis">
-      一个简化流程
+      放在哪
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#gpu-batch">
+<a class="md-nav__link" href="#skill">
 <span class="md-ellipsis">
-      为什么 GPU 喜欢 batch
+      什么内容适合写成 skill
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#batch-batch">
+<a class="md-nav__link" href="#skill_1">
 <span class="md-ellipsis">
-      训练 batch 和推理 batch 不一样
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#static-batching">
-<span class="md-ellipsis">
-      Static Batching
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#dynamic-batching">
-<span class="md-ellipsis">
-      Dynamic Batching
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#continuous-batching">
-<span class="md-ellipsis">
-      Continuous Batching
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#prefill-decode-batching">
-<span class="md-ellipsis">
-      Prefill 和 Decode 的 Batching 不同
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#batching_1">
-<span class="md-ellipsis">
-      为什么 Batching 会增加延迟
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#batch-size">
-<span class="md-ellipsis">
-      Batch Size 不是一个数字
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#padding">
-<span class="md-ellipsis">
-      Padding 和长度分布
-    </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#batching_2">
-<span class="md-ellipsis">
-      Batching 和显存
+      skill 与文档类型的关系
     </span>
 </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#_2">
 <span class="md-ellipsis">
-      该观察哪些指标
+      命名规则
     </span>
 </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#_3">
 <span class="md-ellipsis">
-      一个调参思路
+      最小目录结构
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skillmd">
+<span class="md-ellipsis">
+      SKILL.md 标准结构
+    </span>
+</a>
+<nav aria-label="SKILL.md 标准结构" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#front-matter">
+<span class="md-ellipsis">
+      Front Matter
     </span>
 </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#_4">
 <span class="md-ellipsis">
-      常见误区
+      正文
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_5">
+<span class="md-ellipsis">
+      最小模板
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#npu">
+<span class="md-ellipsis">
+      稍完整示例：NPU 环境基线
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#references">
+<span class="md-ellipsis">
+      references 怎么写
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#scripts">
+<span class="md-ellipsis">
+      scripts 怎么放
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#assets">
+<span class="md-ellipsis">
+      assets 怎么放
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skill_2">
+<span class="md-ellipsis">
+      从真实工作转成 skill
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ai">
+<span class="md-ellipsis">
+      更新 AI 入口
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_6">
+<span class="md-ellipsis">
+      质量检查清单
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_7">
+<span class="md-ellipsis">
+      常见错误
+    </span>
+</a>
+<nav aria-label="常见错误" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skill_3">
+<span class="md-ellipsis">
+      把科普文章写成 skill
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#description">
+<span class="md-ellipsis">
+      description 太短
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skillmd_1">
+<span class="md-ellipsis">
+      把全部知识塞进 SKILL.md
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_8">
+<span class="md-ellipsis">
+      输出没有证据边界
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#skill_4">
+<span class="md-ellipsis">
+      skill 过大
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_9">
+<span class="md-ellipsis">
+      推荐起步方向
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#_10">
+<span class="md-ellipsis">
+      最小提交流程
     </span>
 </a>
 </li>
@@ -1631,298 +1787,649 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<h1 id="batching">Batching<a class="headerlink" href="#batching" title="Permanent link">¶</a></h1>
-<p>Batching 的核心思想是：<strong>不要让 GPU 一次只处理一个很小的请求，而是把多个请求合在一起执行</strong>。这样可以让 GPU 做更大的矩阵计算，减少空转，提高吞吐。</p>
-<p>但 Batching 也有代价。请求需要等待其他请求一起组 batch，长请求可能拖慢短请求，batch 太大还会增加显存压力和尾延迟。因此，Batching 不是“越大越好”，而是在吞吐、延迟、显存和公平性之间做取舍。</p>
-<h2 id="_1">一个简化流程<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
-<p>在线推理服务里的 Batching 大致长这样：</p>
-<div class="mermaid">flowchart TB
-    A["请求 1 到达"] --&gt; Q["请求队列"]
-    B["请求 2 到达"] --&gt; Q
-    C["请求 3 到达"] --&gt; Q
-    Q --&gt; S["调度器选择一组请求"]
-    S --&gt; D["组成 batch"]
-    D --&gt; E["GPU 执行 Prefill 或 Decode"]
-    E --&gt; F{"请求是否结束"}
-    F -- "结束" --&gt; G["返回结果并释放资源"]
-    F -- "未结束" --&gt; Q
+<h1 id="ai-skills">AI Skills 编写指南<a class="headerlink" href="#ai-skills" title="Permanent link">¶</a></h1>
+<p>AI Skills 是给 AI Agent 看的“任务工作流”。它不是科普文章，也不是把所有背景知识塞给模型，而是把团队反复做的事情沉淀成可触发、可执行、可验证的步骤。</p>
+<p>在这个知识库里，<code>docs/</code> 负责让人和 AI 理解知识，<code>skills/</code> 负责让 AI 在具体任务中按流程行动。</p>
+<p>可以先记住一句话：</p>
+<div class="highlight"><pre><span></span><code>普通文档讲清楚知识；skill 规定 AI 怎么做事。
+</code></pre></div>
+<h2 id="_1">放在哪<a class="headerlink" href="#_1" title="Permanent link">¶</a></h2>
+<p>本仓库的 skill 放在根目录的 <code>skills/</code> 下：</p>
+<div class="highlight"><pre><span></span><code>skills/
+  README.md
+  &lt;skill-name&gt;/
+    SKILL.md
+    references/   # 可选
+    scripts/      # 可选
+    assets/       # 可选
+</code></pre></div>
+<p>当前已有样例：</p>
+<div class="highlight"><pre><span></span><code>skills/npu-arch-capability-check/SKILL.md
+</code></pre></div>
+<p>它对应硬件章节里的说明页：<a href="../../12-hardware-basics/ai-skills-sample/">硬件适配 AI Skills 样例</a>。</p>
+<h2 id="skill">什么内容适合写成 skill<a class="headerlink" href="#skill" title="Permanent link">¶</a></h2>
+<p>适合写成 skill 的内容通常有五个特征：</p>
+<table>
+<thead>
+<tr>
+<th>判断问题</th>
+<th>适合写 skill 的信号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否重复发生</td>
+<td>同类任务会反复出现，例如环境基线、模型迁移、性能剖析、故障定位、算子 review。</td>
+</tr>
+<tr>
+<td>是否有稳定输入</td>
+<td>日志、配置、benchmark、profiler、代码 diff、设备信息、错误栈等可以作为输入。</td>
+</tr>
+<tr>
+<td>是否有固定步骤</td>
+<td>先收集证据，再判断版本，再跑最小验证，再输出结论。</td>
+</tr>
+<tr>
+<td>是否有输出模板</td>
+<td>输出可以稳定分成结论、证据、风险、缺失信息、下一步实验。</td>
+</tr>
+<tr>
+<td>是否需要 AI 行动</td>
+<td>需要 AI 搜索文件、检查配置、执行命令、比较证据，而不是只复述知识。</td>
+</tr>
+</tbody>
+</table>
+<p>不适合写成 skill 的内容：</p>
+<ul>
+<li>纯概念解释；</li>
+<li>入门科普；</li>
+<li>只发生一次的临时聊天记录；</li>
+<li>没有输入、步骤和输出边界的经验片段；</li>
+<li>尚未验证、没有证据来源的猜想。</li>
+</ul>
+<p>这些内容应该先写成普通文档、benchmark report、ADR 或 failure case。等同类任务重复出现，再抽象成 skill。</p>
+<h2 id="skill_1">skill 与文档类型的关系<a class="headerlink" href="#skill_1" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>主要读者</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primer / Concept</td>
+<td>人和 AI</td>
+<td>建立概念、解释原理、提供背景。</td>
+</tr>
+<tr>
+<td>Benchmark Report</td>
+<td>人和 AI</td>
+<td>保存实验设计、环境、数据、结果和结论边界。</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td>人和 AI</td>
+<td>保存技术决策、证据、取舍、回滚条件。</td>
+</tr>
+<tr>
+<td>Failure Case</td>
+<td>人和 AI</td>
+<td>保存故障现象、定位过程、证据链、修复和预防。</td>
+</tr>
+<tr>
+<td>Runbook</td>
+<td>人和 AI</td>
+<td>指导人或系统按步骤处理事故或例行任务。</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>AI</td>
+<td>指导 AI 在特定任务中收集证据、执行步骤、输出结论。</td>
+</tr>
+</tbody>
+</table>
+<p>实际维护时，建议顺序是：</p>
+<div class="mermaid">flowchart LR
+  A["真实工作记录\n日志 / 命令 / 结论"] --&gt; B["普通文档或案例\nbenchmark / ADR / failure case"]
+  B --&gt; C["Checklist\n可重复步骤"]
+  C --&gt; D["Skill\nAI 可执行工作流"]
 </div>
-<p>这张图里最重要的是调度器。调度器决定哪些请求一起执行、等待多久、batch 多大、是否让新请求插入、是否优先处理正在 streaming 的请求。</p>
-<h2 id="gpu-batch">为什么 GPU 喜欢 batch<a class="headerlink" href="#gpu-batch" title="Permanent link">¶</a></h2>
-<p>GPU 擅长并行处理大规模矩阵计算。如果一次只处理一个很短的请求，GPU 可能有大量计算单元闲着，kernel launch、调度和内存访问开销占比也会变高。</p>
-<p>Batching 能提高吞吐，主要有几个原因：</p>
-<ul>
-<li><strong>计算更大</strong>：多个请求合在一起后，矩阵乘法规模更大，更容易用满 GPU。</li>
-<li><strong>开销摊薄</strong>：一次 kernel launch 可以服务多个请求，单请求分摊的调度开销下降。</li>
-<li><strong>内存访问更规整</strong>：batch 内数据形状更统一时，硬件执行更高效。</li>
-<li><strong>吞吐更稳定</strong>：高并发下，系统更容易持续给 GPU 喂满工作。</li>
-</ul>
-<p>可以把它理解成：一辆大巴一次载 1 个人当然也能跑，但效率很低；等到车上有更多乘客再发车，单位乘客成本会下降。不过，如果等乘客等太久，体验也会变差。</p>
-<h2 id="batch-batch">训练 batch 和推理 batch 不一样<a class="headerlink" href="#batch-batch" title="Permanent link">¶</a></h2>
-<p>训练里也有 batch，但训练 batch 和在线推理 batch 的问题不一样。</p>
+<p>不要从一段概念解释直接跳到 skill。skill 应该来自真实任务和反复验证过的流程。</p>
+<h2 id="_2">命名规则<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
+<p>skill 名称使用小写字母、数字和短横线：</p>
+<div class="highlight"><pre><span></span><code>npu-env-baseline
+npu-model-migration-baseline
+npu-operator-porting-review
+inference-benchmark-pack
+training-hang-triage
+adr-review
+failure-case-writer
+</code></pre></div>
+<p>命名要表达“这个 skill 让 AI 做什么”。不要用太泛的名字：</p>
 <table>
 <thead>
 <tr>
-<th>维度</th>
-<th>训练 batch</th>
-<th>推理 batch</th>
+<th>不建议</th>
+<th>更好</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>数据来源</td>
-<td>数据集里提前准备好的样本</td>
-<td>用户请求实时到达</td>
+<td><code>npu</code></td>
+<td><code>npu-env-baseline</code></td>
 </tr>
 <tr>
-<td>长度形态</td>
-<td>可以预处理、分桶、裁剪</td>
-<td>prompt 和输出长度差异大</td>
+<td><code>benchmark</code></td>
+<td><code>inference-benchmark-pack</code></td>
 </tr>
 <tr>
-<td>目标</td>
-<td>提高训练吞吐和稳定梯度</td>
-<td>同时兼顾吞吐、延迟、SLO</td>
+<td><code>debug</code></td>
+<td><code>training-hang-triage</code></td>
 </tr>
 <tr>
-<td>是否可等待</td>
-<td>离线任务通常可以等</td>
-<td>在线请求等待会影响用户体验</td>
-</tr>
-<tr>
-<td>输出过程</td>
-<td>一次 forward/backward</td>
-<td>Decode 阶段逐 token 循环</td>
+<td><code>docs</code></td>
+<td><code>failure-case-writer</code></td>
 </tr>
 </tbody>
 </table>
-<p>推理 batch 更难，因为请求是动态到达的。系统不能无限等待“凑够一个大 batch”，否则 TTFT 和尾延迟会变差。</p>
-<h2 id="static-batching">Static Batching<a class="headerlink" href="#static-batching" title="Permanent link">¶</a></h2>
-<p>Static batching 是最简单的方式：先收集固定数量的请求，组成一个 batch 后一起执行。</p>
-<p>它适合离线推理或非常规则的 workload，例如：</p>
-<ul>
-<li>已经有一批固定样本。</li>
-<li>输入长度比较接近。</li>
-<li>不关心单个请求的实时延迟。</li>
-<li>可以接受等待 batch 填满。</li>
-</ul>
-<p>Static batching 的问题是在线服务里很容易浪费或拖慢：</p>
-<ul>
-<li>请求少时，为了凑 batch 会增加等待。</li>
-<li>请求长度差异大时，短请求会被长请求拖住。</li>
-<li>Decode 阶段不同请求结束时间不同，batch 里会不断出现空位。</li>
-</ul>
-<p>所以 static batching 更像离线批处理思路，不适合直接解决高并发在线 LLM serving。</p>
-<h2 id="dynamic-batching">Dynamic Batching<a class="headerlink" href="#dynamic-batching" title="Permanent link">¶</a></h2>
-<p>Dynamic batching 会在一个短时间窗口内收集请求，然后动态组成 batch。它不要求固定 batch，而是根据当前队列、等待时间、token 长度和系统负载决定是否发车。</p>
-<p>常见策略包括：</p>
-<ul>
-<li>等到 batch 请求数达到上限就执行。</li>
-<li>等到累计 token 数达到上限就执行。</li>
-<li>等待时间超过阈值就执行。</li>
-<li>根据请求优先级或 SLO 提前执行。</li>
-</ul>
-<p>Dynamic batching 比 static batching 更适合在线服务，因为它能在“多等一点提高吞吐”和“早点执行降低延迟”之间做折中。</p>
-<p>但它仍然有问题：如果只在请求开始时组 batch，Decode 阶段不同请求生成长度不同，短请求结束后，batch 里会出现空洞；新请求也不能自然插入正在进行的 Decode 循环。</p>
-<h2 id="continuous-batching">Continuous Batching<a class="headerlink" href="#continuous-batching" title="Permanent link">¶</a></h2>
-<p>Continuous batching 也常叫 iteration-level scheduling。它的核心思想是：<strong>每个 Decode step 都可以重新组织 batch</strong>。</p>
-<p>也就是说，一个请求结束后，调度器不必等整个 batch 都结束；它可以把新请求插入进来，让 GPU 持续保持较高利用率。</p>
-<p>Continuous batching 的价值在 LLM Decode 阶段特别明显：</p>
-<ul>
-<li>请求输出长度不同，不会因为短请求结束而浪费 batch 位置。</li>
-<li>新请求可以更快进入系统。</li>
-<li>正在生成的请求可以和新来的请求交错执行。</li>
-<li>GPU 不容易因为 batch 变小而空转。</li>
-</ul>
-<p>它的代价是调度器更复杂，需要维护每个请求的状态、KV Cache、已生成长度、停止条件和优先级。</p>
-<h2 id="prefill-decode-batching">Prefill 和 Decode 的 Batching 不同<a class="headerlink" href="#prefill-decode-batching" title="Permanent link">¶</a></h2>
-<p>Prefill 和 Decode 都可以 batch，但它们适合的 batch 方式不同。</p>
-<p>Prefill batching 主要处理输入 prompt：</p>
-<ul>
-<li>一个请求可能有很多 input tokens。</li>
-<li>长 prompt 会带来大计算和大量 KV Cache 写入。</li>
-<li>batch 太大时，首 token 延迟可能变高。</li>
-</ul>
-<p>Decode batching 主要处理逐 token 生成：</p>
-<ul>
-<li>每个请求每一步通常只生成一个 token。</li>
-<li>单步计算较小，需要靠并发提高 GPU 利用率。</li>
-<li>输出长度不同，请求会不断进入和退出 batch。</li>
-</ul>
-<p>因此，系统经常要处理 mixed workload：一边有新请求需要 Prefill，一边有老请求需要 Decode。调度器要决定：现在是先处理新的长 prompt，还是先让正在 streaming 的请求继续出 token。</p>
-<h2 id="batching_1">为什么 Batching 会增加延迟<a class="headerlink" href="#batching_1" title="Permanent link">¶</a></h2>
-<p>Batching 提高吞吐的同时，会增加几类延迟：</p>
-<ul>
-<li><strong>等待合批</strong>：请求到达后，要等其他请求一起组成 batch。</li>
-<li><strong>排队延迟</strong>：系统繁忙时，请求可能在队列里等很久。</li>
-<li><strong>头阻塞</strong>：长请求或大 Prefill 可能拖慢同 batch 的短请求。</li>
-<li><strong>显存压力</strong>：batch 越大，KV Cache 和中间激活占用越高。</li>
-<li><strong>调度抖动</strong>：高并发下，Decode step 可能被长 Prefill 插队或阻塞。</li>
-</ul>
-<p>所以 Batching 的目标不是把 batch 做到最大，而是在满足 TTFT、TPOT、p95/p99 的前提下提高吞吐。</p>
-<h2 id="batch-size">Batch Size 不是一个数字<a class="headerlink" href="#batch-size" title="Permanent link">¶</a></h2>
-<p>说“batch size = 16”往往不够准确。LLM 推理里至少要区分几种 batch 概念：</p>
+<p>目录名和 front matter 里的 <code>name</code> 保持一致：</p>
+<div class="highlight"><pre><span></span><code>skills/npu-env-baseline/SKILL.md
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npu-env-baseline</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="nn">---</span>
+</code></pre></div>
+<h2 id="_3">最小目录结构<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
+<p>最小 skill 只需要一个文件：</p>
+<div class="highlight"><pre><span></span><code>skills/npu-env-baseline/
+  SKILL.md
+</code></pre></div>
+<p>当内容变复杂，再加资源目录：</p>
 <table>
 <thead>
 <tr>
-<th>概念</th>
-<th>含义</th>
-<th>影响</th>
+<th>目录</th>
+<th>放什么</th>
+<th>什么时候需要</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>请求数</td>
-<td>batch 里有多少个请求</td>
-<td>调度和并发</td>
+<td><code>references/</code></td>
+<td>长参考资料、字段说明、案例、检查表。</td>
+<td><code>SKILL.md</code> 太长，或者不同场景需要不同资料。</td>
 </tr>
 <tr>
-<td>input tokens</td>
-<td>batch 里一共处理多少输入 token</td>
-<td>Prefill 计算量</td>
+<td><code>scripts/</code></td>
+<td>可执行脚本。</td>
+<td>操作需要稳定、可重复，靠 AI 临时写代码风险高。</td>
 </tr>
 <tr>
-<td>output tokens</td>
-<td>batch 里每轮生成多少 token</td>
-<td>Decode 吞吐</td>
-</tr>
-<tr>
-<td>active sequences</td>
-<td>当前仍在生成的序列数</td>
-<td>Decode 并发</td>
-</tr>
-<tr>
-<td>KV Cache blocks</td>
-<td>当前占用多少 KV Cache 块</td>
-<td>显存容量</td>
-</tr>
-<tr>
-<td>max batched tokens</td>
-<td>单次执行允许的最大 token 数</td>
-<td>吞吐和显存上限</td>
+<td><code>assets/</code></td>
+<td>模板、配置、图片、示例文件。</td>
+<td>skill 执行时需要复制、生成或引用固定资产。</td>
 </tr>
 </tbody>
 </table>
-<p>两个 batch 都有 16 个请求，但一个是 16 个短 prompt，另一个是 16 个长上下文请求，系统压力完全不同。</p>
-<h2 id="padding">Padding 和长度分布<a class="headerlink" href="#padding" title="Permanent link">¶</a></h2>
-<p>Batching 常常需要把不同长度的序列放在一起处理。如果实现方式不够细，短序列可能要被 padding 到长序列长度，造成无效计算。</p>
-<p>例如一个 batch 里有 7 个 100 token 的请求和 1 个 4000 token 的请求，如果粗暴按最长长度对齐，短请求会被大量 padding 拖累。</p>
-<p>现代推理系统会尽量减少 padding 浪费，例如：</p>
-<ul>
-<li>按输入长度分桶。</li>
-<li>用 token 数而不是请求数控制 batch。</li>
-<li>对长 prompt 做 chunked prefill。</li>
-<li>用更细粒度的 KV Cache 管理减少碎片。</li>
-</ul>
-<p>这也是为什么观察 workload 的长度分布很重要。平均长度相同，不代表系统压力相同。</p>
-<h2 id="batching_2">Batching 和显存<a class="headerlink" href="#batching_2" title="Permanent link">¶</a></h2>
-<p>Batching 会提高 GPU 计算利用率，但也会增加显存压力。</p>
-<p>显存主要被几类东西占用：</p>
-<ul>
-<li>模型权重。</li>
-<li>KV Cache。</li>
-<li>临时激活和 workspace。</li>
-<li>runtime 管理结构。</li>
-</ul>
-<p>batch 越大，同时活跃请求越多，KV Cache 占用越高。如果显存被 KV Cache 填满，系统可能无法接收新请求，甚至触发 OOM。</p>
-<p>因此，Batching 必须和 KV Cache 管理一起看。一个吞吐很高的 batch 策略，如果频繁导致显存不足，就不是好策略。</p>
-<h2 id="_2">该观察哪些指标<a class="headerlink" href="#_2" title="Permanent link">¶</a></h2>
-<p>调 Batching 时，建议同时观察：</p>
-<table>
-<thead>
-<tr>
-<th>指标</th>
-<th>用途</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>queue time</td>
-<td>看请求是否为了等 batch 排队太久</td>
-</tr>
-<tr>
-<td>TTFT</td>
-<td>看合批是否拖慢首 token</td>
-</tr>
-<tr>
-<td>TPOT / inter-token latency</td>
-<td>看 Decode 输出是否稳定</td>
-</tr>
-<tr>
-<td>requests/s</td>
-<td>看请求吞吐</td>
-</tr>
-<tr>
-<td>input tokens/s</td>
-<td>看 Prefill 吞吐</td>
-</tr>
-<tr>
-<td>output tokens/s</td>
-<td>看 Decode 吞吐</td>
-</tr>
-<tr>
-<td>active sequences</td>
-<td>看 Decode 并发规模</td>
-</tr>
-<tr>
-<td>batch token count</td>
-<td>看每次 GPU 执行处理多少 token</td>
-</tr>
-<tr>
-<td>KV Cache usage</td>
-<td>看显存是否被 batch 推高</td>
-</tr>
-<tr>
-<td>p95 / p99 latency</td>
-<td>看尾延迟是否恶化</td>
-</tr>
-</tbody>
-</table>
-<p>如果只看 tokens/s，很容易把 batch 调得过大，最后吞吐看起来很好，但用户等待明显变长。</p>
-<h2 id="_3">一个调参思路<a class="headerlink" href="#_3" title="Permanent link">¶</a></h2>
-<p>调 Batching 可以按下面顺序做：</p>
+<p>不要在 skill 目录里堆 <code>README.md</code>、<code>CHANGELOG.md</code>、<code>QUICKSTART.md</code> 这类给人看的附属文档。skill 目录的目标是让 AI 快速行动，不是再做一个小型文档站。</p>
+<h2 id="skillmd">SKILL.md 标准结构<a class="headerlink" href="#skillmd" title="Permanent link">¶</a></h2>
+<p><code>SKILL.md</code> 分成两部分：</p>
 <ol>
-<li>固定模型、硬件、精度和 workload。</li>
-<li>先记录 baseline：TTFT、TPOT、tokens/s、p95/p99、显存占用。</li>
-<li>调大最大 batch 请求数或最大 batched tokens。</li>
-<li>观察吞吐是否上升，TTFT 和 p99 是否恶化。</li>
-<li>如果首 token 变慢，检查 queue time 和 prefill time。</li>
-<li>如果输出卡顿，检查 Decode batch、KV Cache 和调度。</li>
-<li>如果显存接近上限，降低并发或优化 KV Cache。</li>
-<li>在满足 SLO 的范围内选择最高 goodput 的配置。</li>
+<li>YAML front matter；</li>
+<li>Markdown 正文。</li>
 </ol>
-<p>核心原则是：<strong>不是找最大 batch，而是找满足延迟目标下的最大有效吞吐。</strong></p>
-<h2 id="_4">常见误区<a class="headerlink" href="#_4" title="Permanent link">¶</a></h2>
+<h3 id="front-matter">Front Matter<a class="headerlink" href="#front-matter" title="Permanent link">¶</a></h3>
+<p>只放必要字段：</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npu-env-baseline</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Use when asked to collect or verify Ascend NPU environment baseline, including CANN, driver, firmware, runtime, torch_npu, device model, SocVersion, NpuArch, container, and framework versions. This skill is for evidence collection before debugging or benchmarking.</span>
+<span class="nn">---</span>
+</code></pre></div>
+<p><code>description</code> 很重要，因为 AI 会先看到它，再决定是否加载正文。写 <code>description</code> 时要包含：</p>
 <ul>
-<li>
-<p><strong>误区一：batch 越大越好。</strong>
-  batch 变大可能提高吞吐，但也会增加排队、显存压力和尾延迟。</p>
-</li>
-<li>
-<p><strong>误区二：只用请求数定义 batch。</strong>
-  LLM 推理还要看 input tokens、output tokens、active sequences 和 KV Cache 占用。</p>
-</li>
-<li>
-<p><strong>误区三：Prefill 和 Decode 可以用同一种 batch 策略。</strong>
-  Prefill 是一次性读输入，Decode 是逐 token 循环，两者调度目标不同。</p>
-</li>
-<li>
-<p><strong>误区四：tokens/s 高就说明 batching 好。</strong>
-  如果 p99 很差或者 TTFT 超标，这个 batch 策略可能不适合在线服务。</p>
-</li>
-<li>
-<p><strong>误区五：离线 batch 经验可以直接搬到在线 serving。</strong>
-  在线请求动态到达，必须考虑等待、SLO、取消、超时和长尾。</p>
-</li>
+<li>这个 skill 做什么；</li>
+<li>什么时候应该使用；</li>
+<li>典型触发词；</li>
+<li>不要用于什么场景。</li>
 </ul>
-<p>读完这一节，应该能回答五个问题：</p>
+<p>不要只写：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NPU environment skill.</span>
+</code></pre></div>
+<p>这种描述太模糊，AI 不知道什么时候该触发。</p>
+<h3 id="_4">正文<a class="headerlink" href="#_4" title="Permanent link">¶</a></h3>
+<p>正文建议用下面结构：</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># NPU Environment Baseline</span>
+
+<span class="gu">## Scope</span>
+
+Use this skill for ...
+Do not use this skill for ...
+
+<span class="gu">## Required Inputs</span>
+
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## Workflow</span>
+
+<span class="k">1.</span> ...
+<span class="k">2.</span> ...
+<span class="k">3.</span> ...
+
+<span class="gu">## Output Template</span>
+
+<span class="sb">```markdown</span>
+...
+<span class="sb">```</span>
+
+<span class="gu">## Local Knowledge References</span>
+
+<span class="k">-</span><span class="w"> </span><span class="sb">`docs/...`</span>
+</code></pre></div>
+<p>正文要短，优先写流程。不要把整篇背景知识复制进来。</p>
+<h2 id="_5">最小模板<a class="headerlink" href="#_5" title="Permanent link">¶</a></h2>
+<p>可以直接复制下面模板：</p>
+<div class="highlight"><pre><span></span><code>---
+name: your-skill-name
+<span class="gu">description: Use when asked to &lt;task&gt;. This skill is for &lt;scope&gt;, especially when the task mentions &lt;trigger words&gt;. Do not use it for &lt;out-of-scope&gt;.</span>
+<span class="gu">---</span>
+
+<span class="gh"># Your Skill Name</span>
+
+<span class="gu">## Scope</span>
+
+Use this skill when the task requires ...
+
+Do not use this skill for ...
+
+<span class="gu">## Required Inputs</span>
+
+Ask for or collect:
+
+<span class="k">-</span><span class="w"> </span>...
+<span class="k">-</span><span class="w"> </span>...
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## Workflow</span>
+
+<span class="k">1.</span> Identify the task boundary.
+<span class="k">2.</span> Collect required evidence.
+<span class="k">3.</span> Check the relevant files, logs, configs, or benchmark artifacts.
+<span class="k">4.</span> Separate confirmed facts from assumptions.
+<span class="k">5.</span> Produce the output using the template below.
+
+<span class="gu">## Output Template</span>
+
+<span class="sb">```markdown</span>
+<span class="gu">## Summary</span>
+
+<span class="k">-</span><span class="w"> </span>Conclusion:
+<span class="k">-</span><span class="w"> </span>Confidence:
+
+<span class="gu">## Evidence</span>
+
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## Missing Inputs</span>
+
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## Risks</span>
+
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## Next Steps</span>
+
+<span class="k">1.</span> ...
+<span class="k">2.</span> ...
+<span class="sb">```</span>
+
+<span class="gu">## Local Knowledge References</span>
+
+<span class="k">-</span><span class="w"> </span><span class="sb">`docs/...`</span>
+</code></pre></div>
+<h2 id="npu">稍完整示例：NPU 环境基线<a class="headerlink" href="#npu" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code>---
+name: npu-env-baseline
+<span class="gu">description: Use when asked to collect or verify Ascend NPU environment baseline, including CANN, driver, firmware, runtime, torch_npu, device model, SocVersion, NpuArch, container, and framework versions. This skill is for evidence collection before debugging or benchmarking, not for general NPU education.</span>
+<span class="gu">---</span>
+
+<span class="gh"># NPU Environment Baseline</span>
+
+<span class="gu">## Scope</span>
+
+Use this skill before NPU debugging, benchmarking, model migration, or operator performance analysis.
+
+Do not use this skill to explain basic NPU architecture. Use documentation pages for primers.
+
+<span class="gu">## Required Inputs</span>
+
+Ask for or collect:
+
+<span class="k">-</span><span class="w"> </span>device inventory, such as <span class="sb">`npu-smi info`</span>;
+<span class="k">-</span><span class="w"> </span>CANN Toolkit, Runtime, Driver, and firmware versions;
+<span class="k">-</span><span class="w"> </span>framework version, such as PyTorch and <span class="sb">`torch_npu`</span>;
+<span class="k">-</span><span class="w"> </span>container image or host OS;
+<span class="k">-</span><span class="w"> </span>target workload command;
+<span class="k">-</span><span class="w"> </span>relevant environment variables;
+<span class="k">-</span><span class="w"> </span>error log, profiler trace, or benchmark report if available.
+
+<span class="gu">## Workflow</span>
+
+<span class="k">1.</span> Record hardware identity.
+<span class="k">2.</span> Record software stack versions.
+<span class="k">3.</span> Record workload command and key runtime flags.
+<span class="k">4.</span> Check whether the versions are mutually compatible.
+<span class="k">5.</span> Mark missing evidence instead of guessing.
+<span class="k">6.</span> Output a baseline report.
+
+<span class="gu">## Output Template</span>
+
+<span class="sb">```markdown</span>
+<span class="gu">## NPU Environment Baseline</span>
+
+<span class="gu">### Summary</span>
+<span class="k">-</span><span class="w"> </span>Target:
+<span class="k">-</span><span class="w"> </span>Status:
+<span class="k">-</span><span class="w"> </span>Confidence:
+
+<span class="gu">### Hardware</span>
+<span class="k">-</span><span class="w"> </span>Device:
+<span class="k">-</span><span class="w"> </span>SocVersion:
+<span class="k">-</span><span class="w"> </span>NpuArch:
+<span class="k">-</span><span class="w"> </span>Topology:
+
+<span class="gu">### Software</span>
+<span class="k">-</span><span class="w"> </span>CANN:
+<span class="k">-</span><span class="w"> </span>Driver:
+<span class="k">-</span><span class="w"> </span>Firmware:
+<span class="k">-</span><span class="w"> </span>Framework:
+<span class="k">-</span><span class="w"> </span>torch_npu:
+<span class="k">-</span><span class="w"> </span>Runtime / engine:
+
+<span class="gu">### Workload</span>
+<span class="k">-</span><span class="w"> </span>Command:
+<span class="k">-</span><span class="w"> </span>Model:
+<span class="k">-</span><span class="w"> </span>Precision:
+<span class="k">-</span><span class="w"> </span>Shape / batch / sequence:
+
+<span class="gu">### Evidence</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">### Missing Inputs</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">### Next Steps</span>
+<span class="k">1.</span> ...
+<span class="sb">```</span>
+
+<span class="gu">## Local Knowledge References</span>
+
+<span class="k">-</span><span class="w"> </span><span class="sb">`docs/12-hardware-basics/ascend-npu-models.md`</span>
+<span class="k">-</span><span class="w"> </span><span class="sb">`docs/12-hardware-basics/cann-stack.md`</span>
+<span class="k">-</span><span class="w"> </span><span class="sb">`docs/12-hardware-basics/ascend-910-series.md`</span>
+<span class="k">-</span><span class="w"> </span><span class="sb">`docs/12-hardware-basics/ascend-950-series.md`</span>
+</code></pre></div>
+<h2 id="references">references 怎么写<a class="headerlink" href="#references" title="Permanent link">¶</a></h2>
+<p>如果 skill 需要较长参考资料，不要塞进 <code>SKILL.md</code>，放到 <code>references/</code>：</p>
+<div class="highlight"><pre><span></span><code>skills/npu-operator-porting-review/
+  SKILL.md
+  references/
+    tiling-checklist.md
+    architecture-branches.md
+    common-failure-patterns.md
+</code></pre></div>
+<p>在 <code>SKILL.md</code> 里写清楚什么时候读取：</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## References</span>
+
+<span class="k">-</span><span class="w"> </span>Read <span class="sb">`references/tiling-checklist.md`</span> when reviewing tiling logic.
+<span class="k">-</span><span class="w"> </span>Read <span class="sb">`references/architecture-branches.md`</span> when code contains <span class="sb">`__NPU_ARCH__`</span>, <span class="sb">`DAV_`</span>, <span class="sb">`SocVersion`</span>, or <span class="sb">`archXX`</span>.
+<span class="k">-</span><span class="w"> </span>Read <span class="sb">`references/common-failure-patterns.md`</span> when the task includes compile errors, runtime errors, or wrong results.
+</code></pre></div>
+<p>引用规则：</p>
 <ul>
-<li>为什么 Batching 能提高 GPU 吞吐。</li>
-<li>为什么 Batching 也可能增加延迟和尾延迟。</li>
-<li>static、dynamic、continuous batching 有什么区别。</li>
-<li>Prefill 和 Decode 的 batching 为什么不同。</li>
-<li>调 Batching 时应该看哪些指标，而不是只看 tokens/s。</li>
+<li>一层引用即可，避免 references 里再链接一堆更深文件；</li>
+<li>长文件开头加目录；</li>
+<li>一个 reference 只解决一类问题；</li>
+<li>不要复制普通文档已有的大段内容，优先链接 <code>docs/</code> 路径。</li>
 </ul>
+<h2 id="scripts">scripts 怎么放<a class="headerlink" href="#scripts" title="Permanent link">¶</a></h2>
+<p>如果某个步骤需要稳定执行，放脚本比让 AI 每次临时写更可靠。</p>
+<p>适合放脚本的场景：</p>
+<ul>
+<li>解析 benchmark manifest；</li>
+<li>汇总 profiler 输出；</li>
+<li>检查 front matter；</li>
+<li>生成环境 baseline；</li>
+<li>对日志做脱敏；</li>
+<li>把固定格式报告转换为 Markdown。</li>
+</ul>
+<p>目录示例：</p>
+<div class="highlight"><pre><span></span><code>skills/inference-benchmark-pack/
+  SKILL.md
+  scripts/
+    summarize_benchmark.py
+    validate_manifest.py
+</code></pre></div>
+<p><code>SKILL.md</code> 里要写清楚脚本如何调用：</p>
+<div class="highlight"><pre><span></span><code>Run <span class="sb">`scripts/validate_manifest.py &lt;manifest.json&gt;`</span> before summarizing results.
+If validation fails, report the exact missing fields and do not draw benchmark conclusions.
+</code></pre></div>
+<p>脚本必须能独立运行，并且有明确输入输出。不要把实验结论硬编码进脚本。</p>
+<h2 id="assets">assets 怎么放<a class="headerlink" href="#assets" title="Permanent link">¶</a></h2>
+<p><code>assets/</code> 放 AI 执行任务时要用的固定素材，例如：</p>
+<ul>
+<li>报告模板；</li>
+<li>配置模板；</li>
+<li>dashboard JSON；</li>
+<li>示例输入；</li>
+<li>代码骨架；</li>
+<li>图片或格式文件。</li>
+</ul>
+<p>示例：</p>
+<div class="highlight"><pre><span></span><code>skills/adr-review/
+  SKILL.md
+  assets/
+    adr-review-template.md
+</code></pre></div>
+<p>如果只是给 AI 读取的文字说明，优先放 <code>references/</code>，不要放 <code>assets/</code>。</p>
+<h2 id="skill_2">从真实工作转成 skill<a class="headerlink" href="#skill_2" title="Permanent link">¶</a></h2>
+<p>推荐流程：</p>
+<ol>
+<li>先写真实记录。</li>
+<li>背景；</li>
+<li>环境；</li>
+<li>输入；</li>
+<li>命令；</li>
+<li>证据；</li>
+<li>结论；</li>
+<li>
+<p>复盘。</p>
+</li>
+<li>
+<p>抽出 checklist。</p>
+</li>
+<li>哪些信息必须收集；</li>
+<li>哪些判断必须有证据；</li>
+<li>哪些错误最常见；</li>
+<li>
+<p>输出应该长什么样。</p>
+</li>
+<li>
+<p>写成 <code>SKILL.md</code>。</p>
+</li>
+<li>触发条件；</li>
+<li>输入要求；</li>
+<li>工作流；</li>
+<li>输出模板；</li>
+<li>
+<p>参考文档。</p>
+</li>
+<li>
+<p>用真实问题验证。</p>
+</li>
+<li>AI 是否先补证据；</li>
+<li>是否避免凭空下结论；</li>
+<li>输出是否可复查；</li>
+<li>
+<p>是否知道缺失信息时应该停在“未知”。</p>
+</li>
+<li>
+<p>根据验证结果修改。</p>
+</li>
+<li>太泛就收窄 scope；</li>
+<li>太长就拆 references；</li>
+<li>容易误触发就改 description；</li>
+<li>输出不稳定就收紧模板。</li>
+</ol>
+<h2 id="ai">更新 AI 入口<a class="headerlink" href="#ai" title="Permanent link">¶</a></h2>
+<p>新增 skill 后，需要让 <code>llms.txt</code> 和 <code>llms-full.txt</code> 收录。</p>
+<p>本仓库的生成脚本会扫描：</p>
+<div class="highlight"><pre><span></span><code>skills/**/SKILL.md
+</code></pre></div>
+<p>新增后运行：</p>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>scripts/generate_llms_files.py
+</code></pre></div>
+<p>如果希望 <code>llms.txt</code> 里的描述更准确，修改 <code>scripts/generate_llms_files.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="n">SKILL_DESCRIPTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"skills/npu-arch-capability-check/SKILL.md"</span><span class="p">:</span> <span class="s2">"..."</span><span class="p">,</span>
+    <span class="s2">"skills/npu-env-baseline/SKILL.md"</span><span class="p">:</span> <span class="s2">"NPU 环境基线 skill，指导 AI 收集设备、CANN、driver、runtime、framework 和 workload 证据。"</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>如果这个 skill 很重要，也可以加入 <code>PRIORITY_SKILLS</code>，让它在索引里更靠前。</p>
+<p>最后构建检查：</p>
+<div class="highlight"><pre><span></span><code>.venv/bin/mkdocs<span class="w"> </span>build<span class="w"> </span>--strict
+git<span class="w"> </span>diff<span class="w"> </span>--check
+</code></pre></div>
+<h2 id="_6">质量检查清单<a class="headerlink" href="#_6" title="Permanent link">¶</a></h2>
+<p>新增或修改 skill 时检查：</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> 目录名是否小写短横线；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> <code>SKILL.md</code> 是否存在；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> front matter 是否只有 <code>name</code> 和 <code>description</code>；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> <code>name</code> 是否和目录名一致；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> <code>description</code> 是否写清触发条件；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> 是否明确“不适用”的范围；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> 是否列出 required inputs；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> workflow 是否是可执行步骤；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> 输出模板是否稳定；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> 是否区分事实、推断、缺失信息；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> 是否引用相关 <code>docs/</code> 文档；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> 长内容是否拆到 <code>references/</code>；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> 脚本是否可运行；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> 是否更新 <code>llms.txt</code> / <code>llms-full.txt</code>；</li>
+<li class="task-list-item"><label class="task-list-control"><input disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> 是否用真实问题验证过。</li>
+</ul>
+<h2 id="_7">常见错误<a class="headerlink" href="#_7" title="Permanent link">¶</a></h2>
+<h3 id="skill_3">把科普文章写成 skill<a class="headerlink" href="#skill_3" title="Permanent link">¶</a></h3>
+<p>错误信号：</p>
+<ul>
+<li>全文都在解释概念；</li>
+<li>没有输入要求；</li>
+<li>没有步骤；</li>
+<li>没有输出模板。</li>
+</ul>
+<p>处理方式：放回 <code>docs/</code>，不要放 <code>skills/</code>。</p>
+<h3 id="description">description 太短<a class="headerlink" href="#description" title="Permanent link">¶</a></h3>
+<p>错误示例：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Benchmark skill.</span>
+</code></pre></div>
+<p>更好的写法：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Use when asked to design, run, review, or package an AI inference benchmark, including workload contract, metrics, warmup, repetitions, profiler evidence, result tables, and conclusion boundaries. This skill is for benchmark workflow control, not general performance theory.</span>
+</code></pre></div>
+<h3 id="skillmd_1">把全部知识塞进 SKILL.md<a class="headerlink" href="#skillmd_1" title="Permanent link">¶</a></h3>
+<p><code>SKILL.md</code> 太长会浪费上下文。处理方式：</p>
+<ul>
+<li>核心流程留在 <code>SKILL.md</code>；</li>
+<li>长表格放 <code>references/</code>；</li>
+<li>可执行逻辑放 <code>scripts/</code>；</li>
+<li>背景知识链接到 <code>docs/</code>。</li>
+</ul>
+<h3 id="_8">输出没有证据边界<a class="headerlink" href="#_8" title="Permanent link">¶</a></h3>
+<p>AI 很容易在信息不足时给“看起来合理”的结论。skill 必须要求：</p>
+<ul>
+<li>缺证据时输出 <code>unknown</code>；</li>
+<li>benchmark 结论必须有测量口径；</li>
+<li>性能瓶颈必须有 profiler 或消融证据；</li>
+<li>版本兼容性必须有日志、文档或实际命令输出。</li>
+</ul>
+<h3 id="skill_4">skill 过大<a class="headerlink" href="#skill_4" title="Permanent link">¶</a></h3>
+<p>一个 skill 只做一类任务。不要写成：</p>
+<div class="highlight"><pre><span></span><code>npu-all-in-one
+</code></pre></div>
+<p>应该拆成：</p>
+<div class="highlight"><pre><span></span><code>npu-env-baseline
+npu-model-migration-baseline
+npu-operator-porting-review
+npu-inference-profiling-pack
+npu-training-hang-triage
+</code></pre></div>
+<h2 id="_9">推荐起步方向<a class="headerlink" href="#_9" title="Permanent link">¶</a></h2>
+<p>结合当前知识库，后续可以优先补这些 skill：</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>npu-env-baseline</code></td>
+<td>收集 CANN、driver、runtime、torch_npu、设备和容器信息。</td>
+</tr>
+<tr>
+<td><code>npu-model-migration-baseline</code></td>
+<td>建立模型迁移的功能、精度、性能和回退路径。</td>
+</tr>
+<tr>
+<td><code>npu-operator-porting-review</code></td>
+<td>检查自定义算子的架构分支、tiling、片上存储、同步和测试覆盖。</td>
+</tr>
+<tr>
+<td><code>npu-inference-profiling-pack</code></td>
+<td>组织推理压测、profiler、KV Cache、调度和内存证据。</td>
+</tr>
+<tr>
+<td><code>training-hang-triage</code></td>
+<td>整理分布式训练 hang、collective、rank、网络和 checkpoint 证据。</td>
+</tr>
+<tr>
+<td><code>benchmark-report-review</code></td>
+<td>检查 benchmark 问题、workload、指标、实验设计和结论边界。</td>
+</tr>
+<tr>
+<td><code>adr-review</code></td>
+<td>检查技术决策是否有足够证据、回滚条件和复盘条件。</td>
+</tr>
+<tr>
+<td><code>failure-case-writer</code></td>
+<td>把事故、压测失败或性能回归整理成可复查案例。</td>
+</tr>
+</tbody>
+</table>
+<p>先从最常重复、最容易标准化的工作开始，不要一次性追求完整体系。</p>
+<h2 id="_10">最小提交流程<a class="headerlink" href="#_10" title="Permanent link">¶</a></h2>
+<p>新增一个 skill 后，建议一次提交包括：</p>
+<div class="highlight"><pre><span></span><code>skills/&lt;skill-name&gt;/SKILL.md
+skills/&lt;skill-name&gt;/references/...      # 如果有
+skills/&lt;skill-name&gt;/scripts/...         # 如果有
+scripts/generate_llms_files.py          # 如果补了描述或优先级
+docs/llms.txt
+docs/llms-full.txt
+llms.txt
+llms-full.txt
+</code></pre></div>
+<p>命令：</p>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>scripts/generate_llms_files.py
+.venv/bin/mkdocs<span class="w"> </span>build<span class="w"> </span>--strict
+git<span class="w"> </span>diff<span class="w"> </span>--check
+git<span class="w"> </span>add<span class="w"> </span>skills<span class="w"> </span>scripts/generate_llms_files.py<span class="w"> </span>docs/llms.txt<span class="w"> </span>docs/llms-full.txt<span class="w"> </span>llms.txt<span class="w"> </span>llms-full.txt
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Add &lt;skill-name&gt; skill"</span>
+</code></pre></div>
+<p>如果只是新增普通文档，不需要放进 <code>skills/</code>。如果新增的是 AI 可执行工作流，就应该同步更新 AI 入口索引。</p>
 </article>
 </div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
